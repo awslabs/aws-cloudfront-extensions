@@ -1,11 +1,11 @@
 {
-  "name": "hello_world",
+  "name": "simple-lambda-edge",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
+  "description": "Simple lambda@edge sample for NodeJS",
   "main": "app.js",
-  "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
+  "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/simple-lambda-edge",
   "author": "SAM CLI",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.18.0"
   },
