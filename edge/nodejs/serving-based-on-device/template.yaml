@@ -1,9 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  simple-lambda-edge
+  serving-based-on-device
 
-  Sample SAM Template for simple-lambda-edge
+  The lambda shows how to serve different version of an object based on the type of device 
+  that user is using.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -14,8 +15,8 @@ Globals:
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: simple-lambda-edge
-    Description: Sample SAM Template for simple-lambda-edge
+    Name: serving-based-on-device
+    Description: Sample SAM Template for serving-based-on-device
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
@@ -23,13 +24,13 @@ Metadata:
     Labels: ['gcr-solutions','cloudfront+','sample', 'edge','lambda-edge']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/simple-lambda-edge
+    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/serving-based-on-device
 
 Resources:
-  SimpleLambdaEdgeFunction:
+  ServingOnDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: simple-lambda-edge/
+      CodeUri: serving-based-on-device/
       Handler: app.handler
       Runtime: nodejs12.x
       Role: !GetAtt EdgeFunctionRole.Arn
@@ -52,9 +53,9 @@ Resources:
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
 
 Outputs:
-  SimpleLambdaEdgeFunction:
+  ServingOnDeviceFunction:
     Description: "Simple Lambda Edge function ARN"
-    Value: !GetAtt SimpleLambdaEdgeFunction.Arn
-  SimpleLambdaEdgeFunctionIamRole:
+    Value: !GetAtt ServingOnDeviceFunction.Arn
+  ServingOnDeviceFunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn

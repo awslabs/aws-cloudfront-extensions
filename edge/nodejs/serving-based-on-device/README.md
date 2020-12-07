@@ -1,10 +1,10 @@
-# simple-lambda-edge
+# serving-based-on-device
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- simple-lambda-edge - Code for the application's Lambda function.
+- serving-based-on-device - Code for the application's Lambda function.
 - events - Invocation events that you can use to invoke the function.
-- simple-lambda-edge/tests - Unit tests for the application code. 
+- serving-based-on-device/tests - Unit tests for the application code. 
 - template.yaml - A template that defines the application's AWS resources.
 
 The resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
@@ -49,17 +49,17 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 Build your application with the `sam build` command.
 
 ```bash
-simple-lambda-edge$ sam build
+serving-based-on-device$ sam build
 ```
 
-The SAM CLI installs dependencies defined in `simple-lambda-edge/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `serving-based-on-device/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-simple-lambda-edge$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
+serving-based-on-device$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
 ```
 
 
@@ -73,19 +73,19 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-simple-lambda-edge$ sam logs -n HelloWorldFunction --stack-name simple-lambda-edge --tail
+serving-based-on-device$ sam logs -n HelloWorldFunction --stack-name serving-based-on-device --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
 ## Unit tests
 
-Tests are defined in the `simple-lambda-edge/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
+Tests are defined in the `serving-based-on-device/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-simple-lambda-edge$ cd simple-lambda-edge
-simple-lambda-edge$ npm install
-simple-lambda-edge$ npm run test
+serving-based-on-device$ cd serving-based-on-device
+serving-based-on-device$ npm install
+serving-based-on-device$ npm run test
 ```
 
 ## Cleanup
@@ -93,7 +93,7 @@ simple-lambda-edge$ npm run test
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name simple-lambda-edge
+aws cloudformation delete-stack --stack-name serving-based-on-device
 ```
 
 ## Resources
