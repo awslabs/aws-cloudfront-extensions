@@ -1,0 +1,13 @@
+{
+  "edge": {
+    "list": [
+      "simple-lambda-edge"
+    ],
+    "new": [
+      "authentication-with-cognito"
+    ],
+    "update": [
+      "rewite-url-useragent"
+    ]
+  }
+}
