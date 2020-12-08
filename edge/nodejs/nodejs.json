@@ -4,10 +4,20 @@
       "simple-lambda-edge"
     ],
     "new": [
-      "authentication-with-cognito"
+      {
+        "appname": "authentication-with-cognito",
+        "codeuri": "authentication-with-cognito/hello-world"
+      },
+      {
+        "appname": "simple-lambda-edge",
+        "codeuri": "simple-lambda-edge/simple-lambda-edge"
+      }
     ],
     "update": [
-      "rewite-url-useragent"
+      {
+        "appname": "serving-based-on-device",
+        "codeuri": "serving-based-on-device/serving-based-on-device"
+      }
     ]
   }
 }

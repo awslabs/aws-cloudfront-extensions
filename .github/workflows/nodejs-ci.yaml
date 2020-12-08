@@ -1,0 +1,43 @@
+name: "nodejs ci"
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'edge/nodejs/nodejs.json'
+
+jobs:
+  nodejs-ci-precheck:
+    runs-on: ubuntu-latest 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2        
+    - name: Install JQ
+      run: sudo apt-get install jq 
+    - name: Install Node
+      uses: actions/setup-node@v1
+      with: 
+        node-version: '12'
+    - name: scan content
+      run: ./scripts/nodejs-ci-content-scan.sh
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: check code style
+      run: ./scripts/nodejs-ci-style-check.sh
+    - name: build and code coverage
+      run: ./scripts/nodejs-ci-build-coverage.sh      
+
+  nodejs-ci-deploy-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: placeholder
+      run: echo "TODO"      
+
+
+
+
+
+
+
