@@ -6,6 +6,9 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+templates/**/lib/*.js
+templates/**/bin/*.js
+templates/**/test/*.js
 
 # Parcel build directories
 .cache
