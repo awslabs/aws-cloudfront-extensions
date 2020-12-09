@@ -18,11 +18,14 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1        
     - name: scan content
       run: ./scripts/python-ci-content-scan.sh
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: check code style
       run: ./scripts/python-ci-style-check.sh  
     - name: Build and UT
