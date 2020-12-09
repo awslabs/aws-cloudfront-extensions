@@ -26,7 +26,6 @@ jobs:
         aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-
     - name: Copy files to the test website with the AWS CLI
       run: |
         ./scripts/nodejs-ci-content-scan.sh
