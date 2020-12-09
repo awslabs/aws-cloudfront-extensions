@@ -4,8 +4,8 @@ on:
   push:
     branches:
     - main
-    # paths:
-    # - 'edge/python/python.json'
+    paths:
+    - 'edge/python/python.json'
 
 jobs:
   python-ci-precheck:

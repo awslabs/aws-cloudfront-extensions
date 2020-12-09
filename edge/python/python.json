@@ -1,7 +1,7 @@
 {
   "edge": {
     "list": [
-      "sam-app-python"
+      "simple-lambda-edge"
     ],
     "new": [
       {

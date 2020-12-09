@@ -5,8 +5,8 @@ on:
   push:
     branches:
     - main
-    # paths:
-    # - 'edge/nodejs/nodejs.json'   
+    paths:
+    - 'edge/nodejs/nodejs.json'   
 
 jobs:
   nodejs-ci-precheck:
