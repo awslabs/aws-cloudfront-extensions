@@ -7,6 +7,9 @@ FILE_PATH=edge/nodejs/nodejs.json
 new_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.new[].appname | sed 's/\"//g')
 update_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].appname | sed 's/\"//g')
 
+
+echo ${AWS_ACCESS_KEY_ID}
+
 # scan commit content
 aws s3 ls
 
