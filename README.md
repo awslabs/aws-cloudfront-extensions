@@ -11,7 +11,7 @@ It's a valueable collection when using CloudFront, which includes rich set of fe
 
 |        **Name**    | **Description**      |
 |------------------|--------------------|
-| WAF + CloudFront | Prepared templates to quickly launch distribution and pre-configured rules.   | 
+| [WAF + CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood role, SQL injection, XSS, Bad bot, etc.   | 
 
 
 
