@@ -19,14 +19,15 @@ It's a valueable collection when using CloudFront, which includes rich set of fe
 
 |        **Catelog** | **Description**      |
 |------------------|--------------------|
-|  [*Authentication*](docs/LambdaEdge.md#Authentication)  | Authenticating by Cognito or third-party native library, add security information into HTTP headers, etc. |
-|   [*Validation*]()  |  Validating specific parameters from HTTP request, such as check request token through MD5, etc.             |
-|   [*URL Rewrite*]() | All functions are related to rewrite URL in various ways.             |
-|   [*URL Redirect*]() |  All functions are related to redirect URL in as many as possible way.              |
-|   [*Override Request*]() | Access, modify and override HTTP request, or even change further behavior.            |
-|   [*Override Response*]() | Generate, modify and override HTTP response for viewer request or origin request event.               |
-|   [*Origin Selection*]() | Route to different origins based on information in the request, or even warm up from origin.               |
-|   [*Personalize Content*]() | Personalize the content as per requirement, such as resize the pictures.              |
+|  [*Authentication*](docs/LambdaEdge.md#authentication)  | Authenticating by Cognito or third-party native library, add security information into HTTP headers, etc. |
+|   [*Validation*](docs/LambdaEdge.md#validation)  |  Validating specific parameters from HTTP request, such as check request token through MD5, etc.             |
+|   [*URL Rewrite*](docs/LambdaEdge.md#url-rewrite) | All functions are related to rewrite URL in various ways.             |
+|   [*URL Redirect*](docs/LambdaEdge.md#url-redirect) |  All functions are related to redirect URL in as many as possible way.              |
+|   [*Override Request*](docs/LambdaEdge.md#override-request) | Access, modify and override HTTP request, or even change further behavior.            |
+|   [*Override Response*](docs/LambdaEdge.md#override-response) | Generate, modify and override HTTP response for viewer request or origin request event.               |
+|   [*Origin Selection*](docs/LambdaEdge.md#origin-selection) | Route to different origins based on information in the request, or even warm up from origin.               |
+|   [*Personalize Content*](docs/LambdaEdge.md#personalize-content) | Personalize the content as per requirement, such as resize the pictures.              |
+|   [*Security*](docs/LambdaEdge.md#security) | All functions are related secure perspective, such as anti-leeching, etc.           |
 
 
 
