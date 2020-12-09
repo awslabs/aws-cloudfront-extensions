@@ -5,10 +5,6 @@
     ],
     "new": [
       {
-        "appname": "authentication-with-cognito",
-        "codeuri": "authentication-with-cognito/hello-world"
-      },
-      {
         "appname": "simple-lambda-edge",
         "codeuri": "simple-lambda-edge/simple-lambda-edge"
       }

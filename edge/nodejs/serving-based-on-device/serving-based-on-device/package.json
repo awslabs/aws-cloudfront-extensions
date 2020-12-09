@@ -10,7 +10,7 @@
     "axios": "^0.18.0"
   },
   "scripts": {
-    "test": "mocha tests/unit/"
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.2.0",
