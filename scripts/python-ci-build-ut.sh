@@ -19,14 +19,20 @@ for var in ${update_app_code_uri[@]}; do
 	python3 -m compileall edge/python/$var/
 done
 
-pip install coverage
+pip3 install -U pytest
+pip3 install pytest pytest-mock --user
+pip3 install coverage
 
 #unit test
 echo "start unit test"
 for var in ${new_app_list[@]}; do
-	coverage run -m unittest discover -s edge/python/$var
+	coverage run -m pytest edge/python/$var/tests/ -v
+	coverage report
+	# python3 -m pytest edge/python/$var/tests/ -v
 done
 
 for var in ${update_app_list[@]}; do
-	coverage run -m unittest discover -s edge/python/$var
+	# coverage run -m unittest discover -s edge/python/$var
+	coverage run -m pytest edge/python/$var/tests/ -v
+	coverage report
 done

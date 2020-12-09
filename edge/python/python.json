@@ -1,13 +1,19 @@
 {
   "edge": {
     "list": [
-      "simple-lambda-edge"
+      "sam-app-python"
     ],
     "new": [
-      "authentication-with-cognito"
+      {
+        "appname": "simple-lambda-edge",
+        "codeuri": "simple-lambda-edge/simple_lambda_edge"
+      }
     ],
     "update": [
-      "rewite-url-useragent"
+      {
+        "appname": "simple-lambda-edge",
+        "codeuri": "simple-lambda-edge/simple_lambda_edge"
+      }
     ]
   }
 }
