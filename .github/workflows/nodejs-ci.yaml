@@ -24,7 +24,22 @@ jobs:
       run: ./scripts/nodejs-ci-content-scan.sh
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+<<<<<<< HEAD
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
+=======
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: check code style
+      run: ./scripts/nodejs-ci-style-check.sh
+    - name: build and code coverage
+      run: ./scripts/nodejs-ci-build-coverage.sh      
+
+  nodejs-ci-deploy-test:
+    runs-on: ubuntu-latest
+    needs: nodejs-ci-precheck
+    steps:
+    - name: placeholder
+      run: echo "TODO"      
+>>>>>>> 519a775ceb1e8df142374aa1709cd50e9f1ebe91
 
 
 

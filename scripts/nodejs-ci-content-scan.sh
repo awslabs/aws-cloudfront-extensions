@@ -7,7 +7,12 @@
 # new_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.new[].appname | sed 's/\"//g')
 # update_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].appname | sed 's/\"//g')
 
+
+echo ${AWS_ACCESS_KEY_ID}
+
 # scan commit content
+aws s3 ls
+
 aws s3 cp s3://aws-solutions-build-assets/viperlight-scanner/viperlight.zip .
 
 unzip -q viperlight.zip -d ./viperlight

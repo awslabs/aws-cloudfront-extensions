@@ -20,13 +20,13 @@ It's a valueable collection when using CloudFront, which includes rich set of fe
 |        **Catelog** | **Description**      |
 |------------------|--------------------|
 |  [*Authentication*](docs/LambdaEdge.md#Authentication)  | Authenticating by Cognito or third-party native library, add security information into HTTP headers, etc. |
-|   [*Validation*]()  |  Validating specific parameters from HTTP request, such as check out request token through MD5, etc.             |
-|   [*URL Rewrite*]() | All functions are related to rewrite URL in various way.             |
+|   [*Validation*]()  |  Validating specific parameters from HTTP request, such as check request token through MD5, etc.             |
+|   [*URL Rewrite*]() | All functions are related to rewrite URL in various ways.             |
 |   [*URL Redirect*]() |  All functions are related to redirect URL in as many as possible way.              |
 |   [*Override Request*]() | Access, modify and override HTTP request, or even change further behavior.            |
 |   [*Override Response*]() | Generate, modify and override HTTP response for viewer request or origin request event.               |
 |   [*Origin Selection*]() | Route to different origins based on information in the request, or even warm up from origin.               |
-|   [*Personlize Content*]() | Personlize the content as per requirement, such as resize the pitucres.              |
+|   [*Personalize Content*]() | Personalize the content as per requirement, such as resize the pictures.              |
 
 
 
