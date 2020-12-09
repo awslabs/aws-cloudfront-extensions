@@ -7,6 +7,10 @@
 # new_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.new[].appname | sed 's/\"//g')
 # update_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].appname | sed 's/\"//g')
 
+sudo apt-get update
+sudo apt-get install awscli
+aws --version
+
 # scan commit content
 aws s3 cp s3://aws-solutions-build-assets/viperlight-scanner/viperlight.zip .
 
