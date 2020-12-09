@@ -3,6 +3,6 @@
     "publish_app_path": [
       "nodejs/simple-lambda-edge"
     ],
-    "tag": "V1"
+    "tag": "V1.0"
   }
 }
