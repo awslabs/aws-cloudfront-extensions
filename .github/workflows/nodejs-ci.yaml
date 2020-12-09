@@ -26,9 +26,18 @@ jobs:
         aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-    - name: Copy files to the test website with the AWS CLI
-      run: |
-        ./scripts/nodejs-ci-content-scan.sh
+    - name: scan content
+      run: ./scripts/nodejs-ci-content-scan.sh
+    - name: check code style
+      run: ./scripts/nodejs-ci-style-check.sh
+    - name: build and code coverage
+      run: ./scripts/nodejs-ci-build-coverage.sh      
+
+  nodejs-ci-deploy-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: placeholder
+      run: echo "TODO"             
 
 
 
