@@ -47,10 +47,10 @@
 ## Origin Selection
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
-| Access origin by geolocation | . | v1.0.0 | Todo |
-| Access origin by customized rule | . | v1.0.0 | Todo |
-| Access origin by weight rate | . | v1.0.0 | Todo |
-| Failover to alternative origin | . | v1.0.0 | Todo |
+| Access origin by geolocation | Forward request to the nearest PoP as per geolocation. | v1.0.0 | Todo |
+| Access origin by customized rule | Access origin by calling customized service to get real origin address. | v1.0.0 | Todo |
+| Access origin by weight rate | Forward request to multiple origin regarding to pre-configured weight for each origin. | v1.0.0 | Todo |
+| Failover to alternative origin | Failover to alternative IP from pre-configured list, return from success IP otherwise retry until last one. | v1.0.0 | Todo |
 | Access origin by MD5 checksum | To prevent accessing the origin site multiple times for the same video file, perform MD5 checksum for the video file and determine when return to the origin. | v1.0.0 | Todo |
 | Support 302 from origin | Process 302 response from origin, then access the redirected URL and return the response. | v1.0.0 | Todo |
 
@@ -61,6 +61,7 @@
 |------------------|--------------------|----------------|----------------|
 | Pre-warm cache from specified origin | Load objects from configuration list into specific PoP in order to accelerate access. | v1.0.0 | Todo |
 | Resize the picture | Resize the picture to lower qualitied picture before return a viewer. | v1.0.0 | Todo |
+| Dynamic reloading content from primary origin | Dynamic reloading content from primary origin as per defined policy, such as certain hot data regarding to metrics. | v1.0.0 | Todo |
 
 
 ## Security

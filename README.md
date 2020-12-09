@@ -6,12 +6,17 @@
 It's a valueable collection when using CloudFront, which includes rich set of featured Lambda@Edge, CloudFormation template for deployment of various scenarios and full monitoring solution. We tried to provide out-of-box experiences, such as install featured Lambda@Edge to enhance capability of CloudFornt, setup distribution through prepared CloudFormation templates, build up observability by leveraging monitoring solution.
 
 
+## Overview
+<img src='docs/images/aws-cloudfront-extensions.png'>
+
+Provision CloudFront+ with pre-configured deployment assets, click button to install Lambda@Edge from Serverless Application Repository.
+
 
 ## CloudFront Quick Start
 
 |        **Name**    | **Description**      |
 |------------------|--------------------|
-| [WAF + CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood role, SQL injection, XSS, Bad bot, etc.   | 
+| [CloudFront with Automated WAF](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood role, SQL injection, XSS, Bad bot, etc.   | 
 
 
 
