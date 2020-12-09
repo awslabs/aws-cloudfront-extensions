@@ -30,7 +30,7 @@ jobs:
       run: ./scripts/sam-package.sh
       env:
         SAM_CLI_TELEMETRY: 0 
-    - name: SAM Package 
+    - name: SAM Publish 
       run: ./scripts/sam-publish.sh
 
 
