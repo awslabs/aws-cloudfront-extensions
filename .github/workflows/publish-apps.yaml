@@ -1,0 +1,37 @@
+name: "publish apps"
+
+on:
+  # TODO change to pull request 
+  push:
+    branches:
+    - main
+    paths:
+    - 'edge/publish-apps.json'   
+
+jobs:
+  publish-apps:
+    runs-on: ubuntu-latest 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2        
+    - name: install jq
+      run: sudo apt-get install jq       
+    - name: Install Node
+      uses: actions/setup-node@v1
+      with: 
+        node-version: '12'  
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: SAM Package 
+      run: ./scripts/sam-package.sh
+      env:
+        SAM_CLI_TELEMETRY: 0 
+    - name: SAM Package 
+      run: ./scripts/sam-publish.sh
+
+
+

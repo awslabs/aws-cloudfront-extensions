@@ -1,0 +1,8 @@
+{
+  "edge": {
+    "publish_app_path": [
+      "nodejs/simple-lambda-edge"
+    ],
+    "tag": "V1"
+  }
+}
