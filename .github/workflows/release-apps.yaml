@@ -5,8 +5,8 @@ on:
   push:
     branches:
     - main
-    # paths:
-    # - 'edge/publish-apps.json'   
+    paths:
+    - 'edge/publish-apps.json'   
 
 jobs:
   set-tag:
@@ -42,8 +42,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: ${{needs.set-tag.outputs.tag_value}} 
-    - name: check tag version
-      run: ./scripts/test-tag.sh    
     - name: install jq
       run: sudo apt-get install jq       
     - name: Install Node
