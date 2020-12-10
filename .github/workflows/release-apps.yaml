@@ -1,12 +1,12 @@
-name: "publish apps"
+name: "release apps"
 
 on:
   # TODO change to pull request 
   push:
     branches:
     - main
-    paths:
-    - 'edge/publish-apps.json'   
+    # paths:
+    # - 'edge/publish-apps.json'   
 
 jobs:
   set-tag:
@@ -39,7 +39,9 @@ jobs:
     - name: checkout specific tag version
       uses: actions/checkout@v2
       with:
-        ref: ${{needs.set-tag.outputs.tag_value}}     
+        ref: ${{needs.set-tag.outputs.tag_value}} 
+    - name: check tag version
+      run: ./scripts/test-tag.sh    
     - name: install jq
       run: sudo apt-get install jq       
     - name: Install Node
