@@ -36,6 +36,8 @@ jobs:
     needs: set-tag
     runs-on: ubuntu-latest 
     steps:
+    - name: print tag
+      run: echo ${{needs.set-tag.outputs.tag_value}}
     - name: checkout specific tag version
       uses: actions/checkout@v2
       with:
