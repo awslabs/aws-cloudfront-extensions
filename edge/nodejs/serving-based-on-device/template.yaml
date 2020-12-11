@@ -26,6 +26,25 @@ Metadata:
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/serving-based-on-device
 
+Parameters:
+  DesktopPathParameter:
+    Type: String
+    Default: "/desktop"
+    Description: "Content folder for desktop device"
+  MobilePathParameter:
+    Type: String
+    Default: "/mobile"
+    Description: "Content folder for mobile device"
+  TabletPathParameter:
+    Type: String
+    Default: "/tablet"
+    Description: "Content folder for tablet device"
+  SmartTVPathParameter:
+    Type: String
+    Default: "/smarttv"
+    Description: "Content folder for smart TV"
+
+
 Resources:
   ServingOnDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -34,6 +53,13 @@ Resources:
       Handler: app.handler
       Runtime: nodejs12.x
       Role: !GetAtt EdgeFunctionRole.Arn
+      Environment:
+        Variables:
+          DESKTOP_PATH: !Ref DesktopPathParameter
+          MOBILE_PATH: !Ref MobilePathParameter
+          TABLET_PATH: !Ref TabletPathParameter
+          SMART_TV_PATH: !Ref SmartTVPathParameter
+
 
   EdgeFunctionRole:
       Type: AWS::IAM::Role
