@@ -1,9 +1,9 @@
 {
-  "name": "simple-lambda-edge",
+  "name": "add-security-headers",
   "version": "1.0.0",
-  "description": "Simple lambda@edge sample for NodeJS",
+  "description": "Add security headers",
   "main": "app.js",
-  "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/simple-lambda-edge",
+  "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/add-security-headers",
   "author": "SAM CLI",
   "license": "Apache-2.0",
   "dependencies": {

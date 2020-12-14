@@ -5,7 +5,7 @@
 |------------------|--------------------|----------------|----------------|
 | Authentication by Cognito | Integrate with Cognito to provide authentication service. | v1.0.0 | Progress |
 | Authentication by native library | Integrate the native library, in this case using C library and include file, which's acting authentication function. | v1.0.0 | Todo |
-| Adding security header | Add security header into reponse after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Todo |
+| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into reponse after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Progress |
 
 
 ## Validation
@@ -23,7 +23,7 @@
 ## URL Redirect
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
-| Redirect URL by device | Redirect to the different version of an object based on the type of device that the user is using. | v1.0.0 | Progress |
+| [Redirect URL by device](../edge/nodejs/serving-based-on-device) | Redirect to the different version of an object based on the type of device that the user is using. | v1.0.0 | Progress |
 | Redirect URL by USER-AGENT | Generate a HTTP redirect response with specific URL regarding to USER-AGENT in the header. | v1.0.0 | Todo |
 
 
