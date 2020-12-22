@@ -1,0 +1,20 @@
+{
+  "name": "modify-response-header",
+  "version": "1.0.0",
+  "description": "Modify/Add response headers",
+  "main": "app.js",
+  "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/modify-response-headers",
+  "author": "SAM CLI",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "nyc": "^15.1.0"
+  },
+  "scripts": {
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  }
+}
