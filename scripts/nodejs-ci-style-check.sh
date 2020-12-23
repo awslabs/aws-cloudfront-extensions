@@ -1,18 +1,16 @@
 #! /bin/bash
  
-JQ_EXEC=`which jq`
+# JQ_EXEC=`which jq`
 
-FILE_PATH=edge/nodejs/nodejs.json
+# FILE_PATH=edge/nodejs/nodejs.json
 
-new_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.new[].appname | sed 's/\"//g')
-update_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].appname | sed 's/\"//g')
+# new_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.new[].appname | sed 's/\"//g')
+# update_app_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].appname | sed 's/\"//g')
+
+export language="$(cut -d'/' -f1 <<<"$labelName")"
+export appName="$(cut -d'/' -f2 <<<"$labelName")"
 
 #check code style
 npm install eslint --save-dev
-for var in ${new_app_list[@]}; do
-	./node_modules/.bin/eslint -c .eslintrc.yml edge/nodejs/$var
-done
 
-for var in ${update_app_list[@]}; do
-	./node_modules/.bin/eslint -c .eslintrc.yml edge/nodejs/$var
-done
+./node_modules/.bin/eslint -c .eslintrc.yml edge/nodejs/$var

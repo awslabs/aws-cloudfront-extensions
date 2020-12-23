@@ -1,14 +1,17 @@
 name: "python ci"
 
 on:
-  push:
-    branches:
-    - main
-    paths:
-    - 'edge/python/python.json'
+  pull_request:
+    types: [ labeled ]  
+  # push:
+  #   branches:
+  #   - main
+  #   paths:
+  #   - 'edge/python/python.json'
 
 jobs:
   python-ci-precheck:
+    if: startsWith(github.event.label.name, 'python')
     runs-on: ubuntu-latest 
     steps:
     - name: Checkout
@@ -25,11 +28,17 @@ jobs:
         aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1        
     - name: scan content
-      run: ./scripts/python-ci-content-scan.sh
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/python-ci-content-scan.sh
     - name: check code style
-      run: ./scripts/python-ci-style-check.sh  
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/python-ci-style-check.sh  
     - name: Build and UT
-      run: ./scripts/python-ci-build-ut.sh      
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/python-ci-build-ut.sh      
 
   python-ci-deploy-test:
     runs-on: ubuntu-latest

@@ -1,15 +1,17 @@
 name: "nodejs ci"
 
 on:
-  # TODO change to pull request 
-  push:
-    branches:
-    - main
-    paths:
-    - 'edge/nodejs/nodejs.json'   
+  pull_request:
+    types: [ labeled ]
+  # push:
+  #   branches:
+  #   - main
+  #   paths:
+  #   - 'edge/nodejs/nodejs.json'   
 
 jobs:
   nodejs-ci-precheck:
+    if: startsWith(github.event.label.name, 'nodejs')
     runs-on: ubuntu-latest 
     steps:
     - name: Checkout
@@ -27,11 +29,17 @@ jobs:
         aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
     - name: scan content
-      run: ./scripts/nodejs-ci-content-scan.sh
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/nodejs-ci-content-scan.sh
     - name: check code style
-      run: ./scripts/nodejs-ci-style-check.sh
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/nodejs-ci-style-check.sh
     - name: build and code coverage
-      run: ./scripts/nodejs-ci-build-coverage.sh      
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/nodejs-ci-build-coverage.sh      
 
   nodejs-ci-deploy-test:
     runs-on: ubuntu-latest
