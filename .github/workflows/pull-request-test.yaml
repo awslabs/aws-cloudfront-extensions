@@ -1,0 +1,21 @@
+name: "nodejs ci"
+
+on:
+  # TODO change to pull request 
+  pull_request:
+  # push:
+    branches:
+    - main 
+
+jobs:
+  pull-request-test:
+    runs-on: ubuntu-latest 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      # with:
+      #   ref: ${{ github.event.pull_request.head.sha }} 
+    - name: run script
+      run: ./scripts/test-shell.sh  
+    - name: print event
+      run: echo ${{ github.context.issue.number }}
