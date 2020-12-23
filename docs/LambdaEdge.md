@@ -3,7 +3,7 @@
 ## Authentication
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
-| Authentication by Cognito | Integrate with Cognito to provide authentication service. | v1.0.0 | Progress |
+| [Authentication by Cognito](../edge/nodejs/authentication-with-cognito) | Integrate with Cognito to provide authentication service. | v1.0.0 | Progress |
 | Authentication by native library | Integrate the native library, in this case using C library and include file, which's acting authentication function. | v1.0.0 | Todo |
 | [Adding security header](../edge/nodejs/add-security-headers) | Add security header into reponse after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Progress |
 
@@ -38,8 +38,8 @@
 ## Override Response
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
-| Convert response status code  | Convert response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Todo |
-| Modify response header | Modify response header as per configuration. | v1.0.0 | Todo |
+| [Convert response status code](../edge/nodejs/convert-response-status-code)  | Convert response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Progress |
+| Modify response header | Modify response header as per configuration. | v1.0.0 | Progress |
 | Modify error reponse to 302 reponse | Modify error response to 302 response as per configuration. | v1.0.0 | Todo |
 | Response status code : 200 with zero sized body  | Special feature to support heartbeat function, any request will return HTTP 200 with zero sized body. | v1.0.0 | Todo |
 | Generate static content  | Return generated static content based on configured parameter. | v1.0.0 | Todo |
