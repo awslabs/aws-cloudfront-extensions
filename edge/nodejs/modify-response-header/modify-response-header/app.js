@@ -1,6 +1,6 @@
 'use strict';
 
-exports.handler = (event, context, callback) => {
+exports.handler = async (event) => {
 
     //Get contents of response
     const response = event.Records[0].cf.response;
@@ -9,6 +9,5 @@ exports.handler = (event, context, callback) => {
     //Modify or add headers
     headers['headerToModify'] = [{key: 'headerToModify', value: 'modified header'}];
 
-    //Return modified response
-    callback(null, response);
+    return response;
 };

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: "(SO8104) modify-response-header is a lambda@Edge which shows how to modify or add a response header."
+Description: "(SO8105) modify-response-header is a lambda@Edge which shows how to modify or add a response header."
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -52,6 +52,9 @@ Outputs:
   ModifyResponseHeaderFunctionARN:
     Description: "ARN"
     Value: !GetAtt ModifyResponseHeaderFunction.Arn
+  SolutioinId:
+    Description: "Solution id"
+    Value: "SO8105"
   ModifyResponseHeaderFunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
