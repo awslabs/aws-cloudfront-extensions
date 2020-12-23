@@ -1,8 +1,7 @@
 name: "ci"
 
 on:
-  pull_request:
-    types: [ labeled ]
+  pull_request
 
 jobs:
   pull-request-test:
@@ -12,6 +11,8 @@ jobs:
       uses: actions/checkout@v2
       # with:
       #   ref: ${{ github.event.pull_request.head.sha }} 
+    - name: run script
+      run: echo "start job"        
     - name: run script
       run: ./scripts/test-shell.sh  
     - name: print event
