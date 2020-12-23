@@ -1,11 +1,8 @@
-name: "nodejs ci"
+name: "ci"
 
 on:
-  # TODO change to pull request 
   pull_request:
-  # push:
-    branches:
-    - main 
+    types: [ labeled ]
 
 jobs:
   pull-request-test:
@@ -18,4 +15,4 @@ jobs:
     - name: run script
       run: ./scripts/test-shell.sh  
     - name: print event
-      run: echo ${{ github.context.issue.number }}
+      run: echo ${{ github.event.pull_request.labels }}
