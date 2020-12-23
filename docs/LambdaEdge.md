@@ -61,6 +61,7 @@
 |------------------|--------------------|----------------|----------------|
 | Pre-warm cache from specified origin | Load objects from configuration list into specific PoP in order to accelerate access. | v1.0.0 | Todo |
 | Resize the picture | Resize the picture to lower qualitied picture before return a viewer. | v1.0.0 | Todo |
+| Change the picture format | Resize the picture to lower qualitied picture before return a viewer. | v1.0.0 | Todo |
 | Dynamic reloading content from primary origin | Dynamic reloading content from primary origin as per defined policy, such as certain hot data regarding to metrics. | v1.0.0 | Todo |
 
 
@@ -68,3 +69,4 @@
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
 | Anti-leeching | Validate the referer in the header to avoid hotlinking. | v1.0.0 | Todo |
+| Anti-theft-chain | Customers can verify access requests with anti-theft chains either through Referer or non-symmetric key encryption. | v1.0.0 | Todo |
