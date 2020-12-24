@@ -17,3 +17,5 @@ To create an AWS account
 Part of the sign-up procedure involves receiving a phone call and entering a verification code on the phone keypad.
 
 Write down your AWS account ID because you'll need it for the next task.
+
+## TBD
