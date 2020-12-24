@@ -61,10 +61,27 @@ jobs:
 
   release-log:
     runs-on: ubuntu-latest 
-    needs: publish-apps
+    needs: [set-tag, publish-apps]
     steps:
-    - name: Placeholder 
-      run: echo "release-log Placeholder"    
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Get Changelog Entry
+      id: changelog_reader
+      uses: mindsers/changelog-reader-action@v1
+      with:
+        version: ${{needs.set-tag.outputs.tag_value}}
+        path: ./CHANGELOG.md 
+    - name: Create GitHub release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      id: create_release
+      with:
+        tag_name: ${{needs.set-tag.outputs.tag_value}}
+        release_name: ${{needs.set-tag.outputs.tag_value}}
+        body: ${{ steps.changelog_reader.outputs.log_entry }}
+        draft: false
+        prerelease: false  
 
 
 
