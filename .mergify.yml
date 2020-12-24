@@ -1,0 +1,19 @@
+# See https://doc.mergify.io
+
+pull_request_rules:
+  - name: automatic merge (1+ approvers)
+    actions:
+      comment:
+        message: Thank you for contributing! Your pull request will be merged
+      merge:
+        strict: smart
+        method: squash
+        strict_method: merge
+        commit_message: title+body
+    conditions:
+      - label=CI-Succeed
+      - -merged
+      - -closed
+      - author!=dependabot[bot]
+      - author!=dependabot-preview[bot]
+      - "#approved-reviews-by>=1"
