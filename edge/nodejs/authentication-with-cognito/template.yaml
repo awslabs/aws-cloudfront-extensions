@@ -61,67 +61,20 @@ Resources:
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-  UpdateConfigFunction: 
-    Type: AWS::Lambda::Function
-    Properties: 
-      Handler: index.handler
+
+  HelloLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: update-config/
       Role: !GetAtt EdgeFunctionRole.Arn
-      Runtime: python3.7
-      Timeout: 60
-      MemorySize: 1536
-      Code: 
-        ZipFile: |
-          import cfnresponse
-          import boto3
-          import json
-          from io import BytesIO
-          from urllib.request import urlopen
-          from pathlib import Path
-          def handler(event, context):
-            print (str(event))
-            responseData = {}
-            try: 
-              if (event['RequestType'] == 'Create') or (event['RequestType'] == 'Update'):
-                  UserPoolId = event['ResourceProperties']['UserPoolId']
-                  CognitoRegion = event['ResourceProperties']['CognitoRegion']    
-                  print("get jwks value")
-                  jwksUrl = 'https://cognito-idp.' + CognitoRegion + '.amazonaws.com/' + UserPoolId + '/.well-known/jwks.json'
-                  with urlopen(jwksUrl) as httpresponse:
-                      jwks = str( httpresponse.read() )
-                  jwks = jwks.replace('b\'{', '{')
-                  jwks = jwks.replace('}\'', '}')
-                  putSSMParameter("UserPoolId", UserPoolId)
-                  putSSMParameter("JWKS", jwks)
-                  putSSMParameter("UserPoolId", UserPoolId)
-                  putSSMParameter("CognitoRegion", CognitoRegion)
-                  responseData['Status'] = 'SUCCESS'
-                  cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, "CustomResourcePhysicalID")
-                  print ('SUCCESS')
-              else:
-                  print("SUCCESS - operation not Create or Update, ResponseData=" + str(responseData))
-                  cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, "CustomResourcePhysicalID")
-            except Exception as e:
-              responseData['Error'] = str(e)
-              cfnresponse.send(event, context, cfnresponse.FAILED, responseData, "CustomResourcePhysicalID") 
-              print("FAILED ERROR: " + responseData['Error'])
-          def putSSMParameter(key, value):
-            client = boto3.client('ssm')
-            response = client.put_parameter(
-                Name=key,
-                Description=value,
-                Value=value,
-                Type='String',
-                Tier='Standard',
-                DataType='text'
-            )
+      Runtime: python2.7
+      Handler: update-config.my_handler 
 
   UpdateConfigCustom:
     Type: Custom::UpdateConfigCustom
     DeletionPolicy: Retain
     Properties:
-      ServiceToken: !GetAtt UpdateConfigFunction.Arn
-      UserPoolId: !Ref UserPoolId
-      CognitoRegion: !Ref CognitoRegion            
+      ServiceToken: !GetAtt HelloLambdaFunction.Arn
 
 Outputs:
   ServingOnDeviceFunction:
