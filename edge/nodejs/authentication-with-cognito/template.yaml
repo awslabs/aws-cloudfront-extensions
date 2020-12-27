@@ -8,7 +8,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 5
     Tags:
       Publisher: GCR-Solutions
 
@@ -61,20 +61,38 @@ Resources:
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+          - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+  # UpdateConfigFunction: 
+  #   Type: AWS::Lambda::Function
+  #   Properties: 
+  #     Handler: update-config.lambda_handler
+  #     Role: !GetAtt EdgeFunctionRole.Arn
+  #     Runtime: python3.7
+  #     Timeout: 60
+  #     MemorySize: 1536
+  #     Code:
+  #       ZipFile: |
+  #         var aws = require('aws-sdk')
+  #         var response = require('cfn-response')
+  #         exports.handler = function(event, context) {
+  #             console.log("REQUEST RECEIVED:\n" + JSON.stringify(event))
+  #             // For Delete requests, immediately send a SUCCESS response.
+  #             if (event.RequestType == "Delete") {
+  #                 response.send(event, context, "SUCCESS")
+  #                 return
+  #             }
+  #             var responseStatus = "SUCCESS"
+  #             var responseData = {}
+  #             response.send(event, context, responseStatus, responseData)
+  #         }
 
-  HelloLambdaFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: update-config/
-      Role: !GetAtt EdgeFunctionRole.Arn
-      Runtime: python2.7
-      Handler: update-config.my_handler 
-
-  UpdateConfigCustom:
-    Type: Custom::UpdateConfigCustom
-    DeletionPolicy: Retain
-    Properties:
-      ServiceToken: !GetAtt HelloLambdaFunction.Arn
+  # UpdateConfigCustom:
+  #   Type: Custom::UpdateConfigCustom
+  #   DeletionPolicy: Retain
+  #   Properties:
+  #     ServiceToken: !GetAtt UpdateConfigFunction.Arn
+  #     UserPoolId: !Ref UserPoolId
+  #     CognitoRegion: !Ref CognitoRegion            
 
 Outputs:
   ServingOnDeviceFunction:
