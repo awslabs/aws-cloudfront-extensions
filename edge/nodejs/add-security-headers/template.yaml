@@ -4,8 +4,7 @@ Description: >
   (SO8102) 
   add-security-headers
 
-  The lambda shows how to serve different version of an object based on the type of device 
-  that user is using.
+  The lambda will add security headers to enforce https.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -17,7 +16,7 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: add-security-headers
-    Description: Sample SAM Template for add-security-headers
+    Description: SAM Template for add-security-headers
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
@@ -59,7 +58,7 @@ Resources:
 
 Outputs:
   ServingOnDeviceFunction:
-    Description: "Simple Lambda Edge function ARN"
+    Description: "Lambda Edge function ARN"
     Value: !GetAtt ServingOnDeviceFunction.Arn
   ServingOnDeviceFunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"

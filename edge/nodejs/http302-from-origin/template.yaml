@@ -1,11 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  (SO8101) 
-  serving-based-on-device
+  (SO8103) 
+  http302-from-origin
 
-  The lambda shows how to serve different version of an object based on the type of device 
-  that user is using.
+  The lambda will access redirected location and return content instead of http302.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -16,8 +15,8 @@ Globals:
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: serving-based-on-device
-    Description: SAM Template for serving-based-on-device
+    Name: http302-from-origin
+    Description: SAM Template for http302-from-origin
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
@@ -25,41 +24,19 @@ Metadata:
     Labels: ['gcr-solutions','cloudfront+','sample', 'edge','lambda-edge']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/serving-based-on-device
+    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/http302-from-origin
 
-Parameters:
-  DesktopPathParameter:
-    Type: String
-    Default: "/desktop"
-    Description: "Content folder for desktop device"
-  MobilePathParameter:
-    Type: String
-    Default: "/mobile"
-    Description: "Content folder for mobile device"
-  TabletPathParameter:
-    Type: String
-    Default: "/tablet"
-    Description: "Content folder for tablet device"
-  SmartTVPathParameter:
-    Type: String
-    Default: "/smarttv"
-    Description: "Content folder for smart TV"
 
 
 Resources:
   ServingOnDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: serving-based-on-device/
+      CodeUri: http302-from-origin/
       Handler: app.handler
       Runtime: nodejs12.x
       Role: !GetAtt EdgeFunctionRole.Arn
-      Environment:
-        Variables:
-          DESKTOP_PATH: !Ref DesktopPathParameter
-          MOBILE_PATH: !Ref MobilePathParameter
-          TABLET_PATH: !Ref TabletPathParameter
-          SMART_TV_PATH: !Ref SmartTVPathParameter
+
 
 
   EdgeFunctionRole:
