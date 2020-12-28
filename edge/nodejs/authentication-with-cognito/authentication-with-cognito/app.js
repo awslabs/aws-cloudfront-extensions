@@ -6,6 +6,7 @@ AWS.config.update({region:'us-east-1'});
 var ssm = new AWS.SSM();
 
 
+
 exports.handler = async (event, context, callback) => {    
     var userPoolIdParams = {
       Name: 'UserPoolId'
@@ -26,7 +27,7 @@ exports.handler = async (event, context, callback) => {
     };    
     var cognitoRegionResp = await ssm.getParameter(cognitoRegionParams).promise();
     var cognitoRegion = cognitoRegionResp.Parameter.Value;
-    console.log(cognitoRegion);       
+    console.log(cognitoRegion);
     
     var iss = 'https://cognito-idp.' + cognitoRegion + '.amazonaws.com/' + userPoolId;
     var pems;
@@ -57,6 +58,7 @@ exports.handler = async (event, context, callback) => {
     // console.log('region=' + region);
     console.log('pems=' + pems);
 
+    console.log("Test, start logic");
     //Fail if no authorization header found
     if(!headers.authorization) {
         console.log("no auth header");
@@ -66,7 +68,6 @@ exports.handler = async (event, context, callback) => {
 
     //strip out "Bearer " to extract JWT token only
     var jwtToken = headers.authorization[0].value.slice(7);
-    console.log('jwtToken=' + jwtToken);
 
     //Fail if the token is not jwt
     var decodedJwt = jwt.decode(jwtToken, {complete: true});

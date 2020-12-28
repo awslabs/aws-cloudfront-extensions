@@ -16,7 +16,7 @@ Metadata:
   AWS::ServerlessRepo::Application:
     Name: authentication-with-cognito
     Description: Sample SAM Template for authentication-with-cognito
-    Author: AWS
+    Author: mingtong
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
@@ -62,37 +62,54 @@ Resources:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
           - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
-  # UpdateConfigFunction: 
-  #   Type: AWS::Lambda::Function
-  #   Properties: 
-  #     Handler: update-config.lambda_handler
-  #     Role: !GetAtt EdgeFunctionRole.Arn
-  #     Runtime: python3.7
-  #     Timeout: 60
-  #     MemorySize: 1536
-  #     Code:
-  #       ZipFile: |
-  #         var aws = require('aws-sdk')
-  #         var response = require('cfn-response')
-  #         exports.handler = function(event, context) {
-  #             console.log("REQUEST RECEIVED:\n" + JSON.stringify(event))
-  #             // For Delete requests, immediately send a SUCCESS response.
-  #             if (event.RequestType == "Delete") {
-  #                 response.send(event, context, "SUCCESS")
-  #                 return
-  #             }
-  #             var responseStatus = "SUCCESS"
-  #             var responseData = {}
-  #             response.send(event, context, responseStatus, responseData)
-  #         }
 
-  # UpdateConfigCustom:
-  #   Type: Custom::UpdateConfigCustom
-  #   DeletionPolicy: Retain
+  # UpdateConfigFunction:
+  #   Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
   #   Properties:
-  #     ServiceToken: !GetAtt UpdateConfigFunction.Arn
-  #     UserPoolId: !Ref UserPoolId
-  #     CognitoRegion: !Ref CognitoRegion            
+  #     CodeUri: update-config/
+  #     Handler: update-config.my_handler
+  #     Runtime: python3.7
+  #     Role: !GetAtt EdgeFunctionRole.Arn          
+  UpdateConfigFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: s3://mingtong-update-config/update-env-config.zip
+      Handler: update-env-config.handler
+      Runtime: python3.7
+      Role: !GetAtt EdgeFunctionRole.Arn
+    # Type: AWS::Lambda::Function
+    # Properties: 
+    #   Handler: index.handler
+    #   Role: !GetAtt EdgeFunctionRole.Arn
+    #   Runtime: python3.7
+    #   Timeout: 60
+    #   MemorySize: 1536
+    #   Code:
+    #     ZipFile: |
+    #       var aws = require('aws-sdk')
+    #       var response = require('cfn-response')
+    #       exports.handler = function(event, context) {
+    #           console.log("REQUEST RECEIVED:\n" + JSON.stringify(event))
+    #           // For Delete requests, immediately send a SUCCESS response.
+    #           if (event.RequestType == "Delete") {
+    #               response.send(event, context, "SUCCESS")
+    #               return
+    #           }
+    #           var responseStatus = "SUCCESS"
+    #           var responseData = {}
+    #           response.send(event, context, responseStatus, responseData)
+    #       }
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DeletionPolicy: Retain
+    Properties:
+      ServiceToken: !GetAtt UpdateConfigFunction.Arn
+      UserPoolId: !Ref UserPoolId
+      CognitoRegion: !Ref CognitoRegion            
+      # Bucket: !GetAtt AuthenticationByCognito.Name
+      # Bucket: !GetAtt AuthenticationByCognito.Code.S3Bucket
+      # Key: !GetAtt AuthenticationByCognito.S3Key
 
 Outputs:
   ServingOnDeviceFunction:
