@@ -4,7 +4,9 @@ JQ_EXEC=`which jq`
 
 FILE_PATH=edge/publish-apps.json
 export SAM_CLI_TELEMETRY=0
+
 FILTER_PACKAGE_ARRAY=('aws-sdk' 'axios' 'nyc')
+PACKAGE_FILE_PATH=package.json
 
 app_path_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.publish_app_path[] | sed 's/\"//g')
 
@@ -19,12 +21,12 @@ for var in ${app_path_list[@]}; do
 		echo ${codePackage[1]}
 		cd ${codePackage[1]}
 		npm install
-		dependencies=$(cat $FILE_PATH | ${JQ_EXEC} '.dependencies | keys[]' | sed 's/\"//g')
+		dependencies=$(cat $PACKAGE_FILE_PATH | ${JQ_EXEC} '.dependencies | keys[]' | sed 's/\"//g')
 		tmpDir='dependencies-tmp'
 		mkdir $tmpDir
 		for var in ${dependencies[@]}; do
 			echo $var
-			if [[ " ${array[*]} " == *" $var "* ]]; 
+			if [[ " ${FILTER_PACKAGE_ARRAY[*]} " == *" $var "* ]]; 
 			then
 				echo "ignore"
 			else
