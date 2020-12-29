@@ -1,4 +1,5 @@
 
+**/package-lock.json
 !jest.config.js
 *.d.ts
 node_modules

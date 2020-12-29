@@ -8,14 +8,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.18.0",
-    "follow-redirects": "^1.13.1",
-    "nyc": "^15.1.0"
+    "follow-redirects": "^1.13.1"
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "nyc": "^15.1.0"
   }
 }
