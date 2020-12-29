@@ -15,7 +15,6 @@ def handler(event, context):
             CognitoRegion = event['ResourceProperties']['CognitoRegion']
             SourceUrl = event['ResourceProperties']['SourceUrl'].replace(" ", "")
             EdgeFunctionArn = event['ResourceProperties']['EdgeFunctionArn'].replace(" ", "")   
-            # SourceUrl = 'https://mingtong-update-config.s3.amazonaws.com/upload-test.zip'
             print("get jwks value")
             jwksUrl = 'https://cognito-idp.' + CognitoRegion + '.amazonaws.com/' + UserPoolId + '/.well-known/jwks.json'
             with urlopen(jwksUrl) as httpresponse:
@@ -24,24 +23,24 @@ def handler(event, context):
             jwks = jwks.replace('}\'', '}')
             print(jwks)
             print("unzip source Zip to local directory")
-            baseDir = '/tmp/mingtong/updateConfig/'
+            baseDir = '/tmp/GCR-Solutions/updateConfig/'
             print("baseDir=" + baseDir)
             with urlopen(SourceUrl) as zipresp:
               with zipfile.ZipFile(BytesIO(zipresp.read())) as zfile:
                 zfile.extractall(baseDir)
             print("read app.js")
-            indexjs = Path(baseDir + 'app.js').read_text()
-            indexjs = indexjs.replace('##JWKS##', jwks)
-            indexjs = indexjs.replace('##USERPOOLID##', UserPoolId)
-            indexjs = indexjs.replace('##COGNITOREGION##', CognitoRegion)
+            appjs = Path(baseDir + 'app.js').read_text()
+            appjs = appjs.replace('##JWKS##', jwks)
+            appjs = appjs.replace('##USERPOOLID##', UserPoolId)
+            appjs = appjs.replace('##COGNITOREGION##', CognitoRegion)
             print("save app.js back to disk")
             with open(baseDir + 'app.js',"w") as w:
-                w.write(indexjs)
+                w.write(appjs)
             print("zip up the directory")
-            zipHandle = zipfile.ZipFile('/tmp/edge-auth.zip', 'w', compression = zipfile.ZIP_DEFLATED)
+            zipHandle = zipfile.ZipFile('/tmp/GCR-Solutions/edge-code.zip', 'w', compression = zipfile.ZIP_DEFLATED)
             addDirToZip(zipHandle, baseDir, baseDir)
             zipHandle.close()
-            with open('/tmp/edge-auth.zip', 'rb') as file_data:
+            with open('/tmp/GCR-Solutions/edge-code.zip', 'rb') as file_data:
                 bytes_content = file_data.read()
             lambdaClient = boto3.client('lambda')            
             lambdaClient.update_function_code(
