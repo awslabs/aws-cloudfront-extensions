@@ -52,7 +52,7 @@ Outputs:
   ModifyResponseHeaderFunctionARN:
     Description: "ARN"
     Value: !GetAtt ModifyResponseHeaderFunction.Arn
-  SolutioinId:
+  SolutionId:
     Description: "Solution id"
     Value: "SO8105"
   ModifyResponseHeaderFunctionIamRole:
