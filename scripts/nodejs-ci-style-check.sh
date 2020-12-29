@@ -13,4 +13,4 @@ export appName="$(cut -d'/' -f2 <<<"$labelName")"
 #check code style
 npm install eslint --save-dev
 
-./node_modules/.bin/eslint -c .eslintrc.yml edge/nodejs/$var
+./node_modules/.bin/eslint -c .eslintrc.yml edge/$language/$appName

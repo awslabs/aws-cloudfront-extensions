@@ -8,7 +8,7 @@ aws s3 cp s3://aws-solutions-build-assets/viperlight-scanner/viperlight.zip .
 
 unzip -q viperlight.zip -d ./viperlight
 
-./viperlight/bin/viperlight-scan -t edge/$language/$appName
+./viperlight/bin/viperlight-scan -t edge/$labelName
 
 
 
