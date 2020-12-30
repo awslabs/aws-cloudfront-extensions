@@ -1,59 +1,128 @@
 {
-  "body": "{\"message\": \"hello world\"}",
-  "resource": "/{proxy+}",
-  "path": "/path/to/resource",
-  "httpMethod": "POST",
-  "isBase64Encoded": false,
-  "queryStringParameters": {
-    "foo": "bar"
-  },
-  "pathParameters": {
-    "proxy": "/path/to/resource"
-  },
-  "stageVariables": {
-    "baz": "qux"
-  },
-  "headers": {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, sdch",
-    "Accept-Language": "en-US,en;q=0.8",
-    "Cache-Control": "max-age=0",
-    "CloudFront-Forwarded-Proto": "https",
-    "CloudFront-Is-Desktop-Viewer": "true",
-    "CloudFront-Is-Mobile-Viewer": "false",
-    "CloudFront-Is-SmartTV-Viewer": "false",
-    "CloudFront-Is-Tablet-Viewer": "false",
-    "CloudFront-Viewer-Country": "US",
-    "Host": "1234567890.execute-api.us-east-1.amazonaws.com",
-    "Upgrade-Insecure-Requests": "1",
-    "User-Agent": "Custom User Agent String",
-    "Via": "1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)",
-    "X-Amz-Cf-Id": "cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==",
-    "X-Forwarded-For": "127.0.0.1, 127.0.0.2",
-    "X-Forwarded-Port": "443",
-    "X-Forwarded-Proto": "https"
-  },
-  "requestContext": {
-    "resourceId": "123456",
-    "stage": "prod",
-    "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-    "requestTime": "09/Apr/2015:12:34:56 +0000",
-    "identity": {
-      "cognitoIdentityPoolId": null,
-      "accountId": null,
-      "cognitoIdentityId": null,
-      "caller": null,
-      "sourceIp": "127.0.0.1",
-      "cognitoAuthenticationType": null,
-      "cognitoAuthenticationProvider": null,
-      "userArn": null,
-      "userAgent": "Custom User Agent String",
-      "user": null
-    },
-    "path": "/prod/path/to/resource",
-    "resourcePath": "/{proxy+}",
-    "httpMethod": "POST",
-    "apiId": "1234567890",
-    "protocol": "HTTP/1.1"
-  }
+  "Records": [
+    {
+      "cf": {
+        "config": {
+          "distributionDomainName": "d111111abcdef8.cloudfront.net",
+          "distributionId": "EDFDVBD6EXAMPLE",
+          "eventType": "origin-response",
+          "requestId": "4TyzHTaYWb1GX1qTfsHhEqV6HUDd_BzoBZnwfnvQc_1oF26ClkoUSEQ=="
+        },
+        "request": {
+          "clientIp": "203.0.113.178",
+          "headers": {
+            "x-forwarded-for": [
+              {
+                "key": "X-Forwarded-For",
+                "value": "203.0.113.178"
+              }
+            ],
+            "user-agent": [
+              {
+                "key": "User-Agent",
+                "value": "Amazon CloudFront"
+              }
+            ],
+            "via": [
+              {
+                "key": "Via",
+                "value": "2.0 8f22423015641505b8c857a37450d6c0.cloudfront.net (CloudFront)"
+              }
+            ],
+            "host": [
+              {
+                "key": "Host",
+                "value": "example.org"
+              }
+            ],
+            "cache-control": [
+              {
+                "key": "Cache-Control",
+                "value": "no-cache, cf-no-cache"
+              }
+            ]
+          },
+          "method": "GET",
+          "origin": {
+            "custom": {
+              "customHeaders": {},
+              "domainName": "example.org",
+              "keepaliveTimeout": 5,
+              "path": "",
+              "port": 443,
+              "protocol": "https",
+              "readTimeout": 30,
+              "sslProtocols": [
+                "TLSv1",
+                "TLSv1.1",
+                "TLSv1.2"
+              ]
+            }
+          },
+          "querystring": "",
+          "uri": "/"
+        },
+        "response": {
+          "headers": {
+            "access-control-allow-credentials": [
+              {
+                "key": "Access-Control-Allow-Credentials",
+                "value": "true"
+              }
+            ],
+            "access-control-allow-origin": [
+              {
+                "key": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ],
+            "date": [
+              {
+                "key": "Date",
+                "value": "Mon, 13 Jan 2020 20:12:38 GMT"
+              }
+            ],
+            "referrer-policy": [
+              {
+                "key": "Referrer-Policy",
+                "value": "no-referrer-when-downgrade"
+              }
+            ],
+            "server": [
+              {
+                "key": "Server",
+                "value": "ExampleCustomOriginServer"
+              }
+            ],
+            "x-content-type-options": [
+              {
+                "key": "X-Content-Type-Options",
+                "value": "nosniff"
+              }
+            ],
+            "x-frame-options": [
+              {
+                "key": "X-Frame-Options",
+                "value": "DENY"
+              }
+            ],
+            "x-xss-protection": [
+              {
+                "key": "X-XSS-Protection",
+                "value": "1; mode=block"
+              }
+            ],
+            "location": [
+              {
+                "key": "Location",
+                "value": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-edge.html"
+              }
+            ]
+          },
+          "status": "302",
+          "statusDescription": "OK"
+        }
+      }
+    }
+  ]
 }
