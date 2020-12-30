@@ -1,0 +1,7 @@
+{
+  "edge": {
+    "apps_arn": [
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/serving-based-on-device"
+    ]
+  }
+}
