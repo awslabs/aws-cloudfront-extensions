@@ -15,8 +15,9 @@ for app_path in ${app_path_list[@]}; do
 	echo $(pwd)
 
 	npm install --production
+	# npm run build --prod
 
-	zip -r $codeUri.zip *
+	zip -r $codeUri.zip * -x 'test*'
 	aws s3 cp $codeUri.zip s3://aws-cloudfront-extension-lambda-edge/edge/$codeUri/$codeUri.zip --acl public-read
 
 	cd ../../../../

@@ -1,7 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/authentication-with-cognito"
+      "nodejs/serving-based-on-device"
     ],
     "tag": "v1.0.5"
   }

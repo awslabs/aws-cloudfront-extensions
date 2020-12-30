@@ -1,9 +1,9 @@
 'use strict';
 
-const desktopPath = process.env.DESKTOP_PATH;
-const mobilePath = process.env.MOBILE_PATH;
-const tabletPath = process.env.TABLET_PATH;
-const smarttvPath = process.env.SMART_TV_PATH;
+const desktopPath = 'PARA_DESKTOP_PATH';
+const mobilePath = 'PARA_MOBILE_PATH';
+const tabletPath = 'PARA_TABLET_PATH';
+const smarttvPath = 'PARA_SMART_TV_PATH';
 
 /* This is an origin request function */
 exports.handler = (event, context, callback) => {

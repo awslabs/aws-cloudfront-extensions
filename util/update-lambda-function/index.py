@@ -6,16 +6,13 @@ from io import BytesIO
 from urllib.request import urlopen
 import zipfile
 from pathlib import Path
+
 def handler(event, context):
-    # print (str(event))
-    print (event['ResourceProperties'])
-    print (event['ResourceProperties'].keys())
-    for key in event['ResourceProperties'].keys():
-        print(event['ResourceProperties'][key])
-    
+    print (str(event))
+    responseData = {}
+    specialKey = ['ServiceToken', 'EdgeFunctionArn', 'SourceUrl', 'HandlerFileName']
     try: 
         if (event['RequestType'] == 'Create') or (event['RequestType'] == 'Update'):
-            
             print("unzip source Zip to local directory")
             baseDir = '/tmp/gcrsolution/updateConfig/'
             SourceUrl = event['ResourceProperties']['SourceUrl'].replace(" ", "")
@@ -23,15 +20,17 @@ def handler(event, context):
             with urlopen(SourceUrl) as zipresp:
               with zipfile.ZipFile(BytesIO(zipresp.read())) as zfile:
                 zfile.extractall(baseDir)
-            print("read app.js")
-            appjs = Path(baseDir + 'app.js').read_text() 
+            HandlerFileName = event['ResourceProperties']['HandlerFileName'].replace(" ", "")
+            print("read " + HandlerFileName)
+            appjs = Path(baseDir + HandlerFileName).read_text() 
             # replace values
             for key in event['ResourceProperties'].keys():
-                if (key != 'ServiceToken' and key != 'EdgeFunctionArn' and key != 'SourceUrl')
+                if key not in specialKey : 
+                    print("replace value: " + key)              
                     appjs = appjs.replace(key, event['ResourceProperties'][key])
 
             print("save app.js back to disk")
-            with open(baseDir + 'app.js',"w") as w:
+            with open(baseDir + HandlerFileName,"w") as w:
                 w.write(appjs)
             print("zip up the directory")
             zipHandle = zipfile.ZipFile('/tmp/tmpEdgeSource.zip', 'w', compression = zipfile.ZIP_DEFLATED)
