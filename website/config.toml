@@ -1,4 +1,4 @@
-baseURL = "https://cc4i.github.io/aws-cloudfront-extensions/"
+baseURL = "https://awslabs.github.io/aws-cloudfront-extensions/"
 languageCode = "en-us"
 title = "CloudFront+"
 theme = "hugo-theme-learn"
