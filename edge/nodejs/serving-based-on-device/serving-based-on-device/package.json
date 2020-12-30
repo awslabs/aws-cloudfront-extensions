@@ -10,9 +10,16 @@
     "axios": "^0.18.0"
   },
   "scripts": {
-    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/",
+  
+    "webpack": "webpack --progress",
+    "analyze": "webpack --profile --json > stats.json && webpack-bundle-analyzer ./stats.json",
+    "build": "npm run webpack"
   },
   "devDependencies": {
+    "webpack": "^4.44.1",
+    "webpack-bundle-analyzer": "^3.8.0",
+    "webpack-cli": "^3.3.12",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
     "nyc": "^15.1.0"
