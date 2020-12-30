@@ -1,6 +1,6 @@
 ---
-title: High level design 
-weight: 20
+title: Introduction 
+weight: 10
 ---
 
 The code of CloudFront+ project is placed in GitHub Repository. For customers, this is a place where they can find useful CloudFront related code/solutions. For contributors such as SAs,builders,Partners, this is a framework where they can make CloudFront related contribution. The repo consists of three major parts: 1) Lambda@Edge scripts, 2) CloudFront Solution Quick Start 3) CloudFront Observability Module.
