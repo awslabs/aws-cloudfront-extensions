@@ -20,7 +20,7 @@ Metadata:
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
-    Labels: [‘gcr’,‘gcr-solutions’,‘cloudfront’,‘cloudfront+’,’aws-cloudfront-extensions’,‘edge’,‘lambda-edge’, ‘aws’]
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-cognito
@@ -63,16 +63,6 @@ Resources:
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
           # TODO need updateFunction permission
           - arn:aws:iam::aws:policy/AWSLambdaFullAccess
-
-  UpdateEdgeCodeFunctionRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: !Sub ${AWS::StackName}-updateEdgeCode           
-        ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-          # TODO need updateFunction permission
-          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
         
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -81,7 +71,7 @@ Resources:
       CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-auth-cognito-function.zip'
       Handler: index.handler
       Runtime: python3.7
-      Role: !GetAtt UpdateEdgeCodeFunctionRole.Arn
+      Role: !GetAtt EdgeFunctionRole.Arn
 
   UpdateConfigCustom:
     Type: Custom::UpdateConfigCustom
