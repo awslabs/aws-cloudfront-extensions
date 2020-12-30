@@ -20,7 +20,7 @@ Metadata:
     Labels: ['gcr-solutions','cloudfront+','sample', 'edge','lambda-edge']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/modify-response-header
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-header
 
 Resources:
   ModifyResponseHeaderFunction:
