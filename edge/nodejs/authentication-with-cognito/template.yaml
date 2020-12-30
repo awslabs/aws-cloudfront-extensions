@@ -80,7 +80,6 @@ Resources:
       ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
       UserPoolId: !Ref UserPoolId
       CognitoRegion: !Ref CognitoRegion
-      PARA_DESKTOP_PATH: !Ref value
       SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/authentication-with-cognito/authentication-with-cognito.zip'
       EdgeFunctionArn: !GetAtt AuthenticationByCognito.Arn
 
