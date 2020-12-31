@@ -1,7 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/modify-response-header"
+      "nodejs/serving-based-on-device"
     ],
     "tag": "v1.0.5"
   }
