@@ -32,6 +32,15 @@ Change following applications labels and author and publish them again
 
 ### Fixed 
 
+## [v1.1.2] - 2020-12-31
+
+### Changed
+
+### Fixed 
+Fixed following applications template error and publish them again
+- nodejs/http302-from-origin
+- nodejs/add-security-headers
+
 
 
 

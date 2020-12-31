@@ -1,10 +1,9 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/modify-response-header",
       "nodejs/http302-from-origin",
       "nodejs/add-security-headers"
     ],
-    "tag": "v1.1.1"
+    "tag": "v1.1.2"
   }
 }
