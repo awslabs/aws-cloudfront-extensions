@@ -103,3 +103,6 @@ Outputs:
   ServingOnDeviceFunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8101"
