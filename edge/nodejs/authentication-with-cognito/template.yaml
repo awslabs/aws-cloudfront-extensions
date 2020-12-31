@@ -88,6 +88,9 @@ Outputs:
   AuthenticationByCognitoFunction:
     Description: "Simple Lambda Edge function ARN"
     Value: !GetAtt AuthenticationByCognito.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8106"    
   AuthenticationByCognitoFunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
