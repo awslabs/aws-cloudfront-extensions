@@ -17,7 +17,7 @@ for var in ${app_path_list[@]}; do
   echo "1. Begin deployment test in ${deploy_region} for ${var}"
   sam deploy --template-file edge/$var/template.yaml --stack-name ${stack_name} \
     --region "${deploy_region}" --capabilities CAPABILITY_NAMED_IAM \
-    --s3-bucket cloudfront-extensions-deployment --no-fail-on-empty-changeset
+    --s3-bucket cloudfront-ext-deployment --no-fail-on-empty-changeset
   deploy_result=$(aws cloudformation describe-stacks --stack-name ${stack_name} \
     --query "Stacks[0].Outputs")
 
