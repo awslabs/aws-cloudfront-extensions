@@ -79,7 +79,7 @@
                         ]
                     },
                     "method": "GET",
-                    "querystring": "_=1609311417410",
+                    "querystring": "_=abc",
                     "uri": "/private/top-secret.json"
                 }
             }
