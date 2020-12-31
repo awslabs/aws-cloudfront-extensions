@@ -50,7 +50,7 @@ Resources:
             Principal:
               Service:
                 - lambda.amazonaws.com
-                - Edgelambda.amazonaws.com
+                - edgelambda.amazonaws.com
             Action: sts:AssumeRole
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
