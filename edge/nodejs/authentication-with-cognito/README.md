@@ -1,7 +1,7 @@
 # Authentication with cognito
 
 
-The Lambda@Edge is designed to authenticate user through the cognitofor. 
+The Lambda@Edge is designed to authenticate user through the cognito. 
 
 ## Prerequisite
 
@@ -38,7 +38,7 @@ sam build
 sam deploy --guided
 ```
 
-The first command will build the source of your application. Before run the first command, please comment out the "UpdateEdgeCodeFunction" and "UpdateConfigCustom" resources in template.yaml file.
+The first command will build the source of your application. `Before run the first command, please comment out the "UpdateEdgeCodeFunction" and "UpdateConfigCustom" resources in template.yaml file.`
 The second command will package and deploy your application to AWS, with a series of prompts:
 
 * **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
@@ -87,9 +87,9 @@ You can find more information and examples about filtering Lambda function logs 
 Tests are defined in the `authentication-with-cognito/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-serving-based-on-device$ cd authentication-with-cognito
-serving-based-on-device$ npm install
-serving-based-on-device$ npm run test
+authentication-with-cognito$ cd authentication-with-cognito
+authentication-with-cognito$ npm install
+authentication-with-cognito$ npm run test
 ```
 
 ## Cleanup
