@@ -1,8 +1,13 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/serving-based-on-device"
+      "nodejs/authentication-with-cognito",
+      "nodejs/modify-response-header",
+      "nodejs/serving-based-on-device",
+      "nodejs/http302-from-origin",
+      "nodejs/add-security-headers",
+      "nodejs/simple-lambda-edge"
     ],
-    "tag": "v1.0.5"
+    "tag": "v1.1.0"
   }
 }
