@@ -16,7 +16,7 @@ deploy_region=us-east-1
 echo "1. Begin deployment test in ${deploy_region} for ${labelName}"
 sam deploy --template-file edge/$labelName/template.yaml --stack-name ${stack_name} \
   --region "${deploy_region}" --capabilities CAPABILITY_NAMED_IAM \
-  --s3-bucket cloudfront-extension-deployment --no-fail-on-empty-changeset
+  --s3-bucket cloudfront-ext-deployment --no-fail-on-empty-changeset
 deploy_result=$(aws cloudformation describe-stacks --stack-name ${stack_name} \
   --query "Stacks[0].Outputs")
 
