@@ -17,3 +17,4 @@ The following example shows sample values. Replace them with your own values as 
     Default region name [None]: us-east-1
     Default output format [None]: json
 
+> If you forget your access key or secret key, please follow this [link](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys) to create a new one
