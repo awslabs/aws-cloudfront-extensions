@@ -26,7 +26,7 @@
             "via": [
               {
                 "key": "Via",
-                "value": "2.0 8f22423015641505b8c857a37450d6c0.cloudfront.net (CloudFront)"
+                "value": "2.0 d6c0.cloudfront.net (CloudFront)"
               }
             ],
             "host": [
