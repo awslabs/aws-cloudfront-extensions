@@ -48,7 +48,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: lambda@Edge test
-      run: ./scripts/edge-test.sh
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/edge-test.sh
 
   nodejs-ci-add-label:
     runs-on: ubuntu-latest
