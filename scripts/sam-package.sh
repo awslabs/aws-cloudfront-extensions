@@ -14,13 +14,26 @@ for app_path in ${app_path_list[@]}; do
 	cd edge/$app_path/$codeUri
 	echo $(pwd)
 
-	npm install --production
+	if [[ $app_path == nodejs* ]]
+	then
+		npm install --production
 
-	# TODO use webpack
-	# npm run build --prod
-	# rm -rf node_modules
-	zip -r $codeUri.zip * -x 'test*'
+		# TODO use webpack
+		# npm run build --prod
+		# rm -rf node_modules
+		zip -r $codeUri.zip * -x 'test*'
+	elif [[ $app_path == python* ]]
+	then
+		pip3 install --target ./package requests
+		zip -r $codeUri.zip ./package/
+		zip -g $codeUri.zip *.py
+	else
+	   echo 'invalid app_path: ' + $app_path
+	   exit 1
+	fi	
+
 	aws s3 cp $codeUri.zip s3://aws-cloudfront-extension-lambda-edge/edge/$codeUri/$codeUri.zip --acl public-read
+	rm -f $codeUri.zip
 
 	cd ../../../../
 	echo $(pwd)

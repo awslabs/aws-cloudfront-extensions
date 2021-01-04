@@ -48,6 +48,9 @@ jobs:
       uses: actions/setup-node@v1
       with: 
         node-version: '12'  
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:

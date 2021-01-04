@@ -1,8 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/http302-from-origin",
-      "nodejs/add-security-headers"
+      "python/simple-lambda-edge"
     ],
     "tag": "v1.1.2"
   }

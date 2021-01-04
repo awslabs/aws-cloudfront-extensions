@@ -15,7 +15,7 @@ export appName="$(cut -d'/' -f2 <<<"$labelName")"
 #compile code
 echo "start compile"
 
-python3 -m compileall edge/$labelName
+python3 -m compileall edge/$language/$appName/$appName/
 
 pip3 install -U pytest
 pip3 install pytest pytest-mock --user
@@ -23,5 +23,5 @@ pip3 install coverage
 
 #unit test
 echo "start unit test"
-coverage run -m pytest edge/$labelName/tests/ -v
+coverage run -m pytest edge/$language/$appName/$appName/tests/ -v
 coverage report

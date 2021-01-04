@@ -2,12 +2,7 @@ name: "python ci"
 
 on:
   pull_request:
-    types: [ labeled ]  
-  # push:
-  #   branches:
-  #   - main
-  #   paths:
-  #   - 'edge/python/python.json'
+    types: [ labeled ]
 
 jobs:
   python-ci-precheck:

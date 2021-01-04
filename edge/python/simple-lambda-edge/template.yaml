@@ -16,11 +16,11 @@ Metadata:
   AWS::ServerlessRepo::Application:
     Name: simple-lambda-edge
     Description: Sample SAM Template for simple-lambda-edge
-    Author: AWS
+    Author: GCR Solutions
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
-    Labels: ['gcr-solutions','cloudfront+','sample', 'edge','lambda-edge']
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/python/simple-lambda-edge
@@ -30,7 +30,7 @@ Resources:
   SimpleLambdaEdgeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: simple_lambda_edge/
+      CodeUri: simple-lambda-edge/
       Handler: app.lambda_handler
       Runtime: python3.7
       Role: !GetAtt EdgeFunctionRole.Arn
@@ -46,7 +46,7 @@ Resources:
             Principal:
               Service:
                 - lambda.amazonaws.com
-                - Edgelambda.amazonaws.com
+                - edgelambda.amazonaws.com
             Action: sts:AssumeRole
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole

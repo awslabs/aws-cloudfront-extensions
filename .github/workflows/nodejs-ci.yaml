@@ -3,11 +3,6 @@ name: "nodejs ci"
 on:
   pull_request:
     types: [ labeled ]
-  # push:
-  #   branches:
-  #   - main
-  #   paths:
-  #   - 'edge/nodejs/nodejs.json'   
 
 jobs:
   nodejs-ci-precheck:
