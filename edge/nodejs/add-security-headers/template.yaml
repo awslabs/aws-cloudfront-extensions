@@ -17,11 +17,11 @@ Metadata:
   AWS::ServerlessRepo::Application:
     Name: add-security-headers
     Description: SAM Template for add-security-headers
-    Author: AWS
+    Author: GCR Solutions
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
-    Labels: ['gcr-solutions','cloudfront+','sample', 'edge','lambda-edge']
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/add-security-headers
@@ -50,7 +50,7 @@ Resources:
             Principal:
               Service:
                 - lambda.amazonaws.com
-                - Edgelambda.amazonaws.com
+                - edgelambda.amazonaws.com
             Action: sts:AssumeRole
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
