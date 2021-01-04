@@ -29,7 +29,7 @@ To test Lambda@Edge function:
                         "headers": {
                            "test-header": [
                               {
-                                 "key": "testHeader",
+                                 "key": "test-header",
                                  "value": "testValue"
                               }
                            ]
