@@ -1,12 +1,12 @@
-# Modify Response Header
+# Modify Response Status Code 
 
-The Lambda@Edge will modify/add several response headers.
+The Lambda@Edge will modify the response status code.
 
 ## Description
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- modify-response-header - Code for the application's Lambda function, which adds/modifies response headers when viewer response. 
+- modify-response-status-code - Code for the application's Lambda function, which modify response status code. 
 - events - Invocation events that you can use to invoke the function.
 - template.yaml - A template that defines the application's AWS resources.
 
