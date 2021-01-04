@@ -8,6 +8,8 @@ In this step, you will create a Lambda function by AWS Serverless Application Mo
 
 ## Download a sample AWS SAM application
 
+After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have uploaded CloudFront+ into CloudShell, go to CloudFront+ folder and perform following commands:
+
        cd edge/nodejs/
        sam init
 
@@ -55,17 +57,25 @@ To create a Lambda@Edge function
 
         'use strict';
 
-        exports.handler = async (event, context) => {
+        exports.lambdaHandler = async (event, context) => {
 
             const response = event.Records[0].cf.response;
             const headers = response.headers;
         
-            headers['workshop'] = [{key: 'cloudFrontExtensionWorkshop', value: 'Workshop demo header'}];
+            headers['workshop'] = [{key: 'workshop', value: 'workshop demo header'}];
         
             return response;
         };
+
+2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you must replace the original template.yaml with the [new one](https://drive.corp.amazon.com/documents/lvning@/Workshop/template.yaml)
+
+   ![Yaml Changes](/yaml_changes.png)
     
-2. Add solution id (TBD)
+3. [Optional] Add solution id
+
+   Solution id is a unique id assigned by AWS GCR Solution team, you will need to add the solution id in template.yaml, all CloudFront+ solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront+ tab.
+   > **Add Solution id is optional for this workshop, you can skip this step**
+
 
 ## Build and deploy your application
 
@@ -79,7 +89,13 @@ Example output:
 
 Run this command to deploy your application
 
-    sam deploy --guided
+    sam deploy --guided --capabilities CAPABILITY_NAMED_IAM
 
 Follow the on-screen prompts. To accept the default options provided in the interactive experience, respond with **Enter**
+
+Example arguments:
+![SAM Deploy Args](/sam-deploy-args.png)
+
+Example output:
+![SAM Deploy Output](/sam-deploy-output.png)
 
