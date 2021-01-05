@@ -37,7 +37,7 @@ for app_path in ${app_path_list[@]}; do
 
 	cd ../../../../
 	echo $(pwd)
-	sam package -t edge/$app_path/template.yaml --output-template-file edge/$app_path/packaged.yaml --s3-bucket cloudfront-extensions-package --region us-east-1	
+	sam package -t edge/$app_path/template.yaml --output-template-file edge/$app_path/packaged.yaml --s3-bucket cloudfront-extensions-package --s3-prefix $codeUri  --region us-east-1
 done
 
 
