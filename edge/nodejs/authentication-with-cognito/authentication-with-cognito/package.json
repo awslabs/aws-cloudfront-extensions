@@ -11,7 +11,7 @@
     "jwk-to-pem": "^2.0.4"
   },
   "scripts": {
-    "test": "mocha tests/unit/"
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.2.0",

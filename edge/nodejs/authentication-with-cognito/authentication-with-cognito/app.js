@@ -75,6 +75,8 @@ exports.handler = (event, context, callback) => {
         return false;
     }
 
+    console.log('Start verify token');
+
     //Verify the signature of the JWT token to ensure it's really coming from your User Pool
     jwt.verify(jwtToken, pem, { issuer: iss }, function(err, payload) {
       if(err) {
