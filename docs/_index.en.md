@@ -3,13 +3,15 @@ title: CloudFront+ workshop
 chapter: true
 ---
 
-# What is Amazon CloudFront+ 
+# Amazon CloudFront+ 
 
-AWS CloudFront+ is a solution package as valuable extension for using CloudFront. CloudFront+ includes rich set of featured Lambda@Edge, CloudFormation templates for various user scenarios and a out-of-box monitoring solution. This is also an open-source project in GitHub, anyone can contribute to add Lambda@Edge features or adding more CloudFront related solutions.
+Amazon CloudFront+ is an extension for using CloudFront. CloudFront+ includes rich set of featured Lambda@Edge, CDK templates for various user scenarios and an out-of-box monitoring solution. It is an open-source project in GitHub, anyone can contribute to add Lambda@Edge features or adding more CloudFront related solutions.
+
+![High Level Design](/high-level-arch.png)
 
 ### One stop to find Lambda@Edge scripts for different use cases
 
-CloudFront+ offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Prewarm etc. The solution aims to optimize the customer experience of CloudFront configuration in global region, and enables customers to simplify global CloudFront configuration via Lambda function scripts, through which they can enjoy AWS CloudFront service and switch more CDN traffic to CloudFront. Customers can not only checkout Lambda@Edge scripts from CloudFront+ GitHub repo, but also can deploy them from SAP directly into AWS Console without coding.
+CloudFront+ offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Prewarm etc. The solution aims to optimize the customer experience of CloudFront configuration in the global region, and enables customers to simplify global CloudFront configuration via Lambda function scripts, through which they can enjoy AWS CloudFront service and switch more CDN traffic to CloudFront. Customers can not only checkout Lambda@Edge scripts from CloudFront+ GitHub repo, but also can deploy them from SAR directly into AWS Console without coding.
 
 ### One-Click to deploy commonly used CloudFront solutions
 
