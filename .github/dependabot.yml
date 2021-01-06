@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "edge/nodejs"
+    # Check the npm registry for updates every day (weekdays)
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "edge/python"
+    schedule:
+      interval: "daily"
