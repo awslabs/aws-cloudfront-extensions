@@ -39,8 +39,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: python-ci-precheck
     steps:
-    - name: placeholder
-      run: echo "TODO"
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: lambda@Edge test
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/edge-test.sh
 
   python-ci-add-label:
     runs-on: ubuntu-latest
