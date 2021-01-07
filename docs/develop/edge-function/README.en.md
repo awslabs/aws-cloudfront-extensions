@@ -74,7 +74,9 @@ To create a Lambda@Edge function
 3. [Optional] Add solution id
 
    Solution id is a unique id assigned by AWS GCR Solution team, you will need to add the solution id in template.yaml, all CloudFront+ solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront+ tab.
-   > **Add Solution id is optional for this workshop, you can skip this step**
+   {{% notice info %}}
+   Add Solution id is **optional** for this workshop, you can skip this step
+   {{% /notice %}}
 
 
 ## Build and deploy your application

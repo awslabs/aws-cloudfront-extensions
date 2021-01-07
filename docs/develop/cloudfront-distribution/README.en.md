@@ -15,7 +15,9 @@ To create a CloudFront distribution with an Amazon S3 origin, you will do the fo
    ![S3 Bucket Name](/S3-bucket-name.png)
 4. Clear **Block all public access** check box to allow public access
    ![S3 Public Access](/S3-public.png)
-   >You need to allow public read access to the bucket and files so that CloudFront URLs can serve content from the bucket. However, you can restrict access to specific content by using signed URLs or signed cookies
+   {{% notice note %}}
+   You need to allow public read access to the bucket and files so that CloudFront URLs can serve content from the bucket. However, you can restrict access to specific content by using signed URLs or signed cookies
+   {{% /notice %}}
 5. Leave other options as default and click **Create bucket** 
 
 ## Upload your content to Amazon S3
@@ -36,6 +38,7 @@ To create a CloudFront distribution with an Amazon S3 origin, you will do the fo
 6. To test your link, open your link in a browser
    
    The link is in this format: https://\<domain name>/\<object name>
-   
-   > For example, if the domain name is d1v2jstg89nnob.cloudfront.net, the object name is CloudFrontIcon.png, the link will be https://d1v2jstg89nnob.cloudfront.net/CloudFrontIcon.png
+   {{% notice note %}}
+   For example, if the domain name is d1v2jstg89nnob.cloudfront.net, the object name is CloudFrontIcon.png, the link will be https://d1v2jstg89nnob.cloudfront.net/CloudFrontIcon.png
+   {{% /notice %}}
 
