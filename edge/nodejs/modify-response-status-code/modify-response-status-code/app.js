@@ -8,5 +8,8 @@ exports.handler = async (event, context) => {
     //Set new status code
     response.status = '500';
 
+    //pr test
+    response.status = '500';
+
     return response;
 };
