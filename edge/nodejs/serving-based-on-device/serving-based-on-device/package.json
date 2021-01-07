@@ -20,7 +20,7 @@
     "webpack-bundle-analyzer": "^3.8.0",
     "webpack-cli": "^3.3.12",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^8.2.1",
     "nyc": "^15.1.0"
   }
 }
