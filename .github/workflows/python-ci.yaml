@@ -1,7 +1,7 @@
 name: "python ci"
 
 on:
-  pull_request:
+  pull_request_target:
     types: [ labeled ]
 
 jobs:
@@ -15,17 +15,14 @@ jobs:
           github-token: ${{github.token}}
           bodyContains: '[x]'
 
-  python-ci-precheck:
+  python-ci-precheck-content-scan:
     runs-on: ubuntu-latest
     needs: python-check-pr
     steps:
     - name: Checkout
-      uses: actions/checkout@v2        
-    - name: Install JQ
-      run: sudo apt-get install jq 
-    - uses: actions/setup-python@v2
+      uses: actions/checkout@v2
       with:
-        python-version: '3.x'
+        ref: ${{ github.event.pull_request.head.sha }} 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -36,6 +33,18 @@ jobs:
       run: |
         export labelName=${{ github.event.label.name }}
         ./scripts/python-ci-content-scan.sh
+
+  python-ci-precheck-code-check:
+    runs-on: ubuntu-latest
+    needs: python-ci-precheck-content-scan
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }} 
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'                
     - name: check code style
       run: |
         export labelName=${{ github.event.label.name }}
@@ -47,10 +56,12 @@ jobs:
 
   python-ci-deploy-test:
     runs-on: ubuntu-latest
-    needs: python-ci-precheck
+    needs: python-ci-precheck-code-check
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }} 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -67,7 +78,9 @@ jobs:
     needs: python-ci-deploy-test
     steps:
     - name: Checkout
-      uses: actions/checkout@v2     
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}     
     - uses: actions-ecosystem/action-add-labels@v1
       with:
         github_token: ${{ secrets.github_token }}

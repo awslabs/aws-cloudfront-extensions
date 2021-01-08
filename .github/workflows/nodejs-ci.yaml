@@ -1,7 +1,7 @@
 name: "nodejs ci"
 
 on:
-  pull_request:
+  pull_request_target:
     types: [ labeled ]
 
 jobs:
@@ -15,18 +15,14 @@ jobs:
         github-token: ${{github.token}}
         bodyContains: '[x]'
 
-  nodejs-ci-precheck:
+  nodejs-ci-precheck-content-scan:
     runs-on: ubuntu-latest
     needs: nodejs-check-pr
     steps:
     - name: Checkout
-      uses: actions/checkout@v2        
-    - name: install jq
-      run: sudo apt-get install jq 
-    - name: Install Node
-      uses: actions/setup-node@v1
-      with: 
-        node-version: '12'  
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -37,6 +33,19 @@ jobs:
       run: |
         export labelName=${{ github.event.label.name }}
         ./scripts/nodejs-ci-content-scan.sh
+
+  nodejs-ci-precheck-code-check:
+    runs-on: ubuntu-latest
+    needs: nodejs-ci-precheck-content-scan
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Install Node
+      uses: actions/setup-node@v1
+      with: 
+        node-version: '12'               
     - name: check code style
       run: |
         export labelName=${{ github.event.label.name }}
@@ -44,14 +53,17 @@ jobs:
     - name: build and code coverage
       run: |
         export labelName=${{ github.event.label.name }}
-        ./scripts/nodejs-ci-build-coverage.sh      
+        ./scripts/nodejs-ci-build-coverage.sh        
+      
 
   nodejs-ci-deploy-test:
     runs-on: ubuntu-latest
-    needs: nodejs-ci-precheck
+    needs: nodejs-ci-precheck-code-check
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -68,7 +80,9 @@ jobs:
     needs: nodejs-ci-deploy-test
     steps:
     - name: Checkout
-      uses: actions/checkout@v2     
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}    
     - uses: actions-ecosystem/action-add-labels@v1
       with:
         github_token: ${{ secrets.github_token }}
