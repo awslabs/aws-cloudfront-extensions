@@ -1,0 +1,15 @@
+name: "check issue"
+
+on: issues
+
+jobs:
+  check-issue-compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check issue compliance
+        run: |
+          echo "Issue title: ${{ github.event.issue.title }}"
+          echo "Issue body: ${{ github.event.issue.body }}"
+          export issueBody=${{ github.event.issue.body }}
+          ./scripts/check-issue.sh
+
