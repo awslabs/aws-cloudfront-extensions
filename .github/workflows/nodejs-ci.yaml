@@ -6,6 +6,7 @@ on:
 
 jobs:
   nodejs-check-pr:
+    if: startsWith(github.event.label.name, 'nodejs')
     runs-on: ubuntu-latest
     steps:
     - name: Check PR
@@ -15,7 +16,6 @@ jobs:
         bodyContains: '[x]'
 
   nodejs-ci-precheck:
-    if: startsWith(github.event.label.name, 'nodejs')
     runs-on: ubuntu-latest
     needs: nodejs-check-pr
     steps:
