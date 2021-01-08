@@ -1,8 +1,9 @@
 {
   "edge": {
     "publish_app_path": [
-      "python/simple-lambda-edge"
+      "nodejs/authentication-with-cognito",
+      "nodejs/modify-response-header"
     ],
-    "tag": "v1.1.2"
+    "tag": "v1.0.1"
   }
 }
