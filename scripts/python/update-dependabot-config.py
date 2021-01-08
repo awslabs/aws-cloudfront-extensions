@@ -3,7 +3,7 @@ import yaml
 
 nodejsPath = 'edge/nodejs/'
 pythonPath = 'edge/python/'
-dependabotConfig = '.github/dependabot.yaml'
+dependabotConfig = '.github/dependabot.yml'
 
 def generateDir(rootPath, appPath):
 	return rootPath + appPath + '/' + appPath
