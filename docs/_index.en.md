@@ -7,7 +7,7 @@ chapter: true
 
 Amazon CloudFront+ is an extension for using CloudFront. CloudFront+ includes rich set of featured Lambda@Edge, CDK templates for various user scenarios and an out-of-box monitoring solution. It is an open-source project in GitHub, anyone can contribute to add Lambda@Edge features or adding more CloudFront related solutions.
 
-![High Level Design](/high-level-arch.png)
+![High Level Design](/images/high-level-arch.png)
 
 ### One stop to find Lambda@Edge scripts for different use cases
 

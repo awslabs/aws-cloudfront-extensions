@@ -12,8 +12,10 @@ Install the AWS CDK Toolkit globally using the following Node Package Manager co
     npm install -g aws-cdk
 
 You will need to add **sudo** in front of the command If you see below error
-
-> Error: EACCES: permission denied, access '/usr/lib/node_modules'
+  
+  {{% notice tip %}}
+  Error: EACCES: permission denied, access '/usr/lib/node_modules'
+  {{% /notice %}}
 
     sudo npm install -g aws-cdk
 

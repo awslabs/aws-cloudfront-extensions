@@ -9,14 +9,14 @@ Before creating an issue, make sure you have read the [contributing guidelines](
 To create an issue by doing the following
 
 1. Under your repository, choose **Issues** tab and choose **New issue**
-    ![Issue](/issue.png)
+    ![Issue](/images/issue.png)
 2. Choose the issue type
     - Bug (software defects)
     - Feature request
     - General issue (non-software defects such as document issue, process issue)
     - Security vulnerability
-      ![Issue Type](/issue_type.png)
+      ![Issue Type](/images/issue_type.png)
 3. Fill in each field defined in the template and submit the issue
-    ![Issue Template](/issue_template.png)
+    ![Issue Template](/images/issue_template.png)
    
    

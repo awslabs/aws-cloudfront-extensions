@@ -10,11 +10,11 @@ Now that you have tested the Lambda function, in this step, you will configure t
 To configure the CloudFront trigger for your function
 1. Choose **Configuration** tab and choose **Triggers**, you will see there is an API Gateway trigger which is deployed by hello world SAM template, delete it since you will not need it in this workshop
 
-   ![Api Trigger](/api_trigger.png)
+   ![Api Trigger](/images/api_trigger.png)
 
 2. Add Trigger and choose **CloudFront**, choose **Deploy to Lambda@Edge**
 
-   ![CF Trigger](/CF_trigger.png)
+   ![CF Trigger](/images/CF_trigger.png)
 
 3. On the **Deploy to Lambda@Edge** page, enter the following information:
    
@@ -28,13 +28,13 @@ To configure the CloudFront trigger for your function
 
    Choose **Deploy**
    
-   ![Lambda Deploy](/lambda_deploy.png)
+   ![Lambda Deploy](/images/lambda_deploy.png)
 
 4. Wait for the function to replicate. This typically takes several minutes
    
    You can check to see if replication is finished by going to the [CloudFront console](https://console.aws.amazon.com/cloudfront/) and viewing your distribution. Wait for the distribution status to change from In Progress back to **Deployed**, which means that your function has been replicated
 
-   ![CF Deployed](/cf_deployed.png)
+   ![CF Deployed](/images/cf_deployed.png)
 
 
 ## Trigger the function from CloudFront
@@ -45,7 +45,7 @@ In **Create a CloudFront Distribution** section, you have created a CloudFront d
 
 Open this link, you will see the workshop header is in the response header
 
-![Resp Header](/resp_header.png)
+![Resp Header](/images/resp_header.png)
 
 
 

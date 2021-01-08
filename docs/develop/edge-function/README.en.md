@@ -15,19 +15,19 @@ After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have u
 
    Choose **1 - AWS Quick Start Templates**
    
-   ![SAM init1](/sam-init1.png)
+   ![SAM init1](/images/sam-init1.png)
 
    Choose **1 - nodejs12.x**
    
-   ![SAM init2](/sam-init2.png) 
+   ![SAM init2](/images/sam-init2.png) 
 
    Enter project name **update-response-header** and choose **1 - Hello World Example** template
    
-   ![SAM init3](/sam-init3.png)  
+   ![SAM init3](/images/sam-init3.png)  
 
    Example output
 
-   ![SAM init output](/sam-init-output.png)
+   ![SAM init output](/images/sam-init-output.png)
 
    This command creates a directory with the name that you provided as the project name. The contents of the project directory are similar to the following:
 
@@ -69,7 +69,7 @@ To create a Lambda@Edge function
 
 2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you must replace the original template.yaml with the [new one](https://drive.corp.amazon.com/documents/lvning@/Workshop/template.yaml)
 
-   ![Yaml Changes](/yaml_changes.png)
+   ![Yaml Changes](/images/yaml_changes.png)
     
 3. [Optional] Add solution id
 
@@ -87,7 +87,7 @@ First, change into the project directory, where the template.yaml file for the s
 
 Example output:
 
-![SAM Build Output](/sam-build-output.png)
+![SAM Build Output](/images/sam-build-output.png)
 
 Run this command to deploy your application
 
@@ -96,8 +96,8 @@ Run this command to deploy your application
 Follow the on-screen prompts. To accept the default options provided in the interactive experience, respond with **Enter**
 
 Example arguments:
-![SAM Deploy Args](/sam-deploy-args.png)
+![SAM Deploy Args](/images/sam-deploy-args.png)
 
 Example output:
-![SAM Deploy Output](/sam-deploy-output.png)
+![SAM Deploy Output](/images/sam-deploy-output.png)
 
