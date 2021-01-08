@@ -15,7 +15,7 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: authentication-with-cognito
-    Description: Authenticating by Cognito
+    Description: SAM Template for authentication-with-cognito
     Author: GCR Solutions
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
@@ -86,11 +86,11 @@ Resources:
 
 Outputs:
   AuthenticationByCognitoFunction:
-    Description: "Simple Lambda Edge function ARN"
+    Description: "Lambda Edge function ARN"
     Value: !GetAtt AuthenticationByCognito.Arn
   SolutionId:
     Description: "Solution id"
     Value: "SO8106"    
   AuthenticationByCognitoFunctionIamRole:
-    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Description: "Implicit IAM Role created for Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
