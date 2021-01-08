@@ -1,13 +1,5 @@
 updates:
-- directory: edge/nodejs/rewrite-url-useragent/rewrite-url-useragent
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/authentication-with-cognito/authentication-with-cognito
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/add-security-headers/add-security-headers
+- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -15,15 +7,23 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/convert-response-status-code/convert-response-status-code
+- directory: edge/nodejs/add-security-headers/add-security-headers
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/modify-response-header/modify-response-header
+- directory: edge/nodejs/authentication-with-cognito/authentication-with-cognito
   package-ecosystem: npm
   schedule:
     interval: daily
 - directory: edge/nodejs/origin-by-customized-service/origin-by-customized-service
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/rewrite-url-useragent/rewrite-url-useragent
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/modify-response-header/modify-response-header
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -35,7 +35,7 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
+- directory: edge/nodejs/convert-response-status-code/convert-response-status-code
   package-ecosystem: npm
   schedule:
     interval: daily
