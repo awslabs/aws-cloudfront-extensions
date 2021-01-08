@@ -6,7 +6,7 @@ appVersion = sys.argv[2]
 print(fname)
 
 with open(fname) as f:
-    newfile = yaml.load(f, Loader=yaml.CLoader)
+    newfile = yaml.load(f, Loader=yaml.SafeLoader)
 
 newfile["Metadata"]["AWS::ServerlessRepo::Application"]["Author"] = "GCR Solutions"
 newfile["Metadata"]["AWS::ServerlessRepo::Application"]["LicenseUrl"] = "s3://aws-cloudfront-extension-lambda-edge/LICENSE.txt"
