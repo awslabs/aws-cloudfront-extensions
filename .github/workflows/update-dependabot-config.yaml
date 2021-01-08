@@ -4,7 +4,7 @@ on:
     branches:
     - main
     paths:
-    - 'edge'
+    - 'edge/**'
 
 jobs:
   update-dependabot-config:
