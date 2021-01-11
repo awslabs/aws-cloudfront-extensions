@@ -16,5 +16,8 @@ jobs:
       run: |
         echo "Issue title: ${{ github.event.issue.title }}"
         export issueBody=${{ github.event.issue.body }}
+        python -V
+        ls -al
         python ./scripts/python/check_issue.py -b $issueBody
+        python ./scripts/check_issue_test.py -b $issueBody
 
