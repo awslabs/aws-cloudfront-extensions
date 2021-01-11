@@ -17,6 +17,5 @@ jobs:
         echo "Issue title: ${{ github.event.issue.title }}"
         echo "${{ github.event.issue.body }}" > githubIssueBody.md
         ls
-        vim githubIssueBody.md
-#        python ./scripts/python/check_issue.py -b githubIssueBody.md
+        python ./scripts/python/check_issue.py -b githubIssueBody.md
 
