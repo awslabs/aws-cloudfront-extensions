@@ -9,11 +9,15 @@ jobs:
     if: startsWith(github.event.label.name, 'nodejs')
     runs-on: ubuntu-latest
     steps:
-    - name: Check PR
+    - name: Check PR checkbox
       uses: JJ/github-pr-contains-action@releases/v2
       with:
         github-token: ${{github.token}}
         bodyContains: '[x]'
+    - name: Check PR content
+      run: |
+        echo "${{ github.event.pull_request.body }}" > githubPRBody.md
+        python ./scripts/python/check_pr.py -b githubPRBody.md
 
   nodejs-ci-precheck-content-scan:
     runs-on: ubuntu-latest
