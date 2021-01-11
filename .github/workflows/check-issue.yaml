@@ -8,16 +8,16 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: setup python
+    - name: Setup python
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
     - name: Check issue compliance
       run: |
+        ls
+        python -V
         echo "Issue title: ${{ github.event.issue.title }}"
         export issueBody=${{ github.event.issue.body }}
-        python -V
-        ls -al
         python ./scripts/python/check_issue.py -b $issueBody
         python ./scripts/check_issue_test.py -b $issueBody
 
