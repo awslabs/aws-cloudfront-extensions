@@ -16,7 +16,5 @@ cd $current_path/edge/$labelName
 
 cd $appName
 echo "working path" $(pwd)
-npm install --save-dev nyc
-npm install --save-dev mocha
-npm install --save-dev chai 	
+npm install
 npm test
