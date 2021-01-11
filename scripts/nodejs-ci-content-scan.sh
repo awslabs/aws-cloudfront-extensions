@@ -3,6 +3,8 @@
 export language="$(cut -d'/' -f1 <<<"$labelName")"
 export appName="$(cut -d'/' -f2 <<<"$labelName")"
 
+echo $labelName
+
 # scan commit content
 aws s3 cp s3://aws-solutions-build-assets/viperlight-scanner/viperlight.zip .
 
