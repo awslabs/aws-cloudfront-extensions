@@ -15,9 +15,10 @@ jobs:
     - name: Check issue compliance
       run: |
         ls
+        ls scripts/
+        ls scripts/python
         python -V
         echo "Issue title: ${{ github.event.issue.title }}"
-        export issueBody=${{ github.event.issue.body }}
-        python ./scripts/python/check_issue.py -b $issueBody
-        python ./scripts/check_issue_test.py -b $issueBody
+        python ./scripts/python/check_issue.py -b ${{ github.event.issue.body }}
+        python ./scripts/check_issue_test.py -b ${{ github.event.issue.body }}
 
