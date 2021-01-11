@@ -1,7 +1,6 @@
-import sys
 import logging
+import sys
 from optparse import OptionParser
-from scripts.python.utils import get_content_from_file
 
 log = logging.getLogger('aws-cloudfront-extension.check_pr')
 log_formatter = logging.Formatter(
@@ -34,7 +33,7 @@ def check_pr():
         parser.print_help()
         sys.exit(1)
 
-    pr_content = get_content_from_file(option.body)
+    pr_content = get_pr_from_file(option.body)
     log.info('PR content: ' + pr_content)
     index_desc = pr_content.find(DESC)
     index_testing = pr_content.find(TESTING)
@@ -56,6 +55,17 @@ def check_pr():
         sys.exit(1)
 
     log.info('Check PR compliance succeed')
+
+
+def get_pr_from_file(file_name):
+    f = open(file_name, "r")
+    process_lines = f.readlines()
+    file_content = ''
+    for line in process_lines:
+        file_content += line
+
+    f.close()
+    return file_content
 
 
 if __name__ == '__main__':
