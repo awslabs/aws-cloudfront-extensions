@@ -6,10 +6,15 @@ jobs:
   check-issue-compliance:
     runs-on: ubuntu-latest
     steps:
-      - name: Check issue compliance
-        run: |
-          echo "Issue title: ${{ github.event.issue.title }}"
-          echo "Issue body: ${{ github.event.issue.body }}"
-          export issueBody=${{ github.event.issue.body }}
-          ./scripts/check-issue.sh
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Check issue compliance
+      run: |
+        echo "Issue title: ${{ github.event.issue.title }}"
+        export issueBody=${{ github.event.issue.body }}
+        python ./scripts/python/check_issue.py -b $issueBody
 
