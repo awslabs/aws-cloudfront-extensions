@@ -16,4 +16,17 @@ Publish following applications
 
 ### Changed
 
+### Fixed
+
+## [v1.0.2] - 2021-01-08
+### Added
+Publish following applications
+- nodejs/add-security-headers
+- nodejs/http302-from-origin
+- nodejs/simple-lambda-edge
+
+Fix sam template principal from "Edgelambda.amazonaws.com" to "edgelambda.amazonaws.com" for above applications
+
+### Changed
+
 ### Fixed 
