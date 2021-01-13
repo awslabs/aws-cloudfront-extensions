@@ -1,6 +1,6 @@
 # Modify Response Status Code 
 
-The Lambda@Edge will modify the response status code.
+The Lambda@Edge will modify the response status code. For example, the original response code is 200, it can change the status code to 500 
 
 ## Description
 
@@ -33,10 +33,6 @@ The first command will build the source of your application. The second command 
 
 * **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
 * **AWS Region**: The AWS region you want to deploy your app to.
-* **Desktop Path Parameter**: The content folder for desktop device.
-* **Mobile Path Parameter**: The content folder for mobile device.
-* **Tablet Path Parameter**: The content folder for tablet device.
-* **Smart TV Path Parameter**: The content folder for smart TV device.
 * **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
 * **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modified IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
@@ -48,17 +44,17 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 Build your application with the `sam build` command.
 
 ```bash
-modify-response-header$ sam build
+modify-response-status-code$ sam build
 ```
 
-The SAM CLI installs dependencies defined in `modify-response-header/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `modify-response-status-code/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-modify-response-header$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
+modify-response-status-code$ sam local invoke ModifyResponseStatusCodeFunction --event events/event.json
 ```
 
 
@@ -72,7 +68,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-modify-response-header$ sam logs -n HelloWorldFunction --stack-name modify-response-header --tail
+modify-response-status-code$ sam logs -n ModifyResponseStatusCodeFunction --stack-name modify-response-status-code --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
@@ -83,7 +79,7 @@ You can find more information and examples about filtering Lambda function logs 
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name modify-response-header
+aws cloudformation delete-stack --stack-name modify-response-status-code
 ```
 
 ## Resources

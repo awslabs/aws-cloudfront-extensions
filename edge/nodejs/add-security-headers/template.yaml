@@ -29,7 +29,7 @@ Metadata:
 
 
 Resources:
-  ServingOnDeviceFunction:
+  AddSecurityHeaderFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: add-security-headers/
@@ -57,10 +57,10 @@ Resources:
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
 
 Outputs:
-  ServingOnDeviceFunction:
+  AddSecurityHeaderFunction:
     Description: "Lambda Edge function ARN"
-    Value: !GetAtt ServingOnDeviceFunction.Arn
-  ServingOnDeviceFunctionIamRole:
+    Value: !GetAtt AddSecurityHeaderFunction.Arn
+  AddSecurityHeaderFunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
   SolutionId:
