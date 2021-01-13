@@ -18,4 +18,12 @@ jobs:
         echo "Issue title: ${{ github.event.issue.title }}"
         echo "${{ github.event.issue.body }}" > githubIssueBody.md
         python ./scripts/python/check_issue.py -b githubIssueBody.md
+        echo ::set-output name=status::success
+      continue-on-error: true
+    - name: Close Issue
+      uses: peter-evans/close-issue@v1
+      with:
+        comment: |
+          Issue reproduction steps and expected result can't be null, please follow the issue template
+          Auto-closing this issue.
 
