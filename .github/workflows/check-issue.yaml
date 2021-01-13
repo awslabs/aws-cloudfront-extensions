@@ -14,13 +14,15 @@ jobs:
       with:
         python-version: 3.9
     - name: Check issue compliance
+      id: check
       run: |
         echo "Issue title: ${{ github.event.issue.title }}"
         echo "${{ github.event.issue.body }}" > githubIssueBody.md
         python ./scripts/python/check_issue.py -b githubIssueBody.md
         echo ::set-output name=status::success
       continue-on-error: true
-    - name: Close Issue
+    - if: steps.check.outputs.status != 'success'
+      name: Close Issue
       uses: peter-evans/close-issue@v1
       with:
         comment: |
