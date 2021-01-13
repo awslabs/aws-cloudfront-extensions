@@ -19,6 +19,10 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
+- directory: edge/nodejs/normalize-query-string/normalize-query-string
+  package-ecosystem: npm
+  schedule:
+    interval: daily
 - directory: edge/nodejs/rewrite-url-useragent/rewrite-url-useragent
   package-ecosystem: npm
   schedule:
@@ -32,10 +36,6 @@ updates:
   schedule:
     interval: daily
 - directory: edge/nodejs/serving-based-on-device/serving-based-on-device
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/convert-response-status-code/convert-response-status-code
   package-ecosystem: npm
   schedule:
     interval: daily
