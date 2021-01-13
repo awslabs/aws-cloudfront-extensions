@@ -31,6 +31,9 @@ Bad Bots (I): This component automatically sets up a honeypot, which is a securi
 # Require to install AWS CDK
 
 $ cd templates/aws-cloudfromt-waf
-$ cdk deploy 
+$ cdk deploy --parameters staticSiteBucketName=<Your unique S3 bucket name> 
 
 ```
+
+> Use `aws s3api head-bucket --bucket <Your unique S3 bucket name>` to check whether this bucket is unique globally
+
