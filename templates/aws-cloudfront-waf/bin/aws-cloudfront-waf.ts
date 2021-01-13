@@ -5,3 +5,4 @@ import { AwsCloudfrontWafStack } from '../lib/aws-cloudfront-waf-stack';
 
 const app = new cdk.App();
 new AwsCloudfrontWafStack(app, 'AwsCloudfrontWafStack');
+app.synth()
