@@ -61,7 +61,7 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-normalize-query-string$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
+normalize-query-string$ sam local invoke NormalizeQueryString --event events/event.json
 ```
 
 
@@ -75,7 +75,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-normalize-query-string$ sam logs -n SimpleLambdaEdgeFunction --stack-name normalize-query-string --tail
+normalize-query-string$ sam logs -n NormalizeQueryString --stack-name normalize-query-string --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
@@ -85,7 +85,7 @@ You can find more information and examples about filtering Lambda function logs 
 Tests are defined in the `normalize-query-string/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-normalize-query-string$ cd authentication-with-cognito
+normalize-query-string$ cd normalize-query-string
 normalize-query-string$ npm install
 normalize-query-string$ npm run test
 ```
