@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8119) 
+  access-origin-by-weight-rate
+
+  The lambda will access origin server according to origin server weight rate
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    Tags:
+      Publisher: GCR-Solutions
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: access-origin-by-weight-rate
+    Description: SAM Template for access-origin-by-weight-rate
+    Author: GCR Solutions
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/edge/nodejs/access-origin-by-weight-rate
+
+Parameters:
+  OriginDomainListParameter:
+    Type: String
+    Default: "" 
+    Description: "Origin domain list, example: [{ rating: 1, domain: 'originA' },{ rating: 2, domain: 'originB' }]"  
+
+Resources:
+  AccessOriginByRateFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: access-origin-by-weight-rate/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn: AccessOriginByRateFunction
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
+      Handler: index.handler
+      Runtime: python3.7
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/access-origin-by-weight-rate/access-origin-by-weight-rate.zip'
+      EdgeFunctionArn: !GetAtt AccessOriginByRateFunction.Arn
+      HandlerFileName: 'app.js'       
+      INPUT_ORIGIN_LIST: !Ref OriginDomainListParameter         
+
+Outputs:
+  AccessOriginByRateFunction:
+    Description: "Lambda Edge function ARN"
+    Value: !GetAtt AccessOriginByRateFunction.Arn
+  AccessOriginByRateFunctionIamRole:
+    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8119"
