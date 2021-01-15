@@ -1,0 +1,21 @@
+{
+  "name": "access-origin-by-weight-rate",
+  "version": "1.0.0",
+  "description": "Lambda@edge of accessing origin by weight rate for NodeJS",
+  "main": "app.js",
+  "repository": "https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/access-origin-by-weight-rate",
+  "author": "GCR Solutions",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "weighted-random": "^0.1.0"
+  },
+  "scripts": {
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0"
+  }
+}
