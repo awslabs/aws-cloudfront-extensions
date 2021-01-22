@@ -1,8 +1,8 @@
 'use strict';
 const {http, https} = require('follow-redirects');
 
- const originIPList = 'PARA_ORIGINIPLIST';
- const originProtocol = 'PARA_ORIGINPROTOCOL';
+const originIPList = 'PARA_ORIGINIPLIST';
+const originProtocol = 'PARA_ORIGINPROTOCOL';
 
 //global varialbes for saving the retry status and body
 var retrySucceed = false;
@@ -119,7 +119,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function  getData(callbackdata, request, response, originProtocol, ipList) {
+async function getData(callbackdata, request, response, originProtocol, ipList) {
 
     var url = request.uri;
     var queryString = request.querystring;
@@ -127,8 +127,7 @@ async function  getData(callbackdata, request, response, originProtocol, ipList)
     makeRetryRequest(originProtocol, url, queryString, ipList);
 
     console.log("########Wait start");
-    while(retrySucceed !=true && sentTime<ipList.length){
-        console.log("guming debug>> wait, "+sentTime);
+    while(retrySucceed != true && sentTime < ipList.length){
         await sleep(100);
     }
     console.log("########Wait end");

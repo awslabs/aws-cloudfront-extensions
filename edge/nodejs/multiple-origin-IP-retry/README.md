@@ -31,7 +31,7 @@ To build and deploy your application for the first time, run the following in yo
 
 ```bash
 sam build
-sam deploy --guided
+sam deploy --guided --capabilities CAPABILITY_NAMED_IAM
 ```
 
 The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
@@ -59,7 +59,7 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-multiple-origin-IP-retry$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
+multiple-origin-IP-retry$ sam local invoke MultipleOriginIPRetry --event events/event.json
 ```
 
 
@@ -73,7 +73,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-multiple-origin-IP-retry$ sam logs -n HelloWorldFunction --stack-name multiple-origin-IP-retry --tail
+multiple-origin-IP-retry$ sam logs -n MultipleOriginIPRetry --stack-name multiple-origin-IP-retry --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
