@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  (SO8101) 
+  (SO8120)
   multiple-origin-IP-retry
 
   The domain name of the customer's origin site has multiple IPs. When the first IP fails to access, it needs to poll other IPs until the return to the source is successful, or all IPs fail after polling.
