@@ -94,4 +94,4 @@ Outputs:
     Value: !GetAtt EdgeFunctionRole.Arn
   SolutionId:
     Description: "Solution id"
-    Value: "SO8101"
+    Value: "SO8120"
