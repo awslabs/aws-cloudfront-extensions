@@ -6,10 +6,8 @@
 Lambda@EdgeTest
 
 JQ_EXEC=$(which jq)
-FILE_PATH=edge/publish-apps.json
 export SAM_CLI_TELEMETRY=0
 
-app_path_list=$(cat $FILE_PATH | ${JQ_EXEC} .edge.publish_app_path[] | sed 's/\"//g')
 stack_name=cloudfront-extension-deployment
 deploy_region=us-east-1
 

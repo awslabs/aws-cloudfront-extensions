@@ -12,12 +12,12 @@ import * as cdk from '@aws-cdk/core';
  *
  */
 export class StaticSite extends cdk.Construct {
-  constructor(parent: cdk.Construct, name: string, props?: cdk.StackProps) {
+  constructor(parent: cdk.Construct, name: string, bucketName: cdk.CfnParameter, props?: cdk.StackProps) {
     super(parent, name);
 
     // Content bucket
     const siteBucket = new s3.Bucket(this, 'SiteBucket', {
-      bucketName: 'demo-aws-cloudfront-waf',
+      bucketName: bucketName.valueAsString,
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'error.html',
       publicReadAccess: false,

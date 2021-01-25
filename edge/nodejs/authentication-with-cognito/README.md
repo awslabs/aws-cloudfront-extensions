@@ -5,10 +5,8 @@ The Lambda@Edge is designed to authenticate user through the cognito.
 
 ## Prerequisite
 
-1. You must configure your distribution to cache based on the CloudFront-Is-*-Viewer headers. For more information, see the following documentation:
-     - http://docs.aws.amazon.com/console/cloudfront/cache-on-selected-headers
-     - http://docs.aws.amazon.com/console/cloudfront/cache-on-device-type
-2. CloudFront adds the CloudFront-Is-*-Viewer headers after the viewer request event.
+1. You must create cognito user pool. For more information, see the following documentation:
+     - https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html
 
 ## Description
 

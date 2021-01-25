@@ -7,42 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
-## [v1.1.0] - 2020-12-31
+## [v1.0.1] - 2021-01-08
 ### Added
 Publish following applications
 - nodejs/authentication-with-cognito
 - nodejs/modify-response-header
-- nodejs/serving-based-on-device
-- nodejs/http302-from-origin
+
+
+### Changed
+
+### Fixed
+
+## [v1.0.2] - 2021-01-08
+### Added
+Publish following applications
 - nodejs/add-security-headers
+- nodejs/http302-from-origin
 - nodejs/simple-lambda-edge
 
+Fix sam template principal from "Edgelambda.amazonaws.com" to "edgelambda.amazonaws.com" for above applications
 
 ### Changed
 
 ### Fixed 
-
-## [v1.1.1] - 2020-12-31
-
-### Changed
-Change following applications labels and author and publish them again
-- nodejs/modify-response-header
-- nodejs/http302-from-origin
-- nodejs/add-security-headers
-
-### Fixed 
-
-## [v1.1.2] - 2020-12-31
-
-### Changed
-
-### Fixed 
-Fixed following applications template error and publish them again
-- nodejs/http302-from-origin
-- nodejs/add-security-headers
-
-
-
-
-
-

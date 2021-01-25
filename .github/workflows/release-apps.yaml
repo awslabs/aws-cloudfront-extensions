@@ -48,11 +48,14 @@ jobs:
       uses: actions/setup-node@v1
       with: 
         node-version: '12'  
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAR }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAR }}
         aws-region: us-east-1
     - name: SAM Package 
       run: ./scripts/sam-package.sh

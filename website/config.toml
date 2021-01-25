@@ -3,5 +3,8 @@ languageCode = "en-us"
 title = "CloudFront+"
 theme = "hugo-theme-learn"
 contentDir = "../docs"
-staticDir = "./static/images"
 canonifyURLs = true
+
+[params]
+  themeVariant = "cloudfrontext"
+  disableLandingPageButton = true

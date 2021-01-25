@@ -5,6 +5,8 @@
 
 It's a valueable collection when using CloudFront, which includes rich set of featured Lambda@Edge, CloudFormation template for deployment of various scenarios and full monitoring solution. We tried to provide out-of-box experiences, such as install featured Lambda@Edge to enhance capability of CloudFornt, setup distribution through prepared CloudFormation templates, build up observability by leveraging monitoring solution.
 
+Please find the step-by-step workshop material here: https://awslabs.github.io/aws-cloudfront-extensions/
+
 
 ## Overview
 <img src='docs/images/aws-cloudfront-extensions.png'>

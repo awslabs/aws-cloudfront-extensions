@@ -7,14 +7,14 @@
   "author": "SAM CLI",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.18.0" 
+    "axios": "^0.21.1" 
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^8.2.1",
     "nyc": "^15.1.0"
   }
 }

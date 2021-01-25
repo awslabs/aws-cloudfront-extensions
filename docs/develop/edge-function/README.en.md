@@ -8,24 +8,26 @@ In this step, you will create a Lambda function by AWS Serverless Application Mo
 
 ## Download a sample AWS SAM application
 
+After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have uploaded CloudFront+ into CloudShell, go to CloudFront+ folder and perform following commands:
+
        cd edge/nodejs/
        sam init
 
    Choose **1 - AWS Quick Start Templates**
    
-   ![SAM init1](/sam-init1.png)
+   ![SAM init1](/images/sam-init1.png)
 
    Choose **1 - nodejs12.x**
    
-   ![SAM init2](/sam-init2.png) 
+   ![SAM init2](/images/sam-init2.png) 
 
    Enter project name **update-response-header** and choose **1 - Hello World Example** template
    
-   ![SAM init3](/sam-init3.png)  
+   ![SAM init3](/images/sam-init3.png)  
 
    Example output
 
-   ![SAM init output](/sam-init-output.png)
+   ![SAM init output](/images/sam-init-output.png)
 
    This command creates a directory with the name that you provided as the project name. The contents of the project directory are similar to the following:
 
@@ -55,17 +57,27 @@ To create a Lambda@Edge function
 
         'use strict';
 
-        exports.handler = async (event, context) => {
+        exports.lambdaHandler = async (event, context) => {
 
             const response = event.Records[0].cf.response;
             const headers = response.headers;
         
-            headers['workshop'] = [{key: 'cloudFrontExtensionWorkshop', value: 'Workshop demo header'}];
+            headers['workshop'] = [{key: 'workshop', value: 'workshop demo header'}];
         
             return response;
         };
+
+2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you must replace the original template.yaml with the [new one](https://drive.corp.amazon.com/documents/lvning@/Workshop/template.yaml)
+
+   ![Yaml Changes](/images/yaml_changes.png)
     
-2. Add solution id (TBD)
+3. [Optional] Add solution id
+
+   Solution id is a unique id assigned by AWS GCR Solution team, you will need to add the solution id in template.yaml, all CloudFront+ solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront+ tab.
+   {{% notice info %}}
+   Add Solution id is **optional** for this workshop, you can skip this step
+   {{% /notice %}}
+
 
 ## Build and deploy your application
 
@@ -75,11 +87,17 @@ First, change into the project directory, where the template.yaml file for the s
 
 Example output:
 
-![SAM Build Output](/sam-build-output.png)
+![SAM Build Output](/images/sam-build-output.png)
 
 Run this command to deploy your application
 
-    sam deploy --guided
+    sam deploy --guided --capabilities CAPABILITY_NAMED_IAM
 
 Follow the on-screen prompts. To accept the default options provided in the interactive experience, respond with **Enter**
+
+Example arguments:
+![SAM Deploy Args](/images/sam-deploy-args.png)
+
+Example output:
+![SAM Deploy Output](/images/sam-deploy-output.png)
 

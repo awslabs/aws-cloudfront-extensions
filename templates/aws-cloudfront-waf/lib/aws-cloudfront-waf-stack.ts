@@ -11,9 +11,13 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       deliveryStreamName: 'deliveryStreamName',
       glueDatabaseName: 'glueDatabaseName',
     });
+    const staticSiteBucketName = new cdk.CfnParameter(this, 'staticSiteBucketName', {
+      type: 'String',
+      description: 'The name of the Amazon S3 bucket where static website content will be stored.',
+    });
 
     // Provision a static website
-    new StaticSite(this, 'staticWebsite', props);
+    new StaticSite(this, 'staticWebsite', staticSiteBucketName, props);
 
     // Setup Whitelist IP Set
     const whitelistIpSetV4 = new waf.CfnIPSet(this, 'whitelistIpSetV4', {

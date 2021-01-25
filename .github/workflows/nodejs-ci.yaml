@@ -1,37 +1,61 @@
 name: "nodejs ci"
 
 on:
-  pull_request:
+  pull_request_target:
     types: [ labeled ]
-  # push:
-  #   branches:
-  #   - main
-  #   paths:
-  #   - 'edge/nodejs/nodejs.json'   
 
 jobs:
-  nodejs-ci-precheck:
+  nodejs-check-pr:
     if: startsWith(github.event.label.name, 'nodejs')
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2        
-    - name: install jq
-      run: sudo apt-get install jq 
-    - name: Install Node
-      uses: actions/setup-node@v1
-      with: 
-        node-version: '12'  
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Check PR checkbox
+      uses: JJ/github-pr-contains-action@releases/v2
+      with:
+        github-token: ${{github.token}}
+        bodyContains: '[x]'
+    - name: Check PR content
+      run: |
+        echo "${{ github.event.pull_request.body }}" > githubPRBody.md
+        python ./scripts/python/check_pr.py -b githubPRBody.md
+
+  nodejs-ci-precheck-content-scan:
+    runs-on: ubuntu-latest
+    needs: nodejs-check-pr
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
         aws-region: us-east-1
     - name: scan content
       run: |
         export labelName=${{ github.event.label.name }}
         ./scripts/nodejs-ci-content-scan.sh
+
+  nodejs-ci-precheck-code-check:
+    runs-on: ubuntu-latest
+    needs: nodejs-ci-precheck-content-scan
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Install Node
+      uses: actions/setup-node@v1
+      with: 
+        node-version: '12'               
     - name: check code style
       run: |
         export labelName=${{ github.event.label.name }}
@@ -39,19 +63,22 @@ jobs:
     - name: build and code coverage
       run: |
         export labelName=${{ github.event.label.name }}
-        ./scripts/nodejs-ci-build-coverage.sh      
+        ./scripts/nodejs-ci-build-coverage.sh        
+      
 
   nodejs-ci-deploy-test:
     runs-on: ubuntu-latest
-    needs: nodejs-ci-precheck
+    needs: nodejs-ci-precheck-code-check
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
         aws-region: us-east-1
     - name: lambda@Edge test
       run: |
@@ -63,11 +90,13 @@ jobs:
     needs: nodejs-ci-deploy-test
     steps:
     - name: Checkout
-      uses: actions/checkout@v2     
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}    
     - uses: actions-ecosystem/action-add-labels@v1
       with:
         github_token: ${{ secrets.github_token }}
-        labels: CI-Succeed                 
+        labels: CI-Succeeded
 
 
 

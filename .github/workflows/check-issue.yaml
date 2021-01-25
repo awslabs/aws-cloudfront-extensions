@@ -1,0 +1,31 @@
+name: "check issue"
+
+on: issues
+
+jobs:
+  check-issue-compliance:
+    if: github.event.label.name == 'bug'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Check issue compliance
+      id: check
+      run: |
+        echo "Issue title: ${{ github.event.issue.title }}"
+        echo "${{ github.event.issue.body }}" > githubIssueBody.md
+        python ./scripts/python/check_issue.py -b githubIssueBody.md
+        echo ::set-output name=status::success
+      continue-on-error: true
+    - if: steps.check.outputs.status != 'success'
+      name: Close Issue
+      uses: peter-evans/close-issue@v1
+      with:
+        comment: |
+          Issue reproduction steps and expected result can't be null, please follow the issue template
+          Auto-closing this issue.
+

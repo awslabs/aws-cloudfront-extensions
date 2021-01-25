@@ -12,7 +12,7 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: modify-response-header
-    Description: Sample SAM Template for modify-response-header
+    Description: SAM Template for modify-response-header
     Author: GCR Solutions
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt

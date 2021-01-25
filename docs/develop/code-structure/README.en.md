@@ -4,7 +4,7 @@ weight: 3
 ---
 
 You will see the following structure after `cd aws-cloudfront-extensions-main`
-![Code Structure](/code-structure.png)
+![Code Structure](/images/code-structure.png)
 
 Here are the explanation for each folder
 - **.github/workflows**: the workflow after a PR is created and managed by github actions
