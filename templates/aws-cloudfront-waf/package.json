@@ -9,7 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "synth": "cdk synth"
+    "synth": "cdk synth",
+    "eslint": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.77.0",
@@ -30,6 +31,9 @@
   "dependencies": {
     "@aws-cdk/aws-certificatemanager": "^1.77.0",
     "@aws-cdk/aws-cloudfront": "^1.77.0",
+    "@aws-cdk/aws-glue": "^1.77.0",
+    "@aws-cdk/aws-iam": "^1.77.0",
+    "@aws-cdk/aws-kinesisfirehose": "^1.77.0",
     "@aws-cdk/aws-route53-targets": "^1.77.0",
     "@aws-cdk/aws-s3": "^1.77.0",
     "@aws-cdk/aws-s3-deployment": "^1.77.0",

@@ -233,13 +233,32 @@
     "@aws-cdk/core" "1.82.0"
     constructs "^3.2.0"
 
-"@aws-cdk/aws-iam@1.82.0":
+"@aws-cdk/aws-glue@^1.77.0":
+  version "1.82.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-glue/-/aws-glue-1.82.0.tgz#d49a72831905b609a664a97c9f521d0931e30ae3"
+  integrity sha512-uujTFOeBtfqE+dzuTVjkBudo6UMyVp9p8nG0N4kUrERj9wZvYF8CA8KoWRjnsX+MF/b7+6F0WeiQCeWAc3jXsA==
+  dependencies:
+    "@aws-cdk/aws-iam" "1.82.0"
+    "@aws-cdk/aws-kms" "1.82.0"
+    "@aws-cdk/aws-s3" "1.82.0"
+    "@aws-cdk/core" "1.82.0"
+    constructs "^3.2.0"
+
+"@aws-cdk/aws-iam@1.82.0", "@aws-cdk/aws-iam@^1.77.0":
   version "1.82.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-iam/-/aws-iam-1.82.0.tgz#4ad20dfb14c386446a7c8352e776e67f3c56283b"
   integrity sha512-b9waajQSYr4koXnCZVO/icbpoRS/d3CWVui6yoxPl6UsKy+V0WloCF3oXz1MIjQLHZNh5ysmy85WofYVrefVmg==
   dependencies:
     "@aws-cdk/core" "1.82.0"
     "@aws-cdk/region-info" "1.82.0"
+    constructs "^3.2.0"
+
+"@aws-cdk/aws-kinesisfirehose@^1.77.0":
+  version "1.82.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kinesisfirehose/-/aws-kinesisfirehose-1.82.0.tgz#3bc0c0d0d0ce4c629af1ed9d5bca1a9fd7eaa1cb"
+  integrity sha512-fdhxUHd7s4zlYFfGVFmRcyrT6Syz+8GdCx7jvhRIwTqP59mEln7EK/4ryf/Dz/vn6dOJ4OsZBYbU2mxjloCkJw==
+  dependencies:
+    "@aws-cdk/core" "1.82.0"
     constructs "^3.2.0"
 
 "@aws-cdk/aws-kms@1.82.0":

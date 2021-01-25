@@ -1,10 +1,16 @@
 import * as waf from '@aws-cdk/aws-wafv2';
 import * as cdk from '@aws-cdk/core';
-import { StaticSite } from '../lib/aws-cloudfront-distribution';
+import { StaticSite } from './aws-cloudfront-distribution';
+import { AWSCloudfrontWafFirehoseAthena } from './aws-cloudfront-waf-firehose-athena';
 
 export class AwsCloudfrontWafStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    new AWSCloudfrontWafFirehoseAthena(this, 'AWSCloudfrontWafFirehoseAthena', {
+      deliveryStreamName: 'deliveryStreamName',
+      glueDatabaseName: 'glueDatabaseName',
+    });
 
     // Provision a static website
     new StaticSite(this, 'staticWebsite', props);
@@ -498,7 +504,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         },
       ],
     });
-
 
   }
 }
