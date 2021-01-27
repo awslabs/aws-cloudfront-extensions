@@ -9,6 +9,8 @@ import * as glue from '@aws-cdk/aws-glue';
 import * as athena from '@aws-cdk/aws-athena';
 import * as wafv2 from '@aws-cdk/aws-wafv2';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
+import * as events from '@aws-cdk/aws-events';
+import * as targets from '@aws-cdk/aws-events-targets';
 
 export class AwsCloudfrontWafStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps = {}) {
@@ -641,6 +643,69 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       }
     });
 
+    const reputationListRole = new iam.Role(this, 'LambdaRoleReputationListsParser', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    });
+    reputationListRole.attachInlinePolicy(
+      new iam.Policy(this, 'CloudWatchLogs', {
+        policyName: 'CloudWatchLogs',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'logs:CreateLogGroup',
+              'logs:CreateLogStream',
+              'logs:PutLogEvents'
+            ]
+          })
+        ]
+      })
+    );
+    reputationListRole.attachInlinePolicy(
+      new iam.Policy(this, 'WAFGetAndUpdateIPSet', {
+        policyName: 'WAFGetAndUpdateIPSet',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'wafv2:GetIPSet',
+              'wafv2:UpdateIPSet'
+            ]
+          })
+        ]
+      })
+    );
+    reputationListRole.attachInlinePolicy(
+      new iam.Policy(this, 'CloudFormationAccess', {
+        policyName: 'CloudFormationAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'cloudformation:DescribeStacks'
+            ]
+          })
+        ]
+      })
+    );
+    reputationListRole.attachInlinePolicy(
+      new iam.Policy(this, 'CloudWatchAccess', {
+        policyName: 'CloudWatchAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'cloudwatch:GetMetricStatistics'
+            ]
+          })
+        ]
+      })
+    );
+
     const reputationListsParserLambda = new lambda.Function(this, "ReputationListsParser", {
       description: "This lambda function checks third-party IP reputation lists hourly for new IP ranges to block. These lists include the Spamhaus Dont Route Or Peer (DROP) and Extended Drop (EDROP) lists, the Proofpoint Emerging Threats IP list, and the Tor exit node list.",
       runtime: lambda.Runtime.PYTHON_3_8,
@@ -648,6 +713,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       handler: "reputation-lists.lambda_handler",
       memorySize: 512,
       timeout: cdk.Duration.seconds(300),
+      role: reputationListRole,
       environment: {
         "IP_SET_ID_REPUTATIONV4": reputationListsIpSetV4.attrArn,
         "IP_SET_ID_REPUTATIONV6": reputationListsIpSetV6.attrArn,
@@ -664,6 +730,40 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "IPREPUTATIONLIST_METRICNAME": reputationListName,
       }
     });
+
+    //Add CloudWatch event to Lambda
+    const reputationListsParserRule = new events.Rule(this, 'ReputationListsParserEventsRule', {
+      description: "Security Automation - WAF Reputation Lists",
+      schedule: events.Schedule.expression('rate(1 hour)'),
+    });
+    const reputationListsParserRuleInput = {
+      "URL_LIST": [
+        {
+          "url": "https://www.spamhaus.org/drop/drop.txt"
+        },
+        {
+          "url": "https://www.spamhaus.org/drop/edrop.txt"
+        },
+        {
+          "url": "https://check.torproject.org/exit-addresses",
+          "prefix": "ExitAddress"
+        },
+        {
+          "url": "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"
+        }
+      ],
+      "IP_SET_ID_REPUTATIONV4": reputationListsIpSetV4.attrArn,
+      "IP_SET_ID_REPUTATIONV6": reputationListsIpSetV6.attrArn,
+      "IP_SET_NAME_REPUTATIONV4": reputationListsIpSetV4.name!,
+      "IP_SET_NAME_REPUTATIONV6": reputationListsIpSetV6.name!,
+      "SCOPE": "CLOUDFRONT"
+    }
+    reputationListsParserRule.addTarget(
+      new targets.LambdaFunction(
+        reputationListsParserLambda,
+        { event: events.RuleTargetInput.fromObject(reputationListsParserRuleInput) }
+      )
+    );
 
     const badBotParserLambda = new lambda.Function(this, "BadBotParser", {
       description: "This lambda function will intercepts and inspects trap endpoint requests to extract its IP address, and then add it to an AWS WAF block list.",

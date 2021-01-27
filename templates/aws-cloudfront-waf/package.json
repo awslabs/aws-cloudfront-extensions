@@ -33,6 +33,8 @@
     "@aws-cdk/aws-certificatemanager": "1.86.0",
     "@aws-cdk/aws-cloudfront": "1.86.0",
     "@aws-cdk/aws-cloudwatch": "1.86.0",
+    "@aws-cdk/aws-events": "1.86.0",
+    "@aws-cdk/aws-events-targets": "1.86.0",
     "@aws-cdk/aws-glue": "1.86.0",
     "@aws-cdk/aws-iam": "1.86.0",
     "@aws-cdk/aws-kinesisfirehose": "1.86.0",
