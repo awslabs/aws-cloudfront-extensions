@@ -10,11 +10,19 @@ import * as athena from '@aws-cdk/aws-athena';
 import * as wafv2 from '@aws-cdk/aws-wafv2';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 
-var cloudWatchDashboardName = "WAFMonitoringDashboard-us-east-1";
-
 export class AwsCloudfrontWafStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps = {}) {
     super(scope, id, props);
+
+    const cloudWatchDashboardName = 'WAFMonitoringDashboard-us-east-1';
+    const reputationListName = cdk.Fn.ref("AWS::StackName") + 'IPReputationListsRule';
+    const allowListName = cdk.Fn.ref("AWS::StackName") + 'WhitelistRule';
+    const blacklistRuleName = cdk.Fn.ref("AWS::StackName") + 'BlacklistRule';
+    const httpFloodRegularRuleName = cdk.Fn.ref("AWS::StackName") + 'HttpFloodRegularRule';
+    const scannersProbesRuleName = cdk.Fn.ref("AWS::StackName") + 'ScannersProbesRule';
+    const badBotRuleName = cdk.Fn.ref("AWS::StackName") + 'BadBotRule';
+    const sqlInjectionRuleName = cdk.Fn.ref("AWS::StackName") + 'SqlInjectionRule';
+    const xssRuleName = cdk.Fn.ref("AWS::StackName") + 'XssRule';
 
     //WafLogBucket
     const wafLogBucket = new s3.Bucket(this, "WafLogBucket", {
@@ -27,6 +35,502 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       bucketName: "aws-waf-access-log-bucket-cloudfront5",
       publicReadAccess: false,
       encryption: s3.BucketEncryption.KMS_MANAGED
+    });
+
+    // Setup Whitelist IP Set
+    const whitelistIpSetV4 = new wafv2.CfnIPSet(this, 'WhitelistSetIPV4', {
+      addresses: [],
+      ipAddressVersion: 'IPV4',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'WhitelistSetIPV4',
+      description: 'Allow whitelist for IPV4 addresses',
+    });
+
+    const whitelistIpSetV6 = new wafv2.CfnIPSet(this, 'WhitelistSetIPV6', {
+      addresses: [],
+      ipAddressVersion: 'IPV6',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'WhitelistSetIPV6',
+      description: 'Allow whitelist for IPV6 addresses',
+    });
+
+    // Setup Blacklist IP Set
+    const blacklistIpSetV4 = new wafv2.CfnIPSet(this, 'BlacklistSetIPV4', {
+      addresses: [],
+      ipAddressVersion: 'IPV4',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'BlacklistSetIPV4',
+      description: 'Allow blacklist for IPV4 addresses',
+    });
+
+    const blacklistIpSetV6 = new wafv2.CfnIPSet(this, 'BlacklistSetIPV6', {
+      addresses: [],
+      ipAddressVersion: 'IPV6',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'BlacklistSetIPV6',
+      description: 'Allow blacklist for IPV6 addresses',
+    });
+
+    // Setup HTTP Flood IP Set
+    const httpFloodIpSetV4 = new wafv2.CfnIPSet(this, 'HTTPFloodSetIPV4', {
+      addresses: [],
+      ipAddressVersion: 'IPV4',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'HTTPFloodSetIPV4',
+      description: 'Block HTTP Flood IPV4 addresses',
+    });
+
+    const httpFloodIpSetV6 = new wafv2.CfnIPSet(this, 'HTTPFloodSetIPV6', {
+      addresses: [],
+      ipAddressVersion: 'IPV6',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'HTTPFloodSetIPV6',
+      description: 'Block HTTP Flood IPV6 addresses',
+    });
+
+    // Block Scanners/Probes IP Set
+    const scannersProbesIpSetV4 = new wafv2.CfnIPSet(this, 'ScannersProbesSetIPV4', {
+      addresses: [],
+      ipAddressVersion: 'IPV4',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'ScannersProbesSetIPV4',
+      description: 'Block Scanners/Probes IPV4 addresses',
+    });
+
+    const scannersProbesIpSetV6 = new wafv2.CfnIPSet(this, 'ScannersProbesSetIPV6', {
+      addresses: [],
+      ipAddressVersion: 'IPV6',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'ScannersProbesSetIPV6',
+      description: 'Block Scanners/Probes IPV6 addresses',
+    });
+
+    // Block Reputation List IP Set
+    const reputationListsIpSetV4 = new wafv2.CfnIPSet(this, 'IPReputationListsSetIPV4', {
+      addresses: [],
+      ipAddressVersion: 'IPV4',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'IPReputationListsSetIPV4',
+      description: 'Block Reputation List IPV4 addresses',
+    });
+
+    const reputationListsIpSetV6 = new wafv2.CfnIPSet(this, 'IPReputationListsSetIPV6', {
+      addresses: [],
+      ipAddressVersion: 'IPV6',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'IPReputationListsSetIPV6',
+      description: 'Block Reputation List IPV6 addresses',
+    });
+
+    // Block Bad Bot IP Set
+    const badBotIpSetV4 = new wafv2.CfnIPSet(this, 'IPBadBotSetIPV4', {
+      addresses: [],
+      ipAddressVersion: 'IPV4',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'IPBadBotSetIPV4',
+      description: 'Block Bad Bot IPV4 addresses',
+    });
+
+    const badBotIpSetV6 = new wafv2.CfnIPSet(this, 'IPBadBotSetIPV6', {
+      addresses: [],
+      ipAddressVersion: 'IPV6',
+      scope: 'CLOUDFRONT',
+      name: cdk.Fn.ref("AWS::StackName") + 'IPBadBotSetIPV6',
+      description: 'Block Bad Bot IPV6 addresses',
+    });
+
+    // WAF Web ACL
+    const wafweb = new wafv2.CfnWebACL(this, 'wafweb', {
+      name: 'CloudFront-Web-WAF',
+      description: 'Custom WAFWebACL',
+      defaultAction: {
+        allow: {},
+      },
+      scope: 'CLOUDFRONT',
+      visibilityConfig: {
+        cloudWatchMetricsEnabled: true,
+        sampledRequestsEnabled: true,
+        metricName: 'CloudFront-Web-WAF',
+      },
+      rules: [
+        {
+          name: 'AWS-AWSManagedRulesCommonRuleSet',
+          priority: 0,
+          overrideAction: {
+            none: {},
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            sampledRequestsEnabled: true,
+            metricName: 'cloudfront-waf-ipset-metrics',
+          },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesCommonRuleSet',
+            },
+          },
+        },
+        {
+          name: allowListName,
+          priority: 1,
+          action: {
+            allow: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: allowListName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(whitelistIpSetV4.logicalId, 'Arn').toString(),
+                  },
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(whitelistIpSetV6.logicalId, 'Arn').toString(),
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: blacklistRuleName,
+          priority: 2,
+          action: {
+            block: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: blacklistRuleName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(blacklistIpSetV4.logicalId, 'Arn').toString(),
+                  },
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(blacklistIpSetV6.logicalId, 'Arn').toString(),
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: httpFloodRegularRuleName,
+          priority: 3,
+          action: {
+            block: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: httpFloodRegularRuleName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(httpFloodIpSetV4.logicalId, 'Arn').toString(),
+                  },
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(httpFloodIpSetV6.logicalId, 'Arn').toString(),
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: scannersProbesRuleName,
+          priority: 5,
+          action: {
+            block: {}
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: scannersProbesRuleName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(scannersProbesIpSetV4.logicalId, 'Arn').toString(),
+                  }
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(scannersProbesIpSetV6.logicalId, 'Arn').toString(),
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          name: reputationListName,
+          priority: 6,
+          action: {
+            block: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: reputationListName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(reputationListsIpSetV4.logicalId, 'Arn').toString(),
+                  },
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(reputationListsIpSetV6.logicalId, 'Arn').toString(),
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: badBotRuleName,
+          priority: 7,
+          action: {
+            block: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: badBotRuleName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(badBotIpSetV4.logicalId, 'Arn').toString(),
+                  },
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: cdk.Fn.getAtt(badBotIpSetV6.logicalId, 'Arn').toString(),
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: sqlInjectionRuleName,
+          priority: 20,
+          action: {
+            block: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: sqlInjectionRuleName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  sqliMatchStatement: {
+                    fieldToMatch: {
+                      queryString: {},
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  sqliMatchStatement: {
+                    fieldToMatch: {
+                      body: {},
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  sqliMatchStatement: {
+                    fieldToMatch: {
+                      uriPath: {},
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  sqliMatchStatement: {
+                    fieldToMatch: {
+                      singleHeader: { Name: 'Authorization' },
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  sqliMatchStatement: {
+                    fieldToMatch: {
+                      singleHeader: { Name: 'Cookie' },
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: xssRuleName,
+          priority: 30,
+          action: {
+            block: {},
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: xssRuleName,
+          },
+          statement: {
+            orStatement: {
+              statements: [
+                {
+                  xssMatchStatement: {
+                    fieldToMatch: {
+                      queryString: {},
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  xssMatchStatement: {
+                    fieldToMatch: {
+                      body: {},
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  xssMatchStatement: {
+                    fieldToMatch: {
+                      uriPath: {},
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  xssMatchStatement: {
+                    fieldToMatch: {
+                      singleHeader: {
+                        name: 'Cookie',
+                      },
+                    },
+                    textTransformations: [
+                      {
+                        priority: 1,
+                        type: 'URL_DECODE',
+                      },
+                      {
+                        priority: 2,
+                        type: 'HTML_ENTITY_DECODE',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
     });
 
     const wafAccessPolicy = new iam.PolicyStatement({
@@ -71,6 +575,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       actions: ["cloudwatch:GetMetricStatistics"]
     });
 
+    //Lambda
     const helperLambda = new lambda.Function(this, "Helper", {
       description: "This lambda function verifies the main project's dependencies, requirements and implement auxiliary functions.",
       runtime: lambda.Runtime.PYTHON_3_8,
@@ -96,7 +601,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       memorySize: 512,
       timeout: cdk.Duration.seconds(300),
       environment: {
-        "APP_ACCESS_LOG_BUCKET": "lvning-waf-from-cdk-0120",
+        "APP_ACCESS_LOG_BUCKET": accessLogBucket.bucketName,
         "SEND_ANONYMOUS_USAGE_DATA": "NO",
         "UUID": "CreateUniqueID.UUID",
         "LIMIT_IP_ADDRESS_RANGES_PER_IP_MATCH_CONDITION": "10000",
@@ -104,17 +609,17 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "REGION": "AWS::Region",
         "SCOPE": "CLOUDFRONT",
         "LOG_TYPE": "cloudfront",
-        "METRIC_NAME_PREFIX": "AWS::StackName",
+        "METRIC_NAME_PREFIX": cdk.Fn.ref("AWS::StackName"),
         "LOG_LEVEL": "INFO",
-        "STACK_NAME": "AWS::StackName",
-        "IP_SET_ID_HTTP_FLOODV4": "WebACLStack.Outputs.WAFHttpFloodSetV4Arn",
-        "IP_SET_ID_HTTP_FLOODV6": "WebACLStack.Outputs.WAFHttpFloodSetV6Arn",
-        "IP_SET_NAME_HTTP_FLOODV4": "WebACLStack.Outputs.NameHttpFloodSetV4",
-        "IP_SET_NAME_HTTP_FLOODV6": "WebACLStack.Outputs.NameHttpFloodSetV6",
-        "IP_SET_ID_SCANNERS_PROBESV4": "WebACLStack.Outputs.WAFScannersProbesSetV4Arn",
-        "IP_SET_ID_SCANNERS_PROBESV6": "WebACLStack.Outputs.WAFScannersProbesSetV6Arn",
-        "IP_SET_NAME_SCANNERS_PROBESV4": "WebACLStack.Outputs.NameScannersProbesSetV4",
-        "IP_SET_NAME_SCANNERS_PROBESV6": "WebACLStack.Outputs.NameScannersProbesSetV6",
+        "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
+        "IP_SET_ID_HTTP_FLOODV4": httpFloodIpSetV4.attrArn,
+        "IP_SET_ID_HTTP_FLOODV6": httpFloodIpSetV6.attrArn,
+        "IP_SET_NAME_HTTP_FLOODV4": httpFloodIpSetV4.name!,
+        "IP_SET_NAME_HTTP_FLOODV6": httpFloodIpSetV6.name!,
+        "IP_SET_ID_SCANNERS_PROBESV4": scannersProbesIpSetV4.attrArn,
+        "IP_SET_ID_SCANNERS_PROBESV6": scannersProbesIpSetV6.attrArn,
+        "IP_SET_NAME_SCANNERS_PROBESV4": scannersProbesIpSetV4.name!,
+        "IP_SET_NAME_SCANNERS_PROBESV6": scannersProbesIpSetV6.name!,
         "WAF_BLOCK_PERIOD": "240",
         "ERROR_THRESHOLD": "50",
         "REQUEST_THRESHOLD": "100",
@@ -144,19 +649,19 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       memorySize: 512,
       timeout: cdk.Duration.seconds(300),
       environment: {
-        "IP_SET_ID_REPUTATIONV4": "WebACLStack.Outputs.WAFReputationListsSetV4Arn",
-        "IP_SET_ID_REPUTATIONV6": "WebACLStack.Outputs.WAFReputationListsSetV6Arn",
-        "IP_SET_NAME_REPUTATIONV4": "WebACLStack.Outputs.NameReputationListsSetV4",
-        "IP_SET_NAME_REPUTATIONV6": "WebACLStack.Outputs.NameReputationListsSetV6",
+        "IP_SET_ID_REPUTATIONV4": reputationListsIpSetV4.attrArn,
+        "IP_SET_ID_REPUTATIONV6": reputationListsIpSetV6.attrArn,
+        "IP_SET_NAME_REPUTATIONV4": reputationListsIpSetV4.name!,
+        "IP_SET_NAME_REPUTATIONV6": reputationListsIpSetV6.name!,
         "SCOPE": "CLOUDFRONT",
         "LOG_LEVEL": "INFO",
         "URL_LIST": "[{\"url\":\"https://www.spamhaus.org/drop/drop.txt\"},{\"url\":\"https://www.spamhaus.org/drop/edrop.txt\"},{\"url\":\"https://check.torproject.org/exit-addresses\", \"prefix\":\"ExitAddress\"},{\"url\":\"https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt\"}]",
         "SOLUTION_ID": "lvning-solutionid",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic",
-        "STACK_NAME": "AWS::StackName",
+        "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
         "LOG_TYPE": "cloudfront",
         "SEND_ANONYMOUS_USAGE_DATA": "NO",
-        "IPREPUTATIONLIST_METRICNAME": "WebACLStack.Outputs.IPReputationListsMetricName"
+        "IPREPUTATIONLIST_METRICNAME": reputationListName,
       }
     });
 
@@ -169,19 +674,19 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(300),
       environment: {
         "SCOPE": "CLOUDFRONT",
-        "IP_SET_ID_BAD_BOTV4": "WebACLStack.Outputs.WAFBadBotSetV4Arn",
-        "IP_SET_ID_BAD_BOTV6": "WebACLStack.Outputs.WAFBadBotSetV6Arn",
-        "IP_SET_NAME_BAD_BOTV4": "WebACLStack.Outputs.NameBadBotSetV4",
-        "IP_SET_NAME_BAD_BOTV6": "WebACLStack.Outputs.NameBadBotSetV6",
+        "IP_SET_ID_BAD_BOTV4": badBotIpSetV4.attrArn,
+        "IP_SET_ID_BAD_BOTV6": badBotIpSetV6.attrArn,
+        "IP_SET_NAME_BAD_BOTV4": badBotIpSetV4.name!,
+        "IP_SET_NAME_BAD_BOTV6": badBotIpSetV6.name!,
         "SEND_ANONYMOUS_USAGE_DATA": "NO",
         "UUID": "CreateUniqueID.UUID",
-        "REGION": "AWS::Region",
+        "REGION": cdk.Fn.ref("AWS::Region"),
         "LOG_TYPE": "cloudfront",
-        "METRIC_NAME_PREFIX": "AWS::StackName",
+        "METRIC_NAME_PREFIX": cdk.Fn.ref("AWS::StackName"),
         "LOG_LEVEL": "INFO",
         "SOLUTION_ID": "lvning-solutionid",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic",
-        "STACK_NAME": "AWS::StackName"
+        "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
       }
     });
 
@@ -516,524 +1021,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       workGroupConfiguration: {
         "publishCloudWatchMetricsEnabled": true
       }
-    });
-
-    // Setup Whitelist IP Set
-    const whitelistIpSetV4 = new wafv2.CfnIPSet(this, 'whitelistIpSetV4', {
-      addresses: [],
-      ipAddressVersion: 'IPV4',
-      scope: 'CLOUDFRONT',
-      name: 'WhitelistIpSetV4',
-      description: 'Allow whitelist for IPV4 addresses',
-    });
-    const whitelistIpSetV6 = new wafv2.CfnIPSet(this, 'whitelistIpSetV6', {
-      addresses: [],
-      ipAddressVersion: 'IPV6',
-      scope: 'CLOUDFRONT',
-      name: 'WhitelistIpSetV6',
-      description: 'Allow whitelist for IPV6 addresses',
-    });
-
-    // Setup Blacklist IP Set
-    const blacklistIpSetV4 = new wafv2.CfnIPSet(this, 'blacklistIpSetV4', {
-      addresses: [],
-      ipAddressVersion: 'IPV4',
-      scope: 'CLOUDFRONT',
-      name: 'BlacklistIpSetV4',
-      description: 'Allow blacklist for IPV4 addresses',
-    });
-    const blacklistIpSetV6 = new wafv2.CfnIPSet(this, 'blacklistIpSetV6', {
-      addresses: [],
-      ipAddressVersion: 'IPV6',
-      scope: 'CLOUDFRONT',
-      name: 'BlacklistIpSetV6',
-      description: 'Allow blacklist for IPV6 addresses',
-    });
-
-    // Setup HTTP Flood IP Set
-    const httpFloodIpSetV4 = new wafv2.CfnIPSet(this, 'httpFloodIpSetV4', {
-      addresses: [],
-      ipAddressVersion: 'IPV4',
-      scope: 'CLOUDFRONT',
-      name: 'HttpFloodIpSetV4',
-      description: 'Block HTTP Flood IPV4 addresses',
-    });
-    const httpFloodIpSetV6 = new wafv2.CfnIPSet(this, 'httpFloodIpSetV6', {
-      addresses: [],
-      ipAddressVersion: 'IPV6',
-      scope: 'CLOUDFRONT',
-      name: 'HttpFloodIpSetV6',
-      description: 'Block HTTP Flood IPV6 addresses',
-    });
-
-    // Block Scanners/Probes IP Set
-    const scannersProbesIpSetV4 = new wafv2.CfnIPSet(this, 'scannersProbesIpSetV4', {
-      addresses: [],
-      ipAddressVersion: 'IPV4',
-      scope: 'CLOUDFRONT',
-      name: 'ScannersProbesIpSetV4',
-      description: 'Block Scanners/Probes IPV4 addresses',
-    });
-    const scannersProbesIpSetV6 = new wafv2.CfnIPSet(this, 'scannersProbesIpSetV6', {
-      addresses: [],
-      ipAddressVersion: 'IPV6',
-      scope: 'CLOUDFRONT',
-      name: 'ScannersProbesIpSetV6',
-      description: 'Block Scanners/Probes IPV6 addresses',
-    });
-
-    // Block Reputation List IP Set
-    const reputationListsIpSetV4 = new wafv2.CfnIPSet(this, 'reputationListsIpSetV4', {
-      addresses: [],
-      ipAddressVersion: 'IPV4',
-      scope: 'CLOUDFRONT',
-      name: 'ReputationListsIpSetV4',
-      description: 'Block Reputation List IPV4 addresses',
-    });
-    const reputationListsIpSetV6 = new wafv2.CfnIPSet(this, 'reputationListsIpSetV6', {
-      addresses: [],
-      ipAddressVersion: 'IPV6',
-      scope: 'CLOUDFRONT',
-      name: 'ReputationListsIpSetV6',
-      description: 'Block Reputation List IPV6 addresses',
-    });
-
-    // Block Bad Bot IP Set
-    const badBotIpSetV4 = new wafv2.CfnIPSet(this, 'badBotIpSetV4', {
-      addresses: [],
-      ipAddressVersion: 'IPV4',
-      scope: 'CLOUDFRONT',
-      name: 'BadBotIpSetV4',
-      description: 'Block Bad Bot IPV4 addresses',
-    });
-    const badBotIpSetV6 = new wafv2.CfnIPSet(this, 'badBotIpSetV6', {
-      addresses: [],
-      ipAddressVersion: 'IPV6',
-      scope: 'CLOUDFRONT',
-      name: 'BadBotIpSetV6',
-      description: 'Block Bad Bot IPV6 addresses',
-    });
-
-
-    const wafweb = new wafv2.CfnWebACL(this, 'wafweb', {
-      name: 'CloudFront-Web-WAF',
-      description: 'Custom WAFWebACL',
-      defaultAction: {
-        allow: {},
-      },
-      scope: 'CLOUDFRONT',
-      visibilityConfig: {
-        cloudWatchMetricsEnabled: true,
-        sampledRequestsEnabled: true,
-        metricName: 'CloudFront-Web-WAF',
-      },
-      rules: [
-        {
-          name: 'AWS-AWSManagedRulesCommonRuleSet',
-          priority: 0,
-          overrideAction: {
-            none: {},
-          },
-          visibilityConfig: {
-            cloudWatchMetricsEnabled: true,
-            sampledRequestsEnabled: true,
-            metricName: 'cloudfront-waf-ipset-metrics',
-          },
-          statement: {
-            managedRuleGroupStatement: {
-              vendorName: 'AWS',
-              name: 'AWSManagedRulesCommonRuleSet',
-            },
-          },
-        },
-        {
-          name: 'AWS-WhitelistRule',
-          priority: 1,
-          action: {
-            allow: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-WhitelistRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(whitelistIpSetV4.logicalId, 'Arn').toString(),
-                  },
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(whitelistIpSetV6.logicalId, 'Arn').toString(),
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-BlacklistRule',
-          priority: 2,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-BlacklistRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(blacklistIpSetV4.logicalId, 'Arn').toString(),
-                  },
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(blacklistIpSetV6.logicalId, 'Arn').toString(),
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-HttpFloodRegularRule',
-          priority: 3,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-HttpFloodRegularRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(httpFloodIpSetV4.logicalId, 'Arn').toString(),
-                  },
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(httpFloodIpSetV6.logicalId, 'Arn').toString(),
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-HttpFloodRateBasedRule',
-          priority: 4,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-HttpFloodRateBasedRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(httpFloodIpSetV4.logicalId, 'Arn').toString(),
-                  },
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(httpFloodIpSetV6.logicalId, 'Arn').toString(),
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-ScannersAndProbesRule',
-          priority: 5,
-          action: {
-            block: {}
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'ScannersProbesRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(scannersProbesIpSetV4.logicalId, 'Arn').toString(),
-                  }
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(scannersProbesIpSetV6.logicalId, 'Arn').toString(),
-                  }
-                }
-              ]
-            }
-          }
-        },
-        {
-          name: 'AWS-IPReputationListsRule',
-          priority: 6,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-IPReputationListsRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(reputationListsIpSetV4.logicalId, 'Arn').toString(),
-                  },
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(reputationListsIpSetV6.logicalId, 'Arn').toString(),
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-BadBotRule',
-          priority: 7,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-BadBotRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(badBotIpSetV4.logicalId, 'Arn').toString(),
-                  },
-                },
-                {
-                  ipSetReferenceStatement: {
-                    arn: cdk.Fn.getAtt(badBotIpSetV6.logicalId, 'Arn').toString(),
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-SqlInjectionRule',
-          priority: 20,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-SqlInjectionRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  sqliMatchStatement: {
-                    fieldToMatch: {
-                      queryString: {},
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  sqliMatchStatement: {
-                    fieldToMatch: {
-                      body: {},
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  sqliMatchStatement: {
-                    fieldToMatch: {
-                      uriPath: {},
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  sqliMatchStatement: {
-                    fieldToMatch: {
-                      singleHeader: { Name: 'Authorization' },
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  sqliMatchStatement: {
-                    fieldToMatch: {
-                      singleHeader: { Name: 'Cookie' },
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          name: 'AWS-XssRule',
-          priority: 30,
-          action: {
-            block: {},
-          },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-XssRule',
-          },
-          statement: {
-            orStatement: {
-              statements: [
-                {
-                  xssMatchStatement: {
-                    fieldToMatch: {
-                      queryString: {},
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  xssMatchStatement: {
-                    fieldToMatch: {
-                      body: {},
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  xssMatchStatement: {
-                    fieldToMatch: {
-                      uriPath: {},
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-                {
-                  xssMatchStatement: {
-                    fieldToMatch: {
-                      singleHeader: {
-                        name: 'Cookie',
-                      },
-                    },
-                    textTransformations: [
-                      {
-                        priority: 1,
-                        type: 'URL_DECODE',
-                      },
-                      {
-                        priority: 2,
-                        type: 'HTML_ENTITY_DECODE',
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        },
-      ],
     });
 
     //Cloudwatch Dashboard
