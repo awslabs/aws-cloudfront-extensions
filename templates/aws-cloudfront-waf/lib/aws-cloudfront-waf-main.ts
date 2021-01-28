@@ -553,30 +553,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       actions: ["s3:GetBucketLocation", "s3:GetObject", "s3:ListBucket"]
     });
 
-    const badBotLogAccessPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ["arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*BadBotParser*"],
-      actions: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-    });
-
-    const badBotCloudFormationAccessPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ["arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"],
-      actions: ["cloudformation:DescribeStacks"]
-    });
-
-    const BadBotWAFGetAndUpdateIPSetPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ["WebACLStack.Outputs.WAFBadBotSetV4Arn", "WebACLStack.Outputs.WAFBadBotSetV6Arn"],
-      actions: ["wafv2:GetIPSet", "wafv2:UpdateIPSet"]
-    });
-
-    const badBotCloudWatchAccessPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ["*"],
-      actions: ["cloudwatch:GetMetricStatistics"]
-    });
-
     //Lambda
     const helperLambda = new lambda.Function(this, "Helper", {
       description: "This lambda function verifies the main project's dependencies, requirements and implement auxiliary functions.",
@@ -643,6 +619,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       }
     });
 
+    //IP reputation list Lambda
     const reputationListRole = new iam.Role(this, 'LambdaRoleReputationListsParser', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
     });
@@ -765,9 +742,71 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       )
     );
 
+    //Badbot protection Lambda
+    const badBotRole = new iam.Role(this, 'badBotRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    });
+    badBotRole.attachInlinePolicy(
+      new iam.Policy(this, 'BadBotLogsAccess', {
+        policyName: 'LogsAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'
+            ]
+          })
+        ]
+      })
+    );
+    badBotRole.attachInlinePolicy(
+      new iam.Policy(this, 'BadBotCloudFormationAccess', {
+        policyName: 'CloudFormationAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'cloudformation:DescribeStacks'
+            ]
+          })
+        ]
+      })
+    );
+    badBotRole.attachInlinePolicy(
+      new iam.Policy(this, 'BadBotCloudWatchAccess', {
+        policyName: 'CloudWatchAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'cloudwatch:GetMetricStatistics'
+            ]
+          })
+        ]
+      })
+    );
+    badBotRole.attachInlinePolicy(
+      new iam.Policy(this, 'BadBotWAFGetAndUpdateIPSet', {
+        policyName: 'WAFGetAndUpdateIPSet',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'wafv2:GetIPSet', 'wafv2:UpdateIPSet'
+            ]
+          })
+        ]
+      })
+    );
+
     const badBotParserLambda = new lambda.Function(this, "BadBotParser", {
       description: "This lambda function will intercepts and inspects trap endpoint requests to extract its IP address, and then add it to an AWS WAF block list.",
       runtime: lambda.Runtime.PYTHON_3_8,
+      role: badBotRole,
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda-assets/access_handler.zip')),
       handler: "access-handler.lambda_handler",
       memorySize: 512,
@@ -789,12 +828,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
       }
     });
-
-    // TODO: add role policy
-    //         badBotParserLambda.addToRolePolicy(badBotLogAccessPolicy);
-    //         badBotParserLambda.addToRolePolicy(badBotCloudFormationAccessPolicy);
-    //         badBotParserLambda.addToRolePolicy(BadBotWAFGetAndUpdateIPSetPolicy);
-    //         badBotParserLambda.addToRolePolicy(badBotCloudWatchAccessPolicy);
 
     const customResourceLambda = new lambda.Function(this, "CustomResource", {
       description: "This lambda function configures the Web ACL rules based on the features enabled in the CloudFormation template.",
