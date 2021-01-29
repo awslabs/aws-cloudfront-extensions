@@ -1182,5 +1182,21 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       }),
     });
 
+    //Add CloudWatch event to Lambda LogParser
+    const logParserRuleInput = {
+      "resourceType": "LambdaAthenaWAFLogParser",
+      "glueAccessLogsDatabase": glueAccessLogsDatabase.databaseName,
+      "accessLogBucket": accessLogBucket.bucketName,
+      "glueWafAccessLogsTable": "waf_access_logs",
+      "athenaWorkGroup": "WAFLogAthenaQueryWorkGroup"
+    };
+
+    const lambdaAthenaWAFLogParserRule = new events.Rule(this, "lambdaAthenaWAFLogParserRule", {
+      description: "Security Automation - WAF Logs Athena parser",
+      schedule: events.Schedule.expression('rate(5 minute)'),
+      targets: [new targets.LambdaFunction(logParserLambda, {
+        event: events.RuleTargetInput.fromObject(logParserRuleInput)
+      })]
+    });
   }
 }
