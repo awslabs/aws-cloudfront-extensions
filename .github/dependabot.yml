@@ -1,21 +1,5 @@
 updates:
-- directory: edge/nodejs/add-security-headers/add-security-headers
-  package-ecosystem: npm
-  schedule:
-    interval: daily
 - directory: edge/nodejs/modify-response-status-code/modify-response-status-code
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/rewrite-url-useragent/rewrite-url-useragent
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/modify-response-header/modify-response-header
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -27,7 +11,7 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/origin-by-customized-service/origin-by-customized-service
+- directory: edge/nodejs/multiple-origin-IP-retry/multiple-origin-IP-retry
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -35,7 +19,23 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
+- directory: edge/nodejs/add-security-headers/add-security-headers
+  package-ecosystem: npm
+  schedule:
+    interval: daily
 - directory: edge/nodejs/serving-based-on-device/serving-based-on-device
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/modify-response-header/modify-response-header
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/access-origin-by-weight-rate/access-origin-by-weight-rate
   package-ecosystem: npm
   schedule:
     interval: daily
