@@ -1193,7 +1193,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
 
     const lambdaAthenaWAFLogParserRule = new events.Rule(this, "lambdaAthenaWAFLogParserRule", {
       description: "Security Automation - WAF Logs Athena parser",
-      schedule: events.Schedule.expression('rate(5 minute)'),
+      schedule: events.Schedule.expression('rate(5 minutes)'),
       targets: [new targets.LambdaFunction(logParserLambda, {
         event: events.RuleTargetInput.fromObject(logParserRuleInput)
       })]
