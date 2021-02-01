@@ -535,24 +535,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       ],
     });
 
-    const wafAccessPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ["*"],
-      actions: ["wafv2:ListWebACLs"]
-    });
-
-    const logsAccessPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ["arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Helper*"],
-      actions: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-    });
-
-    const accessLogBucketPolicy = new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: [wafLogBucket.bucketArn],
-      actions: ["s3:GetBucketLocation", "s3:GetObject", "s3:ListBucket"]
-    });
-
     //Lambda
     const helperLambda = new lambda.Function(this, "Helper", {
       description: "This lambda function verifies the main project's dependencies, requirements and implement auxiliary functions.",
@@ -566,9 +548,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "SCOPE": "CLOUDFRONT"
       }
     });
-    //         helperLambda.addToRolePolicy(wafAccessPolicy);
-    //         helperLambda.addToRolePolicy(logsAccessPolicy);
-    //         helperLambda.addToRolePolicy(accessLogBucketPolicy);
 
     const logParserLambda = new lambda.Function(this, "LogParser", {
       description: "This function parses access logs to identify suspicious behavior, such as an abnormal amount of errors. It then blocks those IP addresses for a customer-defined period of time.",
@@ -742,8 +721,70 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       )
     );
 
+    //AWS Shield Advanced Lambda
+    const shieldRole = new iam.Role(this, 'ShieldAdvanceRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    });
+    shieldRole.attachInlinePolicy(
+      new iam.Policy(this, 'ShieldAdvanceAccess', {
+        policyName: 'CloudFrontShieldAdvanceAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'shield:Create*'
+            ]
+          })
+        ]
+      })
+    );
+    shieldRole.attachInlinePolicy(
+      new iam.Policy(this, 'CloudFrontDistributionAccess', {
+        policyName: 'CloudFrontDistributionAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'cloudfront:GetDistribution'
+            ]
+          })
+        ]
+      })
+    );
+    shieldRole.attachInlinePolicy(
+      new iam.Policy(this, 'ShieldLogAccess', {
+        policyName: 'ShieldLogAccess',
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              'logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'
+            ]
+          })
+        ]
+      })
+    );
+
+    const shieldLambda = new lambda.Function(this, "ShieldAdvancedLambda", {
+      description: "This lambda function create an AWS Shield resource protection and protection group for the cloudfront resource.",
+      runtime: lambda.Runtime.PYTHON_3_8,
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda-assets/shield_protection.zip')),
+      handler: "shield-protection.lambda_handler",
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(300),
+      role: shieldRole,
+      environment: {
+        "SCOPE": "CLOUDFRONT",
+        "LOG_LEVEL": "INFO",
+        "SOLUTION_ID": "lvning-solutionid"
+      }
+    });
+
     //Badbot protection Lambda
-    const badBotRole = new iam.Role(this, 'badBotRole', {
+    const badBotRole = new iam.Role(this, 'BadBotRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
     });
     badBotRole.attachInlinePolicy(
@@ -909,21 +950,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "roleArn": firehoseRole.roleArn
       }
     });
-
-    // TODO:
-    // 		FirehoseRole/DefaultPolicy
-    // The policy failed legacy parsing (Service: AmazonIdentityManagement; Status Code: 400; Error Code: Malfo
-    // rmedPolicyDocument; Request ID: d8ea215a-9099-4c70-9e82-8d95e6cd4d9f; Proxy: null)
-
-    // firehoseRole.addToPolicy(
-    //   new iam.PolicyStatement({
-    //     effect: iam.Effect.ALLOW,
-    //     actions: [
-    //       "logs:PutLogEvents"
-    //     ],
-    //     resources: ["arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/" + firehoseStream.deliveryStreamName + ":*"]
-    //   })
-    // );
 
     //Glue DB & table
     const glueAccessLogsDatabase = new glue.Database(this, 'GlueAccessLogsDatabase', {
@@ -1198,5 +1224,6 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         event: events.RuleTargetInput.fromObject(logParserRuleInput)
       })]
     });
+
   }
 }
