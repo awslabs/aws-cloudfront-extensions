@@ -580,7 +580,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "WAF_BLOCK_PERIOD": "240",
         "ERROR_THRESHOLD": "50",
         "REQUEST_THRESHOLD": "100",
-        "SOLUTION_ID": "lvning-solutionid",
+        "SOLUTION_ID": "SO8128",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic"
       }
     });
@@ -678,7 +678,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "SCOPE": "CLOUDFRONT",
         "LOG_LEVEL": "INFO",
         "URL_LIST": "[{\"url\":\"https://www.spamhaus.org/drop/drop.txt\"},{\"url\":\"https://www.spamhaus.org/drop/edrop.txt\"},{\"url\":\"https://check.torproject.org/exit-addresses\", \"prefix\":\"ExitAddress\"},{\"url\":\"https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt\"}]",
-        "SOLUTION_ID": "lvning-solutionid",
+        "SOLUTION_ID": "SO8128",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic",
         "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
         "LOG_TYPE": "cloudfront",
@@ -779,7 +779,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       environment: {
         "SCOPE": "CLOUDFRONT",
         "LOG_LEVEL": "INFO",
-        "SOLUTION_ID": "lvning-solutionid"
+        "SOLUTION_ID": "SO8128"
       }
     });
 
@@ -864,7 +864,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "LOG_TYPE": "cloudfront",
         "METRIC_NAME_PREFIX": cdk.Fn.ref("AWS::StackName"),
         "LOG_LEVEL": "INFO",
-        "SOLUTION_ID": "lvning-solutionid",
+        "SOLUTION_ID": "SO8128",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic",
         "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
       }
@@ -880,7 +880,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       environment: {
         "LOG_LEVEL": "INFO",
         "SCOPE": "CLOUDFRONT",
-        "SOLUTION_ID": "lvning-solutionid",
+        "SOLUTION_ID": "SO8128",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic"
       }
     });
