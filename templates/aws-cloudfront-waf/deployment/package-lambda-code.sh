@@ -1,18 +1,18 @@
 #!/bin/bash
-# This assumes all of the OS-level configuration has been completed and git repo has already been cloned 
-# 
-# This script should be run from the repo's deployment directory 
-# cd deployment 
+# This assumes all of the OS-level configuration has been completed and git repo has already been cloned
+#
+# This script should be run from the repo's deployment directory
+# cd deployment
 # ./package-lambda-code.sh
 #
-# Check to see if input has been provided: 
+# Check to see if input has been provided:
 if [ "$1" ]; then
     echo "Usage: ./package-lambda-code.sh"
-    exit 1 
-fi 
+    exit 1
+fi
 
 # Get reference for all important folders
-template_dir="$PWD" 
+template_dir="$PWD"
 source_dir="$template_dir/../source"
 lib_dir="$template_dir/../lib"
 build_dist_dir="$lib_dir/lambda-assets"
@@ -23,9 +23,9 @@ echo "[Init] Clean existed dist folders"
 echo "------------------------------------------------------------------------------"
 
 echo "rm -rf $build_dist_dir"
-rm -rf $build_dist_dir 
-echo "mkdir -p $build_dist_dir" 
-mkdir -p $build_dist_dir 
+rm -rf $build_dist_dir
+echo "mkdir -p $build_dist_dir"
+mkdir -p $build_dist_dir
 
 echo "find $source_dir -iname \"dist\" -type d -exec rm -r \"{}\" \; 2> /dev/null"
 find "$source_dir" -iname "dist" -type d -exec rm -r "{}" \; 2> /dev/null
@@ -107,3 +107,15 @@ zip -q -r9 "$build_dist_dir"/timer.zip ./*
 cd "$source_dir"/timer || exit 1
 cp -r "$source_dir"/lib .
 zip -g -r "$build_dist_dir"/timer.zip timer.py lib
+
+
+echo "------------------------------------------------------------------------------"
+echo "[Packing] Shield Protection"
+echo "------------------------------------------------------------------------------"
+cd "$source_dir"/timer || exit 1
+pip install -r requirements.txt --target ./package
+cd "$source_dir"/timer/package || exit 1
+zip -q -r9 "$build_dist_dir"/shield_protection.zip ./*
+cd "$source_dir"/shield_protection || exit 1
+cp -r "$source_dir"/lib .
+zip -g -r "$build_dist_dir"/shield_protection.zip shield-protection.py lib
