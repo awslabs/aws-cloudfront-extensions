@@ -9,8 +9,9 @@
       "nodejs/modify-response-status-code",
       "nodejs/multiple-origin-IP-retry",
       "nodejs/normalize-query-string",
+      "nodejs/simple-lambda-edge",
       "nodejs/serving-based-on-device"
     ],
-    "tag": "v1.0.3"
+    "tag": "v1.0.0"
   }
 }
