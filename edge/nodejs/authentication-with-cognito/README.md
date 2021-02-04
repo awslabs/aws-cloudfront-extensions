@@ -61,7 +61,7 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-authentication-with-cognito$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
+authentication-with-cognito$ sam local invoke AuthenticationByCognito --event events/event.json
 ```
 
 
@@ -75,7 +75,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-authentication-with-cognito$ sam logs -n SimpleLambdaEdgeFunction --stack-name authentication-with-cognito --tail
+authentication-with-cognito$ sam logs -n AuthenticationByCognito --stack-name authentication-with-cognito --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).

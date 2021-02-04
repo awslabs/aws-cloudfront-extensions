@@ -9,9 +9,9 @@ The Lambda@Edge function is going to handle http 302 from origin, which is going
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- add-security-headers - Code for the application's Lambda function, which adds security headers when viewer response. 
+- http302-from-origin - Code for the application's Lambda function, which adds security headers when viewer response. 
 - events - Invocation events that you can use to invoke the function.
-- add-security-headers/tests - Unit tests for the application code. 
+- http302-from-origin/tests - Unit tests for the application code. 
 - template.yaml - A template that defines the application's AWS resources.
 
 
@@ -52,17 +52,17 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 Build your application with the `sam build` command.
 
 ```bash
-add-security-headers$ sam build
+http302-from-origin$ sam build
 ```
 
-The SAM CLI installs dependencies defined in `add-security-headers/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `http302-from-origin/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-add-security-headers$ sam local invoke SimpleLambdaEdgeFunction --event events/event.json
+http302-from-origin$ sam local invoke Http302Function --event events/event.json
 ```
 
 
@@ -76,19 +76,19 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-add-security-headers$ sam logs -n HelloWorldFunction --stack-name add-security-headers --tail
+http302-from-origin$ sam logs -n Http302Function --stack-name http302-from-origin --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
 ## Unit tests
 
-Tests are defined in the `add-security-headers/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
+Tests are defined in the `http302-from-origin/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-add-security-headers$ cd add-security-headers
-add-security-headers$ npm install
-add-security-headers$ npm run test
+http302-from-origin$ cd http302-from-origin
+http302-from-origin$ npm install
+http302-from-origin$ npm run test
 ```
 
 ## Cleanup
@@ -96,7 +96,7 @@ add-security-headers$ npm run test
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name add-security-headers
+aws cloudformation delete-stack --stack-name http302-from-origin
 ```
 
 ## Resources

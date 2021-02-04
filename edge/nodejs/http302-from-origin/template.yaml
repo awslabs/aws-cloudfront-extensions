@@ -11,13 +11,13 @@ Globals:
   Function:
     Timeout: 30
     Tags:
-      Publisher: GCR-Solutions
+      Publisher: AWS
 
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: http302-from-origin
     Description: SAM Template for http302-from-origin
-    Author: GCR Solutions
+    Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
@@ -29,7 +29,7 @@ Metadata:
 
 
 Resources:
-  ServingOnDeviceFunction:
+  Http302Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: http302-from-origin/
@@ -57,10 +57,10 @@ Resources:
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
 
 Outputs:
-  ServingOnDeviceFunction:
+  Http302Function:
     Description: "Lambda Edge function ARN"
-    Value: !GetAtt ServingOnDeviceFunction.Arn
-  ServingOnDeviceFunctionIamRole:
+    Value: "Http302Function"
+  Http302FunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
   SolutionId:

@@ -7,13 +7,13 @@ Globals:
   Function:
     Timeout: 30
     Tags:
-      Publisher: GCR-Solutions
+      Publisher: AWS
 
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: modify-response-header
     Description: SAM Template for modify-response-header
-    Author: GCR Solutions
+    Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md

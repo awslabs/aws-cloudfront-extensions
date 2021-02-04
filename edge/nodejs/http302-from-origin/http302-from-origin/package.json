@@ -1,7 +1,7 @@
 {
-  "name": "add-security-headers",
+  "name": "http302-from-origin",
   "version": "1.0.0",
-  "description": "Add security headers",
+  "description": "Redirect from origin",
   "main": "app.js",
   "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/add-security-headers",
   "author": "SAM CLI",

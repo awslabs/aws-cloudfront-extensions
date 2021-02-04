@@ -12,13 +12,13 @@ Globals:
   Function:
     Timeout: 30
     Tags:
-      Publisher: GCR-Solutions
+      Publisher: AWS
 
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: serving-based-on-device
     Description: SAM Template for serving-based-on-device
-    Author: GCR Solutions
+    Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md

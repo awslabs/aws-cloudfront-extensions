@@ -11,7 +11,7 @@ Globals:
   Function:
     Timeout: 30
     Tags:
-      Publisher: GCR-Solutions
+      Publisher: AWS
 
 Metadata:
   AWS::ServerlessRepo::Application:
