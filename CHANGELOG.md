@@ -30,3 +30,15 @@ Fix sam template principal from "Edgelambda.amazonaws.com" to "edgelambda.amazon
 ### Changed
 
 ### Fixed 
+
+## [v1.0.3] - 2021-02-04
+### Added
+Publish following applications
+- nodejs/access-origin-by-weight-rate
+- nodejs/multiple-origin-IP-retry
+- nodejs/normalize-query-string
+
+
+### Changed
+
+### Fixed 
