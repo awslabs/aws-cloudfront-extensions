@@ -8,7 +8,7 @@ print(fname)
 with open(fname) as f:
     newfile = yaml.load(f, Loader=yaml.SafeLoader)
 
-newfile["Metadata"]["AWS::ServerlessRepo::Application"]["Author"] = "GCR Solutions"
+newfile["Metadata"]["AWS::ServerlessRepo::Application"]["Author"] = "AWS"
 newfile["Metadata"]["AWS::ServerlessRepo::Application"]["LicenseUrl"] = "s3://aws-cloudfront-extension-lambda-edge/LICENSE.txt"
 newfile["Metadata"]["AWS::ServerlessRepo::Application"]["Labels"] = ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
 newfile["Metadata"]["AWS::ServerlessRepo::Application"]["SemanticVersion"] = appVersion[1:]
