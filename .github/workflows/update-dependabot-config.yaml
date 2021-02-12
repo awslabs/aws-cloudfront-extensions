@@ -1,0 +1,27 @@
+name: "Update Dependabot config"
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'edge/**'
+
+jobs:
+  update-dependabot-config:
+    name: update-dependabot-config
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: install python      
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x' 
+    - name: update-dependabot-config
+      run: ./scripts/update-dependabot-config.sh
+    - name: Create Pull Request
+      id: cpr
+      uses: peter-evans/create-pull-request@v3
+      with:
+        delete-branch: true
+        title: 'Update dependabot config'

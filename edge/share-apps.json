@@ -1,0 +1,12 @@
+{
+  "edge": {
+    "apps_arn": [
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/authentication-with-cognito",
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/serving-based-on-device",
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/simple-lambda-edge",
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/modify-response-header",
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/http302-from-origin",
+      "arn:aws:serverlessrepo:us-east-1:418289889111:applications/add-security-headers"
+    ]
+  }
+}

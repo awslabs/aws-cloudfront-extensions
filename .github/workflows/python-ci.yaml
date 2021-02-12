@@ -1,0 +1,93 @@
+name: "python ci"
+
+on:
+  pull_request_target:
+    types: [ labeled ]
+
+jobs:
+  python-check-pr:
+    if: startsWith(github.event.label.name, 'python')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Check PR checkbox
+        uses: JJ/github-pr-contains-action@releases/v2
+        with:
+          github-token: ${{github.token}}
+          bodyContains: '[x]'
+
+  python-ci-precheck-content-scan:
+    runs-on: ubuntu-latest
+    needs: python-check-pr
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }} 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
+        aws-region: us-east-1        
+    - name: scan content
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/python-ci-content-scan.sh
+
+  python-ci-precheck-code-check:
+    runs-on: ubuntu-latest
+    needs: python-ci-precheck-content-scan
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }} 
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'                
+    - name: check code style
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/python-ci-style-check.sh  
+    - name: Build and UT
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/python-ci-build-ut.sh      
+
+  python-ci-deploy-test:
+    runs-on: ubuntu-latest
+    needs: python-ci-precheck-code-check
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }} 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
+        aws-region: us-east-1
+    - name: lambda@Edge test
+      run: |
+        export labelName=${{ github.event.label.name }}
+        ./scripts/edge-test.sh
+
+  python-ci-add-label:
+    runs-on: ubuntu-latest
+    needs: python-ci-deploy-test
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}     
+    - uses: actions-ecosystem/action-add-labels@v1
+      with:
+        github_token: ${{ secrets.github_token }}
+        labels: CI-Succeeded

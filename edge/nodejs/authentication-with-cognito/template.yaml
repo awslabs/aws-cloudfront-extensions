@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8106)
+  authentication-with-cognito
+
+  Authenticating by Cognito or third-party native library, add security information into HTTP headers, etc.
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: authentication-with-cognito
+    Description: SAM Template for authentication-with-cognito
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-cognito
+
+Parameters:
+  UserPoolId:
+    Type: String
+    Default: ""
+    Description: "The cognito user pool id"
+  CognitoRegion:
+    Type: String
+    Default: "us-east-1"
+    Description: "The cognito region"    
+
+Resources:
+  AuthenticationByCognito:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: authentication-with-cognito/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt EdgeFunctionRole.Arn     
+
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: 
+              - sts:AssumeRole            
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+          # TODO need updateFunction permission
+          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+        
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn: AuthenticationByCognito
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-auth-cognito-function.zip'
+      Handler: index.handler
+      Runtime: python3.7
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      UserPoolId: !Ref UserPoolId
+      CognitoRegion: !Ref CognitoRegion
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/authentication-with-cognito/authentication-with-cognito.zip'
+      EdgeFunctionArn: !GetAtt AuthenticationByCognito.Arn
+
+
+Outputs:
+  AuthenticationByCognitoFunction:
+    Description: "Lambda Edge function ARN"
+    Value: !GetAtt AuthenticationByCognito.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8106"    
+  AuthenticationByCognitoFunctionIamRole:
+    Description: "Implicit IAM Role created for Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn

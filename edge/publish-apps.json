@@ -1,0 +1,17 @@
+{
+  "edge": {
+    "publish_app_path": [
+      "nodejs/access-origin-by-weight-rate",
+      "nodejs/add-security-headers",
+      "nodejs/authentication-with-cognito",
+      "nodejs/http302-from-origin",
+      "nodejs/modify-response-header",
+      "nodejs/modify-response-status-code",
+      "nodejs/multiple-origin-IP-retry",
+      "nodejs/normalize-query-string",
+      "nodejs/simple-lambda-edge",
+      "nodejs/serving-based-on-device"
+    ],
+    "tag": "v1.0.0"
+  }
+}

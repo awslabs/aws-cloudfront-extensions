@@ -1,0 +1,10 @@
+baseURL = "https://awslabs.github.io/aws-cloudfront-extensions/"
+languageCode = "en-us"
+title = "CloudFront+"
+theme = "hugo-theme-learn"
+contentDir = "../docs"
+canonifyURLs = true
+
+[params]
+  themeVariant = "cloudfrontext"
+  disableLandingPageButton = true

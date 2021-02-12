@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "(SO8107) modify-response-status-code is a lambda@Edge which shows how to modify a response status code."
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: modify-response-status-code
+    Description: Sample SAM Template for modify-response-status-code
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code
+
+Resources:
+  ModifyResponseStatusCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: modify-response-status-code/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+
+Outputs:
+  ModifyResponseStatusCodeFunctionARN:
+    Description: "ARN"
+    Value: !GetAtt ModifyResponseStatusCodeFunction.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8107"
+  ModifyResponseStatusCodeFunctionIamRole:
+    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn

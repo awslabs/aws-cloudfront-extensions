@@ -1,0 +1,18 @@
+{
+  "name": "normalize-query-string",
+  "version": "1.0.0",
+  "description": "Normalize query string parameters",
+  "main": "app.js",
+  "repository": "https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/normalize-query-string",
+  "author": "SAM CLI",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "scripts": {
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "nyc": "^15.1.0",
+    "mocha": "^8.2.1"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "multiple-origin-IP-retry",
+  "version": "1.0.0",
+  "description": "retry ip for origin",
+  "main": "app.js",
+  "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/multiple-origin-IP-retry",
+  "author": "Ming Gu",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "follow-redirects": "^1.13.1"
+  },
+  "scripts": {
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/",
+    "webpack": "webpack --progress",
+    "analyze": "webpack --profile --json > stats.json && webpack-bundle-analyzer ./stats.json",
+    "build": "npm run webpack"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "fs": "^0.0.1-security",
+    "mocha": "^8.2.1",
+    "nock": "^13.0.6",
+    "nyc": "^15.1.0",
+    "webpack": "^5.19.0",
+    "webpack-bundle-analyzer": "^4.4.0",
+    "webpack-cli": "^4.4.0"
+  }
+}

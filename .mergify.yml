@@ -1,0 +1,37 @@
+# See https://doc.mergify.io
+
+pull_request_rules:
+  - name: automatic merge of Dependabot PRs
+    actions:
+      comment:
+        message: Thanks Dependabot!
+      merge:
+        strict: false
+        method: squash
+    conditions:
+      - -label~=(blocked|do-not-merge)
+      - -merged
+      - -closed
+      - author~=dependabot
+      - "#approved-reviews-by>=1"
+      - approved-reviews-by~=^(cc4i|NingLu|dengmingtong)
+      - "#changes-requested-reviews-by=0"
+  - name: automatic merge
+    actions:
+      comment:
+        message: Thank you for contributing! Your pull request will be merged automatically
+      merge:
+        strict: smart
+        method: squash
+        strict_method: merge
+        commit_message: title+body
+    conditions:
+      - -label~=(blocked|do-not-merge)
+      - label~=CI-Succeeded
+      - -merged
+      - -closed
+      - author!=dependabot[bot]
+      - author!=dependabot-preview[bot]
+      - "#approved-reviews-by>=1"
+      - approved-reviews-by~=^(cc4i|NingLu|dengmingtong)
+      - "#changes-requested-reviews-by=0"
