@@ -579,7 +579,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(300),
       environment: {
         "LOG_LEVEL": logLevel,
-        "SCOPE": "CLOUDFRONT"
+        "SCOPE": waf2Scope.valueAsString
       }
     });
 
@@ -598,7 +598,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "LIMIT_IP_ADDRESS_RANGES_PER_IP_MATCH_CONDITION": "10000",
         "MAX_AGE_TO_UPDATE": "30",
         "REGION": "AWS::Region",
-        "SCOPE": "CLOUDFRONT",
+        "SCOPE": waf2Scope.valueAsString,
         "LOG_TYPE": "cloudfront",
         "METRIC_NAME_PREFIX": cdk.Fn.ref("AWS::StackName"),
         "LOG_LEVEL": logLevel,
@@ -723,7 +723,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "IP_SET_ID_REPUTATIONV6": reputationListsIpSetV6.attrArn,
         "IP_SET_NAME_REPUTATIONV4": reputationListsIpSetV4.name!,
         "IP_SET_NAME_REPUTATIONV6": reputationListsIpSetV6.name!,
-        "SCOPE": "CLOUDFRONT",
+        "SCOPE": waf2Scope.valueAsString,
         "LOG_LEVEL": logLevel,
         "URL_LIST": "[{\"url\":\"https://www.spamhaus.org/drop/drop.txt\"},{\"url\":\"https://www.spamhaus.org/drop/edrop.txt\"},{\"url\":\"https://check.torproject.org/exit-addresses\", \"prefix\":\"ExitAddress\"},{\"url\":\"https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt\"}]",
         "SOLUTION_ID": "SO8128",
@@ -760,7 +760,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       "IP_SET_ID_REPUTATIONV6": reputationListsIpSetV6.attrArn,
       "IP_SET_NAME_REPUTATIONV4": reputationListsIpSetV4.name!,
       "IP_SET_NAME_REPUTATIONV6": reputationListsIpSetV6.name!,
-      "SCOPE": "CLOUDFRONT"
+      "SCOPE": waf2Scope.valueAsString
     }
     reputationListsParserRule.addTarget(
       new targets.LambdaFunction(
@@ -825,7 +825,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(300),
       role: shieldRole,
       environment: {
-        "SCOPE": "CLOUDFRONT",
+        "SCOPE": waf2Scope.valueAsString,
         "LOG_LEVEL": logLevel,
         "SOLUTION_ID": "SO8128"
       }
@@ -901,7 +901,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       memorySize: 512,
       timeout: cdk.Duration.seconds(300),
       environment: {
-        "SCOPE": "CLOUDFRONT",
+        "SCOPE": waf2Scope.valueAsString,
         "IP_SET_ID_BAD_BOTV4": badBotIpSetV4.attrArn,
         "IP_SET_ID_BAD_BOTV6": badBotIpSetV6.attrArn,
         "IP_SET_NAME_BAD_BOTV4": badBotIpSetV4.name!,
@@ -927,7 +927,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(300),
       environment: {
         "LOG_LEVEL": logLevel,
-        "SCOPE": "CLOUDFRONT",
+        "SCOPE": waf2Scope.valueAsString,
         "SOLUTION_ID": "SO8128",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic"
       }
