@@ -6,7 +6,7 @@ weight: 2
 In this step, you will find and deploy serverless applications that have been published to the AWS Serverless Application Repository, the application serves content based on device type, for example, mobile device will be forwarded to access content for mobile devices, desktop device will be forwarded to access specific content, and so on so forth
 
 
-## Deploy an application in SAR
+## Deploy serving-based-on-device application in SAR
 
 To find and configure an application in the AWS Serverless Application Repository
 
@@ -39,13 +39,31 @@ To deploy the demo website
 1. Go to [CloudShell](https://console.aws.amazon.com/cloudshell/home?region=us-east-1#)
    > In the top right corner of the console, make sure you’re using this region: **N. Virginia (us-east-1)** 
     
-2. Navigate to demo folder and deploy it, you need to specify an unique S3 bucket name to store the website content
+2. Navigate to demo folder and deploy it, below commands will create an S3 bucket to store the website content, so you need to specify an unique S3 bucket name
        
        cd aws-cloudfront-extensions-main/templates/workshop-demo/
        npm install
        npm run build
        cdk deploy --parameters staticSiteBucketName=<your_unique_S3_bucket_name>
    Wait until the deployment is completed
+   
+   If this is the first time you use AWS CDK, you need to bootstrap first or else you will see below error.
+
+   WorkshopDemoStack: deploying...
+
+       ❌  WorkshopDemoStack failed: Error: This stack uses assets, so the toolkit stack must be deployed to the environment (Run "cdk bootstrap aws://unknown-account/unknown-region")
+       at Object.addMetadataAssetsToManifest (/usr/lib/node_modules/aws-cdk/lib/assets.ts:27:11)
+       at Object.deployStack (/usr/lib/node_modules/aws-cdk/lib/api/deploy-stack.ts:205:29)
+       at processTicksAndRejections (internal/process/task_queues.js:97:5)
+       at CdkToolkit.deploy (/usr/lib/node_modules/aws-cdk/lib/cdk-toolkit.ts:180:24)
+       at initCommandLine (/usr/lib/node_modules/aws-cdk/bin/cdk.ts:204:9)
+       This stack uses assets, so the toolkit stack must be deployed to the environment (Run "cdk bootstrap aws://unknown-account/unknown-region")
+   To bootstrap, execute this command
+
+       cdk bootstrap aws://<replace_with_your_aws_account_id>/us-east-1   
+
+
+
 3. Go to [CloudFormation console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1), you will see a stack named **WorkshopDemoStack**
 4. Choose **WorkshopDemoStack** and click **Outputs** tab, it will show S3 bucket name, demo website url and CloudFront distribution id
    ![Device output](/images/output_device.png)

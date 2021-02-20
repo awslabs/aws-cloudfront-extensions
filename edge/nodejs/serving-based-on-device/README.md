@@ -1,7 +1,7 @@
 # Serving Content Based on Device
 
 
-The Lambda@Edge is designed to serve content based on device type, for example, mobile device will be forwarded to access content for mobile device, desktop device will be fowarded to access specofic content regardly, and so on so forth.
+The Lambda@Edge is designed to serve content based on device type, for example, mobile device will be forwarded to access content for mobile device, desktop device will be forwarded to access specific content.
 
 ## Prerequisite
 

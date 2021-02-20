@@ -9,17 +9,13 @@ AWS CDK is not pre-installed in AWS CloudShell currently, so you will need to in
 
 Install the AWS CDK Toolkit globally using the following Node Package Manager command.
 
-    npm install -g aws-cdk
-
-You will need to add **sudo** in front of the command If you see below error
-  
-  {{% notice tip %}}
-  Error: EACCES: permission denied, access '/usr/lib/node_modules'
-  {{% /notice %}}
-
     sudo npm install -g aws-cdk
+
 
 Run the following command to verify correct installation and print the version number of the AWS CDK.
 
     cdk --version
+
+
+
 
