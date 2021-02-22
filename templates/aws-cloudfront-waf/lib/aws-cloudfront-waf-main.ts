@@ -1339,7 +1339,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       "resourceType": "LambdaAddAthenaPartitionsEventsRule",
       "glueAccessLogsDatabase": glueAccessLogsDatabase.databaseName,
       "accessLogBucket": accessLogBucket.bucketName,
-      "glueAppAccessLogsTable": glueAppAccessLogsTable.logicalId,
+      "glueAppAccessLogsTable": "app_access_logs",
       "glueWafAccessLogsTable": glueWafAccessLogsTable.tableName,
       "wafLogBucket": wafLogBucket.bucketName,
       "athenaWorkGroup": addPartitionAthenaQueryWorkGroup.name
