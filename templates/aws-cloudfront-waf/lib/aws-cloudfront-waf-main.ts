@@ -12,10 +12,8 @@ import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as events from '@aws-cdk/aws-events';
 import * as targets from '@aws-cdk/aws-events-targets';
 import * as s3n from '@aws-cdk/aws-s3-notifications';
-import * as eventsources from '@aws-cdk/aws-lambda-event-sources';
-import { version } from 'process';
-import { Fn } from '@aws-cdk/core';
-import { stringLike } from '@aws-cdk/assert';
+import * as cr from '@aws-cdk/custom-resources';
+import { CustomResource } from '@aws-cdk/core';
 
 export class AwsCloudfrontWafStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps = {}) {
@@ -36,8 +34,13 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     const logLevel = 'INFO';
 
     const appAccessLogBucketName = new cdk.CfnParameter(this, "appAccessLogBucket", {
-      default: "aws-access-log-bucket-cloudfront",
-      description: "The name for the Amazon S3 bucket where you want to store access logs for your CloudFront distribution. More about bucket name restriction here: http://amzn.to/1p1YlU5."
+      default: 'access-log-bucket-cloudfront',
+      description: "The name for the Amazon S3 bucket where you want to store Cloud Front access logs for your CloudFront distribution. More about bucket name restriction here: http://amzn.to/1p1YlU5."
+    });
+
+    const wafLogBucketName = new cdk.CfnParameter(this, "wafLogBucketName", {
+      default: 'waf-log-bucket-cloudfront',
+      description: "The name for the Amazon S3 bucket where you want to store WAF access Cloud Front logs. More about bucket name restriction here: http://amzn.to/1p1YlU5."
     });
 
     const errorThreshold = new cdk.CfnParameter(this, "errorThreshold", {
@@ -63,6 +66,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
 
     //WafLogBucket
     const wafLogBucket = new s3.Bucket(this, "WafLogBucket", {
+      bucketName: wafLogBucketName.valueAsString,
       publicReadAccess: false,
       encryption: s3.BucketEncryption.KMS_MANAGED
     });
@@ -953,7 +957,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
 
     //Kinesis Data Firehose
     const firehoseRole = new iam.Role(this, 'FirehoseRole', {
-      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com')
+      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
 
     firehoseRole.addToPolicy(
@@ -984,6 +988,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     );
 
     const firehoseStream = new firehose.CfnDeliveryStream(this, 'FirehoseWAFLogsDeliveryStream', {
+      deliveryStreamName: "aws-waf-logs-" + this.stackName,
       deliveryStreamType: "DirectPut",
       extendedS3DestinationConfiguration: {
         "bucketArn": wafLogBucket.bucketArn,
@@ -995,7 +1000,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "prefix": "AWSLogs/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/",
         "errorOutputPrefix": "AWSErrorLogs/result=!{firehose:error-output-type}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/",
         "roleArn": firehoseRole.roleArn
-      }
+      },
     });
 
     //Glue DB & table
@@ -1316,7 +1321,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
 
 
 
-    const addAthenaPartitionsLambda = new lambda.Function(this, "AddAthenaPartitions", {
+    const addAthenaPartitionsLambda = new lambda.Function(this, "AddAthenaPartitionsFunction", {
       description: "This function adds a new hourly partition to athena table. It runs every hour, triggered by a CloudWatch event.",
       runtime: lambda.Runtime.PYTHON_3_8,
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda-assets/log_parser.zip')),
@@ -1556,6 +1561,120 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       })
     )
 
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "cloudformation:DescribeStacks",
+        ],
+        resources: [
+          `arn:${cdk.Aws.PARTITION}:cloudformation:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:stack/${cdk.Stack.name}/*`
+        ]
+      })
+    )
+
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "lambda:InvokeFunction",
+        ],
+        resources: [
+          `arn:${cdk.Aws.PARTITION}:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:${this.stackName}*`
+        ]
+      })
+    )
+
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "wafv2:GetIPSet",
+          "wafv2:DeleteIPSet",
+          "wafv2:GetWebACL",
+          "wafv2:UpdateWebACL",
+          "wafv2:DeleteLoggingConfiguration",
+          "wafv2:PutLoggingConfiguration",
+        ],
+        resources: [
+          wafweb.attrArn,
+        ]
+      })
+    )
+    
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "wafv2:GetIPSet",
+          "wafv2:DeleteIPSet",
+        ],
+        resources: [
+          `arn:${cdk.Aws.PARTITION}:logs:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:regional/ipset/${this.stackName}*`,
+          `arn:${cdk.Aws.PARTITION}:logs:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:global/ipset/${this.stackName}*`,
+        ]
+      })
+    )
+
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
+        resources: [
+          `arn:${cdk.Aws.PARTITION}:logs:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:log-group:/aws/lambda/*CustomResource*`
+        ]
+      })
+    )
+
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "s3:GetBucketLocation",
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:CreateBucket",
+          "s3:GetBucketNotification",
+          "s3:PutBucketNotification",
+          "s3:PutEncryptionConfiguration",
+          "s3:PutBucketPublicAccessBlock"
+        ],
+        resources: [
+          accessLogBucket.bucketArn
+        ]
+      })
+    )
+
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "s3:CreateBucket",
+          "s3:GetBucketNotification",
+          "s3:PutBucketNotification",
+        ],
+        resources: [
+          wafLogBucket.bucketArn
+        ]
+      })
+    )
+
+    customResourceLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "iam:CreateServiceLinkedRole",
+        ],
+        resources: [
+          'arn:aws:iam::*:role/aws-service-role/wafv2.amazonaws.com/AWSServiceRoleForWAFV2Logging'
+        ]
+      })
+    )
+
     wafLogBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDestination(logParserLambda), {
       prefix: 'athena_results/',
       suffix: 'csv'
@@ -1569,6 +1688,88 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     accessLogBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDestination(logParserLambda), {
       prefix: 'athena_results/',
       suffix: 'csv'
+    });
+
+    const customResourceProvider = new cr.Provider(this, 'customResourceProvider', {
+      onEventHandler: customResourceLambda,
+    });
+
+    new CustomResource(this, 'ConfigureAWSWAFLogs', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::ConfigureAWSWAFLogs",
+      properties: {
+        WAFWebACLArn: wafweb.attrArn,
+        DeliveryStreamArn: firehoseStream.attrArn,
+      },
+    });
+
+    new CustomResource(this, 'ConfigureAppAccessLogBucket', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::ConfigureAppAccessLogBucket",
+      properties: {
+        Region: this.region,
+        AppAccessLogBucket: accessLogBucket.bucketName,
+        LogParser: logParserLambda.functionArn,
+        ScannersProbesAthenaLogParser: 'yes',
+        MoveS3LogsForPartition: moveLogToPartitionLambda.functionName,
+      },
+    });
+
+    new CustomResource(this, 'ConfigureWafLogBucket', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::ConfigureWafLogBucket",
+      properties: {
+        Region: this.region,
+        WafLogBucket: wafLogBucket.bucketName,
+        LogParser: logParserLambda.functionArn,
+        HttpFloodAthenaLogParser: 'yes',
+      },
+    });
+
+    new CustomResource(this, 'ConfigureWebAcl', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::ConfigureWebAcl",
+      properties: {
+        WAFWhitelistSetIPV4: whitelistIpSetV4.attrId,
+        WAFWhitelistSetIPV4Name: whitelistIpSetV4.name,
+      },
+    });
+
+    new CustomResource(this, 'GenerateAppLogParserConfFile', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::GenerateAppLogParserConfFile",
+      properties: {
+        StackName: this.stackName,
+        ErrorThreshold: errorThreshold,
+        WAFBlockPeriod: blockPeriod.valueAsString,
+        AppAccessLogBucket: accessLogBucket.bucketName,
+      },
+    });
+
+    new CustomResource(this, 'GenerateWafLogParserConfFile', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::GenerateWafLogParserConfFile",
+      properties: {
+        StackName: this.stackName,
+        RequestThreshold: requestThreshold.valueAsString,
+        WAFBlockPeriod: blockPeriod.valueAsString,
+        WafAccessLogBucket: wafLogBucket.bucketName,
+      },
+    });
+
+    new CustomResource(this, 'AddAthenaPartitions', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::AddAthenaPartitions",
+      properties: {
+        ResourceType: "Custom::AddAthenaPartitions",
+        AddAthenaPartitionsLambda: addAthenaPartitionsLambda.functionName,
+        GlueAccessLogsDatabase: glueAccessLogsDatabase.databaseName,
+        AppAccessLogBucket: accessLogBucket.bucketName,
+        GlueAppAccessLogsTable: 'app_access_logs',
+        GlueWafAccessLogsTable: glueWafAccessLogsTable.tableName,
+        WafLogBucket: wafLogBucket.bucketName,
+        AthenaWorkGroup: addPartitionAthenaQueryWorkGroup.name,
+      },
     });
 
     new cdk.CfnOutput(this, 'AppAccessLogBucketName', { value: accessLogBucket.bucketName });
