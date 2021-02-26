@@ -135,7 +135,6 @@ To configure the CloudFront trigger for your function
 
    Choose **Deploy**
 
-   ![Lambda Deploy](/images/deploy_para.png)
 
 4. Wait for the function to replicate. This typically takes several minutes
 
