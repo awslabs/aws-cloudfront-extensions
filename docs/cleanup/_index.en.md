@@ -9,3 +9,4 @@ Clean up all AWS resources created using AWS CloudFormation. Delete any changes 
 - [CloudFront distribution](./cf-distribution/readme)
 - [CloudFormation](./cloudformation/readme)
 - [CloudShell](./cloudshell/readme)
+- [WAF & Shield Automations](./waf/readme)

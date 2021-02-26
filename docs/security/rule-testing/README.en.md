@@ -3,14 +3,14 @@ title: Web ACLs and Managed Rules
 weight: 3
 ---
 
-In this step of the workshop, you will see how the AWS WAF to protects against common attacks, such as SQL injection or Command Line attacks.
+In this step of the workshop, you will see how the AWS WAF protects against common attacks, such as SQL injection or Command Line attacks.
 
 ## Introduction
 ### Web ACLs
 A [web ACL (Web Access Control List)](https://docs.aws.amazon.com/waf/latest/developerguide/web-acl.html) is the core resource in an AWS WAF deployment. It contains rules that are evaluated for each request that it receives. [A web ACL is associated to your web application](https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-associating-aws-resource.html) via either an Amazon CloudFront distribution, AWS API Gateway API or an AWS Application Load Balancer.
 
 ### Managed Rules
-In the AWS WAF & Shield console, you will see there are a set of pre-configured rules, these rules provide protections against common types of attacks.
+In the AWS WAF & Shield console, you will see there are a set of pre-configured rules, these rules provide protection against common types of attacks.
 ![Managed Rules](/images/managed_rules.png?width=50pc)
 
 
@@ -23,21 +23,21 @@ Attackers insert malicious SQL code into web requests in an effort to extract da
 ![JUICE SHOP MAIN](/images/juice_shop_main.png?width=50pc)
 
 2) Go to the Login page via the ‘Account’ button in the top area of the Juice Shop web page.
-Try to use `' OR true--` in the ‘Email’ field with any password and click the ‘Log in’ button, you will you will receive a HTML response stating the request was forbidden(403):
+Try to use `' OR true--` in the ‘Email’ field with any password and click the ‘Log in’ button, you will receive an HTML response stating the request was forbidden(403):
 ![SQL BLOCK](/images/sql_block.png?width=30pc)
 
 3) Compare to open the official Juice Shop demo site: https://demo.owasp-juice.shop/ and use the same Email/Password to login, you will login success without any blocking.
 
-## Cross Site Scripting (XSS) protection
+## Cross-Site Scripting (XSS) protection
 Also known as XSS, attackers use vulnerabilities in a benign website as a vehicle to inject malicious client-site scripts into a legitimate user’s web browser. This solution is designed to inspect commonly explored elements of incoming requests to identify and block XSS attacks.
 
-You can test the XSS protetion rule with the command below.
+You can test the XSS protection rule with the command below.
 
-    # This imitates a Cross Site Scripting attack
+    # This imitates a Cross-Site Scripting attack
     # This request should be blocked.
     curl -X POST http://*********.cloudfront.net -F "<iframe src='javascript:alert(xss)'>"
 
-If a request is blocked, you will receive a HTML response stating the request was forbidden. Here’s an snippet of what to expect
+If a request is blocked, you will receive an HTML response stating the request was forbidden. Here’s a snippet of what to expect
 
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
     <HTML><HEAD><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">

@@ -4,23 +4,23 @@ weight: 2
 ---
 
 ## Deploy WAF & Shield Automations
-Please follow this previous step to [Upload CloudFront+ code into CloudShell](https://awslabs.github.io/aws-cloudfront-extensions/develop/download-code/readme/) if have not unzip the CloudFront+ reository in the CloudShell.
+Please follow this previous step to [Upload CloudFront+ code into CloudShell](https://awslabs.github.io/aws-cloudfront-extensions/develop/download-code/readme/) if have not unzipped the CloudFront+ repository in the CloudShell.
 
-After upzipping the aws-cloudfront-extensions archive, you can deploy the WAF & Shield Automations in the CloudShell by the next commands:
+After unzipping the aws-cloudfront-extensions archive, you can deploy the WAF & Shield Automations in the CloudShell by the next commands:
 
 
 1. Create a symbolic link to [PIP](https://pypi.org/project/pip/) from PIP3
 
        sudo ln -s /usr/bin/pip3 /usr/bin/pip
 
-2. Change current directory to 'aws-cloudfront-waf/deployment'
+2. Change the current directory to 'aws-cloudfront-waf/deployment'
 
        cd aws-cloudfront-extensions-main/templates/aws-cloudfront-waf/deployment/
 3. Package all required AWS Lambda functions
 
         ./package-lambda-code.sh
 
-4. Navigate to aws-cloudfront-waf directory and deploy the WAF & Shield Automations app by AWS CDK
+4. Navigate to the aws-cloudfront-waf directory and deploy the WAF & Shield Automations app by AWS CDK
         
         cd ..
         cdk deploy
@@ -37,7 +37,7 @@ This CDK app uses the following default values, you can modify them by --paramet
 
 Enter **y** to deploy the stack and create the resources.
 
-Output should look like the following:
+The output should look like the following:
 
     ✅  AwsCloudfrontWafStack
 
@@ -67,13 +67,13 @@ Configure Juice Shop web application’s distribution in Amazon CloudFront to se
 ![Config Logging](/images/config_waf_log.png?width=50pc)
 
 ## AWS Shield Deployment
-In AWS Lambda console, update the `ShieldAdvancedLambda` function with the ARN of the Juice Shop CloudFront distribution.
+In the AWS Lambda console, update the `ShieldAdvancedLambda` function with the ARN of the Juice Shop CloudFront distribution.
 
 1) Open the Amazon CloudFront console
 2) Select your Juice Shop web application's distribution and copy the ARN in the General tab
 ![Juice Shop ARN](/images/juice_shop_arn.png?width=50pc)
 3) Open the Amazon Lambda console, on the Functions list, open the `ShieldAdvancedLambda` Lambda function, click the Lambda item in the Designer and open the shield-protection.py source code in the 'Function code', replace the `CloudFrontARN` variable in line 31 with the copied ARN.
 ![Replace ARN](/images/replace_arn.png?width=50pc)
-4) Click Deploy button until you see the 'Changes deployed' notice, then click Test button to launch the function with the default testing event, after testing, you wil see the successed execution result in the summary.
+4) Click the Deploy button until you see the 'Changes deployed' notice, then click the Test button to launch the function with the default testing event, after testing, you will see the success execution result in the summary.
 
-So far, the deployment of AWF WAF and Shield has been finished and associated with the Juice Shop CloudFront distribution. Let's start testing in the [next step](/security/testing/readme/).
+So far, the deployment of AWF WAF and Shield has been finished and associated with the Juice Shop CloudFront distribution. Let's start testing in the [next step](/security/rule-testing/readme/).

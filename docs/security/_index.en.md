@@ -7,4 +7,4 @@ With WAF & Shield Automations you can protect your web services with a set of AW
 
 In this workshop, you will deploy AWS WAF & Shield Automations by AWS CDK to protect the [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) as the test web application.
 
-The Juice Shop is an Open Source web application that is intentionally insecure, you can find more detail introduction about the OWASP Juice Shop in [Pwning OWASP Juice Shop](https://pwning.owasp-juice.shop/).
+The Juice Shop is an Open Source web application that is intentionally insecure, you can find a more detailed introduction about the OWASP Juice Shop in [Pwning OWASP Juice Shop](https://pwning.owasp-juice.shop/).
