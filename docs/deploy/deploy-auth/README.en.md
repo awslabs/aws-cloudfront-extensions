@@ -3,14 +3,15 @@ title: Deploy a Lambda@Edge function to authenticate with Cognito
 weight: 1
 ---
 
-In this step, you will find and deploy serverless applications that have been published to the AWS Serverless Application Repository, the application enables authentication with Amazon Cognito for your website.
+In this step, you will find and deploy one serverless application that have been published to the AWS Serverless Application Repository. The application enables authentication with Amazon Cognito for your website.
 
 ## Deploy resources from CloudFormation
 
-1. Launch workshop stack by clicking this [link](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=auth-at-edge&templateURL=https://do-not-delete-cloudfront-ext-workshop.s3.amazonaws.com/edge-auth-workshop.template)
-   Use the default parameters to deploy the stack, wait until all the stacked are created
-2. Go to [CloudFormation console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#) and choose **auth-at-edge** stack
-3. In the Outputs section, it lists all the resources created by the stack, find **CloudFrontDistribution**, **CognitoUserPoolId** and **DemoUrl** in the outputs, we will use them in next steps
+1. Launch workshop stack by clicking this [link](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=auth-at-edge&templateURL=https://do-not-delete-cloudfront-ext-workshop.s3.amazonaws.com/edge-auth-workshop.template). 
+2. Keep all the default parameters for the stack and click **Deploy**.
+3. Wait a few minutes for the deployment to be completed.
+4. You can check the deployment status in CloudFormation Console. Go to [CloudFormation console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#) and choose the stack named **auth-at-edge**. 
+5. In the Outputs section, it lists all the resources created by the stack, find the **CloudFrontDistribution**, **CognitoUserPoolId** and **DemoUrl** in the outputs, we will use them in next steps.
 
 ![Cognito user id](/images/cognito-user-id.png)
 
@@ -18,11 +19,11 @@ In this step, you will find and deploy serverless applications that have been pu
 
 To find and configure an application in the AWS Serverless Application Repository
 
-1. Open [the AWS Serverless Application Repository page](https://serverlessrepo.aws.amazon.com/applications)
+1. Open [the AWS Serverless Application Repository page](https://serverlessrepo.aws.amazon.com/applications) in the Console
 2. Check **Show apps that create custom IAM roles or resource policies**
-3. Search the application name **authentication-with-cognito**, choose the application
-4. On the application detail page, paste the Cognito user pool id which copied from the stack outputs, check **I acknowledge that this app creates custom IAM roles**
-5. Choose **Deploy**. After the deployment is completed, it will redirect to application over page
+3. Search the application name **authentication-with-cognito**, choose the application and click **Deploy**.
+4. On the application detail page, paste the Cognito User Pool Id which was copied from the stack outputs, check **I acknowledge that this app creates custom IAM roles**
+5. Click **Deploy**. After the deployment is completed, it will redirect to application over page
 
 ## Add a CloudFront Trigger to Run the Function
 
@@ -50,9 +51,9 @@ To configure the CloudFront trigger for your function
 
    ![Lambda Deploy](/images/deploy_para.png)
 
-4. Wait for the function to replicate. This typically takes several minutes
+4. Wait for the function to replicate. This typically takes several minutes.
 
-   You can check to see if replication is finished by going to the [CloudFront console](https://console.aws.amazon.com/cloudfront/) and viewing your distribution. Wait for the distribution status to change from In Progress back to **Deployed**, which means that your function has been replicated
+   You can check to see if replication is finished by going to the [CloudFront console](https://console.aws.amazon.com/cloudfront/) and viewing your distribution. Wait for the distribution status to change from In Progress back to **Deployed**, which means that your function has been replicated.
 
 ## Test the function
 
