@@ -13,10 +13,11 @@ weight: 60
 
 ## Resources
 
-- Slide: TBD
 - [Source code](https://github.com/awslabs/aws-cloudfront-extensions)
 - [Contributing guidelines](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/CONTRIBUTING.md)
 - [Code of conduct](https://aws.github.io/code-of-conduct)
 - [Issue template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/ISSUE_TEMPLATE/bug.md)
 - [Pull request template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/pull_request_template.md)
 - [Feature request template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/ISSUE_TEMPLATE/feature_request.md)
+- [Implementation Guide: AWS WAF Security Automations](https://docs.aws.amazon.com/solutions/latest/aws-waf3-security-automations/welcome.html)
+- [AWS WAF Workshop](https://introduction-to-waf.workshop.aws/)
