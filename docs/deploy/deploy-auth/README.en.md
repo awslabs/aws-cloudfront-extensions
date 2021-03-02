@@ -30,30 +30,18 @@ To find and configure an application in the AWS Serverless Application Repositor
 To configure the CloudFront trigger for your function
 1. Choose **Configuration** tab and choose **Triggers** 
 2. Add Trigger and choose **CloudFront**, choose **Deploy to Lambda@Edge**
-
    ![CF Trigger](/images/CF_trigger.png)
-
 3. On the **Deploy to Lambda@Edge** page, enter the following information:
-
    - Distribution
-
      The CloudFront distribution which has been created in the stack
-    
    - Cache behavior
-     
      Select **private/***
-
    - CloudFront event
-
      In the drop-down list, choose **Viewer Request**
-
-   Choose **Deploy**
-
+   Click **Deploy**
    ![Lambda Deploy](/images/deploy_para.png)
-
 4. Wait for the function to replicate. This typically takes several minutes.
-
-   You can check to see if replication is finished by going to the [CloudFront console](https://console.aws.amazon.com/cloudfront/) and viewing your distribution. Wait for the distribution status to change from In Progress back to **Deployed**, which means that your function has been replicated.
+5. You can check to see if replication status in the [CloudFront Console](https://console.aws.amazon.com/cloudfront/) and viewing your distribution. Wait for the distribution status to change from In Progress back to **Deployed**, which means that your function has been replicated.
 
 ## Test the function
 
