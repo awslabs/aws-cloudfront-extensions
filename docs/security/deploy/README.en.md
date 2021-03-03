@@ -4,7 +4,7 @@ weight: 2
 ---
 
 ## Deploy WAF & Shield Automations
-Please follow this previous step to [Upload CloudFront+ code into CloudShell](https://awslabs.github.io/aws-cloudfront-extensions/develop/download-code/readme/) if have not unzipped the CloudFront+ repository in the CloudShell.
+Please follow this previous step to [Upload CloudFront Extensions code into CloudShell](https://awslabs.github.io/aws-cloudfront-extensions/develop/download-code/readme/) if have not unzipped the CloudFront Extensions repository in the CloudShell.
 
 After unzipping the aws-cloudfront-extensions archive, you can deploy the WAF & Shield Automations in the CloudShell by the next commands:
 

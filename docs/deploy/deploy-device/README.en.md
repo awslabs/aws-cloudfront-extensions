@@ -13,13 +13,14 @@ To find and configure an application in the AWS Serverless Application Repositor
 1. Open [the AWS Serverless Application Repository page](https://serverlessrepo.aws.amazon.com/applications)
 2. Check **Show apps that create custom IAM roles or resource policies**
 3. Search the application name **serving-based-on-device**, choose the application
+   > All CloudFront extensions can be find by searching **aws-cloudfront-extensions**
 4. On the application detail page, check **I acknowledge that this app creates custom IAM roles**
 5. Choose **Deploy**. After the deployment is completed, it will redirect to application over page
 
 ## Deploy resources by CDK
-To download CloudFront+ code and upload it onto CloudShell
+To download CloudFront Extensions code and upload it onto CloudShell
 > Skip this step if you already have the codes in CloudShell
-1. Go to [CloudFront+ code](https://github.com/awslabs/aws-cloudfront-extensions)
+1. Go to [CloudFront Extensions code](https://github.com/awslabs/aws-cloudfront-extensions)
 2. Choose **Download ZIP**
    ![Github Download ZIP](/images/gh-download.png)
 3. Upload the zip package onto CloudShell

@@ -1,6 +1,6 @@
 ---
 title: CloudShell 
-weight: 4
+weight: 5
 ---
 
 To clean CloudShell 

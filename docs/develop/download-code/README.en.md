@@ -1,11 +1,11 @@
 ---
-title: Upload CloudFront+ code into CloudShell 
+title: Upload CloudFront Extensions code into CloudShell 
 weight: 2
 ---
 
-To download CloudFront+ code and upload it onto CloudShell
+To download CloudFront Extensions code and upload it onto CloudShell
 > Skip this step if you already have the codes in CloudShell
-1. Go to [CloudFront+ code](https://github.com/awslabs/aws-cloudfront-extensions)
+1. Go to [CloudFront Extensions code](https://github.com/awslabs/aws-cloudfront-extensions)
 2. Choose **Download ZIP**
    ![Github Download ZIP](/images/gh-download.png)
 3. Upload the zip package onto CloudShell

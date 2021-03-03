@@ -1,5 +1,5 @@
 ---
-title: Understand CloudFront+ code structure 
+title: Understand CloudFront Extensions code structure 
 weight: 3
 ---
 

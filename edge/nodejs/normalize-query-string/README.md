@@ -3,12 +3,6 @@
 
 The Lambda@Edge is designed to normalize query string. 
 
-## Prerequisite
-
-1. You must configure your distribution to cache based on the CloudFront-Is-*-Viewer headers. For more information, see the following documentation:
-     - http://docs.aws.amazon.com/console/cloudfront/cache-on-selected-headers
-     - http://docs.aws.amazon.com/console/cloudfront/cache-on-device-type
-2. CloudFront adds the CloudFront-Is-*-Viewer headers after the viewer request event.
 
 ## Description
 

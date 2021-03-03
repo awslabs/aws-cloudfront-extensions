@@ -1,6 +1,6 @@
 ---
 title: CloudFront distribution 
-weight: 2
+weight: 3
 ---
 
 To clean CloudFront distribution

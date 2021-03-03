@@ -1,6 +1,6 @@
 ---
 title: CloudFormation 
-weight: 3
+weight: 4
 ---
 
 To clean Lambda function and IAM roles 
