@@ -2,4 +2,5 @@
 The following diagram is a high-level architecture of this lab
 There are two S3 bucket
 Private S3 bucket: contains private content, users can not access the content before login by Cognito Public S3 bucket: contains the demo website resources, users can access it through CloudFront publicly Here is how it works</description></item><item><title>Deploy a Lambda@Edge function to serve based on devices</title><link>https://awslabs.github.io/aws-cloudfront-extensions/deploy/deploy-device/readme/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://awslabs.github.io/aws-cloudfront-extensions/deploy/deploy-device/readme/</guid><description>In this step, you will find and deploy serverless applications that have been published to the AWS Serverless Application Repository, the application serves content based on device type, for example, mobile device will be forwarded to access content for mobile devices, desktop device will be forwarded to access specific content, and so on so forth
-Deploy serving-based-on-device application in SAR To find and configure an application in the AWS Serverless Application Repository</description></item></channel></rss>
+The following diagram is a high-level architecture of this lab
+The S3 bucket contains a demo website content, it has 4 folders:</description></item></channel></rss>
