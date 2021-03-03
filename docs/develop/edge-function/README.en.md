@@ -8,7 +8,7 @@ In this step, you will create a Lambda function by AWS Serverless Application Mo
 
 ## Download a sample AWS SAM application
 
-After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have uploaded CloudFront+ into CloudShell, go to CloudFront+ folder and perform following commands:
+After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have uploaded CloudFront Extensions into CloudShell, go to CloudFront Extensions folder and perform following commands:
 
        cd edge/nodejs/
        sam init
@@ -73,7 +73,7 @@ To create a Lambda@Edge function
     
 3. [Optional] Add solution id
 
-   Solution id is a unique id assigned by AWS GCR Solution team, you will need to add the solution id in template.yaml, all CloudFront+ solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront+ tab.
+   Solution id is a unique id assigned by AWS GCR Solution team, you will need to add the solution id in template.yaml, all CloudFront Extensions solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront Extensions tab.
    {{% notice info %}}
    Add Solution id is **optional** for this workshop, you can skip this step
    {{% /notice %}}

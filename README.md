@@ -11,7 +11,7 @@ Please find the step-by-step workshop material here: https://awslabs.github.io/a
 ## Overview
 <img src='docs/images/aws-cloudfront-extensions.png'>
 
-Provision CloudFront+ with pre-configured deployment assets, click button to install Lambda@Edge from Serverless Application Repository.
+Provision CloudFront Extensions with pre-configured deployment assets, click button to install Lambda@Edge from Serverless Application Repository.
 
 
 ## CloudFront Quick Start
