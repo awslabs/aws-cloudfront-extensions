@@ -73,8 +73,6 @@ To deploy the demo website
    
    If this is the first time you use AWS CDK, you need to bootstrap first or else you will see below error.
 
-   WorkshopDemoStack: deploying...
-
        ❌  WorkshopDemoStack failed: Error: This stack uses assets, so the toolkit stack must be deployed to the environment (Run "cdk bootstrap aws://unknown-account/unknown-region")
        at Object.addMetadataAssetsToManifest (/usr/lib/node_modules/aws-cdk/lib/assets.ts:27:11)
        at Object.deployStack (/usr/lib/node_modules/aws-cdk/lib/api/deploy-stack.ts:205:29)
@@ -133,7 +131,7 @@ To deploy the demo website
    ![Device Origin config](/images/device-OAI.png)
      > If you can't see **Restrict Bucket Access** options, clean **Origin Domain Name** field and set it to your S3 bucket again 
 
-Wait until the CloudFront distribution status is Deployed
+7. Wait until the CloudFront distribution status is Deployed
 
 
 
@@ -142,7 +140,7 @@ Wait until the CloudFront distribution status is Deployed
 To configure the CloudFront trigger for your function
 1. Go to [Lambda console](https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions) and choose **ServingOnDeviceFunction** function which is deployed from SAR 
 2. Choose **Action** tab and choose **Deploy to Lambda@Edge**
-   ![CF Trigger](/images/CF_trigger_2.png)
+   ![CF Trigger](/images/CF_trigger_3.png)
 
 3. On the **Deploy to Lambda@Edge** page, enter the following information:
 
