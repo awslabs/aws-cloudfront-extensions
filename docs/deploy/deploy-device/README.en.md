@@ -125,11 +125,8 @@ To deploy the demo website
 5. Choose **Origins and Origin Groups** tab, check the checkbox in **Origins** and choose **Edit**
 6. Do below configuration
    - Set **Restrict Bucket Access** to Yes
-
      {{% notice note %}}
-
      If you can't see **Restrict Bucket Access** options, clean **Origin Domain Name** field and set it to your S3 bucket again to refresh the page
-
      {{% /notice %}}
    - Set **Origin Access Identity** to **Create a New Identity**
    - Set **Grant Read Permissions on Bucket** to **Yes, Update Bucket Policy**
