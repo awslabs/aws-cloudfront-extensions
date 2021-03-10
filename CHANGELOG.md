@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v1.2.2] - 2021-03-10
+## [v1.2.3] - 2021-03-10
 ### Added
 Publish following applications
 - nodejs/anti-hotlinking
@@ -15,6 +15,7 @@ Publish following applications
 ### Changed
 
 ### Fixed
+
 
 ## [v1.0.0] - 2021-02-04
 ### Added
@@ -34,3 +35,12 @@ Publish following applications
 
 ### Fixed
 
+## [v1.2.1] - 2021-03-10
+### Added
+Publish following applications
+- nodejs/anti-hotlinking
+
+
+### Changed
+
+### Fixed

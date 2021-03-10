@@ -19,8 +19,6 @@ exports.handler = (event, context, callback) => {
 		}
 	}
 
-	console.log('match wild card: ' + matchWildCard('www.example.com', '*.example.*'));
-
 	const response = {
 		status: '403',
 		statusDescription: 'Forbidden',
@@ -35,6 +33,11 @@ exports.handler = (event, context, callback) => {
  * For example: (www.example.com, *.example.com) -> true, (www.example.cn, *.example.com) -> false
  */
 function matchWildCard(target, pattern) {
+	// Deny the access if the referer is null
+	if (undefined == target) {
+		return false;
+	}
+
 	const targetLen = target.length;
 	const pLen = pattern.length;
 
