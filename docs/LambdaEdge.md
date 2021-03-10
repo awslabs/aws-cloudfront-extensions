@@ -68,5 +68,5 @@
 ## Security
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
-| Anti-leeching | Validate the referer in the header to avoid hot linking. | - | Todo |
+| Anti-leeching | Validate the referer in the header to avoid hotlinking. | - | Todo |
 | Anti-theft-chain | Customers can verify access requests with anti-theft chains either through Referer or non-symmetric key encryption. | - | Todo |
