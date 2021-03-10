@@ -3,6 +3,6 @@
     "publish_app_path": [
       "nodejs/anti-hotlinking"
     ],
-    "tag": "v1.0.2"
+    "tag": "v1.2.0"
   }
 }
