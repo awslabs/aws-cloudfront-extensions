@@ -25,3 +25,12 @@ Publish following applications
 
 ### Fixed
 
+## [v1.2.1] - 2021-03-10
+### Added
+Publish following applications
+- nodejs/anti-hotlinking
+
+
+### Changed
+
+### Fixed
