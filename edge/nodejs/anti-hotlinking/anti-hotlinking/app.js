@@ -12,6 +12,7 @@ exports.handler = (event, context, callback) => {
 	var allowList = refererParaList.split(',');
 
 	for (var i = 0; i < allowList.length; i++) {
+		allowList[i] = allowList[i].trim();
 		console.log(allowList[i]);
 		if (matchWildCard(refererValue, allowList[i])) {
 			console.log('The request is allowed');
