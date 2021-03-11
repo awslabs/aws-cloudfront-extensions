@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.2.4] - 2021-03-11
+### Added
+
+### Changed
+Update timeout and add trim before use for nodejs/anti-hotlinking 
+
+### Fixed
+
 ## [v1.2.3] - 2021-03-10
 ### Added
 Publish following applications
