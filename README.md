@@ -18,7 +18,7 @@ Provision CloudFront Extensions with pre-configured deployment assets, click but
 
 |        **Name**    | **Description**      |
 |------------------|--------------------|
-| [CloudFront with Automated WAF](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood role, SQL injection, XSS, Bad bot, etc.   | 
+| [WAF & Shield Deployment for CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood role, SQL injection, XSS, Bad bot, etc.   | 
 
 
 
