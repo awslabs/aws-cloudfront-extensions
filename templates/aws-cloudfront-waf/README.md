@@ -37,3 +37,14 @@ $ cdk deploy --parameters staticSiteBucketName=<Your unique S3 bucket name>
 
 > Use `aws s3api head-bucket --bucket <Your unique S3 bucket name>` to check whether this bucket is unique globally
 
+## Parameters
+This solution uses the following default values, you can modify them as necessary.
+
+|  Parameter   |  Default |  Description |
+|  ----------  | ---------| -----------  |
+| **appAccessLogBucket**  | access-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store Cloud Front access logs for your CloudFront distribution. More about bucket name restriction here: http://amzn.to/1p1YlU5.|
+| **wafLogBucketName**    | waf-log-bucket-cloudfront    | The name for the Amazon S3 bucket where you want to store WAF access Cloud Front logs. More about bucket name restriction here: http://amzn.to/1p1YlU5. |
+| **errorThreshold**      | 50                           | The maximum acceptable bad requests per minute per IP. |
+| **requestThreshold**    | 100                          | The maximum acceptable requests per FIVE-minute period per IP address. |
+| **WAFBlockPeriod**      | 240                          | The period (in minutes) to block applicable IP addresses. |
+| **WAFScope**            | CLOUDFRONT                   | Specifies whether this is for an AWS CloudFront distribution or for a regional application. A regional application can be an Application Load Balancer (ALB), an Amazon API Gateway REST API, or an AWS AppSync GraphQL API. Valid Values are CLOUDFRONT and REGIONAL. For CLOUDFRONT, you must create your WAFv2 resources in the US East (N. Virginia) Region, us-east-1. |
