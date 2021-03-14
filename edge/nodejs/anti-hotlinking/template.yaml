@@ -22,10 +22,10 @@ Metadata:
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
-    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws', 'hotlinking', 'referer', 'leeching']
+    Labels: ['gcr','gcr-solutions','cloudfront','aws-cloudfront-extensions','edge','lambda-edge', 'aws', 'hotlinking', 'referer', 'leeching']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/edge/nodejs/anti-hotlinking
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking
 
 Parameters:
   RefererList:
