@@ -71,7 +71,7 @@ To create a Lambda@Edge function
             return response;
         };
 
-2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you only need to replace the original template.yaml with the [new one](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/website/template/template.yaml)
+2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you only need to replace the original template.yaml with the [new one](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/website/static/template/template.yaml)
 
    ![Yaml Changes](/images/yaml_changes.png)
     
