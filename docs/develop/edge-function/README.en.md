@@ -8,7 +8,7 @@ In this step, you will create a Lambda function by AWS Serverless Application Mo
 
 ## Download a sample AWS SAM application
 
-After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have uploaded CloudFront Extensions into CloudShell, go to CloudFront Extensions folder and perform following commands:
+After completing **Upload CloudFront Extensions Code into CloudShell** section, you have uploaded CloudFront Extensions into CloudShell, go to CloudFront Extensions folder and perform following commands:
 
        cd edge/nodejs/
        sam init
