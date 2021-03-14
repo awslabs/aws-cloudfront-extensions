@@ -1,13 +1,9 @@
 updates:
-- directory: edge/nodejs/add-security-headers/add-security-headers
+- directory: edge/nodejs/authentication-with-cognito/authentication-with-cognito
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/normalize-query-string/normalize-query-string
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/multiple-origin-IP-retry/multiple-origin-IP-retry
+- directory: edge/nodejs/modify-response-header/modify-response-header
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -15,7 +11,7 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/authentication-with-cognito/authentication-with-cognito
+- directory: edge/nodejs/modify-response-status-code/modify-response-status-code
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -23,11 +19,7 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-- directory: edge/nodejs/modify-response-status-code/modify-response-status-code
+- directory: edge/nodejs/multiple-origin-IP-retry/multiple-origin-IP-retry
   package-ecosystem: npm
   schedule:
     interval: daily
@@ -35,7 +27,19 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
-- directory: edge/nodejs/modify-response-header/modify-response-header
+- directory: edge/nodejs/normalize-query-string/normalize-query-string
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/anti-hotlinking/anti-hotlinking
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/add-security-headers/add-security-headers
   package-ecosystem: npm
   schedule:
     interval: daily
