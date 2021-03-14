@@ -17,6 +17,10 @@ After completing **UPLOAD CLOUDFRONT+ CODE INTO CLOUDSHELL** section, you have u
    
    ![SAM init1](/images/sam-init1.png)
 
+   Choose **1 - Zip**
+
+   ![SAM init package](/images/sam-package-type.png)
+
    Choose **1 - nodejs12.x**
    
    ![SAM init2](/images/sam-init2.png) 
@@ -67,13 +71,13 @@ To create a Lambda@Edge function
             return response;
         };
 
-2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you must replace the original template.yaml with the [new one](https://drive.corp.amazon.com/documents/lvning@/Workshop/template.yaml)
+2. Modify template.yaml, you need to add an IAM role into the yaml file, it will be assumed by the service principals when they execute your function. The change is shown in below image, you only need to replace the original template.yaml with the [new one](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/website/template/template.yaml)
 
    ![Yaml Changes](/images/yaml_changes.png)
     
 3. [Optional] Add solution id
 
-   Solution id is a unique id assigned by AWS GCR Solution team, you will need to add the solution id in template.yaml, all CloudFront Extensions solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront Extensions tab.
+   Solution id is a unique id assigned by AWS Solution team, you will need to add the solution id in template.yaml, all CloudFront Extensions solution id is [here](https://quip-amazon.com/nXxXAl58SGQF/2021-Solution-Progress-Tracking-Board) under CloudFront Extensions tab.
    {{% notice info %}}
    Add Solution id is **optional** for this workshop, you can skip this step
    {{% /notice %}}

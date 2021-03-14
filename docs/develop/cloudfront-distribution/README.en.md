@@ -42,3 +42,20 @@ To create a CloudFront distribution with an Amazon S3 origin, you will do the fo
    For example, if the domain name is d1v2jstg89nnob.cloudfront.net, the object name is CloudFrontIcon.png, the link will be https://d1v2jstg89nnob.cloudfront.net/CloudFrontIcon.png
    {{% /notice %}}
 
+## Configuration on the CloudFront distribution to disable cache
+1. Open the [CloudFront console](https://console.aws.amazon.com/cloudfront/home#)
+2. Choose the distribution that is created in above step 
+3. Choose **Behaviors** tab and edit the default cache behavior
+4. Do below configuration
+   - For **Object Caching**, choose **Customize**
+
+     For Minimum TTL, enter 0
+
+     For Maximum TTL, enter 0
+
+     For Default TTL, enter 0
+     > This is to disable cache in CloudFront, it will make sure that every request will be reach origin and miss from CloudFront
+
+   - Choose **Yes, Edit** to save the changes
+
+   ![Develop lambda config](/images/cf-config-develop-cache.png)
