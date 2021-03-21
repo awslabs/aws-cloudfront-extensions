@@ -31,7 +31,7 @@ Bad Bots (I): This component automatically sets up a honeypot, which is a securi
 # Require to install AWS CDK
 
 $ cd templates/aws-cloudfromt-waf
-$ cdk deploy --parameters staticSiteBucketName=<Your unique S3 bucket name> 
+$ cdk deploy --parameters wafLogBucketName=<Your unique S3 bucket name for WAF log> --parameters appAccessLogBucket=<Your unique S3 bucket name for CloudFront access log>
 
 ```
 

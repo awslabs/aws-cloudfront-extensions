@@ -17,7 +17,7 @@
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
 | Rewrite URL by cookie | Rewrite URL by cookie information when a viewer requests the address. | - | Todo |
-| Rewrite URL by geolocation | Rewrite URL by the geolocation of reuquest when a viewer requests the address. | - | Todo |
+| Rewrite URL by geolocation | Rewrite URL by the geolocation of request when a viewer requests the address. | - | Todo |
 | Rewrite URL by USER-AGENT |  Rewrite URL by USER-AGENT from HTTP header when a viewer requests the address. | - | Todo |
 
 ## URL Redirect
