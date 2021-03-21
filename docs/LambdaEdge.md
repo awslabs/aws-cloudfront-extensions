@@ -68,5 +68,5 @@
 ## Security
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
-| [Anti-hotlinking](../edge/nodejs/anti-hotlinking) | Protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is rejected if the referer is not in the allow list. | v1.2.3 | Done |
+| [Anti-hotlinking](../edge/nodejs/anti-hotlinking) | Protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is rejected if the referer is not in the allow list. | v1.2.5 | Done |
 | Anti-theft-chain | Customers can verify access requests with anti-theft chains either through Referer or non-symmetric key encryption. | - | Todo |
