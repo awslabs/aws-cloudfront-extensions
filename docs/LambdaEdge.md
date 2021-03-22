@@ -41,7 +41,7 @@
 | [Modify response status code](../edge/nodejs/modify-response-status-code)  | Modify response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Done |
 | [Modify response header](../edge/nodejs/modify-response-header) | Modify response header as per configuration. | v1.0.0 | Done |
 | Modify error response to 302 response | Modify error response to 302 response as per configuration. | - | Todo |
-| Response status code : 200 with zero sized body  | Special feature to support heartbeat function, any request will return HTTP 200 with zero sized body. | - | Todo |
+| Response status code 200 with zero sized body  | Special feature to support heartbeat function, any request will return HTTP 200 with zero sized body. | - | Todo |
 | Generate static content  | Return generated static content based on configured parameter. | - | Todo |
 
 ## Origin Selection
@@ -61,7 +61,7 @@
 |------------------|--------------------|----------------|----------------|
 | Pre-warm cache from specified origin | Load objects from configuration list into specific PoP in order to accelerate access. | - | Todo |
 | Resize the picture | Resize the picture to lower qualitied picture before return a viewer. | - | Todo |
-| Change the picture format | Resize the picture to lower qualitied picture before return a viewer. | - | Todo |
+| Change the picture format | Change picture format. | - | Todo |
 | Dynamic reloading content from primary origin | Dynamic reloading content from primary origin as per defined policy, such as certain hot data regarding to metrics. | - | Todo |
 
 
@@ -69,4 +69,4 @@
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
 | [Anti-hotlinking](../edge/nodejs/anti-hotlinking) | Protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is rejected if the referer is not in the allow list. | v1.2.5 | Done |
-| Anti-theft-chain | Customers can verify access requests with anti-theft chains either through Referer or non-symmetric key encryption. | - | Todo |
+| Anti-theft-chain | Customers can verify access requests with anti-theft chains either through non-symmetric key encryption. | - | Todo |
