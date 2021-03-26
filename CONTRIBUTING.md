@@ -78,7 +78,7 @@ The project has below folders
 
 The workflow for handling PR is shown below, the workflow in green is performed automatically, the workflow in yellow is performed manually
 
-<img src='../../docs/images/cloudfrontPR.png'>
+<img src='./docs/images/cloudfrontPR.png'>
 
 #### Where can I find the workshop?
 

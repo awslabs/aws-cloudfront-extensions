@@ -6,7 +6,7 @@ Users are able to find the Lambda application in SAR(Serverless Application Repo
 It is an open-source project in GitHub, anyone is able to contribute to add new Lambda@Edge features
 
 ## Architecture
-<img src='../../docs/images/LambdaEdgeCollectionForCloudFront.png'>
+<img src='./images/LambdaEdgeCollectionForCloudFront.png'>
 
 ## Authentication
 |    **Name**   | **Description**    | **Version**    |**Release**    |
