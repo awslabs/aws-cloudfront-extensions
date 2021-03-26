@@ -59,3 +59,30 @@ If you discover a potential security issue in this project we ask that you notif
 See the [LICENSE](LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
 
 We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.
+
+## FAQ
+
+#### What is the project structure?
+
+The project has below folders
+
+- .github/workflows: the workflow after a PR is created and managed by github actions
+- docs: documents which are used for introducing the project and workshop
+- edge/nodejs: lambda@Edge codes written in nodejs
+- edge/python: lambda@Edge codes written in python
+- scripts: shell scripts used in workflows
+- templates: cdk scripts for deployment such as AWS WAF rules
+- website: resources for holding a workshop
+
+#### What is the PR workflow and release workflow?
+
+The workflow for handling PR is shown below, the workflow in green is performed automatically, the workflow in yellow is performed manually
+
+<img src='../../docs/images/cloudfrontPR.png'>
+
+#### Where can I find the workshop?
+
+We provide a workshop for you to quickly onboard CloudFront extension
+
+The workshop: https://awslabs.github.io/aws-cloudfront-extensions/
+

@@ -1,4 +1,12 @@
-# Lambda@Edge
+# Lambda@Edge Collection Roadmap
+
+## Description
+This solution is a collection of various Lambda@Edge extensions for using CloudFront.
+Users are able to find the Lambda application in SAR(Serverless Application Repository) and deploy it with one-click. The solution covers common use scenarios, for example, authentication with Amazon Cognito on a CloudFront distribution, access relative content according to the device type.
+It is an open-source project in GitHub, anyone is able to contribute to add new Lambda@Edge features
+
+## Architecture
+<img src='../../docs/images/LambdaEdgeCollectionForCloudFront.png'>
 
 ## Authentication
 |    **Name**   | **Description**    | **Version**    |**Release**    |
@@ -17,7 +25,6 @@
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
 | Rewrite URL by cookie | Rewrite URL by cookie information when a viewer requests the address. | - | Todo |
-| Rewrite URL by geolocation | Rewrite URL by the geolocation of request when a viewer requests the address. | - | Todo |
 | Rewrite URL by USER-AGENT |  Rewrite URL by USER-AGENT from HTTP header when a viewer requests the address. | - | Todo |
 
 ## URL Redirect
