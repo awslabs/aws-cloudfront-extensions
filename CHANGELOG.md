@@ -6,31 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v1.2.5] - 2021-03-14
+
+## [v1.0.1] - 2021-04-02
 ### Added
 
 ### Changed
+Update home page url
 
 ### Fixed
-Update github url in SAR
-
-## [v1.2.4] - 2021-03-11
-### Added
-
-### Changed
-Update timeout and add trim before use for nodejs/anti-hotlinking 
-
-### Fixed
-
-## [v1.2.3] - 2021-03-10
-### Added
-Publish following applications
-- nodejs/anti-hotlinking
-
-
-### Changed
-
-### Fixed
+Replace deprecated IAM policy with the latest one
 
 
 ## [v1.0.0] - 2021-02-04
