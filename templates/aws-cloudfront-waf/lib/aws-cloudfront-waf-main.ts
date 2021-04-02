@@ -19,7 +19,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps = {}) {
     super(scope, id, props);
 
-    this.templateOptions.description = `(SO8128) - WAF & Shield deployment. Template version v1.0`;
+    this.templateOptions.description = `(SO8128) - WAF & Shield deployment for CloudFront. Template version v1.0`;
 
     const cloudWatchDashboardName = 'WAFMonitoringDashboard-us-east-1';
     const reputationListName = cdk.Fn.ref("AWS::StackName") + 'IPReputationListsRule';

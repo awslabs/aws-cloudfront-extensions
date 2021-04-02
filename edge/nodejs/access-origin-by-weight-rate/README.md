@@ -1,7 +1,7 @@
 # Access origin server by weight rate
 
 
-The Lambda@Edge is designed to route request to origin server according to origin weight rate that customer configured. For example: if customer set the origin config like [{ rating: 1, domain: 'originA' },{ rating: 2, domain: 'originB' }], Lambda@Edge will select originA or originB randomly according to rating.
+The Lambda@Edge is designed to route the request to origin servers according to the origin weight rate. For example: if the customer sets the origin config as [{ rating: 1, domain: 'originA' },{ rating: 2, domain: 'originB' }], Lambda@Edge will select originA or originB randomly according to rating.
 
 ## Prerequisite
 

@@ -12,13 +12,13 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: modify-response-status-code
-    Description: Sample SAM Template for modify-response-status-code
+    Description: The Lambda@Edge will modify the response status code. For example, the original response code is 200, it can change the status code to 500
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
-    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code
 

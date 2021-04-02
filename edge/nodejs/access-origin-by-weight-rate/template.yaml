@@ -16,13 +16,13 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: access-origin-by-weight-rate
-    Description: SAM Template for access-origin-by-weight-rate
+    Description: The Lambda@Edge is designed to route the request to origin servers according to the origin weight rate
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
-    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/edge/nodejs/access-origin-by-weight-rate
 
@@ -57,7 +57,7 @@ Resources:
             Action: sts:AssumeRole
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+          - arn:aws:iam::aws:policy/AWSLambda_FullAccess
 
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

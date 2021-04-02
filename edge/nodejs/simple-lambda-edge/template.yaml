@@ -22,7 +22,7 @@ Metadata:
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['gcr-solutions','cloudfront+','sample', 'edge','lambda-edge']
-    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/simple-lambda-edge
 

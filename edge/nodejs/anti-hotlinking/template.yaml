@@ -17,13 +17,13 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: anti-hotlinking
-    Description: SAM Template for anti-hotlinking
+    Description: This solution is to protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is reject if the referer is not in the allow list
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['gcr','gcr-solutions','cloudfront','aws-cloudfront-extensions','edge','lambda-edge', 'aws', 'hotlinking', 'referer', 'leeching']
-    HomePageUrl: https://www.amazonaws.cn/en/solutions/
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking
 
@@ -59,7 +59,7 @@ Resources:
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
           - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+          - arn:aws:iam::aws:policy/AWSLambda_FullAccess
 
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
