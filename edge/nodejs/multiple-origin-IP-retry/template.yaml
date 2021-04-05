@@ -25,7 +25,7 @@ Metadata:
     Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/edge/nodejs/multiple-origin-IP-retry
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/multiple-origin-IP-retry
 
 Parameters:
   OriginIPList:
