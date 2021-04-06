@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  pre_build:
+    commands:
+      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git -b yyan-waf-ci /tmp/repo
+      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
+  build:
+    commands:
+      - ./deployment/build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
+      - mkdir -p deployment/open-source/ && touch deployment/open-source/.empty
+  post_build:
+    commands:
+      - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec.yml || true
+artifacts:
+  files:
+    - .git/**/*
+    - deployment/**/*
+    - buildspec.yml
+    - CHANGELOG.md
+    - .cfnnagignore
