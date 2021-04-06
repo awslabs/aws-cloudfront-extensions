@@ -12,6 +12,6 @@
       "nodejs/serving-based-on-device",
       "nodejs/anti-hotlinking"
     ],
-    "tag": "v1.0.1"
+    "tag": "v1.0.2"
   }
 }
