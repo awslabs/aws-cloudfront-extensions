@@ -59,7 +59,7 @@ Resources:
 Outputs:
   Http302Function:
     Description: "Lambda Edge function ARN"
-    Value: "Http302Function"
+    Value: !GetAtt Http302Function.Arn
   Http302FunctionIamRole:
     Description: "Implicit IAM Role created for Simple Lambda Edge function"
     Value: !GetAtt EdgeFunctionRole.Arn
