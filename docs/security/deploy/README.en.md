@@ -18,7 +18,7 @@ After unzipping the aws-cloudfront-extensions archive, you can deploy the WAF & 
        cd aws-cloudfront-extensions-main/templates/aws-cloudfront-waf/deployment/
 3. Package all required AWS Lambda functions
 
-        ./package-lambda-code.sh
+        ./build-s3-dist.sh
 
 4. Navigate to the aws-cloudfront-waf directory and deploy the WAF & Shield Automations app by AWS CDK
         

@@ -3,11 +3,11 @@
 #
 # This script should be run from the repo's deployment directory
 # cd deployment
-# ./package-lambda-code.sh
+# ./build-s3-dist.sh
 #
 # Check to see if input has been provided:
 if [ "$1" ]; then
-    echo "Usage: ./package-lambda-code.sh"
+    echo "Usage: ./build-s3-dist.sh"
     exit 1
 fi
 
