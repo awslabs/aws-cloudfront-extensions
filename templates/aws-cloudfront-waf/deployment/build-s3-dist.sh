@@ -119,3 +119,37 @@ zip -q -r9 "$build_dist_dir"/shield_protection.zip ./*
 cd "$source_dir"/shield_protection || exit 1
 cp -r "$source_dir"/lib .
 zip -g -r "$build_dist_dir"/shield_protection.zip shield-protection.py lib
+
+
+echo "------------------------------------------------------------------------------"
+echo "cdk synth"
+echo "------------------------------------------------------------------------------"
+__dir="$(cd "$(dirname $0)";pwd)"
+SRC_PATH="${__dir}/../source"
+CDK_OUT_PATH="${__dir}/cdk.out"
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Parameters not enough"
+    echo "Example: $(basename $0) <BUCKET_NAME> <SOLUTION_NAME> [VERSION]"
+    exit 1
+fi
+
+export BUCKET_NAME=$1
+export SOLUTION_NAME=$2
+if [ -z "$3" ]; then
+    export VERSION="v$(jq -r '.version' ${SRC_PATH}/version.json)"
+    # export VERSION=$(git describe --tags || echo latest)
+else
+    export VERSION=$3
+fi
+export GLOBAL_S3_ASSETS_PATH="${__dir}/global-s3-assets"
+export REGIONAL_S3_ASSETS_PATH="${__dir}/regional-s3-assets"
+
+title "init env"
+
+run rm -rf ${GLOBAL_S3_ASSETS_PATH} && run mkdir -p ${GLOBAL_S3_ASSETS_PATH}
+run rm -rf ${REGIONAL_S3_ASSETS_PATH} && run mkdir -p ${REGIONAL_S3_ASSETS_PATH}
+run rm -rf ${CDK_OUT_PATH}
+cd ..
+run cdk synth
+run ${__dir}/helper.py ckd.out
