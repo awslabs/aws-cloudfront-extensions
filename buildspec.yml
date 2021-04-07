@@ -11,7 +11,7 @@ phases:
   build:
     commands:
       - cd templates/aws-cloudfront-waf/deployment/
-      - ./build-s3-dist.sh
+      - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec.yml || true
