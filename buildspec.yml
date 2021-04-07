@@ -10,8 +10,8 @@ phases:
       - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
   build:
     commands:
-      - ./deployment/build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
-      - mkdir -p deployment/open-source/ && touch deployment/open-source/.empty
+      - cd templates/aws-cloudfront-waf/deployment/
+      - ./build-s3-dist.sh
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec.yml || true
