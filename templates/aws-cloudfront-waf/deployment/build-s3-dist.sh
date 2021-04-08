@@ -138,7 +138,7 @@ echo "cdk synth"
 echo "------------------------------------------------------------------------------"
 __dir="$(cd "$(dirname $0)";pwd)"
 SRC_PATH="${__dir}/../source"
-CDK_OUT_PATH="${__dir}/cdk.out"
+CDK_OUT_PATH="${__dir}/../cdk.out"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
     echo "Parameters not enough"
@@ -165,4 +165,4 @@ run rm -rf ${CDK_OUT_PATH}
 cd ..
 run npm install -g aws-cdk
 run cdk synth
-run ${__dir}/helper.py ckd.out
+run ${__dir}/helper.py ${CDK_OUT_PATH}
