@@ -136,6 +136,8 @@ zip -g -r "$build_dist_dir"/shield_protection.zip shield-protection.py lib
 echo "------------------------------------------------------------------------------"
 echo "cdk synth"
 echo "------------------------------------------------------------------------------"
+
+cd ${template_dir}
 __dir="$(cd "$(dirname $0)";pwd)"
 SRC_PATH="${__dir}/../source"
 CDK_OUT_PATH="${__dir}/../cdk.out"
