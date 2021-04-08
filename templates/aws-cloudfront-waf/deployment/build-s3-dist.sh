@@ -163,5 +163,6 @@ run rm -rf ${GLOBAL_S3_ASSETS_PATH} && run mkdir -p ${GLOBAL_S3_ASSETS_PATH}
 run rm -rf ${REGIONAL_S3_ASSETS_PATH} && run mkdir -p ${REGIONAL_S3_ASSETS_PATH}
 run rm -rf ${CDK_OUT_PATH}
 cd ..
+run npm install -g aws-cdk
 run cdk synth
 run ${__dir}/helper.py ckd.out
