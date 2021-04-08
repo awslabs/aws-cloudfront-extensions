@@ -6,10 +6,10 @@
 # ./build-s3-dist.sh
 #
 # Check to see if input has been provided:
-if [ "$1" ]; then
-    echo "Usage: ./build-s3-dist.sh"
-    exit 1
-fi
+# if [ "$1" ]; then
+#     echo "Usage: ./build-s3-dist.sh"
+#     exit 1
+# fi
 
 # Get reference for all important folders
 template_dir="$PWD"
