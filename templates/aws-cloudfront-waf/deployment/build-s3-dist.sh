@@ -11,6 +11,17 @@
 #     exit 1
 # fi
 
+title() {
+    echo "------------------------------------------------------------------------------"
+    echo $*
+    echo "------------------------------------------------------------------------------"
+}
+
+run() {
+    >&2 echo ::$*
+    $*
+
+
 # Get reference for all important folders
 template_dir="$PWD"
 source_dir="$template_dir/../source"
