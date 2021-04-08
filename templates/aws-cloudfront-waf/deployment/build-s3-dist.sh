@@ -20,6 +20,7 @@ title() {
 run() {
     >&2 echo ::$*
     $*
+}
 
 
 # Get reference for all important folders
