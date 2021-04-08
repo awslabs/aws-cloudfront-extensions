@@ -151,8 +151,7 @@ fi
 export BUCKET_NAME=$1
 export SOLUTION_NAME=$2
 if [ -z "$3" ]; then
-    export VERSION="v$(jq -r '.version' ${SRC_PATH}/version.json)"
-    # export VERSION=$(git describe --tags || echo latest)
+    export VERSION=$(git describe --tags || echo latest)
 else
     export VERSION=$3
 fi
