@@ -152,6 +152,10 @@ export BUCKET_NAME=$1
 export SOLUTION_NAME=$2
 if [ -z "$3" ]; then
     export VERSION=$(git describe --tags || echo latest)
+    echo "BUCKET_NAME=${BUCKET_NAME}"
+    echo "SOLUTION_NAME=${SOLUTION_NAME}"
+    echo "VERSION=${VERSION}"
+    echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 else
     export VERSION=$3
 fi
