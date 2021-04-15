@@ -11,6 +11,8 @@
 #     exit 1
 # fi
 
+set -e
+
 title() {
     echo "------------------------------------------------------------------------------"
     echo $*
@@ -30,6 +32,7 @@ lib_dir="$template_dir/../lib"
 build_dist_dir="$lib_dir/lambda-assets"
 
 
+# packaging lambda
 echo "------------------------------------------------------------------------------"
 echo "[Init] Clean existed dist folders"
 echo "------------------------------------------------------------------------------"
@@ -153,15 +156,8 @@ export SOLUTION_NAME=$2
 export GLOBAL_S3_ASSETS_PATH="${__dir}/global-s3-assets"
 export REGIONAL_S3_ASSETS_PATH="${__dir}/regional-s3-assets"
 
-if [ -z "$3" ]; then
-    export VERSION=$(git describe --tags || echo latest)
-    echo "BUCKET_NAME=${BUCKET_NAME}"
-    echo "SOLUTION_NAME=${SOLUTION_NAME}"
-    echo "VERSION=${VERSION}"
-    echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
-else
-    export VERSION=$3
-fi
+
+
 
 
 title "init env"
@@ -169,7 +165,29 @@ title "init env"
 run rm -rf ${GLOBAL_S3_ASSETS_PATH} && run mkdir -p ${GLOBAL_S3_ASSETS_PATH}
 run rm -rf ${REGIONAL_S3_ASSETS_PATH} && run mkdir -p ${REGIONAL_S3_ASSETS_PATH}
 run rm -rf ${CDK_OUT_PATH}
+
+if [ -z "$3" ]; then
+    export VERSION=$(git describe --tags || echo latest)
+    echo "BUCKET_NAME=${BUCKET_NAME}"
+    echo "SOLUTION_NAME=${SOLUTION_NAME}"
+    echo "VERSION=${VERSION}"
+
+else
+    export VERSION=$3
+fi
+
+echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
+
 cd ..
-run npm install -g aws-cdk
-run cdk synth
+# run npm install -g aws-cdk
+run npm install
+
+export USE_BSS=true
+# How to config https://github.com/wchaws/cdk-bootstrapless-synthesizer/blob/main/API.md
+export BSS_TEMPLATE_BUCKET_NAME="${BUCKET_NAME}"
+export BSS_FILE_ASSET_BUCKET_NAME="${BUCKET_NAME}-\${AWS::Region}"
+export BSS_FILE_ASSET_PREFIX="${SOLUTION_NAME}/${VERSION}/"
+export BSS_FILE_ASSET_REGION_SET="us-east-1,${BSS_FILE_ASSET_REGION_SET}"
+
+run npm run synth -- --output ${CDK_OUT_PATH}
 run ${__dir}/helper.py ${CDK_OUT_PATH}
