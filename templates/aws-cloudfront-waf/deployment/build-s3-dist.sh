@@ -150,6 +150,9 @@ fi
 
 export BUCKET_NAME=$1
 export SOLUTION_NAME=$2
+export GLOBAL_S3_ASSETS_PATH="${__dir}/global-s3-assets"
+export REGIONAL_S3_ASSETS_PATH="${__dir}/regional-s3-assets"
+
 if [ -z "$3" ]; then
     export VERSION=$(git describe --tags || echo latest)
     echo "BUCKET_NAME=${BUCKET_NAME}"
@@ -159,8 +162,7 @@ if [ -z "$3" ]; then
 else
     export VERSION=$3
 fi
-export GLOBAL_S3_ASSETS_PATH="${__dir}/global-s3-assets"
-export REGIONAL_S3_ASSETS_PATH="${__dir}/regional-s3-assets"
+
 
 title "init env"
 
