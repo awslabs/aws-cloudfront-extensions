@@ -1,0 +1,20 @@
+{
+  "name": "simple-lambda-edge",
+  "version": "1.0.0",
+  "description": "Simple lambda@edge sample for NodeJS",
+  "main": "app.js",
+  "repository": "https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/simple-lambda-edge",
+  "author": "SAM CLI",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.21.1" 
+  },
+  "scripts": {
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0"
+  }
+}
