@@ -190,4 +190,5 @@ export BSS_FILE_ASSET_PREFIX="${SOLUTION_NAME}/${VERSION}/"
 export BSS_FILE_ASSET_REGION_SET="us-east-1,${BSS_FILE_ASSET_REGION_SET}"
 
 run npm run synth -- --output ${CDK_OUT_PATH}
+echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 run ${__dir}/helper.py ${CDK_OUT_PATH}
