@@ -4,12 +4,19 @@
 
 This solution resizes your pictures on the fly, here's how it works 
 
-<img src='../../../docs/images/resize-picture/resize-picture.png'>
+
 1. User specifies the dimension (width and height) in the url, e.g. https://www.example.com/images/200x300/demo.png
-2. If the object is existed in S3 bucket, then do nothing and return it 
+
+2. If the object is existed in S3 bucket, then do nothing and return it
+   
 3. If the object is not existed in S3 bucket, a 404 Not Found response will returned to CloudFront edge location, Lambda@Edge will fetch the source image (e.g. images/demo.png) from S3 bucket into buffer, resize it and store the resized image into relative folder(e.g. images/200x300) in S3 bucket
+   
 4. After the image is resized and stored, update the status code to 200 and return the resized image
+   
 5. The image is cached in CloudFront edge location, so next time when you invoke the same url with same dimension, it will return the image from CloudFront cache, and will not access origin anymore
+
+<img src='../../../docs/images/resize-picture/resize-picture.png'>
+
 
 CloudFront event type for this Lambda@Edge: origin response
 
