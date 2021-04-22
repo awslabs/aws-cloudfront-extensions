@@ -15,12 +15,14 @@ This solution resizes your pictures on the fly, here's how it works
    
 5. The image is cached in CloudFront edge location, so next time when you invoke the same url with same dimension, it will return the image from CloudFront cache, and will not access origin anymore
 
-<img src='../../../docs/images/resize-picture/resize-picture.png'>
 
+## Architecture Diagram
+
+<img src='../../../docs/images/resize-picture/resize-picture.png'>
 
 CloudFront event type for this Lambda@Edge: origin response
 
-## Use Case
+## Use Cases
 The user is able to resize pictures by Lambda function which is deployed in CloudFront distributions. It will be really useful when there are lots of pictures need to be resized, the user will not need to resize them manually
 
 To user this Lambda@Edge, the user needs to do below operations
@@ -31,8 +33,15 @@ To user this Lambda@Edge, the user needs to do below operations
 2. Create a CloudFront distribution and deploy resize-picture Lambda@Edge on it
 3. Invoke resize-picture Lambda@Edge by typing in url(e.g. https://<CloudFrontUrl>/images/200x300/demo.png) in your browser, it will automatically create an images/200x300 folder in S3 bucket and generate a 200x300 demo.png in it
 
+Here's the image(Photo by Pavel L) generated with dimension 200x300
+
 <img src='../../../docs/images/resize-picture/ue.png'>
 
+
+
+Here's the image generated with dimension 500x300
+
+<img src='../../../docs/images/resize-picture/ue500.png'>
 
 In this example, the source image is located in images/demo.png, the automatically generated images are stored in relative folders which are named by dimensions
 
