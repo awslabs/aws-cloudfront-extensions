@@ -25,10 +25,19 @@ The user is able to resize pictures by Lambda function which is deployed in Clou
 
 To user this Lambda@Edge, the user needs to do below operations
 1. Create an S3 bucket, and a folder with any name(e.g. images), put your image(e.g. demo.png) in it
+   
+<img src='../../../docs/images/resize-picture/S3-file-no-generation.png'>
+
 2. Create a CloudFront distribution and deploy resize-picture Lambda@Edge on it
 3. Invoke resize-picture Lambda@Edge by typing in url(e.g. https://<CloudFrontUrl>/images/200x300/demo.png) in your browser, it will automatically create an images/200x300 folder in S3 bucket and generate a 200x300 demo.png in it
 
 <img src='../../../docs/images/resize-picture/ue.png'>
+
+
+In this example, the source image is located in images/demo.png, the automatically generated images are stored in relative folders which are named by dimensions
+
+<img src='../../../docs/images/resize-picture/S3-file.png'>
+
 
 ## Project Structure
 
