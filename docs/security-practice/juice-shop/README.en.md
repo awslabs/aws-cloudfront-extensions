@@ -1,6 +1,6 @@
 ---
 title: Deploy OWASP Juice Shop 
-weight: 1
+weight: 3
 ---
 
 In this section you will deploy the OWASP Juice Shop by CloudFormation stack, first please deploy the Juice Shop Web Application in **US East (N. Virginia)** (us-east-1) region.

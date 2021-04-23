@@ -1,6 +1,6 @@
 ---
 title: Prevent DDoS attacks
-weight: 4
+weight: 7
 ---
 
 In this step of the workshop, we will demonstrate the functionality provided by the WAF & Shield Automations Solution to detect this type of attack and block the responsible IP address in AWS WAF.

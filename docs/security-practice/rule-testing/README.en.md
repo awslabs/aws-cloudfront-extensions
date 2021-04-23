@@ -1,6 +1,6 @@
 ---
 title: Web ACLs and Managed Rules 
-weight: 3
+weight: 6
 ---
 
 In this step of the workshop, you will see how the AWS WAF protects against common attacks, such as SQL injection or Command Line attacks.
