@@ -67,7 +67,7 @@ It is an open-source project in GitHub, anyone is able to contribute to add new 
 |    **Name**   | **Description**    | **Version**    |**Release**    |
 |------------------|--------------------|----------------|----------------|
 | Pre-warm cache from specified origin | Load objects from configuration list into specific PoP in order to accelerate access. | - | Todo |
-| Resize the picture | Resize the picture to lower qualitied picture before return a viewer. | - | Todo |
+| [Resize picture](../edge/nodejs/resize-picture) | Resize pictures on the fly according to dimensions passed by the query parameter. | v1.0.0 | Done |
 | Change the picture format | Change picture format. | - | Todo |
 | Dynamic reloading content from primary origin | Dynamic reloading content from primary origin as per defined policy, such as certain hot data regarding to metrics. | - | Todo |
 
