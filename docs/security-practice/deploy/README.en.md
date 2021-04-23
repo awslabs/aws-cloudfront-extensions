@@ -1,6 +1,6 @@
 ---
 title: Deploy WAF & Shield Automations
-weight: 2
+weight: 5
 ---
 
 ## Deploy WAF & Shield Automations
