@@ -45,6 +45,7 @@
     "@aws-cdk/aws-s3-notifications": "1.86.0",
     "@aws-cdk/aws-wafv2": "1.86.0",
     "@aws-cdk/core": "1.86.0",
+    "cdk-bootstrapless-synthesizer": "^0.6.40",
     "path": "^0.12.7",
     "source-map-support": "^0.5.16"
   }
