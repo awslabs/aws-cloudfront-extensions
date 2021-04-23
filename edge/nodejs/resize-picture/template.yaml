@@ -66,6 +66,7 @@ Resources:
       CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
       Handler: index.handler
       Runtime: python3.7
+      Timeout: 180
       Role: !GetAtt EdgeFunctionRole.Arn
 
   UpdateConfigCustom:
