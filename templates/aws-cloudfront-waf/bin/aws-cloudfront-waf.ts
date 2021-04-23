@@ -10,5 +10,4 @@ app.synth()
 
 function newSynthesizer() {
     return process.env.USE_BSS ? new BootstraplessStackSynthesizer(): undefined;
-  }
-  
+}
