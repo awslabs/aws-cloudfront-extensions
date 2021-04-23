@@ -3,6 +3,6 @@
     "publish_app_path": [
       "nodejs/resize-picture"
     ],
-    "tag": "v1.0.0"
+    "tag": "v1.0.1"
   }
 }
