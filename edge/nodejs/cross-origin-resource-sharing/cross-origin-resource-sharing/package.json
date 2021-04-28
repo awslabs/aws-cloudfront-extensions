@@ -1,0 +1,18 @@
+{
+  "name": "cross-origin-resource-sharing",
+  "version": "1.0.0",
+  "description": "Support CORS(Cross Origin Resource Sharing)",
+  "main": "app.js",
+  "repository": "https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/cross-origin-resource-sharing",
+  "author": "SAM CLI",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
+  },
+  "devDependencies": {
+    "axios": "^0.21.1",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0"
+  }
+}
