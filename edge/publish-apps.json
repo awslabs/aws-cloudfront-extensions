@@ -1,7 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/resize-picture"
+      "nodejs/cross-origin-resource-sharing"
     ],
     "tag": "v1.0.0"
   }
