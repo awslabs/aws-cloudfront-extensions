@@ -1,7 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/cross-origin-resource-sharing"
+      "nodejs/cross-origin-resource-sharing",
+      "nodejs/modify-response-header"
     ],
     "tag": "v1.0.0"
   }
