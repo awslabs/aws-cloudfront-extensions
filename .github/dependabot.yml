@@ -7,6 +7,10 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
+- directory: edge/nodejs/cross-origin-resource-sharing/cross-origin-resource-sharing
+  package-ecosystem: npm
+  schedule:
+    interval: daily
 - directory: edge/nodejs/modify-response-status-code/modify-response-status-code
   package-ecosystem: npm
   schedule:
