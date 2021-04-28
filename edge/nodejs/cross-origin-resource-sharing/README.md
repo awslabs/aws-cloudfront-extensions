@@ -1,4 +1,4 @@
-# Modify Response Header
+# Cross Origin Resource Sharing 
 
 
 ## Description
@@ -8,7 +8,7 @@ Support CORS(Cross Origin Resource Sharing) by Lambda@Edge
 
 <img src='../../../docs/images/modify-response-header/modify-response-header-arch.png'>
 
-CloudFront event type for this Lambda@Edge: origin response
+CloudFront event type for this Lambda@Edge: origin response, viewer response
 
 
 ## Use Cases
