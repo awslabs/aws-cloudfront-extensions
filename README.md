@@ -34,7 +34,7 @@ This project offers production level Lambda@Edge scripts for common CloudFront u
 
 * **One-Click to deploy commonly used CloudFront solutions**
 
-This project offers common solutions for using CloudFront. These solutions are provided in form of pre-baked [Amazon CloudFormation](https://aws.amazon.com/cloudformation) templates. With 1-click, you can have solution launched into your own AWS console. 
+This project offers common solutions for using CloudFront. These solutions are provided in form of pre-baked [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates. With 1-click, you can have solution launched into your own AWS console. 
 
 |        **Name**    | **Description**      |
 |------------------|--------------------|
