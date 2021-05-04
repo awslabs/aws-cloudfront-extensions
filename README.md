@@ -1,4 +1,4 @@
-# AWS CloudFront Extensions
+# CloudFront Extensions
 
 [中文]() | [English]()
 
