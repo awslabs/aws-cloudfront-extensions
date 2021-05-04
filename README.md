@@ -6,19 +6,6 @@
 
 “CloudFront Extensions” GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using Lambda@Edge and Amazon CloudFront. 
 
-Ultimately, we want to provide out-of-box experience from three dimensions:
-
-* **One stop to find Lambda@Edge scripts for various use cases**
-
-This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge service is available), and help you to simplify global CloudFront configuration via Lambda function scripts. You can not only checkout Lambda@Edge scripts from this GitHub repo, but also can directly deploy them from Serverless Application Repository(SAR) into AWS Console without coding.
-
-* **One-Click to deploy commonly used CloudFront solutions**
-
-This project offers common solutions for using CloudFront, for instance, CloudFront Security Solution with WAF & Shield. These solutions are provided in form of pre-baked CloudFormation template. With 1-click, you can have solution launched into your own AWS console. 
-
-* **Out-of-box experience when integrating with external monitoring system** 
-
-This project also provides out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system.
 
 See more:
 Lambda@Edge: https://aws.amazon.com/lambda/edge/
@@ -29,20 +16,17 @@ To get started, please find the step-by-step workshop material here: https://aws
 
 
 ## Overview
+Ultimately, we want to provide out-of-box experience from three dimensions
+
 <img src='docs/images/aws-cloudfront-extensions.png'>
 
 Provision CloudFront Extensions with pre-configured deployment assets, click button to install Lambda@Edge from Serverless Application Repository.
 
 
-## CloudFront Quick Start
-
-|        **Name**    | **Description**      |
-|------------------|--------------------|
-| [WAF & Shield Deployment for CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood role, SQL injection, XSS, Bad bot, etc.   | 
-
-
-
 ## Lambda@Edge
+* **One stop to find Lambda@Edge scripts for various use cases**
+
+This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge service is available), and help you to simplify global CloudFront configuration via Lambda function scripts. You can not only checkout Lambda@Edge scripts from this GitHub repo, but also can directly deploy them from Serverless Application Repository(SAR) into AWS Console without coding.
 
 |        **Catelog** | **Description**      |
 |------------------|--------------------|
@@ -57,8 +41,24 @@ Provision CloudFront Extensions with pre-configured deployment assets, click but
 |   [*Security*](docs/LambdaEdge.md#security) | All functions are related secure perspective, such as anti-leeching, etc.           |
 
 
+## CloudFront Quick Start
+
+* **One-Click to deploy commonly used CloudFront solutions**
+
+This project offers common solutions for using CloudFront, for instance, CloudFront Security Solution with WAF & Shield. These solutions are provided in form of pre-baked CloudFormation template. With 1-click, you can have solution launched into your own AWS console. 
+
+|        **Name**    | **Description**      |
+|------------------|--------------------|
+| [WAF & Shield Deployment for CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood, SQL injection, XSS, Bad bot, etc.   | 
+
+
 
 ## Observability
+
+* **Out-of-box experience when integrating with external monitoring system** 
+
+This project also provides out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system.
+
 
 |        *Name*    | *Description*      |
 |------------------|--------------------|
