@@ -4,14 +4,16 @@
 
 
 
-“CloudFront Extensions” project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using Lambda@Edge and Amazon CloudFront. 
+“CloudFront Extensions” GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using Lambda@Edge and Amazon CloudFront. 
 
 Ultimately, we want to provide out-of-box experience from three dimensions:
 
-**One stop to find Lambda@Edge scripts for different use cases**
+**One stop to find Lambda@Edge scripts for various use cases**
 This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge service is available), and help you to simplify global CloudFront configuration via Lambda function scripts. You can not only checkout Lambda@Edge scripts from this GitHub repo, but also can directly deploy them from Serverless Application Repository(SAR) into AWS Console without coding.
+
 **One-Click to deploy commonly used CloudFront solutions**
 This project offers common solutions for using CloudFront, for instance, CloudFront Security Solution with WAF & Shield. These solutions are provided in form of pre-baked CloudFormation template. With 1-click, you can have solution launched into your own AWS console. 
+
 **Out-of-box experience when integrating with external monitoring system** 
 This project also provides out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system.
 
