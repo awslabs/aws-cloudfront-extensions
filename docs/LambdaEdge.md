@@ -3,7 +3,8 @@
 ## Description
 This solution is a collection of various Lambda@Edge extensions for using CloudFront.
 Users are able to find the Lambda application in SAR(Serverless Application Repository) and deploy it with one-click. The solution covers common use scenarios, for example, authentication with Amazon Cognito on a CloudFront distribution, access relative content according to the device type.
-It is an open-source project in GitHub, anyone is able to contribute to add new Lambda@Edge features
+
+It is an open-source project in GitHub, anyone is welcomed to contribute new Lambda@Edge features.
 
 ## Architecture
 <img src='./images/LambdaEdgeCollectionForCloudFront.png'>
