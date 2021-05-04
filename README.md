@@ -4,15 +4,7 @@
 
 
 
-“CloudFront Extensions” GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using Lambda@Edge and Amazon CloudFront. 
-
-
-See more:
-Lambda@Edge: https://aws.amazon.com/lambda/edge/
-Amazon CloudFront: https://aws.amazon.com/cloudfront/
-
-
-To get started, please find the step-by-step workshop material here: https://awslabs.github.io/aws-cloudfront-extensions/
+“CloudFront Extensions” GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using [Lambda@Edge](https://aws.amazon.com/lambda/edge/) and [Amazon CloudFront](https://aws.amazon.com/cloudfront/). 
 
 
 ## Overview
@@ -20,13 +12,10 @@ Ultimately, we want to provide out-of-box experience from three dimensions
 
 <img src='docs/images/aws-cloudfront-extensions.png'>
 
-Provision CloudFront Extensions with pre-configured deployment assets, click button to install Lambda@Edge from Serverless Application Repository.
-
-
 ## Lambda@Edge
 * **One stop to find Lambda@Edge scripts for various use cases**
 
-This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge service is available), and help you to simplify global CloudFront configuration via Lambda function scripts. You can not only checkout Lambda@Edge scripts from this GitHub repo, but also can directly deploy them from Serverless Application Repository(SAR) into AWS Console without coding.
+This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge service is available), and help you to simplify global CloudFront configuration via Lambda function scripts. You can not only checkout Lambda@Edge scripts from this GitHub repo, but also can directly deploy them from public [Serverless Application Repository(SAR)](https://serverlessrepo.aws.amazon.com/applications) into your AWS Console without coding.
 
 |        **Catelog** | **Description**      |
 |------------------|--------------------|
@@ -45,7 +34,7 @@ This project offers production level Lambda@Edge scripts for common CloudFront u
 
 * **One-Click to deploy commonly used CloudFront solutions**
 
-This project offers common solutions for using CloudFront, for instance, CloudFront Security Solution with WAF & Shield. These solutions are provided in form of pre-baked CloudFormation template. With 1-click, you can have solution launched into your own AWS console. 
+This project offers common solutions for using CloudFront. These solutions are provided in form of pre-baked [Amazon CloudFormation](https://aws.amazon.com/cloudformation) templates. With 1-click, you can have solution launched into your own AWS console. 
 
 |        **Name**    | **Description**      |
 |------------------|--------------------|
@@ -64,9 +53,9 @@ This project also provides out-of-box monitoring solution to enhance the overall
 |------------------|--------------------|
 | End-to-end monitoring | Centralized logs management solution and built-in dashboards on top of ElasticSearch, collecting file & real-time logs from CloudFront and related services.   | 
 
+## Tutorial
 
-
-
+To get started, please find the step-by-step workshop material here: https://awslabs.github.io/aws-cloudfront-extensions/
 
 ## Contribution
 
