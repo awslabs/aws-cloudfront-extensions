@@ -1,0 +1,12 @@
+[Unit]
+Description=Report Server load to SQS
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user
+ExecStart=/REPLACE/WITH/YOUR//LOAD/REPORT/SCRIPT/PATH/server-load-report.sh
+
+[Install]
+WantedBy=multi-user.target
