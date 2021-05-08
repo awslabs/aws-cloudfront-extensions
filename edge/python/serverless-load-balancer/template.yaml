@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
+  (SO8139)
   Serverless Load Balancer
-  Sample SAM Template for Serverless Load Balancer
+  This solution will load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request
 Parameters:
   EnvType:
     Description: Environment type.
