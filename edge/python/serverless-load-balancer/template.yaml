@@ -13,7 +13,7 @@ Parameters:
       - test
     ConstraintDescription: must specify prod or test.
 Conditions:
-  CreateProdResources: !Equals 
+  CreateProdResources: !Equals
     - !Ref EnvType
     - prod
 
@@ -41,7 +41,7 @@ Resources:
       Description: SSM Parameter for running date command.
       Tags:
         Environment: prod
-  
+
   ServerLoadReportFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -52,32 +52,32 @@ Resources:
         - DynamoDBWritePolicy:
             TableName: !Ref LoadTable
         - Statement:
-          - Action:
-              - ssm:GetParameter
-            Effect: Allow
-            Resource: '*'
+            - Action:
+                - ssm:GetParameter
+              Effect: Allow
+              Resource: '*'
       Events:
         MySQSEvent:
           Type: SQS
           Properties:
             Queue: !GetAtt ServerLoadQueue.Arn
 
-  LambdaEdgeBalancerFunctionRole: 
+  LambdaEdgeBalancerFunctionRole:
     Type: "AWS::IAM::Role"
     Properties:
       Path: "/"
       ManagedPolicyArns:
-          - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-          - "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
-          - "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
       AssumeRolePolicyDocument:
         Statement:
           - Action: sts:AssumeRole
             Effect: Allow
             Principal:
               Service:
-              - edgelambda.amazonaws.com
-              - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
 
   LambdaEdgeBalancerFunction:
     Type: AWS::Serverless::Function
@@ -88,18 +88,18 @@ Resources:
       Role: !GetAtt LambdaEdgeBalancerFunctionRole.Arn
 
 Outputs:
-    LambdaEdgeBalancerFunction: 
-      Description: Lambda@Edge Function ARN 
-      Value: !GetAtt LambdaEdgeBalancerFunction.Arn
-    ServerLoadReportFunction: 
-      Description: Server Load Report Lambda Function Arn
-      Value: !GetAtt ServerLoadReportFunction.Arn
-    ServerLoadQueue: 
-      Description: ServerLoad SQS 
-      Value: !GetAtt ServerLoadQueue.QueueName
-    LoadTable: 
-      Description: LoadTable
-      Value: !GetAtt LoadTable.Arn
-    SolutionId:
-      Description: "Solution id"
-      Value: "SO8139"
+  LambdaEdgeBalancerFunction:
+    Description: Lambda@Edge Function ARN
+    Value: !GetAtt LambdaEdgeBalancerFunction.Arn
+  ServerLoadReportFunction:
+    Description: Server Load Report Lambda Function Arn
+    Value: !GetAtt ServerLoadReportFunction.Arn
+  ServerLoadQueue:
+    Description: ServerLoad SQS
+    Value: !GetAtt ServerLoadQueue.QueueName
+  LoadTable:
+    Description: LoadTable
+    Value: !GetAtt LoadTable.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8139"

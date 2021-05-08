@@ -1,6 +1,6 @@
-# Serverless load balancer
+# Serverless Load Balancer
 
-The serverless load balance solution handle cloudfront origin request and made load balance via Lambda@Edge function
+The serverless load balance solution will load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders:
 
@@ -30,7 +30,7 @@ The AWS Toolkit for VS Code includes full support for state machine visualizatio
 
 ## Prerequisite
 
-## Architecture of application
+## Architecture Diagram
 
 This is application architecture
 
@@ -69,7 +69,7 @@ Run functions locally and invoke them with the `sam local invoke` command.
 serverless-load-balancer]$ sam local invoke "LambdaEdgeBalancerFunction" --event events/cf_request_event.json
 serverless-load-balancer]$ sam local invoke "ServerLoadReportFunction" --event events/load_report_sqs_event.json
 ```
-## Deploy
+## Deployment
 
 **Deploy solution**
 ```bash

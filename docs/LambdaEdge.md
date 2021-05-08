@@ -23,6 +23,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |------------------|--------------------|----------------|----------------|
 | Validating token | Validate token from HTTP header by MD5 in order to prevent violent access. | - | Todo |
 
+
 ## URL Rewrite
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
@@ -46,6 +47,10 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 | [Standardize query string](../edge/nodejs/normalize-query-string) | Standardize the query string before CloudFront forwards requests to your origin, so that improve the cache hit ratio. | v1.0.0 | Done | SAR, [CDK](https://github.com/pahud/cdk-cloudfront-plus/pull/64) |
 | [Convert query string](https://github.com/pahud/cdk-cloudfront-plus/issues/23) | Convert the query string to key & value pairs and add into header. | v1.0.0 | Done | CDK |
 | Format key & value | Format key & value pairs from POST request into specific form. | - | Todo | - |
+| [Serverless load balancer](../edge/python/serverless-load-balancer) | The serverless load balance solution will load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request. | v1.0.0 | Done | SAR |
+
+
+
 
 ## Override Response
 |    **Name**   | **Description**    | **Version**    |**Release**    |
