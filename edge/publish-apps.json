@@ -1,8 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/cross-origin-resource-sharing",
-      "nodejs/modify-response-header"
+      "python/serverless-load-balancer"
     ],
     "tag": "v1.0.0"
   }
