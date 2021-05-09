@@ -3,16 +3,16 @@ import requests
 from urllib import parse
 import boto3
 
-PARA_POP = '-C1'
-PARA_CFID = ''
-PARA_S3BUCKET = ''
-PARA_S3KEY = ''
+pop_list = 'PARA_POP'
+cf_dist_id = 'PARA_CFID'
+bucket_name = 'PARA_S3BUCKET'
+file_key = 'PARA_S3KEY'
 failed_list = []
 
 
 def get_url_from_s3():
     s3 = boto3.resource('s3')
-    obj = s3.Object(PARA_S3BUCKET, PARA_S3KEY)
+    obj = s3.Object(bucket_name, file_key)
     body = obj.get()['Body'].read()
     url_list = body.decode().split('\n')
     return url_list
@@ -20,7 +20,7 @@ def get_url_from_s3():
 
 def gen_pop_url(url, pop):
     parsed_url = parse.urlsplit(url)
-    cf_edge_url = 'http://' + PARA_CFID + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query
+    cf_edge_url = 'http://' + cf_dist_id + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query
 
     return cf_edge_url
 
@@ -39,7 +39,7 @@ def pre_warm(url, pop):
 
 def lambda_handler(event, context):
     url_list = get_url_from_s3()
-    pop_split = PARA_POP.split(',')
+    pop_split = pop_list.split(',')
 
     for pop in pop_split:
         pop = pop.strip()
