@@ -1,8 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-
-      "python/serverless-load-balancer"
+      "python/prewarm"
     ],
     "tag": "v1.0.0"
   }
