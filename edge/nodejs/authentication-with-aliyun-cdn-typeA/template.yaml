@@ -4,7 +4,7 @@ Description: >
   (SO8140)
   authentication-with-aliyun-cdn-typeA
   
-  The lambda will achieve aliyun cdn authentication.
+  The lambda function is designed to achieve aliyun cdn authentication.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -16,7 +16,7 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: authentication-with-aliyun-cdn-typeA
-    Description: The Lambda@Edge is designed to authenticate user using the algorithm of the Aliyun cdn 
+    Description: The lambda function is designed to achieve aliyun cdn authentication.
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt

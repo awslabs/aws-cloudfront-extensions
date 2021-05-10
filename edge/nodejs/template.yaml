@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8126)
+  anti-hotlinking
+
+  This solution is to protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is reject if the referer is not in the allow list
+
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: anti-hotlinking
+    Description: This solution is to protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is reject if the referer is not in the allow list
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','aws-cloudfront-extensions','edge','lambda-edge', 'aws', 'hotlinking', 'referer', 'leeching']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking
+
+Parameters:
+  RefererList:
+    Type: String
+    Default: ""
+    Description: "Referer allow list, use comma to separate multiple referer, it supports wild card(* and ?). Example: example.com, exa?ple.*"
+
+Resources:
+  AntiHotlinking:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: anti-hotlinking/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+          - arn:aws:iam::aws:policy/AWSLambda_FullAccess
+
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn: AntiHotlinking
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
+      Handler: index.handler
+      Runtime: python3.7
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/anti-hotlinking/anti-hotlinking.zip'
+      EdgeFunctionArn: !GetAtt AntiHotlinking.Arn
+      HandlerFileName: 'app.js'
+      PARA_REFERERLIST: !Ref RefererList
+
+Outputs:
+  AntiHotlinking:
+    Description: "Lambda Edge function ARN"
+    Value: !GetAtt AntiHotlinking.Arn
+  AntiHotlinkingIamRole:
+    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8126"

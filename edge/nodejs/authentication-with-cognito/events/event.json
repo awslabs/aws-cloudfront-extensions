@@ -3,84 +3,48 @@
         {
             "cf": {
                 "config": {
-                    "distributionDomainName": "dcm1b1hwxlgge.cloudfront.net",
-                    "distributionId": "E7SZGIAHGARZO",
+                    "distributionDomainName": "d111111abcdef8.cloudfront.net",
+                    "distributionId": "EDFDVBD6EXAMPLE",
                     "eventType": "viewer-request",
-                    "requestId": "4i-7RAWG6VuzMMjsGSl7GiId2ffFkAHdS4VeWosGiQO8Y4OJXVkGXw=="
+                    "requestId": "dB2-nvERw_fQuF20pKHWKb7-hv73zdHTXug_zgUF8I1YC-qlr8SKBA=="
                 },
                 "request": {
-                    "clientIp": "54.240.199.98",
+                    "clientIp": "203.0.113.178",
                     "headers": {
                         "host": [
                             {
                                 "key": "Host",
-                                "value": "dcm1b1hwxlgge.cloudfront.net"
+                                "value": "d111111abcdef8.cloudfront.net"
                             }
                         ],
                         "user-agent": [
                             {
                                 "key": "User-Agent",
-                                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36"
+                                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
                             }
                         ],
                         "accept": [
                             {
-                                "key": "Accept",
-                                "value": "application/json, text/javascript, */*; q=0.01"
-                            }
-                        ],
-                        "x-requested-with": [
-                            {
-                                "key": "X-Requested-With",
-                                "value": "XMLHttpRequest"
-                            }
-                        ],
-                        "authorization": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer eyJraWQiOiJGOEozWEwyYXNnWGQ4bkRna0hyXC9EZGp3UVJ3Y1YrQTRUbTdvSzA5TTlRVT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI3NGY4Y2ExMS1jY2M4LTQ4YWMtYmUyNy1mZmI0ZjEzNGViMGYiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIG9wZW5pZCIsImF1dGhfdGltZSI6MTYwOTMxMTQxNiwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfRllsUWFaZUlGIiwiZXhwIjoxNjA5MzE1MDE2LCJpYXQiOjE2MDkzMTE0MTYsInZlcnNpb24iOjIsImp0aSI6Ijk5YzM5NzA0LTRiODEtNDI2YS04MTk3LTYzMTNmNGI1YTJmMCIsImNsaWVudF9pZCI6IjdxNGhwZ2VjcHM1b3Z2M2lwcmoya2xrZ280IiwidXNlcm5hbWUiOiJtaW5ndG9uZy10ZXN0In0.FJtrW2b4XI0MR6jju9oKNi9ETiLwnIEvzbjsp1vafL6B7uTp1z3F8wRx_rHKcUamS3UjtfdReoPU6-TTbtNMX9-YclrYtx5CkOEBtN3GhO-GxvPfJTXX_kHO0gfYt-1y6WUg58w-IB06N_sU9uTU0xLtZjC1QIau6lr0OXvgLtuSWtEIuGFGBjmHg06-x70rRyo9HiWGjBmFvTpQzGe3SW5q73VJKRAiDvzd-96_3tEoS5Zo1RpxVrJTgVyYYEHC1fiID6boamrhHx2d1qYdm_ejb6V2ypcjTfDInZPy9mSPLIKgffXH93IWnIY_Fa2rxsHk8niwVW9sFSKJysNoBw"
-                            }
-                        ],
-                        "sec-fetch-site": [
-                            {
-                                "key": "Sec-Fetch-Site",
-                                "value": "same-origin"
-                            }
-                        ],
-                        "sec-fetch-mode": [
-                            {
-                                "key": "Sec-Fetch-Mode",
-                                "value": "cors"
-                            }
-                        ],
-                        "sec-fetch-dest": [
-                            {
-                                "key": "Sec-Fetch-Dest",
-                                "value": "empty"
-                            }
-                        ],
-                        "referer": [
-                            {
-                                "key": "Referer",
-                                "value": "https://dcm1b1hwxlgge.cloudfront.net/index.html"
+                                "key": "accept",
+                                "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
                             }
                         ],
                         "accept-encoding": [
                             {
-                                "key": "Accept-Encoding",
+                                "key": "accept-encoding",
                                 "value": "gzip, deflate, br"
                             }
                         ],
                         "accept-language": [
                             {
-                                "key": "Accept-Language",
-                                "value": "en-US,en;q=0.9"
+                                "key": "accept-language",
+                                "value": "zh-CN,zh;q=0.9,en;q=0.8"
                             }
                         ]
                     },
                     "method": "GET",
-                    "querystring": "_=abc",
-                    "uri": "/private/top-secret.json"
+                    "querystring": "auth_key=1601454231-0d2f9430e45f49748502ff090ef9882c-0-778a109ffee542551ca972db292e0685",
+                    "uri": "/videos/ahaschool/20190702/2bowuguan1/8gugenhaimu.mp4"
                 }
             }
         }
