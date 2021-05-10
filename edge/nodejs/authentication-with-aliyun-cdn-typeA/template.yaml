@@ -1,7 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
+  (SO8140)
   authentication-with-aliyun-cdn-typeA
+  
   The lambda will achieve aliyun cdn authentication.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
@@ -59,4 +61,4 @@ Outputs:
     Value: !GetAtt EdgeFunctionRole.Arn
   SolutionId:
     Description: "Solution id"
-    Value: "SO8102"
+    Value: "SO8140"
