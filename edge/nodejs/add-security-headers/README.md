@@ -7,6 +7,8 @@ You can use https://observatory.mozilla.org/ and scan the CloudFront distributio
 
 ## Description
 
+The Lambda@Edge adds necessary headers to enforce all security features at web browsers.    
+
 ## Architecture Diagram
 
 <img src='./diagram.png'>
@@ -14,6 +16,7 @@ Lambda@Edge - add-security-headers is triggered on origin response.
 
 ## Use Cases
 
+To enable web browsers security features in all scenarios.
 
 ## Project Structure
 
