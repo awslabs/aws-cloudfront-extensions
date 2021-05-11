@@ -4,10 +4,18 @@ The client-side security features are usually enabled and configured by HTTP res
 
 You can use https://observatory.mozilla.org/ and scan the CloudFront distribution for security vulnerabilities.
 
-## Prerequisite
-
 
 ## Description
+
+## Architecture Diagram
+
+<img src='./diagram.png'>
+Lambda@Edge - add-security-headers is triggered on origin response.
+
+## Use Cases
+
+
+## Project Structure
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
