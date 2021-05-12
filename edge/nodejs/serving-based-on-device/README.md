@@ -9,13 +9,19 @@ The Lambda@Edge is designed to serve content based on device type, for example, 
 
 The solution will serve content by users' device tpye, here's how it works:
 
-1. You must configure your distribution to cache based on the CloudFront-Is-*-Viewer headers. For more information, see the following documentation:
-     - http://docs.aws.amazon.com/console/cloudfront/cache-on-selected-headers
-     - http://docs.aws.amazon.com/console/cloudfront/cache-on-device-type
+1. The user sends viewer request to CloudFront.
 
-2. Lambda@Edge will rewrite URL on viewer request.
+2. CloudFront forwards below applicable headers to the origin based on User-Agent in the viewer request, CloudFront will set below headers to true or false, for example, if the request is from a mobile phone, CloudFront will set CloudFront-Is-Mobile-Viewer to true and other three headers to false.
 
-3. CloudFront adds the CloudFront-Is-*-Viewer headers after the viewer request event.
+```bash
+CloudFront-Is-Desktop-Viewer
+CloudFront-Is-Mobile-Viewer
+CloudFront-Is-SmartTV-Viewer
+CloudFront-Is-Tablet-Viewer
+```
+3. CloudFront routes the request to the nearest AWS edge location. The CloudFront distribution will launch a Lambda@Edge function on origin request event.
+
+4. Lambda@Edge rewrite the URI according to the headers, for example, it will redirect to mobile resources if the request is from a mobile phone.
 
 
 
