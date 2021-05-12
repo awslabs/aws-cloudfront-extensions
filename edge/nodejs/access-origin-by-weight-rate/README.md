@@ -1,11 +1,34 @@
 # Access origin server by weight rate
 
 
-The Lambda@Edge is designed to route the request to origin servers according to the origin weight rate. For example: if the customer sets the origin config as [{ rating: 1, domain: 'originA' },{ rating: 2, domain: 'originB' }], Lambda@Edge will select originA or originB randomly according to rating.
-
-## Prerequisite
+The Lambda@Edge is designed to route the request to origin servers according to the origin weight rate. 
 
 ## Description
+
+1. The users can set config for origin forwarding, such as: 
+
+```bash
+[
+    { rating: 10, domain: 'Custom Origin A' },
+    { rating: 20, domain: 'Custom Origin B' }
+]
+```
+when installing the Lambda@Edge feature from SAR.
+
+2. The Lambda@Edge will select origin according to rating configuration, in this case, it would forward to 'Custom Origin A' or 'Custom Origin B' by rating.
+
+## Architecture Diagram
+
+<img src='./diagram.png'>
+Lambda@Edge - serving-based-on-device is triggered on origin request.
+
+
+## Use Cases
+
+The users can config origin request by weight rate, for example you may want to distinguish access due to bandwith, network QoS, etc. 
+
+
+## Project Structure
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
