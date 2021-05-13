@@ -24,7 +24,7 @@ Metadata:
     Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/edge/nodejs/http302-from-origin
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/http302-from-origin
 
 
 
