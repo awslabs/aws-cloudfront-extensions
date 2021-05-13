@@ -14,8 +14,9 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |------------------|--------------------|----------------|----------------|----------------|
 | [Authentication by Cognito](../edge/nodejs/authentication-with-cognito) | Integrate with Cognito to provide authentication service. | v1.0.0 | Done | SAR |
 | Authentication by native library | Integrate the native library, in this case using C library and include file, which's acting authentication function. | - | Todo | - |
-| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into response after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Done | SAR, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/add-security-headers) |
+| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into response after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.1 | Done | SAR, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/add-security-headers) |
 | [OAuth2 Authentication](https://github.com/pahud/cdk-cloudfront-plus/issues/17) | Authentication with OAuth2. | v1.0.0 | Done | CDK |
+| [Authentication with AliYun](../edge/nodejs/authentication-with-aliyun-cdn-typeA) | This solution provided by Goclouds Data is designed to achieve ALIYUN CDN authentication. | v1.0.0 | Done | SAR |
 
 
 ## Validation
@@ -35,7 +36,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## URL Redirect
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Redirect URL by device](../edge/nodejs/serving-based-on-device) | Redirect to the different version of an object based on the type of device that the user is using. | v1.0.0 | Done | SAR |
+| [Redirect URL by device](../edge/nodejs/serving-based-on-device) | Redirect to the different version of an object based on the type of device that the user is using. | v1.0.3 | Done | SAR |
 | Redirect URL by USER-AGENT | Generate a HTTP redirect response with specific URL regarding to USER-AGENT in the header. | - | Todo | - |
 | [Redirect URL by Geolocation](https://github.com/pahud/cdk-cloudfront-plus/issues/11) | Forward request to the nearest PoP as per geolocation. It will return the location to client for 302 forwarding. | v1.0.0 | Done | CDK |
 
@@ -66,7 +67,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |------------------|--------------------|----------------|----------------|----------------|
 | [Access origin by geolocation](https://github.com/pahud/cdk-cloudfront-plus/issues/41) | Forward request to the nearest PoP as per geolocation. It will access the location from Edge location. | v1.0.0 | Done | CDK |
 | Access origin by customized service| Access origin by calling customized service to get real origin address. | - | Todo | - |
-| [Access origin by weight rate](../edge/nodejs/access-origin-by-weight-rate) | Forward request to multiple origin regarding to pre-configured weight for each origin. | v1.0.0 | Done | SAR |
+| [Access origin by weight rate](../edge/nodejs/access-origin-by-weight-rate) | Forward request to multiple origin regarding to pre-configured weight for each origin. | v1.0.3 | Done | SAR |
 | [Failover to alternative origin](../edge/nodejs/multiple-origin-IP-retry) | Failover to alternative IP from pre-configured list, return from success IP otherwise retry until last one. | v1.0.0 | Done | SAR, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/multiple-origin-IP-retry) |
 | Access origin by MD5 checksum | To prevent accessing the origin site multiple times for the same video file, perform MD5 checksum for the video file and determine when return to the origin. | - | Todo | - |
 | [Support 302 from origin](../edge/nodejs/http302-from-origin) | Process 302 response from origin, then access the redirected URL and return the response. | v1.0.0 | Done | SAR, [CDK](https://github.com/pahud/cdk-cloudfront-plus/issues/12) |
