@@ -1,10 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/access-origin-by-weight-rate",
-      "nodejs/add-security-headers",
-      "nodejs/serving-based-on-device"
+      "nodejs/add-security-headers"
     ],
-    "tag": "v1.0.3"
+    "tag": "v1.0.1"
   }
 }
