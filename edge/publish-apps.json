@@ -1,8 +1,10 @@
 {
   "edge": {
     "publish_app_path": [
-      "python/prewarm"
+      "nodejs/access-origin-by-weight-rate",
+      "nodejs/add-security-headers",
+      "nodejs/serving-based-on-device"
     ],
-    "tag": "v1.0.2"
+    "tag": "v1.0.3"
   }
 }
