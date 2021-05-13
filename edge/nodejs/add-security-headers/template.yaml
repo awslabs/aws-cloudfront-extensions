@@ -42,7 +42,6 @@ Resources:
   EdgeFunctionRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: !Sub ${AWS::StackName}-edgeFunction
         AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
