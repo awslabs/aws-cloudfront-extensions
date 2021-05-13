@@ -95,3 +95,8 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |------------------|--------------------|----------------|----------------|----------------|
 | [Global Data Ingestion](https://github.com/pahud/cdk-cloudfront-plus/issues/14) | Pipeline custom log to backend data ingestion service like Amazon Kinesis Firehose. [Use case](https://aws.amazon.com/tw/blogs/networking-and-content-delivery/global-data-ingestion-with-amazon-cloudfront-and-lambdaedge/) | v1.0.0 | Done | CDK |
 
+## Other 
+|    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
+|------------------|--------------------|----------------|----------------|----------------|
+| [Pre-warm](../edge/python/prewarm) | This Lambda will prewarm static content in specific pop. | v1.0.2 | Done | SAR |
+
