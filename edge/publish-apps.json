@@ -1,7 +1,6 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/authentication-with-aliyun-cdn-typeA",
       "nodejs/add-security-headers"
     ],
     "tag": "v1.0.0"
