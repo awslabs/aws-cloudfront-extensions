@@ -14,7 +14,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |------------------|--------------------|----------------|----------------|----------------|
 | [Authentication by Cognito](../edge/nodejs/authentication-with-cognito) | Integrate with Cognito to provide authentication service. | v1.0.0 | Done | SAR |
 | Authentication by native library | Integrate the native library, in this case using C library and include file, which's acting authentication function. | - | Todo | - |
-| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into response after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.1 | Done | SAR, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/add-security-headers) |
+| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into response after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Done | SAR |
 | [OAuth2 Authentication](https://github.com/pahud/cdk-cloudfront-plus/issues/17) | Authentication with OAuth2. | v1.0.0 | Done | CDK |
 | [Authentication with AliYun](../edge/nodejs/authentication-with-aliyun-cdn-typeA) | This solution provided by Goclouds Data is designed to achieve ALIYUN CDN authentication. | v1.0.0 | Done | SAR |
 
@@ -54,13 +54,13 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 
 
 ## Override Response
-|    **Name**   | **Description**    | **Version**    |**Release**    |
-|------------------|--------------------|----------------|----------------|
-| [Modify response status code](../edge/nodejs/modify-response-status-code)  | Modify response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Done |
-| [Modify response header](../edge/nodejs/modify-response-header) | Modify response header as per configuration. | v1.0.0 | Done |
-| Modify error response to 302 response | Modify error response to 302 response as per configuration. | - | Todo |
-| Response status code 200 with zero sized body  | Special feature to support heartbeat function, any request will return HTTP 200 with zero sized body. | - | Todo |
-| Generate static content  | Return generated static content based on configured parameter. | - | Todo |
+|    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
+|------------------|--------------------|----------------|----------------|----------------|
+| [Modify response status code](../edge/nodejs/modify-response-status-code)  | Modify response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Done | SAR |
+| [Modify response header](../edge/nodejs/modify-response-header) | Modify response header as per configuration. | v1.0.0 | Done | SAR, [CDK](https://github.com/pahud/cdk-cloudfront-plus/tree/main/src/demo/modify-response-header) |
+| Modify error response to 302 response | Modify error response to 302 response as per configuration. | - | Todo | - |
+| Response status code 200 with zero sized body  | Special feature to support heartbeat function, any request will return HTTP 200 with zero sized body. | - | Todo | - |
+| Generate static content  | Return generated static content based on configured parameter. | - | Todo | - |
 
 ## Origin Selection
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
