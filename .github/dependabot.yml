@@ -55,6 +55,10 @@ updates:
   package-ecosystem: pip
   schedule:
     interval: daily
+- directory: edge/nodejs/prewarm/prewarm
+  package-ecosystem: pip
+  schedule:
+    interval: daily
 - directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
   package-ecosystem: pip
   schedule:
