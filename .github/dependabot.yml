@@ -39,6 +39,10 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
+- directory: edge/nodejs/authentication-with-aliyun-cdn-typeA/authentication-with-aliyun-cdn-typeA
+  package-ecosystem: npm
+  schedule:
+    interval: daily
 - directory: edge/nodejs/resize-picture/resize-picture
   package-ecosystem: npm
   schedule:
