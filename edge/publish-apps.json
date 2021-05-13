@@ -1,8 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/authentication-with-aliyun-cdn-typeA"
+      "nodejs/http302-from-origin"
     ],
-    "tag": "v1.0.0"
+    "tag": "v1.0.3"
   }
 }
