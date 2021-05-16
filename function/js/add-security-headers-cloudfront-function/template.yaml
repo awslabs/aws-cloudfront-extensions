@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8102) 
+  add-security-headers-cloudfront-function
+
+  The lambda will add security headers to enforce https.
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: add-security-headers-cloudfront-function
+    Description: The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all of the desired security headers in responses sent to your clients. The Lambda@Edge will add several response headers to enable web browsers security features
+    Author: CC
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','cloudfront-function', 'cff', 'function', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/cc4i/aws-cloudfront-extensions/function/js/add-security-headers-cloudfront-function
+
+
+Resources:
+
+  AddSecurityHeaderFunction:
+    Type: AWS::CloudFront::Function
+    Properties: 
+      AutoPublish: false
+      FunctionConfig:
+        Comment: add-security-headers-cff
+        Runtime: cloudfront-js-1.0      
+      FunctionCode: |
+        function handler(event) {
+            var response = event.response;
+            var headers = response.headers;
+
+            headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload'}; 
+            headers['content-security-policy'] = { value: "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'"}; 
+            headers['x-content-type-options'] = { value: 'nosniff'}; 
+            headers['x-frame-options'] = {value: 'DENY'}; 
+            headers['x-xss-protection'] = {value: '1; mode=block'}; 
+            
+            return response;
+        }
+      Name: add-security-headers-cff
+
+
+Outputs:
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8102"
