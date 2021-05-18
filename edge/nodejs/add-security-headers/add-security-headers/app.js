@@ -10,14 +10,14 @@ exports.handler = async (event) => {
      *
      * Strict-Transport-Security: max-age=31536000; includeSubDomains
      */
-    response.headers['strict-transport-security'] = [{ value: 'max-age=31536000; includeSubDomains' }];
+    response.headers['strict-transport-security'] = [{ value: 'max-age=31536000; includeSubDomains; preload' }];
 
     /* Add Content-Security-Policy header to mitigate XSS.
      * See https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
      *
      * Content-Security-Policy: default-src https: 'self'
      */
-    response.headers['content-security-policy'] = [{ value: "default-src 'self'" }];
+    response.headers['content-security-policy'] = [{ value: "default-src 'none'; base-uri 'self'; img-src 'self'; script-src 'self'; style-src 'self' https:; object-src 'none'; frame-ancestors 'none'; font-src 'self' https:; form-action 'self'; manifest-src 'self'; connect-src 'self'" }];
 
     /* Add browser side XSS protection (for older browsers without CSP)
      * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
@@ -39,6 +39,11 @@ exports.handler = async (event) => {
      * X-Frame-Options: DENY
      */
     response.headers['x-frame-options'] = [{ value: 'DENY' }];
+
+    /**
+     * Add referrer-policy
+     */
+    response.headers['referrer-policy'] = [{ value: 'same-origin' }];
 
     return response;
 };
