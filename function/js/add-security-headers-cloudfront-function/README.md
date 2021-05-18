@@ -1,4 +1,4 @@
-# Add Security Headers
+# Add Security Headers for CloudFront Function
 
 The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all of the desired security headers in responses sent to your clients. The Lambda@Edge will add several response headers to enable web browsers security features.
 
