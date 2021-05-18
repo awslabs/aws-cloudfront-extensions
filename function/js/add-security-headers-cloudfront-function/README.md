@@ -1,13 +1,13 @@
 # Add Security Headers for CloudFront Function
 
-The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all of the desired security headers in responses sent to your clients. The Lambda@Edge will add several response headers to enable web browsers security features.
+The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all of the desired security headers in responses sent to your clients. This CloudFront Function will add several response headers to enable web browsers security features.
 
 You can use https://observatory.mozilla.org/ and scan the CloudFront distribution for security vulnerabilities.
 
 
 ## Description
 
-The Lambda@Edge adds necessary headers to enforce all security features at web browsers.    
+The add-security-headers for CloudFront Function adds necessary headers to enforce all security features at web browsers.    
 
 ## Architecture Diagram
 
@@ -22,10 +22,7 @@ To enable web browsers security features in all scenarios.
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- add-security-headers - Code for the application's Lambda function, which adds security headers when viewer response. 
-- events - Invocation events that you can use to invoke the function.
-- add-security-headers/tests - Unit tests for the application code. 
-- template.yaml - A template that defines the application's AWS resources.
+- template.yaml - A template that defines the application's AWS resources with add-security-headers-cff code.
 
 
 
@@ -43,7 +40,7 @@ To build and deploy your application for the first time, run the following in yo
 
 ```bash
 sam build
-sam deploy --guided
+sam deploy --guided --capabilities CAPABILITY_NAMED_IAM
 ```
 
 The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
@@ -56,24 +53,13 @@ The first command will build the source of your application. The second command 
 
 You can find your API Gateway Endpoint URL in the output values displayed after deployment.
 
-## Use the SAM CLI to build and test locally
+## Use the SAM CLI to build
 
 Build your application with the `sam build` command.
 
 ```bash
-add-security-headers$ sam build
+sam build
 ```
-
-The SAM CLI installs dependencies defined in `add-security-headers/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
-
-Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
-
-Run functions locally and invoke them with the `sam local invoke` command.
-
-```bash
-add-security-headers$ sam local invoke AddSecurityHeaderFunction --event events/event.json
-```
-
 
 ## Add a resource to your application
 The application template uses AWS Serverless Application Model (AWS SAM) to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources such as functions, triggers, and APIs. For resources not included in [the SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use standard [AWS CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) resource types.
@@ -85,27 +71,19 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-add-security-headers$ sam logs -n AddSecurityHeaderFunction --stack-name add-security-headers --tail
+sam logs -n AddSecurityHeaderFunction --stack-name add-security-headers-cff --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
-## Unit tests
 
-Tests are defined in the `add-security-headers/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
-
-```bash
-add-security-headers$ cd add-security-headers
-add-security-headers$ npm install
-add-security-headers$ npm run test
-```
 
 ## Cleanup
 
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name add-security-headers
+aws cloudformation delete-stack --stack-name add-security-headers-cff
 ```
 
 ## Resources
