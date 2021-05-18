@@ -16,8 +16,8 @@ Globals:
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: add-security-headers-cloudfront-function
-    Description: The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all of the desired security headers in responses sent to your clients. The Lambda@Edge will add several response headers to enable web browsers security features
-    Author: CC
+    Description: The add-security-headers for CloudFront Function adds necessary headers to enforce all security features at web browsers.
+    Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
