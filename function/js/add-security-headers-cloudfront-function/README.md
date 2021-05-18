@@ -12,7 +12,7 @@ The add-security-headers for CloudFront Function adds necessary headers to enfor
 ## Architecture Diagram
 
 <img src='./diagram.png'>
-Lambda@Edge - add-security-headers-cff is triggered on viewer response.
+CloudFront Function - add-security-headers-cff is triggered on viewer response.
 
 ## Use Cases
 
