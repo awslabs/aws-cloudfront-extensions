@@ -12,11 +12,11 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## Authentication
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Authentication by Cognito](../edge/nodejs/authentication-with-cognito) | Integrate with Cognito to provide authentication service. | v1.0.0 | Done | SAR |
+| [Authentication by Cognito](../edge/nodejs/authentication-with-cognito) | Integrate with Cognito to provide authentication service. | v1.0.0 | Done | SAR, SAM |
 | Authentication by native library | Integrate the native library, in this case using C library and include file, which's acting authentication function. | - | Todo | - |
-| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into response after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Done | SAR |
+| [Adding security header](../edge/nodejs/add-security-headers) | Add security header into response after successful authentication, this function will add 'strict-transport-security' to force browser using HTTPS. | v1.0.0 | Done | SAR, SAM |
 | [OAuth2 Authentication](https://github.com/pahud/cdk-cloudfront-plus/issues/17) | Authentication with OAuth2. | v1.0.0 | Done | CDK |
-| [Authentication with AliYun](../edge/nodejs/authentication-with-aliyun-cdn-typeA) | This solution provided by Goclouds Data is designed to achieve ALIYUN CDN authentication. | v1.0.0 | Done | SAR |
+| [Authentication with AliYun](../edge/nodejs/authentication-with-aliyun-cdn-typeA) | This solution provided by Goclouds Data is designed to achieve ALIYUN CDN authentication. | v1.0.0 | Done | SAR, SAM |
 
 
 ## Validation
@@ -36,7 +36,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## URL Redirect
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Redirect URL by device](../edge/nodejs/serving-based-on-device) | Redirect to the different version of an object based on the type of device that the user is using. | v1.0.3 | Done | SAR |
+| [Redirect URL by device](../edge/nodejs/serving-based-on-device) | Redirect to the different version of an object based on the type of device that the user is using. | v1.0.3 | Done | SAR, SAM |
 | Redirect URL by USER-AGENT | Generate a HTTP redirect response with specific URL regarding to USER-AGENT in the header. | - | Todo | - |
 | [Redirect URL by Geolocation](https://github.com/pahud/cdk-cloudfront-plus/issues/11) | Forward request to the nearest PoP as per geolocation. It will return the location to client for 302 forwarding. | v1.0.0 | Done | CDK |
 
@@ -45,10 +45,10 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## Override Request
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Standardize query string](../edge/nodejs/normalize-query-string) | Standardize the query string before CloudFront forwards requests to your origin, so that improve the cache hit ratio. | v1.0.0 | Done | SAR, [CDK](https://github.com/pahud/cdk-cloudfront-plus/pull/64) |
+| [Standardize query string](../edge/nodejs/normalize-query-string) | Standardize the query string before CloudFront forwards requests to your origin, so that improve the cache hit ratio. | v1.0.0 | Done | SAR, SAM, [CDK](https://github.com/pahud/cdk-cloudfront-plus/pull/64) |
 | [Convert query string](https://github.com/pahud/cdk-cloudfront-plus/issues/23) | Convert the query string to key & value pairs and add into header. | v1.0.0 | Done | CDK |
 | Format key & value | Format key & value pairs from POST request into specific form. | - | Todo | - |
-| [Serverless load balancer](../edge/python/serverless-load-balancer) | The serverless load balance solution will load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request. | v1.0.0 | Done | SAR |
+| [Serverless load balancer](../edge/python/serverless-load-balancer) | The serverless load balance solution will load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request. | v1.0.0 | Done | SAR, SAM |
 
 
 
@@ -56,8 +56,8 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## Override Response
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Modify response status code](../edge/nodejs/modify-response-status-code)  | Modify response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Done | SAR |
-| [Modify response header](../edge/nodejs/modify-response-header) | Modify response header as per configuration. | v1.0.0 | Done | SAR, [CDK](https://github.com/pahud/cdk-cloudfront-plus/tree/main/src/demo/modify-response-header) |
+| [Modify response status code](../edge/nodejs/modify-response-status-code)  | Modify response status code to specific code, such as 200 to 206, based on configured parameter. | v1.0.0 | Done | SAR, SAM |
+| [Modify response header](../edge/nodejs/modify-response-header) | Modify response header as per configuration. | v1.0.0 | Done | SAR, SAM, [CDK](https://github.com/pahud/cdk-cloudfront-plus/tree/main/src/demo/modify-response-header) |
 | Modify error response to 302 response | Modify error response to 302 response as per configuration. | - | Todo | - |
 | Response status code 200 with zero sized body  | Special feature to support heartbeat function, any request will return HTTP 200 with zero sized body. | - | Todo | - |
 | Generate static content  | Return generated static content based on configured parameter. | - | Todo | - |
@@ -67,10 +67,10 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |------------------|--------------------|----------------|----------------|----------------|
 | [Access origin by geolocation](https://github.com/pahud/cdk-cloudfront-plus/issues/41) | Forward request to the nearest PoP as per geolocation. It will access the location from Edge location. | v1.0.0 | Done | CDK |
 | Access origin by customized service| Access origin by calling customized service to get real origin address. | - | Todo | - |
-| [Access origin by weight rate](../edge/nodejs/access-origin-by-weight-rate) | Forward request to multiple origin regarding to pre-configured weight for each origin. | v1.0.3 | Done | SAR |
-| [Failover to alternative origin](../edge/nodejs/multiple-origin-IP-retry) | Failover to alternative IP from pre-configured list, return from success IP otherwise retry until last one. | v1.0.0 | Done | SAR, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/multiple-origin-IP-retry) |
+| [Access origin by weight rate](../edge/nodejs/access-origin-by-weight-rate) | Forward request to multiple origin regarding to pre-configured weight for each origin. | v1.0.3 | Done | SAR, SAM |
+| [Failover to alternative origin](../edge/nodejs/multiple-origin-IP-retry) | Failover to alternative IP from pre-configured list, return from success IP otherwise retry until last one. | v1.0.0 | Done | SAR, SAM, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/multiple-origin-IP-retry) |
 | Access origin by MD5 checksum | To prevent accessing the origin site multiple times for the same video file, perform MD5 checksum for the video file and determine when return to the origin. | - | Todo | - |
-| [Support 302 from origin](../edge/nodejs/http302-from-origin) | Process 302 response from origin, then access the redirected URL and return the response. | v1.0.0 | Done | SAR, [CDK](https://github.com/pahud/cdk-cloudfront-plus/issues/12) |
+| [Support 302 from origin](../edge/nodejs/http302-from-origin) | Process 302 response from origin, then access the redirected URL and return the response. | v1.0.0 | Done | SAR, SAM, [CDK](https://github.com/pahud/cdk-cloudfront-plus/issues/12) |
 
 
 
@@ -78,7 +78,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
 | Pre-warm cache from specified origin | Load objects from configuration list into specific PoP in order to accelerate access. | - | Todo | - |
-| [Resize picture](../edge/nodejs/resize-picture) | Resize pictures on the fly according to dimensions passed by the query parameter. | v1.0.0 | Done | SAR |
+| [Resize picture](../edge/nodejs/resize-picture) | Resize pictures on the fly according to dimensions passed by the query parameter. | v1.0.0 | Done | SAR, SAM |
 | Change the picture format | Change picture format. | - | Todo | - |
 | Dynamic reloading content from primary origin | Dynamic reloading content from primary origin as per defined policy, such as certain hot data regarding to metrics. | - | Todo | - |
 | [Custom Error Page](https://github.com/pahud/cdk-cloudfront-plus/pull/46) | Define a custom error page with a specific status code from the origin response. [Use case](https://aws.amazon.com/blogs/networking-and-content-delivery/customize-403-error-pages-from-amazon-cloudfront-origin-with-lambdaedge/) | v1.0.0 | Done | CDK |
@@ -87,7 +87,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## Security
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Anti-hotlinking](../edge/nodejs/anti-hotlinking) | Protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is rejected if the referer is not in the allow list. | v1.2.5 | Done | SAR, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking) |
+| [Anti-hotlinking](../edge/nodejs/anti-hotlinking) | Protect against hotlinking, users need to specify a referer allow list which supports wild card, the request is rejected if the referer is not in the allow list. | v1.2.5 | Done | SAR, SAM, [CDK](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking) |
 | Anti-theft-chain | Customers can verify access requests with anti-theft chains either through non-symmetric key encryption. | - | Todo | - |
 
 ## Logging 
@@ -98,5 +98,5 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 ## Other 
 |    **Name**   | **Description**    | **Version**    |**Release**    | **Deployment Type** |
 |------------------|--------------------|----------------|----------------|----------------|
-| [Pre-warm](../edge/python/prewarm) | This Lambda will prewarm static content in specific pop. | v1.0.2 | Done | SAR |
+| [Pre-warm](../edge/python/prewarm) | This Lambda will prewarm static content in specific pop. | v1.0.2 | Done | SAR, SAM |
 
