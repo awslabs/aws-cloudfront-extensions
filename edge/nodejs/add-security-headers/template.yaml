@@ -29,7 +29,7 @@ Metadata:
 Parameters:
   SecPolicy:
     Type: String
-    Default: "default-src \'none\'; base-uri \'self\'; img-src \'self\'; script-src \'self\'; style-src \'self\' https:; object-src \'none\'; frame-ancestors \'none\'; font-src \'self\' https:; form-action \'self\'; manifest-src \'self\'; connect-src \'self\'"
+    Default: "default-src \\'none\\'; base-uri \\'self\\'; img-src \\'self\\'; script-src \\'self\\'; style-src \\'self\\' https:; object-src \\'none\\'; frame-ancestors \\'none\\'; font-src \\'self\\' https:; form-action \\'self\\'; manifest-src \\'self\\'; connect-src \\'self\\'"
     Description: "The value of content-security-policy header"
 
 Resources:
