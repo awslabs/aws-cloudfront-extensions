@@ -26,7 +26,11 @@ Metadata:
     SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/add-security-headers
 
-
+Parameters:
+  SecPolicy:
+    Type: String
+    Default: "default-src 'none'; base-uri 'self'; img-src 'self'; script-src 'self'; style-src 'self' https:; object-src 'none'; frame-ancestors 'none'; font-src 'self' https:; form-action 'self'; manifest-src 'self'; connect-src 'self'"
+    Description: "The value of content-security-policy header"
 
 Resources:
   AddSecurityHeaderFunction:
@@ -36,8 +40,6 @@ Resources:
       Handler: app.handler
       Runtime: nodejs12.x
       Role: !GetAtt EdgeFunctionRole.Arn
-
-
 
   EdgeFunctionRole:
       Type: AWS::IAM::Role
@@ -54,12 +56,31 @@ Resources:
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn: AddSecurityHeaderFunction
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
+      Handler: index.handler
+      Runtime: python3.7
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/add-security-headers/add-security-headers.zip'
+      EdgeFunctionArn: !GetAtt AddSecurityHeaderFunction.Arn
+      HandlerFileName: 'app.js'
+      PARA_SECPOLICY: !Ref SecPolicy
+
 Outputs:
   AddSecurityHeaderFunction:
     Description: "Lambda Edge function ARN"
     Value: !GetAtt AddSecurityHeaderFunction.Arn
   AddSecurityHeaderFunctionIamRole:
-    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Description: "Implicit IAM Role created for Add Security Header function"
     Value: !GetAtt EdgeFunctionRole.Arn
   SolutionId:
     Description: "Solution id"

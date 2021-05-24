@@ -1,5 +1,7 @@
 'use strict';
 
+const secPolicy = 'PARA_SECPOLICY';
+
 exports.handler = async (event) => {
     console.log('Event: ', JSON.stringify(event, null, 2));
 
@@ -17,7 +19,7 @@ exports.handler = async (event) => {
      *
      * Content-Security-Policy: default-src https: 'self'
      */
-    response.headers['content-security-policy'] = [{ value: "default-src 'none'; base-uri 'self'; img-src 'self'; script-src 'self'; style-src 'self' https:; object-src 'none'; frame-ancestors 'none'; font-src 'self' https:; form-action 'self'; manifest-src 'self'; connect-src 'self'" }];
+    response.headers['content-security-policy'] = [{ value: secPolicy }];
 
     /* Add browser side XSS protection (for older browsers without CSP)
      * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection

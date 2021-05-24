@@ -5,7 +5,7 @@ Description: "(SO8107) modify-response-status-code is a lambda@Edge which shows 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 5
     Tags:
       Publisher: AWS
 

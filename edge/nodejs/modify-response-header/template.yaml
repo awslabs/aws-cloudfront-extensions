@@ -5,7 +5,7 @@ Description: "(SO8105) modify-response-header is a lambda@Edge which shows how t
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 5
     Tags:
       Publisher: AWS
 
