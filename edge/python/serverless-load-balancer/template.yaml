@@ -36,6 +36,8 @@ Conditions:
 Resources:
   ServerLoadQueue:
     Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: alias/aws/sqs
 
   LoadTable:
     Type: AWS::Serverless::SimpleTable
