@@ -1,0 +1,30 @@
+version: 0.2
+
+
+env:
+  secrets-manager:
+    AWSid: CodeBuild-cloudfront-extensions:access_key_id
+    AWSkey: CodeBuild-cloudfront-extensions:secret_access_key
+    GHToken: CodeBuild-cloudfront-extensions:oatuh_token
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - pip install PyGithub
+      - pip install --upgrade aws-sam-cli selenium pylint
+      - pip install pytest pytest-mock --user
+  pre_build:
+    commands:
+      - aws configure set aws_access_key_id $AWSid
+      - aws configure set aws_secret_access_key $AWSkey
+      - aws configure set default.region us-east-1
+      - export labelName=`python scripts/python/set-label-name.py $GHToken`
+  build:
+    commands:
+      - ./scripts/python-ci-content-scan.sh
+      - ./scripts/python-ci-style-check.sh
+      - ./scripts/python-ci-build-ut.sh
+      # - ./scripts/edge-test.sh
+      

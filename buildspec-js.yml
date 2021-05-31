@@ -1,0 +1,27 @@
+version: 0.2
+
+
+env:
+  secrets-manager:
+    AWSid: CodeBuild-cloudfront-extensions:access_key_id
+    AWSkey: CodeBuild-cloudfront-extensions:secret_access_key
+    GHToken: CodeBuild-cloudfront-extensions:oatuh_token
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+    commands:
+      - echo Install Finished
+  pre_build:
+    commands:
+      - aws configure set aws_access_key_id $AWSid
+      - aws configure set aws_secret_access_key $AWSkey
+      - aws configure set default.region us-east-1
+      - export labelName=`python scripts/python/set-label-name.py $GHToken`
+  build:
+    commands:
+      - ./scripts/nodejs-ci-content-scan.sh
+      - ./scripts/nodejs-ci-style-check.sh
+      - ./scripts/nodejs-ci-build-coverage.sh
+      # - ./scripts/edge-test.sh
