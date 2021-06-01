@@ -7,6 +7,7 @@ from github import Github
 
 def lambda_handler(build_event, context):
     # print(build_event)
+    success_label = os.environ['CI_Success_Label']
     sm = boto3.client('secretsmanager')
     gh = Github(sm.get_secret_value(SecretId=os.getenv('SecretARN'))['SecretString'])
     
@@ -30,6 +31,8 @@ def lambda_handler(build_event, context):
     
     repo = gh.get_user(github_owner).get_repo(github_repo)
     if build_status == 'SUCCEEDED':
-        repo.get_pull(pr_id).add_to_labels(os.environ['CI_Success_Label'])
-    
+        repo.get_pull(pr_id).add_to_labels(success_label)
+    else:
+        repo.get_pull(pr_id).remove_from_labels(success_label)
+        
     # repo.get_pull(pr_id).add_to_labels(os.environ['CI_Success_Label'])
