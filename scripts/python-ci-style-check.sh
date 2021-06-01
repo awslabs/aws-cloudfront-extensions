@@ -8,7 +8,5 @@
 # update_app_code_uri=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].codeuri | sed 's/\"//g')
 
 #check code style
-sudo apt-get install pylint
-
-echo edge/$labelName
-pylint edge/$labelName/
+export PYTHONPATH="${PWD}/edge/${labelName}/${labelName#*/}"
+pylint --rcfile .pylintrc edge/$labelName/
