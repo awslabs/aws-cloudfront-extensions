@@ -1,7 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "python/serverless-load-balancer"
+      "nodejs/rewrite-url"
     ],
     "tag": "v1.0.1"
   }
