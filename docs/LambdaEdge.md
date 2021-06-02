@@ -31,6 +31,7 @@ It is an open-source project in GitHub, anyone is welcomed to contribute new Lam
 | Rewrite URL by cookie | Rewrite URL by cookie information when a viewer requests the address. | - | Todo | - |
 | Rewrite URL by USER-AGENT |  Rewrite URL by USER-AGENT from HTTP header when a viewer requests the address. | - | Todo | - |
 | [Default Directory Index for Amazon S3 Origin](https://github.com/pahud/cdk-cloudfront-plus/issues/9) |  re-write the request so that CloudFront requests a default index object (index.html in this case) for any request URI that ends in ‘/’. [Use case](https://aws.amazon.com/tw/blogs/compute/implementing-default-directory-indexes-in-amazon-s3-backed-amazon-cloudfront-origins-using-lambdaedge/) | v1.0.0 | Done | CDK |
+| [Rewrite host for Custom Origin](../edge/nodejs/rewrite-url) | Rewrite host for custom origin | v1.0.0 | Done | SAR |
 
 
 ## URL Redirect
