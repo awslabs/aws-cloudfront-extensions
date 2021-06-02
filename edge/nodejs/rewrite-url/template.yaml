@@ -1,22 +1,22 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  (SO8119) 
-  access-origin-by-weight-rate
+  (SO8141)
+  rewrite-url
 
-  The lambda will access origin server according to origin server weight rate
+  The Lambda@Edge is designed to rewrite host for custom origin
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 5
     Tags:
       Publisher: AWS
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: access-origin-by-weight-rate
-    Description: The Lambda@Edge is designed to route the request to origin servers according to the origin weight rate
+    Name: rewrite-url
+    Description: The Lambda@Edge is designed to rewrite host for custom origin
     Author: AWS
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
@@ -24,28 +24,26 @@ Metadata:
     Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
     HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
     SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/access-origin-by-weight-rate
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/rewrite-url
 
 Parameters:
-  OriginDomainListParameter:
+  UrlToRewrite:
     Type: String
-    Default: "" 
-    Description: "Origin domain list, example: [{ rating: 1, domain: 'originA' },{ rating: 2, domain: 'originB' }]"  
+    Default: "{}"
+    Description: "Url mapping, for example: {\"www.example.com\": \"www.test.com\", \"www.demo.com\": \"www.test.net\"}"
 
 Resources:
-  AccessOriginByRateFunction:
+  RewriteFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: access-origin-by-weight-rate/
+      CodeUri: rewrite-url/
       Handler: app.handler
       Runtime: nodejs12.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
-
   EdgeFunctionRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: !Sub ${AWS::StackName}-edgeFunction
         AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -56,12 +54,11 @@ Resources:
                 - edgelambda.amazonaws.com
             Action: sts:AssumeRole
         ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
           - arn:aws:iam::aws:policy/AWSLambda_FullAccess
 
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    DependsOn: AccessOriginByRateFunction
+    DependsOn: RewriteFunction
     Properties:
       CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
       Handler: index.handler
@@ -73,18 +70,18 @@ Resources:
     DependsOn: UpdateEdgeCodeFunction
     Properties:
       ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
-      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/access-origin-by-weight-rate/access-origin-by-weight-rate.zip'
-      EdgeFunctionArn: !GetAtt AccessOriginByRateFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/rewrite-url/rewrite-url.zip'
+      EdgeFunctionArn: !GetAtt RewriteFunction.Arn
       HandlerFileName: 'app.js'       
-      INPUT_ORIGIN_LIST: !Ref OriginDomainListParameter         
+      INPUT_URL_MAPPING: !Ref UrlToRewrite
 
 Outputs:
-  AccessOriginByRateFunction:
+  RewriteUrlFunction:
     Description: "Lambda Edge function ARN"
-    Value: !GetAtt AccessOriginByRateFunction.Arn
-  AccessOriginByRateFunctionIamRole:
-    Description: "Implicit IAM Role created for AccessOriginByRate function"
+    Value: !GetAtt RewriteFunction.Arn
+  RewriteUrlFunctionIamRole:
+    Description: "Implicit IAM Role created for RewriteUrl function"
     Value: !GetAtt EdgeFunctionRole.Arn
   SolutionId:
     Description: "Solution id"
-    Value: "SO8119"
+    Value: "SO8141"
