@@ -1,4 +1,8 @@
 updates:
+- directory: edge/nodejs/rewrite-url/rewrite-url
+  package-ecosystem: npm
+  schedule:
+    interval: daily
 - directory: edge/nodejs/add-security-headers/add-security-headers
   package-ecosystem: npm
   schedule:
