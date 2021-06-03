@@ -8,5 +8,5 @@
 # update_app_code_uri=$(cat $FILE_PATH | ${JQ_EXEC} .edge.update[].codeuri | sed 's/\"//g')
 
 #check code style
-export PYTHONPATH="${PWD}/edge/${labelName}/${labelName#*/}"
+export PYTHONPATH="${PWD}/edge/${labelName}"
 pylint --rcfile .pylintrc edge/$labelName/
