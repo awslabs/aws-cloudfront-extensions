@@ -33,6 +33,6 @@ def lambda_handler(event, context):
              ]
          },
          'body': CONTENT,
-         'message': 'testing_4'
+         'message': 'testing_5'
      }
      return response
