@@ -32,6 +32,16 @@ def lambda_handler(build_event, context):
     repo = gh.get_user(github_owner).get_repo(github_repo)
     if build_status == 'SUCCEEDED':
         repo.get_pull(pr_id).add_to_labels(success_label)
+        for assignee in os.getenv('OnCall_Assignees').split(','):
+            try:
+                repo.get_pull(pr_id).add_to_assignees(assignee)
+            except:
+                continue
+        for reviewer in os.getenv('OnCall_Reviewers').split(','):
+            try:
+                repo.get_pull(pr_id).create_review_request(reviewers=[reviewer])
+            except:
+                continue
     else:
         repo.get_pull(pr_id).remove_from_labels(success_label)
         
