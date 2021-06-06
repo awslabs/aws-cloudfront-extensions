@@ -1,8 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/rewrite-url"
+      "nodejs/anti-hotlinking"
     ],
-    "tag": "v1.0.0"
+    "tag": "v1.3.0"
   }
 }
