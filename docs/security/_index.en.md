@@ -1,5 +1,5 @@
 ---
-title: WAF & Shield Automations
+title: WAF & Shield Deployment 
 weight: 45
 ---
 
