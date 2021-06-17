@@ -4,7 +4,7 @@ weight: 3
 ---
 
 In this section you will deploy the OWASP Juice Shop by CloudFormation stack, first please deploy the Juice Shop Web Application in **US East (N. Virginia)** (us-east-1) region.
-[![Deploy OWASP Juice Shop](/images/deploy_to_aws.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&templateURL=https://solution-builders-us-east-1.s3.us-east-1.amazonaws.com/aws-waf-classic-workshop/latest/main.template)
+[![Deploy OWASP Juice Shop](/images/deploy_to_aws.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&templateURL=https%3a%2f%2faws-waf-workshop-v2-us-east-1.s3.us-east-1.amazonaws.com%2faws-waf-v2-workshop%2flatest%2fmain.template)
 
 
 This CloudFormation stack will take approximately 5 minutes to complete.
