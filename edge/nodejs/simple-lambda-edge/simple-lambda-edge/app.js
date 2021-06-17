@@ -19,6 +19,7 @@ exports.handler = (event, context, callback) => {
      */
     const response = {
         status: '200',
+        mode: 'test',
         statusDescription: 'OK',
         headers: {
             'cache-control': [{
