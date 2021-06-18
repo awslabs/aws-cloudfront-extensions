@@ -1,0 +1,18 @@
+{
+    "Records": [
+        {
+            "cf": {
+                "request": {
+                    "headers": {
+                        "host": [
+                            {
+                                "key": "Host",
+                                "value": "xxx.agilewing-demo.net"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
