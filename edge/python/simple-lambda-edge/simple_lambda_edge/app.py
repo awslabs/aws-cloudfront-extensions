@@ -22,7 +22,7 @@ def lambda_handler(event, context):
              'cache-control': [
                  {
                      'key': 'Cache-Control',
-                     'value': 'max-age=100'
+                     'value': 'max-age=10'
                  }
              ],
              "content-type": [
