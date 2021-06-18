@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8138)
+  prewarm
+
+  This Lambda will prewarm static content in specific pop
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 900
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: prewarm
+    Description: This Lambda will prewarm static content in specific pop
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: [ 'gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws' ]
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/prewarm
+
+Parameters:
+  PoPList:
+    Type: String
+    Default: ""
+    Description: "PoP needs to prewarm, you can input multiple value with comma as separator, eg. SEA19-C3, DFW55-C3"
+  CFMapping:
+    Type: String
+    Default: ""
+    Description: "Domain name mapping, eg. {\"www.example.com\":\"d123456789012.cloudfront.net\", \"www.example.net\": \"d123456789013.cloudfront.net\"}, use {} if you don't need a mapping"
+  S3BucketName:
+    Type: String
+    Default: ""
+    Description: "S3 bucket name to store the file which contains urls to pre-warm. eg. pre-warm-bucket"
+  S3FileKey:
+    Type: String
+    Default: ""
+    Description: "The S3 key of the file which contains urls to pre-warm, the file should be stored in an S3 bucket. eg. Prewarm/urls.txt"
+
+
+Resources:
+  PrewarmFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: prewarm/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt PrewarmFunctionRole.Arn
+
+  PrewarmFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AWS::StackName}-Function
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+              - edgelambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSLambda_FullAccess
+
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn: PrewarmFunction
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
+      Handler: index.handler
+      Runtime: python3.7
+      Timeout: 180
+      Role: !GetAtt PrewarmFunctionRole.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/prewarm/prewarm.zip'
+      EdgeFunctionArn: !GetAtt PrewarmFunction.Arn
+      HandlerFileName: 'app.py'
+      PARA_POP: !Ref PoPList
+      PARA_MAPPING: !Ref CFMapping
+      PARA_S3BUCKET: !Ref S3BucketName
+      PARA_S3KEY: !Ref S3FileKey
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  PrewarmFunction:
+    Description: "Prewarm Lambda Function ARN"
+    Value: !GetAtt PrewarmFunction.Arn
+  PrewarmFunctionIamRole:
+    Description: "Implicit IAM Role created for Prewarm function"
+    Value: !GetAtt PrewarmFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8138"
