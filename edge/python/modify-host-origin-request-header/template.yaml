@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: "(SO8142) modify-host-origin-request-header is a lambda@Edge which shows how to modify the Host origin request header."
+Description: "(SO8141) modify-host-origin-request-header is a lambda@Edge which shows how to modify the Host origin request header."
 
 Globals:
   Function:
@@ -77,7 +77,7 @@ Outputs:
     Value: !GetAtt ModifyRequestHeaderFunction.Arn
   SolutionId:
     Description: "Solution id"
-    Value: "SO8142"
+    Value: "SO8141"
   ModifyRequestHeaderFunctionIamRole:
     Description: "Implicit IAM Role created for modify-response-status-code function"
     Value: !GetAtt EdgeFunctionRole.Arn
