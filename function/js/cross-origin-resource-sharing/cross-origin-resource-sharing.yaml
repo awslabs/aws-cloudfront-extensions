@@ -1,0 +1,64 @@
+Description: (SO8137) cross-origin-resource-sharing is a CloudFront Function which will add CORS(Cross Origin Resource Sharing) Headers
+  
+Resources:
+  CORSFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: cross-origin-resource-sharing
+      AutoPublish: true
+      FunctionConfig:
+        Comment: cross-origin-resource-sharing
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+            var response = event.response;
+            var headers = response.headers;
+
+            headers['access-control-allow-origin'] = {value: '*'};
+            headers['access-control-allow-headers'] = {value: 'Content-Type'};
+            headers['access-control-allow-methods'] = {value: 'OPTIONS,POST,GET'};
+
+            return response;
+        }
+
+  Bucket:
+    Type: AWS::S3::Bucket
+
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    DependsOn:
+      - Bucket
+      - CORSFunction
+    Properties:
+      DistributionConfig:
+        Comment: 'CloudFront Distribution associated with CloudFront Function'
+        Origins:
+          - Id: !Ref Bucket
+            DomainName: !GetAtt Bucket.DomainName
+            S3OriginConfig: { }
+        Enabled: true
+        HttpVersion: 'http2'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          Compress: 'false'
+          DefaultTTL: 86400
+          MaxTTL: 31536000
+          MinTTL: 0
+          SmoothStreaming: 'false'
+          TargetOriginId: !Ref Bucket
+          ForwardedValues:
+            QueryString: 'false'
+          ViewerProtocolPolicy: 'allow-all'
+          FunctionAssociations:
+            - EventType: viewer-response
+              FunctionARN: !GetAtt CORSFunction.FunctionMetadata.FunctionARN
+
+Outputs:
+  CORSFunctionARN:
+    Description: "ARN"
+    Value: !GetAtt CORSFunction.FunctionMetadata.FunctionARN
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8137"
