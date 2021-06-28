@@ -1,7 +1,7 @@
 Description: (SO8145) redirect-based-on-country is a CloudFront Function which redirects a user to a country-specific version of a site based on the country of the user
 
 Resources:
-  CORSFunction:
+  RedirectFunction:
     Type: AWS::CloudFront::Function
     Properties:
       Name: redirect-based-on-country

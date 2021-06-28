@@ -1,7 +1,7 @@
 Description: (SO8142) add-cache-control-header is a CloudFront Function which adds a Cache-Control header for the browser so that content can be cached locally in the browser
   
 Resources:
-  CORSFunction:
+  AddCacheControlFunction:
     Type: AWS::CloudFront::Function
     Properties:
       Name: add-cache-control-header

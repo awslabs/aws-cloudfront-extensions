@@ -1,6 +1,6 @@
 baseURL = "https://awslabs.github.io/aws-cloudfront-extensions/"
 languageCode = "en-us"
-title = "CloudFront+"
+title = "CloudFront Extensions"
 theme = "hugo-theme-learn"
 contentDir = "../docs"
 canonifyURLs = true

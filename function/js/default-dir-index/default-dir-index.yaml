@@ -1,7 +1,7 @@
 Description: (SO8134) default-dir-index is a CloudFront Function which appends index.html to the end of URLs that don't include a filename or extension
   
 Resources:
-  CORSFunction:
+  AddIndexFunction:
     Type: AWS::CloudFront::Function
     Properties:
       Name: default-dir-index
