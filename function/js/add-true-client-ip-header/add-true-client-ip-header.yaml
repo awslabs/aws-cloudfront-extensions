@@ -1,0 +1,27 @@
+Description: (SO8144) add-true-client-ip-header is a CloudFront Function which adds a True-Client-IP header to include the IP address of a client connecting to CloudFront. Without this header, connections from CloudFront to your origin contain the IP address of the CloudFront server making the request to your origin, not the IP address of the client connected to CloudFront.
+
+Resources:
+  CORSFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: add-true-client-ip-header
+      AutoPublish: true
+      FunctionConfig:
+        Comment: add-true-client-ip-header
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            var clientIP = event.viewer.ip;
+
+            //Add the true-client-ip header to the incoming request
+            request.headers['true-client-ip'] = {value: clientIP};
+
+            return request;
+        }
+
+
+Outputs:
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8144"
