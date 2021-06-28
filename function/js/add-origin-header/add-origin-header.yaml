@@ -1,0 +1,29 @@
+Description: (SO8143) add-origin-header is a CloudFront Function which adds a Cache-Control header for the browser so that content can be cached locally in the browser
+
+Resources:
+  CORSFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: add-origin-header
+      AutoPublish: true
+      FunctionConfig:
+        Comment: add-origin-header
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            var headers = request.headers;
+            var host = request.headers.host.value;
+
+            // If origin header is missing, set it equal to the host header.
+            if (!headers.origin)
+                headers.origin = {value:`https://${host}`};
+
+            return request;
+        }
+
+
+Outputs:
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8143"
