@@ -1,6 +1,6 @@
 # Add Security Headers by CloudFront Function
 
-The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all of the desired security headers in responses sent to your clients. This CloudFront Function will add several response headers to enable web browsers security features.
+The client-side security features are usually enabled and configured by HTTP response headers sent by a web server. However, a web server may not include all the desired security headers in responses sent to your clients. This CloudFront Function will add several response headers to enable web browsers security features.
 
 You can use https://observatory.mozilla.org/ and scan the CloudFront distribution for security vulnerabilities.
 
@@ -30,7 +30,7 @@ This project contains source code and supporting files for a serverless applicat
 To deploy the stack, you can either use UI or AWS CLI
 
 ### UI
-Go to [CloudFront Extensions Workshop](https://awslabs.github.io/aws-cloudfront-extensions/#cloudfront-function), find the CloudFront Function you would like to deploy and click **Deploy** button.
+Go to [CloudFront Extensions Workshop](https://awslabs.github.io/aws-cloudfront-extensions/#cloudfront-function), find the CloudFront Function and click **Deploy** button.
 
 
 ### AWS CLI

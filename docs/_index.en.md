@@ -46,8 +46,9 @@ CloudFront Extensions offers production level Lambda@Edge and CloudFront Functio
 #### CloudFront Function
 |    **Name**   | **Description**    | **Deploy** |
 |------------------|--------------------|----------------|
-| [Add Security Headers](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers) | Support CORS(Cross Origin Resource Sharing) by CloudFront Function. | [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml) |
+| [Add Security Headers](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers) | Add several response headers to enable web browsers security features. | [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml) |
 | [Cross Origin Resource Sharing](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/cross-origin-resource-sharing) | Support CORS(Cross Origin Resource Sharing) by CloudFront Function. | [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cross-origin-resource-sharing&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcross-origin-resource-sharing.yaml) |
+| [Add Cache Control Headers](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-cache-control-header) | Add a Cache-Control header for the browser so that content can be cached locally in the browser. | [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-cache-control-header&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-cache-control-header.yaml) |
 
 
 
