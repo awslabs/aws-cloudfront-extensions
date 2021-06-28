@@ -14,7 +14,13 @@ The user is able to add below three headers to enable CORS in viewer response
 
 ## Deployment
 
-To deploy the stack, use the AWS CLI
+To deploy the stack, you can either use UI or AWS CLI
+
+### UI
+Go to [CloudFront Extensions Workshop](https://awslabs.github.io/aws-cloudfront-extensions/#cloudfront-function), find the CloudFront Function you would like to deploy and click **Deploy** button.
+
+
+### AWS CLI
 
 ```bash
 aws cloudformation deploy --template-file template.yaml --stack-name cross-origin-resource-sharing 

@@ -46,7 +46,10 @@ CloudFront Extensions offers production level Lambda@Edge and CloudFront Functio
 #### CloudFront Function
 |    **Name**   | **Description**    | **Deploy** |
 |------------------|--------------------|----------------|
+| [Add Security Headers](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers) | Support CORS(Cross Origin Resource Sharing) by CloudFront Function. | [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml) |
 | [Cross Origin Resource Sharing](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/cross-origin-resource-sharing) | Support CORS(Cross Origin Resource Sharing) by CloudFront Function. | [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cross-origin-resource-sharing&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcross-origin-resource-sharing.yaml) |
+
+
 
 
 ### One-Click to deploy commonly used CloudFront solutions
