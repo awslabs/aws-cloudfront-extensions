@@ -2,9 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   (SO8102) 
-  add-security-headers-cff
+  add-security-headers
 
-  The CloudFront Function will add security headers to enforce https.
+  The CloudFront Function will add security headers to enable web browsers security features
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -17,9 +17,9 @@ Resources:
   AddSecurityHeaderFunction:
     Type: AWS::CloudFront::Function
     Properties: 
-      AutoPublish: false
+      AutoPublish: true
       FunctionConfig:
-        Comment: add-security-headers-cff
+        Comment: add-security-headers
         Runtime: cloudfront-js-1.0      
       FunctionCode: |
         function handler(event) {
@@ -34,7 +34,7 @@ Resources:
             
             return response;
         }
-      Name: add-security-headers-cff
+      Name: add-security-headers
 
 
 Outputs:

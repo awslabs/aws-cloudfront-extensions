@@ -21,49 +21,8 @@ Resources:
             return response;
         }
 
-  Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: 'aws:kms'
-
-  CloudFrontDistribution:
-    Type: 'AWS::CloudFront::Distribution'
-    DependsOn:
-      - Bucket
-      - CORSFunction
-    Properties:
-      DistributionConfig:
-        Comment: 'CloudFront Distribution associated with CloudFront Function'
-        Origins:
-          - Id: !Ref Bucket
-            DomainName: !GetAtt Bucket.DomainName
-            S3OriginConfig: { }
-        Enabled: true
-        HttpVersion: 'http2'
-        DefaultCacheBehavior:
-          AllowedMethods:
-            - GET
-            - HEAD
-          Compress: 'false'
-          DefaultTTL: 86400
-          MaxTTL: 31536000
-          MinTTL: 0
-          SmoothStreaming: 'false'
-          TargetOriginId: !Ref Bucket
-          ForwardedValues:
-            QueryString: 'false'
-          ViewerProtocolPolicy: 'allow-all'
-          FunctionAssociations:
-            - EventType: viewer-response
-              FunctionARN: !GetAtt CORSFunction.FunctionMetadata.FunctionARN
 
 Outputs:
-  CORSFunctionARN:
-    Description: "ARN"
-    Value: !GetAtt CORSFunction.FunctionMetadata.FunctionARN
   SolutionId:
     Description: "Solution id"
     Value: "SO8137"
