@@ -22,7 +22,8 @@ To enable web browsers security features in all scenarios.
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- add-security-headers.yaml - A template that defines the application's AWS resources with add-security-headers-cff code.
+- add-security-headers.yaml - CloudFormation template that will create add-security-headers CloudFront Function.
+- template.yaml - SAM(Serverless Application Model) template, can be deployed by executing command `sam deploy`
 
 
 ## Deployment

@@ -12,6 +12,14 @@ The user is able to add below three headers to enable CORS in viewer response
 - Access-Control-Allow-Headers
 - Access-Control-Allow-Methods
 
+## Project Structure
+
+It includes the following files and folders.
+
+- cross-origin-resource-sharing.yaml - CloudFormation template that will create cross-origin-resource-sharing CloudFront Function.
+- cross-origin-resource-sharing-with-cloudfront.yaml - it will not only deploy the CloudFront Function, but deploy a CloudFront distribution associated with the CloudFront Function. 
+
+
 ## Deployment
 
 To deploy the stack, you can either use UI or AWS CLI
