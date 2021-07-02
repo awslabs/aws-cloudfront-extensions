@@ -28,6 +28,8 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: 'aws:kms'
+      VersioningConfiguration:
+        Status: Enabled
 
   CloudFrontDistribution:
     Type: 'AWS::CloudFront::Distribution'
