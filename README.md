@@ -12,22 +12,10 @@ Ultimately, we want to provide out-of-box experience from three dimensions
 
 <img src='docs/images/aws-cloudfront-extensions.png'>
 
-## Lambda@Edge
-* **One stop to find Lambda@Edge scripts for various use cases**
+## Lambda@Edge & CloudFront Function
+* **One stop to find Lambda@Edge and CloudFront Function scripts for various use cases**
 
-This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge service is available), and help you to simplify global CloudFront configuration via Lambda function scripts. You can not only checkout Lambda@Edge scripts from this GitHub repo, but also can directly deploy them from public [Serverless Application Repository(SAR)](https://serverlessrepo.aws.amazon.com/applications) into your AWS Console without coding.
-
-|        **Catelog** | **Description**      |
-|------------------|--------------------|
-|  [*Authentication*](docs/LambdaEdge.md#authentication)  | Authenticating by Cognito or third-party native library, add security information into HTTP headers, etc. |
-|   [*Validation*](docs/LambdaEdge.md#validation)  |  Validating specific parameters from HTTP request, such as check request token through MD5, etc.             |
-|   [*URL Rewrite*](docs/LambdaEdge.md#url-rewrite) | All functions are related to rewrite URL in various ways.             |
-|   [*URL Redirect*](docs/LambdaEdge.md#url-redirect) |  All functions are related to redirect URL in as many as possible way.              |
-|   [*Override Request*](docs/LambdaEdge.md#override-request) | Access, modify and override HTTP request, or even change further behavior.            |
-|   [*Override Response*](docs/LambdaEdge.md#override-response) | Generate, modify and override HTTP response for viewer request or origin request event.               |
-|   [*Origin Selection*](docs/LambdaEdge.md#origin-selection) | Route to different origins based on information in the request, or even warm up from origin.               |
-|   [*Personalize Content*](docs/LambdaEdge.md#personalize-content) | Personalize the content as per requirement, such as resize the pictures.              |
-|   [*Security*](docs/LambdaEdge.md#security) | All functions are related secure perspective, such as anti-leeching, etc.           |
+This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge and CloudFront Function services are available), and help you to simplify global CloudFront configuration via Lambda functions. You can directly deploy them from the [workshop](https://awslabs.github.io/aws-cloudfront-extensions/).
 
 
 ## CloudFront Quick Start
