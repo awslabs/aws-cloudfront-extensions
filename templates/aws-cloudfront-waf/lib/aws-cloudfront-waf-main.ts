@@ -15,6 +15,11 @@ import * as s3n from '@aws-cdk/aws-s3-notifications';
 import * as cr from '@aws-cdk/custom-resources';
 import { CustomResource } from '@aws-cdk/core';
 
+export enum Waf2ScopeOption {
+  CLOUDFRONT = 'CLOUDFRONT',
+  REGIONAL = 'REGIONAL',
+}
+
 export class AwsCloudfrontWafStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps = {}) {
     super(scope, id, props);
@@ -68,7 +73,9 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     const wafLogBucket = new s3.Bucket(this, "WafLogBucket", {
       bucketName: wafLogBucketName.valueAsString,
       publicReadAccess: false,
-      encryption: s3.BucketEncryption.KMS_MANAGED
+      encryption: waf2Scope.valueAsString == Waf2ScopeOption.CLOUDFRONT
+          ? s3.BucketEncryption.KMS_MANAGED
+          : s3.BucketEncryption.S3_MANAGED,
     });
 
     const accessLogBucket = new s3.Bucket(this, "AccessLogBucket", {
@@ -603,7 +610,8 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "MAX_AGE_TO_UPDATE": "30",
         "REGION": "AWS::Region",
         "SCOPE": waf2Scope.valueAsString,
-        "LOG_TYPE": "cloudfront",
+        "LOG_TYPE": 
+          waf2Scope.valueAsString == Waf2ScopeOption.CLOUDFRONT ? 'cloudfront' : 'alb',
         "METRIC_NAME_PREFIX": cdk.Fn.ref("AWS::StackName"),
         "LOG_LEVEL": logLevel,
         "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
@@ -631,7 +639,10 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       memorySize: 512,
       timeout: cdk.Duration.seconds(300),
       environment: {
-        "ENDPOINT": "CloudFront",
+        "ENDPOINT": 
+          waf2Scope.valueAsString == Waf2ScopeOption.CLOUDFRONT
+              ? 'CloudFront'
+              : 'Alb',
         "KEEP_ORIGINAL_DATA": "No",
         "LOG_LEVEL": logLevel
       },
@@ -733,7 +744,10 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
         "SOLUTION_ID": "SO8128",
         "METRICS_URL": "https://metrics.awssolutionsbuilder.com/generic",
         "STACK_NAME": cdk.Fn.ref("AWS::StackName"),
-        "LOG_TYPE": "cloudfront",
+        "LOG_TYPE":
+          waf2Scope.valueAsString == Waf2ScopeOption.CLOUDFRONT
+              ? 'cloudfront'
+              : 'alb',
         "SEND_ANONYMOUS_USAGE_DATA": "No",
         "IPREPUTATIONLIST_METRICNAME": reputationListName,
       }
@@ -1108,125 +1122,293 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     //   serializationLibrary: new glue.SerializationLibrary('org.openx.data.jsonserde.JsonSerDe'),
     // });
 
-    const glueAppAccessLogsTable = new glue.CfnTable(this, 'glueAppAccessLogsTable', {
-      databaseName: glueAccessLogsDatabase.databaseName,
-      catalogId: this.account,
-      tableInput: {
-        name: "app_access_logs",
-        description: this.stackName + ' - APP Access Logs',
-        parameters: {
-          "skip.header.line.count": "2",
-          "EXTERNAL": "TRUE",
-        },
-        storageDescriptor: {
-          columns: [{
-            name: 'date',
-            type: glue.Schema.DATE.inputString
-          }, {
-            name: 'time',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'location',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'bytes',
-            type: glue.Schema.BIG_INT.inputString
-          }, {
-            name: 'requestip',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'method',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'host',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'uri',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'status',
+    if (waf2Scope.valueAsString == Waf2ScopeOption.CLOUDFRONT) {
+      const glueAppAccessLogsTable = new glue.CfnTable(this, 'glueAppAccessLogsTable', {
+        databaseName: glueAccessLogsDatabase.databaseName,
+        catalogId: this.account,
+        tableInput: {
+          name: "app_access_logs",
+          description: this.stackName + ' - APP Access Logs',
+          parameters: {
+            "skip.header.line.count": "2",
+            "EXTERNAL": "TRUE",
+          },
+          storageDescriptor: {
+            columns: [{
+              name: 'date',
+              type: glue.Schema.DATE.inputString
+            }, {
+              name: 'time',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'location',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'bytes',
+              type: glue.Schema.BIG_INT.inputString
+            }, {
+              name: 'requestip',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'method',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'host',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'uri',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'status',
+              type: glue.Schema.INTEGER.inputString
+            }, {
+              name: 'referrer',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'useragent',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'querystring',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'cookie',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'resulttype',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'requestid',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'hostheader',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'requestprotocol',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'requestbytes',
+              type: glue.Schema.BIG_INT.inputString
+            }, {
+              name: 'timetaken',
+              type: glue.Schema.FLOAT.inputString
+            }, {
+              name: 'xforwardedfor',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'sslprotocol',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'sslcipher',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'responseresulttype',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'httpversion',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'filestatus',
+              type: glue.Schema.STRING.inputString
+            }, {
+              name: 'encryptedfields',
+              type: glue.Schema.INTEGER.inputString
+            }],
+            compressed: false,
+            inputFormat: "org.apache.hadoop.mapred.TextInputFormat",
+            location: 's3://' + accessLogBucket.bucketName + '/AWSLogs-Partitioned/',
+            outputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+            serdeInfo: {
+              serializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+              parameters: {
+                "field.delim": "	",
+                "serialization.format": "	",
+              }
+            },
+            storedAsSubDirectories: false
+          },
+          tableType: "EXTERNAL_TABLE",
+          partitionKeys: [{
+            name: 'year',
             type: glue.Schema.INTEGER.inputString
           }, {
-            name: 'referrer',
-            type: glue.Schema.STRING.inputString
+            name: 'month',
+            type: glue.Schema.INTEGER.inputString
           }, {
-            name: 'useragent',
-            type: glue.Schema.STRING.inputString
+            name: 'day',
+            type: glue.Schema.INTEGER.inputString
           }, {
-            name: 'querystring',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'cookie',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'resulttype',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'requestid',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'hostheader',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'requestprotocol',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'requestbytes',
-            type: glue.Schema.BIG_INT.inputString
-          }, {
-            name: 'timetaken',
-            type: glue.Schema.FLOAT.inputString
-          }, {
-            name: 'xforwardedfor',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'sslprotocol',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'sslcipher',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'responseresulttype',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'httpversion',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'filestatus',
-            type: glue.Schema.STRING.inputString
-          }, {
-            name: 'encryptedfields',
+            name: 'hour',
             type: glue.Schema.INTEGER.inputString
           }],
-          compressed: false,
-          inputFormat: "org.apache.hadoop.mapred.TextInputFormat",
-          location: 's3://' + accessLogBucket.bucketName + '/AWSLogs-Partitioned/',
-          outputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
-          serdeInfo: {
-            serializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
-            parameters: {
-              "field.delim": "	",
-              "serialization.format": "	",
-            }
+        }
+      });
+    } else {
+      const glueAppAccessLogsTable = new glue.CfnTable(this, 'glueAppAccessLogsTable', {
+        databaseName: glueAccessLogsDatabase.databaseName,
+        catalogId: cdk.Aws.ACCOUNT_ID,
+        tableInput: {
+          name: 'app_access_logs',
+          description: this.stackName + ' - APP Access Logs',
+          parameters: {
+            EXTERNAL: 'TRUE',
           },
-          storedAsSubDirectories: false
+          storageDescriptor: {
+            columns: [
+              {
+                name: 'type',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'time',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'elb',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'client_ip',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'client_port',
+                type: glue.Schema.INTEGER.inputString,
+              },
+              {
+                name: 'target_ip',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'target_port',
+                type: glue.Schema.INTEGER.inputString,
+              },
+              {
+                name: 'request_processing_time',
+                type: glue.Schema.DOUBLE.inputString,
+              },
+              {
+                name: 'target_processing_time',
+                type: glue.Schema.DOUBLE.inputString,
+              },
+              {
+                name: 'response_processing_time',
+                type: glue.Schema.DOUBLE.inputString,
+              },
+              {
+                name: 'elb_status_code',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'target_status_code',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'received_bytes',
+                type: glue.Schema.BIG_INT.inputString,
+              },
+              {
+                name: 'sent_bytes',
+                type: glue.Schema.BIG_INT.inputString,
+              },
+              {
+                name: 'request_verb',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'request_url',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'request_proto',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'user_agent',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'ssl_cipher',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'ssl_protocol',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'target_group_arn',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'trace_id',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'domain_name',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'chosen_cert_arn',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'matched_rule_priority',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'request_creation_time',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'actions_executed',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'redirect_url',
+                type: glue.Schema.STRING.inputString,
+              },
+              {
+                name: 'error_reason',
+                type: glue.Schema.STRING.inputString,
+              },
+            ],
+            compressed: false,
+            inputFormat: 'org.apache.hadoop.mapred.TextInputFormat',
+            location:
+              's3://' + accessLogBucket.bucketName + '/AWSLogs-Partitioned/',
+            outputFormat:
+              'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat',
+            serdeInfo: {
+              serializationLibrary: 'org.apache.hadoop.hive.serde2.RegexSerDe',
+              parameters: {
+                'serialization.format': '1',
+                'input.regex':
+                  '([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*):([0-9]*) ([^ ]*)[:-]([0-9]*) ([-.0-9]*) ([-.0-9]*) ([-.0-9]*) (|[-0-9]*) (-|[-0-9]*) ([-0-9]*) ([-0-9]*) "([^ ]*) ([^ ]*) (- |[^ ]*)" "([^"]*)" ([A-Z0-9-]+) ([A-Za-z0-9.-]*) ([^ ]*) "([^"]*)" "([^"]*)" "([^"]*)" ([-.0-9]*) ([^ ]*) "([^"]*)" "([^ ]*)" "([^ ].*)"',
+              },
+            },
+            storedAsSubDirectories: false,
+          },
+          tableType: 'EXTERNAL_TABLE',
+          partitionKeys: [
+            {
+              name: 'year',
+              type: glue.Schema.INTEGER.inputString,
+            },
+            {
+              name: 'month',
+              type: glue.Schema.INTEGER.inputString,
+            },
+            {
+              name: 'day',
+              type: glue.Schema.INTEGER.inputString,
+            },
+            {
+              name: 'hour',
+              type: glue.Schema.INTEGER.inputString,
+            },
+          ],
         },
-        tableType: "EXTERNAL_TABLE",
-        partitionKeys: [{
-          name: 'year',
-          type: glue.Schema.INTEGER.inputString
-        }, {
-          name: 'month',
-          type: glue.Schema.INTEGER.inputString
-        }, {
-          name: 'day',
-          type: glue.Schema.INTEGER.inputString
-        }, {
-          name: 'hour',
-          type: glue.Schema.INTEGER.inputString
-        }],
-      }
-    });
+      });
+    }
 
     //Athena
     const addPartitionAthenaQueryWorkGroup = new athena.CfnWorkGroup(this, 'WAFAddPartitionAthenaQueryWorkGroup', {
