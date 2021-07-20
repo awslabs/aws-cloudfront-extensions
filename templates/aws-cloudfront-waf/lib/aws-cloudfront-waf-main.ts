@@ -1245,7 +1245,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     } else {
       const glueAppAccessLogsTable = new glue.CfnTable(this, 'glueAppAccessLogsTable', {
         databaseName: glueAccessLogsDatabase.databaseName,
-        catalogId: cdk.Aws.ACCOUNT_ID,
+        catalogId: this.account,
         tableInput: {
           name: 'app_access_logs',
           description: this.stackName + ' - APP Access Logs',
