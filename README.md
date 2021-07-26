@@ -1,34 +1,49 @@
-# AWS CloudFront Extensions
+# CloudFront Extensions
 
-It's a valueable collection when using CloudFront, which includes rich set of featured Lambda@Edge, CloudFormation template for deployment of various scenarios and full monitoring solution. We tried to provide out-of-box experiences, such as install featured Lambda@Edge to enhance capability of CloudFornt, setup distribution through prepared CloudFormation templates, build up observability by leveraging monitoring solution.
+[中文]() | [English]()
 
+
+
+“CloudFront Extensions” GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using [Lambda@Edge](https://aws.amazon.com/lambda/edge/) and [Amazon CloudFront](https://aws.amazon.com/cloudfront/). 
+
+
+## Overview
+Ultimately, we want to provide out-of-box experience from three dimensions
+
+<img src='docs/images/aws-cloudfront-extensions.png'>
+
+## Lambda@Edge & CloudFront Function
+* **One stop to find Lambda@Edge and CloudFront Function scripts for various use cases**
+
+This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge and CloudFront Function services are available), and help you to simplify global CloudFront configuration via Lambda functions. You can directly deploy them from the [workshop](https://awslabs.github.io/aws-cloudfront-extensions/).
 
 
 ## CloudFront Quick Start
 
-|        Name    | Version | Description      |
-|----------------|---------|------------------|
-| WAF + CloudFront | v0.1.0 |   Prepared templates to quickly launch distribution and pre-configured rules.   | 
+* **One-Click to deploy commonly used CloudFront solutions**
+
+This project offers common solutions for using CloudFront. These solutions are provided in form of pre-baked [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates. With 1-click, you can have solution launched into your own AWS console. 
+
+|        **Name**    | **Description**      |
+|------------------|--------------------|
+| [WAF & Shield Deployment for CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood, SQL injection, XSS, Bad bot, etc.   | 
 
 
-## Lambda@Edge
-|        Name    | Version | Description      |
-|----------------|---------|------------------|
-| Simple Lambda@Edge| [v0.1.0](edge/nodejs/simple-lambda-edge) | The sample template for NodeJs Lambda@Edge.|
-| Athentication with Cognito| v0.1.0 | The Lambda@Edge invoke Cognito as athentication service.|
-| Redirect based on USER-AGENT | v0.1.0 | The Lambda@Edge redirect viewer request to a specific URL based on USER-AGENT.|
-| Rewrite URL based on USER-AGENT | v0.1.0 | The Lambda@Edge rewrite the URL of viewer request baseed on USER-AGENT.|
-| Rewrite URL based on cookies | v0.1.0 | The Lambda@Edge rewrite the URL of viewer request baseed on cookies.|
-| Rewrite URL based on geolication | v0.1.0 | The Lambda@Edge rewrite the URL of viewer request baseed on geolication.|
-| Query string to headers | v0.1.0 | The Lambda@Edge converts the query string of viewer request into headers.|
-| Standardize query string to optimize caching | v0.1.0 | If you configure CloudFront to cache based on query string parameters, this Lambda@Edge can improve caching through standardizing query string.|
 
 ## Observability
 
+* **Out-of-box experience when integrating with external monitoring system** 
+
+This project also provides out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system.
 
 
+|        *Name*    | *Description*      |
+|------------------|--------------------|
+| End-to-end monitoring | Centralized logs management solution and built-in dashboards on top of ElasticSearch, collecting file & real-time logs from CloudFront and related services.   | 
 
+## Tutorial
 
+To get started, please find the step-by-step workshop material here: https://awslabs.github.io/aws-cloudfront-extensions/
 
 ## Contribution
 
@@ -37,3 +52,4 @@ See [CONTRIBUTING](./CONTRIBUTING.md) for more information.
 ## License
 
 This project is licensed under the Apache-2.0 License.
+

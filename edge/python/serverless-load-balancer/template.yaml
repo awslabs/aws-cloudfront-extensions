@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8139)
+  Serverless Load Balancer
+  This solution will load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: serverless-load-balancer
+    Description: Load balance for your origin via Lambda@Edge which is deployed on CloudFront origin request
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/serverless-load-balancer
+
+
+Parameters:
+  EnvType:
+    Description: Environment type.
+    Default: test
+    Type: String
+    AllowedValues:
+      - prod
+      - test
+    ConstraintDescription: must specify prod or test.
+Conditions:
+  CreateProdResources: !Equals
+    - !Ref EnvType
+    - prod
+
+Resources:
+  ServerLoadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: alias/aws/sqs
+
+  LoadTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: ip
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
+
+  LoadBalancerParameter:
+    Type: AWS::SSM::Parameter
+    Condition: CreateProdResources
+    Properties:
+      Name: target_param
+      Type: String
+      Value: '{"asg_table":"sam-alb-LoadTable-LFGPE5B2YMY9","asg_name":"target_asg_name","load_balancer_metric":"network_out"}'
+      Description: SSM Parameter for running date command.
+      Tags:
+        Environment: prod
+
+  ServerLoadReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: serverless-load-balancer/server_load_report_function/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref LoadTable
+        - Statement:
+            - Action:
+                - ssm:GetParameter
+              Effect: Allow
+              Resource: '*'
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ServerLoadQueue.Arn
+
+  LambdaEdgeBalancerFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+
+  LambdaEdgeBalancerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: serverless-load-balancer/lambda_edge_load_balancer_function/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt LambdaEdgeBalancerFunctionRole.Arn
+
+Outputs:
+  LambdaEdgeBalancerFunction:
+    Description: Lambda@Edge Function ARN
+    Value: !GetAtt LambdaEdgeBalancerFunction.Arn
+  ServerLoadReportFunction:
+    Description: Server Load Report Lambda Function Arn
+    Value: !GetAtt ServerLoadReportFunction.Arn
+  ServerLoadQueue:
+    Description: ServerLoad SQS
+    Value: !GetAtt ServerLoadQueue.QueueName
+  LoadTable:
+    Description: LoadTable
+    Value: !GetAtt LoadTable.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8139"

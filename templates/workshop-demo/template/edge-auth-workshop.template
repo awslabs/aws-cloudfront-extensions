@@ -1,0 +1,207 @@
+Description: >
+  Authorization@Edge - Using Lambda@Edge and JSON Web Tokens to Enhance Web Application Security sample template
+  You will be billed for the AWS resources used if you create a stack from this template.
+  **NOTICE** Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may not use this file except in compliance with the License.
+  A copy of the License is located at http://www.apache.org/licenses/LICENSE-2.0 or in the "license" file accompanying this file.
+  This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+  either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+Parameters:
+  ArtifactsBucket:
+    Description: S3 bucket with artifact files (Lambda functions, html files, JS code, etc.)
+    Type: String
+    Default: cloudfront-blog-resources
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: ArtifactsBucket S3 bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).
+  ArtifactsPrefix:
+    Description: Path in the S3 bucket containing artifact files
+    Type: String
+    Default: authorization-lambda-at-edge/
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: TemplatesPrefix key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
+  TemplatesBucket:
+    Description: S3 bucket with CloudFormation templates for nested stacks
+    Type: String
+    Default: cloudfront-blog-resources
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: TemplatesBucket S3 bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).
+  TemplatesPrefix:
+    Description: Path in the S3 bucket containing CloudFormation templates
+    Type: String
+    Default: authorization-lambda-at-edge/
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: TemplatesPrefix key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
+
+Resources:
+
+
+  CFOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: CloudFrontOAI
+
+  S3BucketPrivate:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-origin-private-${AWS::AccountId}'
+      CorsConfiguration:
+        CorsRules:
+          -
+            AllowedOrigins:
+              - 'http*'
+            AllowedMethods:
+              - HEAD
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedHeaders:
+              - '*'
+            ExposedHeaders:
+              - ETag
+              - x-amz-meta-custom-header
+
+  S3BucketPolicyPrivate:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketPrivate
+      PolicyDocument:
+        Statement:
+          -
+            Effect: Allow
+            Action: s3:GetObject
+            Principal:
+              CanonicalUser: !GetAtt CFOriginAccessIdentity.S3CanonicalUserId
+            Resource: !Sub 'arn:aws:s3:::${S3BucketPrivate}/*'
+
+
+  S3BucketPublic:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-origin-public-${AWS::AccountId}'
+      CorsConfiguration:
+        CorsRules:
+          -
+            AllowedOrigins:
+              - 'http*'
+            AllowedMethods:
+              - HEAD
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedHeaders:
+              - '*'
+            ExposedHeaders:
+              - ETag
+              - x-amz-meta-custom-header
+
+  S3BucketPolicyPublic:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketPublic
+      PolicyDocument:
+        Statement:
+          -
+            Effect: Allow
+            Action: s3:GetObject
+            Principal:
+              CanonicalUser: !GetAtt CFOriginAccessIdentity.S3CanonicalUserId
+            Resource: !Sub 'arn:aws:s3:::${S3BucketPublic}/*'
+
+  CFDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: 'true'
+        Comment : Auth at Edge Test Distro
+        DefaultRootObject: index.html
+        Origins:
+          -
+            Id: S3OriginPrivate
+            DomainName: !GetAtt S3BucketPrivate.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CFOriginAccessIdentity}
+          -
+            Id: S3OriginPublic
+            DomainName: !GetAtt S3BucketPublic.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CFOriginAccessIdentity}
+        DefaultCacheBehavior:
+          TargetOriginId: S3OriginPublic
+          ForwardedValues:
+            QueryString: 'false'
+            Headers:
+              - Origin
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+          - PathPattern: 'private/*'
+            TargetOriginId: S3OriginPrivate
+            ForwardedValues:
+              QueryString: 'false'
+              Headers:
+                - Origin
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          - PathPattern: 'public/*'
+            TargetOriginId: S3OriginPublic
+            ForwardedValues:
+              QueryString: 'false'
+              Headers:
+                - Origin
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+
+  CognitoUserPool:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${TemplatesBucket}/${TemplatesPrefix}cognito-user-pool.template
+      Parameters:
+        BaseUrl:            !GetAtt CFDistribution.DomainName
+        Environment:        !Ref AWS::StackName
+
+  PopulateS3Buckets:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${TemplatesBucket}/${TemplatesPrefix}populate-s3-bucket.template
+      Parameters:
+        UserPoolId:         !GetAtt CognitoUserPool.Outputs.UserPoolId
+        ClientId:           !GetAtt CognitoUserPool.Outputs.ClientId
+        BaseUrl:            !GetAtt CFDistribution.DomainName
+        PublicBucket:       !Ref S3BucketPublic
+        PrivateBucket:      !Ref S3BucketPrivate
+        PublicPrefix:       ''
+        PrivatePrefix:      'private/'
+        PublicContentUrl:   !Sub 'http://${ArtifactsBucket}.s3.amazonaws.com/${ArtifactsPrefix}public.zip'
+        PrivateContentUrl:  !Sub 'http://${ArtifactsBucket}.s3.amazonaws.com/${ArtifactsPrefix}private.zip'
+        ConfigFile:         'js/config.js'
+
+
+Outputs:
+  PrivateS3BucketName:
+    Description: Private S3 Bucket Name
+    Value: !Ref S3BucketPrivate
+  PublicS3BucketName:
+    Description: Public S3 Bucket Name
+    Value: !Ref S3BucketPublic
+  CognitoUserPool:
+    Description: User pool contains user credentials.  For cleanup, delete Domain Name first, then delete the user pool.
+    Value: !Sub https://console.aws.amazon.com/cognito/users/?region=${AWS::Region}#/pool/${CognitoUserPool.Outputs.UserPoolId}
+  CognitoUserPoolId:
+    Description: User pool id
+    Value: !Sub ${CognitoUserPool.Outputs.UserPoolId}
+  CloudFrontDistribution:
+    Description: Edit CloudFront distribution settings
+    Value: !Sub 'https://console.aws.amazon.com/cloudfront/home?region=${AWS::Region}#distribution-settings:${CFDistribution}'
+  DemoUrl:
+    Description: Click here to test your Authorization @Edge stack
+    Value: !Sub 'https://${CFDistribution.DomainName}/index.html'

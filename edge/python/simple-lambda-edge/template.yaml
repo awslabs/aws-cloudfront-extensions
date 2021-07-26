@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8100)
+  simple-lambda-edge
+
+  Sample SAM Template for simple-lambda-edge
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: simple-lambda-edge
+    Description: Sample SAM Template for simple-lambda-edge
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/lambda-edge-collection-for-cloudfront/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/simple-lambda-edge
+      
+Resources:
+  
+  SimpleLambdaEdgeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: simple-lambda-edge/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+
+Outputs:
+  SimpleLambdaEdgeFunction:
+    Description: "Simple Lambda Edge function ARN"
+    Value: !GetAtt SimpleLambdaEdgeFunction.Arn
+  SimpleLambdaEdgeFunctionIamRole:
+    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8100"

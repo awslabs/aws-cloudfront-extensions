@@ -1,0 +1,30 @@
+Description: (SO8102) add-security-headers will add security headers to enable web browsers security features
+  
+Resources:
+  AddSecurityHeaderFunction:
+    Type: AWS::CloudFront::Function
+    Properties: 
+      AutoPublish: true
+      FunctionConfig:
+        Comment: add-security-headers
+        Runtime: cloudfront-js-1.0      
+      FunctionCode: |
+        function handler(event) {
+            var response = event.response;
+            var headers = response.headers;
+
+            headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload'}; 
+            headers['content-security-policy'] = { value: "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'"}; 
+            headers['x-content-type-options'] = { value: 'nosniff'}; 
+            headers['x-frame-options'] = {value: 'DENY'}; 
+            headers['x-xss-protection'] = {value: '1; mode=block'}; 
+            
+            return response;
+        }
+      Name: add-security-headers
+
+
+Outputs:
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8102"

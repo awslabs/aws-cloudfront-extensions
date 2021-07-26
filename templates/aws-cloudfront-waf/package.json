@@ -1,0 +1,52 @@
+{
+  "name": "aws-cloudfront-waf",
+  "version": "0.1.0",
+  "bin": {
+    "aws-cloudfront-waf": "bin/aws-cloudfront-waf.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "synth": "cdk synth"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "^1.77.0",
+    "@types/jest": "^26.0.10",
+    "@types/node": "10.17.27",
+    "@typescript-eslint/eslint-plugin": "^4.11.1",
+    "@typescript-eslint/parser": "^4.11.1",
+    "aws-cdk": "1.86.0",
+    "eslint": "^7.17.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-import-resolver-typescript": "^2.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigateway": "1.86.0",
+    "@aws-cdk/aws-athena": "1.86.0",
+    "@aws-cdk/aws-certificatemanager": "1.86.0",
+    "@aws-cdk/aws-cloudfront": "1.86.0",
+    "@aws-cdk/aws-cloudwatch": "1.86.0",
+    "@aws-cdk/aws-events": "1.86.0",
+    "@aws-cdk/aws-events-targets": "1.86.0",
+    "@aws-cdk/aws-glue": "1.86.0",
+    "@aws-cdk/aws-iam": "1.86.0",
+    "@aws-cdk/aws-kinesisfirehose": "1.86.0",
+    "@aws-cdk/aws-lambda-event-sources": "1.86.0",
+    "@aws-cdk/aws-route53-targets": "1.86.0",
+    "@aws-cdk/aws-s3": "1.86.0",
+    "@aws-cdk/aws-s3-deployment": "1.86.0",
+    "@aws-cdk/aws-s3-notifications": "1.86.0",
+    "@aws-cdk/aws-wafv2": "1.86.0",
+    "@aws-cdk/core": "1.86.0",
+    "cdk-bootstrapless-synthesizer": "^0.6.40",
+    "path": "^0.12.7",
+    "source-map-support": "^0.5.16"
+  }
+}
