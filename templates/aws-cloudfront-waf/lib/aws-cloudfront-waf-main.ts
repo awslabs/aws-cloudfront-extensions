@@ -940,7 +940,11 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
     //API Gateway for badbot detection
     const badBotApi = new apigateway.RestApi(this, 'ApiGatewayBadBot', {
       restApiName: 'Security Automation - WAF Bad Bot API',
-      description: 'API created by AWS WAF Security Automation CloudFormation template. This endpoint will be used to capture bad bots.'
+      description: 'API created by AWS WAF Security Automation CloudFormation template. This endpoint will be used to capture bad bots.',
+      deployOptions: {
+        loggingLevel: apigateway.MethodLoggingLevel.INFO,
+        dataTraceEnabled: true
+      }
     });
     const integration = new apigateway.LambdaIntegration(badBotParserLambda);
     badBotApi.root.addMethod('ANY', integration, {
