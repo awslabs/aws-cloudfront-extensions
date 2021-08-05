@@ -71,19 +71,6 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
-  PrewarmFunctionPolicy:
-    Type: 'AWS::IAM::Policy'
-    Properties:
-      PolicyName: !Sub ${AWS::StackName}-Policy
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: 'lambda:UpdateFunction*'
-            Resource: !GetAtt PrewarmFunction.Arn
-    Roles:
-      - !Ref PrewarmFunctionRole
-
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     DependsOn: PrewarmFunction
@@ -92,7 +79,13 @@ Resources:
       Handler: index.handler
       Runtime: python3.7
       Timeout: 180
-      Role: !GetAtt PrewarmFunctionRole.Arn
+      Policies:
+        - Statement:
+          - Sid: !Sub ${AWS::StackName}-Policy
+            Effect: Allow
+            Action:
+            - lambda:UpdateFunction*
+            Resource: !GetAtt PrewarmFunction.Arn
 
   UpdateConfigCustom:
     Type: Custom::UpdateConfigCustom
