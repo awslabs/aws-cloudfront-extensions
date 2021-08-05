@@ -81,7 +81,7 @@ Resources:
       Timeout: 180
       Policies:
         - Statement:
-          - Sid: !Sub ${AWS::StackName}-Policy
+          - Sid: PrewarmPolicy 
             Effect: Allow
             Action:
             - lambda:UpdateFunction*
