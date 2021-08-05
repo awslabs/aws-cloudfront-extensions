@@ -1,8 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/anti-hotlinking"
+      "python/prewarm"
     ],
-    "tag": "v1.3.0"
+    "tag": "v1.0.3"
   }
 }
