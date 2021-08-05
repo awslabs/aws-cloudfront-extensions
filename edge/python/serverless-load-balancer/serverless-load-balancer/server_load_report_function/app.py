@@ -3,8 +3,8 @@ from botocore.exceptions import ClientError
 import logging
 import json
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 ssm_client = boto3.client('ssm', region_name='us-east-1')
 target_param = ssm_client.get_parameter(
@@ -24,11 +24,11 @@ def lambda_handler(event, context):
         response = table.put_item(
             Item=item
         )
-        print("asg_name", asg_name)
-        print("table_name", table_name)
-        print(item)
+        logger.info("asg_name", asg_name)
+        logger.info("table_name", table_name)
+        logger.info(item)
         result = response['ResponseMetadata']
         return result
 
     except ClientError as e:
-        logging.error(e)
+        logger.error(e)

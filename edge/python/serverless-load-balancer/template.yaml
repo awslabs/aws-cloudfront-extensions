@@ -65,7 +65,7 @@ Resources:
     Properties:
       CodeUri: serverless-load-balancer/server_load_report_function/
       Handler: app.lambda_handler
-      Runtime: python3.7
+      Runtime: python3.8
       Policies:
         - DynamoDBWritePolicy:
             TableName: !Ref LoadTable
@@ -102,7 +102,7 @@ Resources:
     Properties:
       CodeUri: serverless-load-balancer/lambda_edge_load_balancer_function/
       Handler: app.lambda_handler
-      Runtime: python3.7
+      Runtime: python3.8
       Role: !GetAtt LambdaEdgeBalancerFunctionRole.Arn
 
 Outputs:
