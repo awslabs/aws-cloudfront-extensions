@@ -56,8 +56,7 @@ Resources:
                 - edgelambda.amazonaws.com
             Action: sts:AssumeRole
         ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-          - arn:aws:iam::aws:policy/AWSLambda_FullAccess
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRoles
 
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -66,7 +65,13 @@ Resources:
       CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
       Handler: index.handler
       Runtime: python3.7
-      Role: !GetAtt EdgeFunctionRole.Arn
+      Policies:
+        - Statement:
+          - Sid: AccessOriginByRatePolicy 
+            Effect: Allow
+            Action:
+            - lambda:UpdateFunction*
+            Resource: !GetAtt AccessOriginByRateFunction.Arn
 
   UpdateConfigCustom:
     Type: Custom::UpdateConfigCustom

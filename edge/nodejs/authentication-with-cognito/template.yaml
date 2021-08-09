@@ -61,9 +61,6 @@ Resources:
               - sts:AssumeRole            
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-          # TODO need updateFunction permission
-          - arn:aws:iam::aws:policy/AWSLambda_FullAccess
         
   UpdateEdgeCodeFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -72,7 +69,13 @@ Resources:
       CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-auth-cognito-function.zip'
       Handler: index.handler
       Runtime: python3.7
-      Role: !GetAtt EdgeFunctionRole.Arn
+      Policies:
+        - Statement:
+          - Sid: AuthByCognitoPolicy 
+            Effect: Allow
+            Action:
+            - lambda:UpdateFunction*
+            Resource: !GetAtt AuthenticationByCognito.Arn
 
   UpdateConfigCustom:
     Type: Custom::UpdateConfigCustom
