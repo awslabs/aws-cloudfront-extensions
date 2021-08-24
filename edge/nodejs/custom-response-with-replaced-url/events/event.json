@@ -1,0 +1,66 @@
+{
+  "Records": [
+    {
+      "cf": {
+        "config": {
+          "distributionDomainName": "d1suubh23p2j23.cloudfront.net",
+          "distributionId": "E47R6YG117AJG8",
+          "eventType": "origin-request",
+          "requestId": "EGB0MM8wDDvfNdn_hgOmTji75-yw31g4eX1LWVKLVT29y_H7RjjDzQ=="
+        },
+        "request": {
+          "clientIp": "73.22.198.65",
+          "headers": {
+            "host": [
+              {
+                "key": "Host",
+                "value": "aws-test-bucket.s3.us-east-1.amazonaws.com"
+              }
+            ],
+            "x-forwarded-for": [
+              {
+                "key": "X-Forwarded-For",
+                "value": "10.118.195.44, 10.43.8.6, 72.21.198.65"
+              }
+            ],
+            "user-agent": [
+              {
+                "key": "User-Agent",
+                "value": "Amazon CloudFront"
+              }
+            ],
+            "accept-encoding": [
+              {
+                "key": "Accept-Encoding",
+                "value": "gzip"
+              }
+            ],
+            "upgrade-insecure-requests": [
+              {
+                "key": "Upgrade-Insecure-Requests",
+                "value": "1"
+              }
+            ],
+            "cache-control": [
+              {
+                "key": "Cache-Control",
+                "value": "max-age=0"
+              }
+            ]
+          },
+          "method": "GET",
+          "origin": {
+            "s3": {
+              "authMethod": "none",
+              "customHeaders": {},
+              "domainName": "aws-test-bucket.s3.us-east-1.amazonaws.com",
+              "path": ""
+            }
+          },
+          "querystring": "para1=123&para2=test",
+          "uri": "/index.html"
+        }
+      }
+    }
+  ]
+}

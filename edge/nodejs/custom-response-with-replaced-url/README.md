@@ -1,18 +1,27 @@
-# Multiple Orgin IP Retry
+# Custom Response with Replaced Url 
 
 
-The Lambda@Edge is designed to let customer set multiple candidate IP Addresses to try when the origin failed to fetch the content.
+The Lambda@Edge is designed to replace the response content with a new content. For example, replace the url "www.original.com" to "www.new.com" in the response.
 
 
 ## Description
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- multiple-origin-IP-retry - Code for the application's Lambda function
+- custom-response-with-replaced-url - Code for the application's Lambda function
 - events - Invocation events that you can use to invoke the function.
-- multiple-origin-IP-retry/tests - Unit tests for the application code. 
+- custom-response-with-replaced-url/tests - Unit tests for the application code. 
 - template.yaml - A template that defines the application's AWS resources.
 
+## Architecture Diagram
+
+<img src='../../../docs/images/custom-response-with-replaced-url/custom-response-with-replaced-url.png'>
+
+CloudFront event type for this Lambda@Edge: origin request
+
+## Use Cases
+There are two CloudFront distributions (CloudFront A and CloudFront B), CloudFront A's domain name is "www.origin-domain.com", CloudFront B's domain name is "www.new-domain.com", the Lambda@Edge is deployed on CloudFront B's origin request. Both CloudFront distributions are using the same S3 origin. The content in the S3 bucket is hard-coded with CloudFront A's domain name. 
+The Lambda@Edge is for domain name disasiter recovery. When CloudFront A's domain name(www.origin-domain.com) is not working, the user invokes CloudFront B's domain, the Lambda will call CloudFront A(xxx.cloudfront.net) and replace the www.origin-domain.com with www.new-domain.com. 
 
 
 ## Deployment
@@ -47,17 +56,17 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 Build your application with the `sam build` command.
 
 ```bash
-multiple-origin-IP-retry$ sam build
+custom-response-with-replaced-url$ sam build
 ```
 
-The SAM CLI installs dependencies defined in `multiple-origin-IP-retry/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `custom-response-with-replaced-url/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-multiple-origin-IP-retry$ sam local invoke MultipleOriginIPRetry --event events/event.json
+custom-response-with-replaced-url$ sam local invoke custom-response-with-replaced-url --event events/event.json
 ```
 
 
@@ -71,19 +80,19 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-multiple-origin-IP-retry$ sam logs -n MultipleOriginIPRetry --stack-name multiple-origin-IP-retry --tail
+custom-response-with-replaced-url$ sam logs -n CustomResponseWithReplacedUrl --stack-name custom-response-with-replaced-url --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
 ## Unit tests
 
-Tests are defined in the `multiple-origin-IP-retry/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
+Tests are defined in the `custom-response-with-replaced-url/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-multiple-origin-IP-retry$ cd multiple-origin-IP-retry
-multiple-origin-IP-retry$ npm install
-multiple-origin-IP-retry$ npm run test
+custom-response-with-replaced-url$ cd custom-response-with-replaced-url
+custom-response-with-replaced-url$ npm install
+custom-response-with-replaced-url$ npm run test
 ```
 
 ## Cleanup
@@ -91,7 +100,7 @@ multiple-origin-IP-retry$ npm run test
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name multiple-origin-IP-retry
+aws cloudformation delete-stack --stack-name custom-response-with-replaced-url
 ```
 
 ## Resources

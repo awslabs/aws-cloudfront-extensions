@@ -1018,6 +1018,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
       description: this.stackName + ' - WAF Logs',
       bucket: wafLogBucket,
       s3Prefix: 'AWSLogs/',
+      encryption: glue.TableEncryption.S3_MANAGED,
       columns: [{
         name: 'timestamp',
         type: glue.Schema.BIG_INT
@@ -1114,6 +1115,7 @@ export class AwsCloudfrontWafStack extends cdk.Stack {
 
     const glueAppAccessLogsTable = new glue.CfnTable(this, 'glueAppAccessLogsTable', {
       databaseName: glueAccessLogsDatabase.databaseName,
+      encryption: glue.TableEncryption.S3_MANAGED,
       catalogId: this.account,
       tableInput: {
         name: "app_access_logs",
