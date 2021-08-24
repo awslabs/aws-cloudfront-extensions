@@ -1,8 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "python/prewarm"
+      "nodejs/custom-response-with-replaced-url"
     ],
-    "tag": "v1.0.5"
+    "tag": "v1.0.0"
   }
 }
