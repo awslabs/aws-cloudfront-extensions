@@ -47,6 +47,10 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
+- directory: edge/nodejs/custom-response-with-replaced-url/custom-response-with-replaced-url
+  package-ecosystem: npm
+  schedule:
+    interval: daily
 - directory: edge/nodejs/resize-picture/resize-picture
   package-ecosystem: npm
   schedule:
