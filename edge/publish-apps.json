@@ -1,7 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/custom-response-with-replaced-url"
+      "python/add-prefetch-url"
     ],
     "tag": "v1.0.0"
   }
