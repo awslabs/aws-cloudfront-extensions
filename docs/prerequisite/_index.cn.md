@@ -7,6 +7,6 @@ weight: 20
 
 - [AWS CloudShell](./aws-cloudshell/readme)
 - [AWS CDK](./aws-cdk/readme)
-- [CONFIGURE YOUR CREDENTIALS](./aws-config/readme)
+- [配置证书](./aws-config/readme)
 
 如果您已经在CloudShell中安装并配置了这些工具，您可以跳过此步骤
