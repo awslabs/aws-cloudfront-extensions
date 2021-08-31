@@ -3,6 +3,6 @@
     "publish_app_path": [
       "python/add-prefetch-url"
     ],
-    "tag": "v1.0.0"
+    "tag": "v1.0.1"
   }
 }
