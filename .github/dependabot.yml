@@ -79,4 +79,8 @@ updates:
   package-ecosystem: pip
   schedule:
     interval: daily
+- directory: edge/nodejs/add-prefetch-url/add-prefetch-url
+  package-ecosystem: pip
+  schedule:
+    interval: daily
 version: 2
