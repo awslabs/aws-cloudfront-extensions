@@ -47,7 +47,7 @@ S3桶包含一个实验网站的内容，桶中有如下4个文件夹：
 本步骤中，您将会通过CloudFormation部署实验网站
 
 1. 点击如下部署按钮开始部署
-   ![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cf-ext-workshop-serving-on-device&templateURL=https://aws-cloudfront-extensions-workshop.s3.amazonaws.com/assets/workshopServingOnDeviceType.template)
+   [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cf-ext-workshop-serving-on-device&templateURL=https://aws-cloudfront-extensions-workshop.s3.amazonaws.com/assets/workshopServingOnDeviceType.template)
 
 2. 点击输入S3桶名后点击下一步
 3. 使用默认选项，点击下一步
