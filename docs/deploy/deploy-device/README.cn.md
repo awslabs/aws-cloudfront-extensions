@@ -39,7 +39,30 @@ S3桶包含一个实验网站的内容，桶中有如下4个文件夹：
 4. 在应用详情页面中，勾选**I acknowledge that this app creates custom IAM roles**
 5. 点击**Deploy**按钮。等待直到部署成功，部署完成后会自动跳转到无服务器应用页面
 
+
+接下来，您将开始部署网站，您可选择通过CDK或者CloudFormation部署网站
+
+## 通过CloudFormation部署网站
+
+本步骤中，您将会通过CloudFormation部署实验网站
+
+1. 点击如下部署按钮开始部署
+   ![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cf-ext-workshop-serving-on-device&templateURL=https://aws-cloudfront-extensions-workshop.s3.amazonaws.com/assets/workshopServingOnDeviceType.template)
+
+2. 点击输入S3桶名后点击下一步
+3. 使用默认选项，点击下一步
+4. 勾选**我确认，AWS CloudFormation 可能创建 IAM 资源。**复选框后，点击**创建堆栈**按钮
+   ![CloudFormation Agreement Checkbox](/images/cf-agree.png)
+5. 等待堆栈创建完成
+6. 选择**cf-ext-workshop-serving-on-device**并点击**输出**标签页，你将会在看到创建的S3桶名称，demo website url和CloudFront分配id
+   ![Device output](/images/output_device.png)
+
+
 ## 通过CDK部署网站
+
+{{% notice note %}}
+若您已经通过CloudFormation部署过网站，可跳过此步骤
+{{% /notice %}}
 
 本步骤中，您将会通过CDK(Cloud Development Kit)部署实验网站，本实验使用CloudShell作为CDK运行环境
 
