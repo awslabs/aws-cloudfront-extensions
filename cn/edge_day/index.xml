@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Edge Day on CloudFront Extensions</title><link>https://awslabs.github.io/aws-cloudfront-extensions/cn/edge_day/</link><description>Recent content in Edge Day on CloudFront Extensions</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://awslabs.github.io/aws-cloudfront-extensions/cn/edge_day/index.xml" rel="self" type="application/rss+xml"/><item><title>构建CloudFront加速的网站</title><link>https://awslabs.github.io/aws-cloudfront-extensions/cn/edge_day/lab01/readme/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://awslabs.github.io/aws-cloudfront-extensions/cn/edge_day/lab01/readme/</guid><description>Lab Guide
 目录
 Lab - 构建CloudFront加速的网站
-Step1: 创建 EC2和S3 源站 在S3桶中创建index.html 验证 EC2 部署情况
-Step2: 创建一个CloudFront Distribution 添加EC2 源
+Step1: 创建 EC2和S3 源站
+在S3桶中创建index.html 验证 EC2 部署情况
+Step2: 创建一个CloudFront Distribution
+添加EC2 源
 Step3: 测试通过CloudFront发布的应用
 Step4: 测试Invalidations
-Step5: 配置定制错误页面 制作一个定制错误页面 在CloudFront里配置定制错误页面
-Step6: 配置源站组(Origin Group) 在CloudFront中配置源站组 测试
+Step5: 配置定制错误页面
+制作一个定制错误页面 在CloudFront里配置定制错误页面
+Step6: 配置源站组(Origin Group)
+在CloudFront中配置源站组 测试
 Step7: 结论
 Lab - 构建CloudFront加速的网站 介绍
 本实验中，我们将学习如何设置一个CloudFront distribution作为一个简单的包含动静态Web应用的前端。Web应用使用S3和EC2搭建，具体如下图。我们将学习如何测试并检查CloudFront送出的特定请求头。最后，我们将会把发布的内容无效化处理，并配置定制的报错页面，以保证友好的失效网页体验。
@@ -18,9 +22,12 @@ Step1: 创建 EC2和S3 源站 在本部分实验中，我们将使用准备好�
 Lab – WAF动手实验
 设置准备
 部署样本网页应用
-任务 - WAF的核心概念 A部分 A部分答案 B部分 B部分答案 结论
-介绍 - WAF定制规则 请求采样 Web ACL容量单元 (Capacity Units) 测试用例 答案 例子 挑战任务 测试用例 结论 挑战任务
-日志 日志的可视化及分析 挑战任务 S3 桶
+任务 - WAF的核心概念
+A部分 A部分答案 B部分 B部分答案 结论
+介绍 - WAF定制规则
+请求采样 Web ACL容量单元 (Capacity Units) 测试用例 答案 例子 挑战任务 测试用例 结论 挑战任务
+日志
+日志的可视化及分析 挑战任务 S3 桶
 Lab – WAF动手实验 介绍 现在让我们来动手做一下WAF的实验 本实验中，我们将介绍 WAF的核心概念 (WAFV2)。
 什么是亚马逊云科技WAF?
 亚马逊云科技WAF是一个网页应用的防火墙服务。它能帮助保护您的网页应用或网页API应对常见的网页攻击。这些攻击会影响应用的可用性，产生安全风险，或消耗过量的计算资源。 使用WAF是对网页应用增加深度防御的好办法。WAF可以帮助应对类似SQL注入、CSS和其他常见的漏洞攻击。WAF允许您创建自己的定制规则在HTTP请求到达应用之前决定是阻断还是允许该请求。
