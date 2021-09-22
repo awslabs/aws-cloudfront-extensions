@@ -40,7 +40,8 @@ AWS Access Key ID [None]: &amp;lt;type your access key id&amp;gt; AWS Secret Acc
 进入CloudShell console https://console.aws.amazon.com/cloudshell 点击右上角的Actions。然后选择Delete AWS CloudShell home directory</description></item><item><title>WAF 动手实验</title><link>https://awslabs.github.io/aws-cloudfront-extensions/cn/edge_day/lab03/readme/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://awslabs.github.io/aws-cloudfront-extensions/cn/edge_day/lab03/readme/</guid><description>Lab Guide
 目录
 Lab – WAF动手实验
-设置准备 部署样本网页应用
+设置准备
+部署样本网页应用
 任务 - WAF的核心概念 A部分 A部分答案 B部分 B部分答案 结论
 介绍 - WAF定制规则 请求采样 Web ACL容量单元 (Capacity Units) 测试用例 答案 例子 挑战任务 测试用例 结论 挑战任务
 日志 日志的可视化及分析 挑战任务 S3 桶
