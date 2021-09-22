@@ -12,6 +12,7 @@ Lab Guide
 - [Step1: 创建 EC2和S3 源站](#Step1)
    
    在S3桶中创建index.html
+
    验证 EC2 部署情况
 
 
@@ -26,12 +27,14 @@ Lab Guide
 - [Step5: 配置定制错误页面](#Step5)
    
    制作一个定制错误页面
+
    在CloudFront里配置定制错误页面
 
 
 - [Step6: 配置源站组(Origin Group)](#Step6)
    
    在CloudFront中配置源站组
+   
    测试
 
    
