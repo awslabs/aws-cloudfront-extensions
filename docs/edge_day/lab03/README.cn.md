@@ -1,4 +1,7 @@
-## WAF 动手实验
+---
+title: WAF 动手实验 
+weight: 5
+---
 
 Lab Guide
 

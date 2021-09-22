@@ -1,4 +1,8 @@
-## 构建CloudFront加速的网站 
+---
+title: 构建CloudFront加速的网站 
+weight: 5
+---
+
 Lab Guide
 
 ---
