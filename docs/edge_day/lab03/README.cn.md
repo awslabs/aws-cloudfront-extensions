@@ -1,6 +1,6 @@
 ---
 title: WAF 动手实验 
-weight: 5
+weight: 10
 ---
 
 Lab Guide
