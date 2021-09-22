@@ -41,15 +41,18 @@ AWS Access Key ID [None]: &amp;lt;type your access key id&amp;gt; AWS Secret Acc
 目录
 Lab - 构建CloudFront加速的网站
 Step1: 创建 EC2和S3 源站
-在S3桶中创建index.html 验证 EC2 部署情况
+在S3桶中创建index.html
+验证 EC2 部署情况
 Step2: 创建一个CloudFront Distribution
 添加EC2 源
 Step3: 测试通过CloudFront发布的应用
 Step4: 测试Invalidations
 Step5: 配置定制错误页面
-制作一个定制错误页面 在CloudFront里配置定制错误页面
+制作一个定制错误页面
+在CloudFront里配置定制错误页面
 Step6: 配置源站组(Origin Group)
-在CloudFront中配置源站组 测试
+在CloudFront中配置源站组
+测试
 Step7: 结论
 Lab - 构建CloudFront加速的网站 介绍
 本实验中，我们将学习如何设置一个CloudFront distribution作为一个简单的包含动静态Web应用的前端。Web应用使用S3和EC2搭建，具体如下图。我们将学习如何测试并检查CloudFront送出的特定请求头。最后，我们将会把发布的内容无效化处理，并配置定制的报错页面，以保证友好的失效网页体验。
@@ -62,9 +65,21 @@ Lab – WAF动手实验
 设置准备
 部署样本网页应用
 任务 - WAF的核心概念
-A部分 A部分答案 B部分 B部分答案 结论
+A部分
+A部分答案
+B部分
+B部分答案
+结论
 介绍 - WAF定制规则
-请求采样 Web ACL容量单元 (Capacity Units) 测试用例 答案 例子 挑战任务 测试用例 结论 挑战任务
+请求采样
+Web ACL容量单元 (Capacity Units)
+测试用例
+答案
+例子
+挑战任务
+测试用例
+结论
+挑战任务
 日志
 日志的可视化及分析 挑战任务 S3 桶
 Lab – WAF动手实验 介绍 现在让我们来动手做一下WAF的实验 本实验中，我们将介绍 WAF的核心概念 (WAFV2)。
