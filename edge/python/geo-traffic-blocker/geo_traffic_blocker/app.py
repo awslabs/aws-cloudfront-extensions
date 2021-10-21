@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
 import ipdb
@@ -32,8 +31,7 @@ def lambda_handler(event, context):
     #     }
 
     # Free IPDB only support 3 filed：city_name, county_name, region_name
-    if info.country_name == '中国' and (
-            info.region_name != '香港' and info.region_name != '澳门' and info.region_name != '台湾'):
+    if info.country_name == '中国' and (info.region_name not in ('香港', '澳门', '台湾')):
         return {
             'status': '403',
             'statusDescription': 'Forbidden'
