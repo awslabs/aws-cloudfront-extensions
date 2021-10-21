@@ -20,8 +20,8 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table(table_name)
 
 load_balancer_metric = param_value["load_balancer_metric"]
-logger.info("table_name-------------------", table_name)
-logger.info("load_balancer_metric---------", load_balancer_metric)
+logger.info("table_name-------------------%s" % table_name)
+logger.info("load_balancer_metric---------%s" % load_balancer_metric)
 
 
 def lambda_handler(event, context):
@@ -45,3 +45,7 @@ def lambda_handler(event, context):
 
     except ClientError as e:
         logger.error(e)
+        return {
+            'status': '500',
+            'statusDescription': 'internal error'
+        }

@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  geo_traffic_blocker
+
+  Sample SAM Template for geo_traffic_blocker
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  GeoTrafficBlockerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: geo_traffic_blocker/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  GeoTrafficBlockerFunction:
+    Description: "Geo Traffic Blocker Lambda Function ARN"
+    Value: !GetAtt GeoTrafficBlockerFunction.Arn
+  GeoTrafficBlockerFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt GeoTrafficBlockerFunctionRole.Arn

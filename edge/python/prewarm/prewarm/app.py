@@ -29,9 +29,9 @@ def replace_url(parsed_url, url_mapping):
     if parsed_url.netloc in url_mapping:
         parsed_url = parsed_url._replace(netloc=url_mapping[parsed_url.netloc])
         return parsed_url
-    else:
-        # if url is not in the mapping, still pre-warm it
-        return parsed_url
+
+    # if url is not in the mapping, still pre-warm it
+    return parsed_url
 
 
 def get_cf_dist_id(parsed_url):
@@ -73,12 +73,12 @@ def lambda_handler(event, context):
                 "message": "All the url have been pre-warmed"
             })
         }
-    else:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({
-                "message": "At least one url is failed to pre-warm, check the log in CloudWatch to get more details",
-                "failed_count": len(failed_list),
-                "failed_url": failed_list
-            })
-        }
+
+    return {
+        "statusCode": 500,
+        "body": json.dumps({
+            "message": "At least one url is failed to pre-warm, check the log in CloudWatch to get more details",
+            "failed_count": len(failed_list),
+            "failed_url": failed_list
+        })
+    }
