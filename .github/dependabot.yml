@@ -79,6 +79,10 @@ updates:
   package-ecosystem: pip
   schedule:
     interval: daily
+- directory: edge/nodejs/geo-traffic-blocker/geo-traffic-blocker
+  package-ecosystem: pip
+  schedule:
+    interval: daily
 - directory: edge/nodejs/prewarm/prewarm
   package-ecosystem: pip
   schedule:
