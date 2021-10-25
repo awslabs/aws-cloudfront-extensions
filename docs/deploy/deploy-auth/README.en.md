@@ -32,10 +32,13 @@ Before the lab, you need to make sure this [link](https://code.jquery.com/jquery
 ## Deploy resources from CloudFormation
 
 1. Launch workshop stack by clicking this [link](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=auth-at-edge&templateURL=https://do-not-delete-cloudfront-ext-workshop.s3.amazonaws.com/edge-auth-workshop.template). 
-2. Keep all the default parameters for the stack and click **Deploy**.
-3. Wait a few minutes for the deployment to be completed.
-4. You can check the deployment status in CloudFormation Console. Go to [CloudFormation console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#) and choose the stack named **auth-at-edge**. 
-5. In the Outputs section, it lists all the resources created by the stack, find the **CloudFrontDistribution**, **CognitoUserPoolId** and **DemoUrl** in the outputs, we will use them in next steps.
+2. Keep all the default parameters for the stack and click **Next** -> **Next** -> **Next**
+3. Click the checkbox "I acknowledge that AWS CloudFormation might create IAM resources with custom names."
+4. Click the checkbox "I acknowledge that AWS CloudFormation might require the following capability: CAPABILITY_AUTO_EXPAND"
+5. Click **Create stack**
+6. Wait a few minutes for the deployment to be completed.
+7. You can check the deployment status in CloudFormation Console. Go to [CloudFormation console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#) and choose the stack named **auth-at-edge**. 
+8. In the Outputs section, it lists all the resources created by the stack, find the **CloudFrontDistribution**, **CognitoUserPoolId** and **DemoUrl** in the outputs, we will use them in next steps.
 
 ![Cognito user id](/images/cognito-user-id.png)
 
