@@ -1,9 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
+  (SO8135)
   geo_traffic_blocker
 
-  Sample SAM Template for geo_traffic_blocker
+  Block requests from specific country
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -23,8 +24,11 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   GeoTrafficBlockerFunction:
-    Description: "Geo Traffic Blocker Lambda Function ARN"
+    Description: "GeoTrafficBlockerFunctionRole ARN"
     Value: !GetAtt GeoTrafficBlockerFunction.Arn
   GeoTrafficBlockerFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
+    Description: "Implicit IAM Role created for GeoTrafficBlockerFunction function"
     Value: !GetAtt GeoTrafficBlockerFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8135"   
