@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  geo_traffic_blocker
+  geo-traffic-blocker
 
   Sample SAM Template for geo_traffic_blocker
 
@@ -16,7 +16,7 @@ Resources:
     Properties:
       CodeUri: geo_traffic_blocker/
       Handler: app.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.9
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

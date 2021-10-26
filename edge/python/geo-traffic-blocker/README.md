@@ -37,7 +37,7 @@ To use the SAM CLI, you need the following tools.
 To build and deploy your application for the first time, run the following in your shell:
 
 ```bash
-sam build --use-container
+sam build
 sam deploy --guided
 ```
 
@@ -53,10 +53,10 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 
 ## Use the SAM CLI to build and test locally
 
-Build your application with the `sam build --use-container` command.
+Build your application with the `sam build` command.
 
 ```bash
-geo_traffic_blocker$ sam build --use-container
+geo-traffic-blocker$ sam build
 ```
 
 The SAM CLI installs dependencies defined in `hello_world/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
@@ -66,7 +66,7 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-geo_traffic_blocker$ sam local invoke HelloWorldFunction --event events/cn_access_event.json
+geo-traffic-blocker$ sam local invoke HelloWorldFunction --event events/cn_access_event.json
 ```
 
 ## Add a resource to your application
@@ -79,7 +79,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-geo_traffic_blocker$ sam logs -n HelloWorldFunction --stack-name geo_traffic_blocker --tail
+geo-traffic-blocker$ sam logs -n GeoTrafficBlockerFunction --stack-name geo-traffic-blocker --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
@@ -89,12 +89,12 @@ You can find more information and examples about filtering Lambda function logs 
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
 
 ```bash
-geo_traffic_blocker$ pip install -r tests/requirements.txt --user
+geo-traffic-blocker$ pip install -r tests/requirements.txt --user
 # unit test
-geo_traffic_blocker$ python -m pytest tests/unit -v
+geo-traffic-blocker$ python -m pytest tests/unit -v
 # integration test, requiring deploying the stack first.
 # Create the env variable AWS_SAM_STACK_NAME with the name of the stack we are testing
-geo_traffic_blocker$ AWS_SAM_STACK_NAME=<stack-name> python -m pytest tests/integration -v
+geo-traffic-blocker$ AWS_SAM_STACK_NAME=<stack-name> python -m pytest tests/integration -v
 ```
 
 ## Cleanup
@@ -102,7 +102,7 @@ geo_traffic_blocker$ AWS_SAM_STACK_NAME=<stack-name> python -m pytest tests/inte
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name geo_traffic_blocker
+aws cloudformation delete-stack --stack-name geo-traffic-blocker
 ```
 
 ## Resources
