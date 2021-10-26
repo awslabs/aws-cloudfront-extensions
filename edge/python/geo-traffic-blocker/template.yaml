@@ -17,6 +17,20 @@ Resources:
       CodeUri: geo_traffic_blocker/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Role: !GetAtt GeoTrafficBlockerFunctionRole.Arn
+  GeoTrafficBlockerFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -25,6 +39,3 @@ Outputs:
   GeoTrafficBlockerFunction:
     Description: "Geo Traffic Blocker Lambda Function ARN"
     Value: !GetAtt GeoTrafficBlockerFunction.Arn
-  GeoTrafficBlockerFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt GeoTrafficBlockerFunctionRole.Arn
