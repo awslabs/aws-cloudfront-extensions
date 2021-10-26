@@ -1,8 +1,10 @@
 {
   "edge": {
     "publish_app_path": [
-      "python/add-prefetch-url"
+      "python/rt_log_transformer",
+      "python/metric_manager",
+      "python/geo-traffic-blocker"
     ],
-    "tag": "v1.0.1"
+    "tag": "v1.0.0"
   }
 }
