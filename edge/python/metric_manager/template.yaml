@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8150)
+  metric-manager
+
+  This Lambda will get the CloudFront metric data from Dynamodb table, it can be deployed with API Gateway to create a rest API to get CloudFront metric data
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: metric-manager 
+    Description: This Lambda will get the CloudFront metric data from Dynamodb table, it can be deployed with API Gateway to create a rest API to get CloudFront metric data
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: [ 'gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws' ]
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/metric_manager
+
+Resources:
+  MetricManagerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: metric_manager/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt MetricManagerFunctionRole.Arn
+
+  MetricManagerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AWS::StackName}-FunctionRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  MetricManagerFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt MetricManagerFunction.Arn
+  MetricManagerFunctionRole:
+    Description: "Implicit IAM Role created for Lambda function"
+    Value: !GetAtt MetricManagerFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8150"
