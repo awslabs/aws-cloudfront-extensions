@@ -6,11 +6,11 @@ import boto3
 from lib.metric_helper import get_athena_query_result
 from lib.metric_helper import gen_detailed_by_interval
 
-ATHENA_QUERY_OUTPUT = "s3://bytedance-testing/athena_results/"
+ATHENA_QUERY_OUTPUT = "<s3 path>"
 athena_client = boto3.client('athena')
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-DB_NAME = "glue_accesslogs_database"
-TABLE_NAME = "cf_rt_logs_2"
+DB_NAME = "<db name>"
+TABLE_NAME = "<table name>"
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -32,7 +32,7 @@ def lambda_handler(event, context):
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    domain = "d2yengim8ao3gc.cloudfront.net"
+    domain = "<domain>"
     metric = "statusCodeOrigin"
 
     try:
