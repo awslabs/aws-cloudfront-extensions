@@ -3,7 +3,7 @@ title: Deploy with CloudFront Extensions
 weight: 30
 ---
 
-Lambda functions can be used to change CloudFront requests and responses at the following points:
+Lambda@Edge functions can be used to change CloudFront requests and responses at the following points:
 
 - After CloudFront receives a request from a viewer (viewer request)
 - Before CloudFront forwards the request to the origin (origin request)

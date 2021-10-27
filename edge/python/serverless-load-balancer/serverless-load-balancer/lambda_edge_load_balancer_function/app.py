@@ -6,8 +6,8 @@ import boto3
 from botocore.exceptions import ClientError
 import logging
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 ssm_client = boto3.client('ssm', region_name='us-east-1')
 target_param = ssm_client.get_parameter(
@@ -20,13 +20,13 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table(table_name)
 
 load_balancer_metric = param_value["load_balancer_metric"]
-print("table_name-------------------", table_name)
-print("load_balancer_metric---------", load_balancer_metric)
+logger.info("table_name-------------------%s" % table_name)
+logger.info("load_balancer_metric---------%s" % load_balancer_metric)
 
 
 def lambda_handler(event, context):
     try:
-        print("Received event: %s" % json.dumps(event))
+        logger.info("Received event: %s" % json.dumps(event))
 
         request = event['Records'][0]['cf']['request']
         target_servers = table.scan()["Items"]
@@ -36,12 +36,16 @@ def lambda_handler(event, context):
         request['origin']['custom']['domainName'] = origin_server
         request['headers']['host'] = [{'key': 'host', 'value': origin_server}]
 
-        print("target Server---------------------")
-        print(target_servers)
-        print("sorted Server---------------------")
-        print(sorted_servers)
+        logger.info("target Server---------------------")
+        logger.info(target_servers)
+        logger.info("sorted Server---------------------")
+        logger.info(sorted_servers)
 
         return request
 
     except ClientError as e:
-        logging.error(e)
+        logger.error(e)
+        return {
+            'status': '500',
+            'statusDescription': 'internal error'
+        }

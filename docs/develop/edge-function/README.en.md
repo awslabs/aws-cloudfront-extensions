@@ -21,7 +21,7 @@ After completing **Upload CloudFront Extensions Code into CloudShell** section, 
 
    ![SAM init package](/images/sam-package-type.png)
 
-   Choose **1 - nodejs12.x**
+   Choose **1 - nodejs14.x**
    
    ![SAM init2](/images/sam-init2.png) 
 

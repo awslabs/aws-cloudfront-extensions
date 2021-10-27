@@ -3,8 +3,6 @@
 
 The Lambda@Edge is designed to let customer set multiple candidate IP Addresses to try when the origin failed to fetch the content.
 
-## Prerequisite
-
 
 ## Description
 

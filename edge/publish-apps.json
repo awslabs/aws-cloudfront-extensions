@@ -1,8 +1,9 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/anti-hotlinking"
+      "python/rt_log_transformer",
+      "python/metric_manager"
     ],
-    "tag": "v1.3.0"
+    "tag": "v1.0.0"
   }
 }
