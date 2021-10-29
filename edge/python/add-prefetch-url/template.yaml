@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  (SO8149) 
+  (SO8138) 
   add-prefetch-url
 
   The lambda will add prefetch url header

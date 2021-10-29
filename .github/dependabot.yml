@@ -63,6 +63,10 @@ updates:
   package-ecosystem: npm
   schedule:
     interval: daily
+- directory: edge/nodejs/metric_manager/metric_manager
+  package-ecosystem: pip
+  schedule:
+    interval: daily
 - directory: edge/nodejs/modify-host-origin-request-header/modify-host-origin-request-header
   package-ecosystem: pip
   schedule:
@@ -76,6 +80,14 @@ updates:
   schedule:
     interval: daily
 - directory: edge/nodejs/add-prefetch-url/add-prefetch-url
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/rt_log_transformer/rt_log_transformer
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/geo-traffic-blocker/geo-traffic-blocker
   package-ecosystem: pip
   schedule:
     interval: daily

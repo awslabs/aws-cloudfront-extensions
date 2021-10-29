@@ -1,14 +1,30 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
+  (SO8135)
   geo-traffic-blocker
 
-  Sample SAM Template for geo_traffic_blocker
+  Block requests from specific country
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 30
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: geo_traffic_blocker
+    Description: The Lambda@Edge is designed to block requests from specific country
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/geo-traffic-blocker
 
 Resources:
   GeoTrafficBlockerFunction:
@@ -37,5 +53,9 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   GeoTrafficBlockerFunction:
-    Description: "Geo Traffic Blocker Lambda Function ARN"
+    Description: "GeoTrafficBlockerFunctionRole ARN"
     Value: !GetAtt GeoTrafficBlockerFunction.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8135" 
+
