@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   (SO8135)
-  geo_traffic_blocker
+  geo-traffic-blocker
 
   Block requests from specific country
 
@@ -32,7 +32,21 @@ Resources:
     Properties:
       CodeUri: geo_traffic_blocker/
       Handler: app.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.9
+      Role: !GetAtt GeoTrafficBlockerFunctionRole.Arn
+  GeoTrafficBlockerFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -41,9 +55,7 @@ Outputs:
   GeoTrafficBlockerFunction:
     Description: "GeoTrafficBlockerFunctionRole ARN"
     Value: !GetAtt GeoTrafficBlockerFunction.Arn
-  GeoTrafficBlockerFunctionIamRole:
-    Description: "Implicit IAM Role created for GeoTrafficBlockerFunction function"
-    Value: !GetAtt GeoTrafficBlockerFunctionRole.Arn
   SolutionId:
     Description: "Solution id"
-    Value: "SO8135"   
+    Value: "SO8135" 
+
