@@ -96,8 +96,9 @@ To deploy the demo website
 2. Choose the distribution that is shown in the outputs 
 3. Choose **Behaviors** tab and edit the default cache behavior
 4. Do below configuration
-   - For **Cache Based on Selected Request Headers**, choose **Whitelist**
-   - For **Whitelist Headers**, add 4 custom headers 
+   - For **Cache key and origin requests**, choose **Legacy cache settings**
+   - For **Headers**, choose **Include the following headers**
+   - For **Add header**, add 4 headers 
      
      CloudFront-Is-Desktop-Viewer 
      
