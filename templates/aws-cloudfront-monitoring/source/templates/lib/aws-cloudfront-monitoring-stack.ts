@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
-import {CfnParameter, CfnParameterProps, Construct, Duration, RemovalPolicy, Stack, StackProps} from '@aws-cdk/core';
+import {CfnParameter, Construct, Duration, RemovalPolicy, Stack, StackProps} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import {ManagedPolicy} from '@aws-cdk/aws-iam';
@@ -14,48 +14,11 @@ import {DeliveryStream, LambdaFunctionProcessor} from "@aws-cdk/aws-kinesisfireh
 import * as destinations from '@aws-cdk/aws-kinesisfirehose-destinations';
 import {Database, InputFormat, OutputFormat, SerializationLibrary, Table } from "@aws-cdk/aws-glue"
 
-export class SolutionStack extends Stack {
-  private _paramGroup: { [grpname: string]: CfnParameter[] } = {}
-
-  protected setDescription(description: string) {
-    this.templateOptions.description = description;
-  }
-
-  protected newParam(id: string, props?: CfnParameterProps): CfnParameter {
-    return new CfnParameter(this, id, props);
-  }
-
-  protected addGroupParam(props: { [key: string]: CfnParameter[] }): void {
-    for (const key of Object.keys(props)) {
-      const params = props[key];
-      this._paramGroup[key] = params.concat(this._paramGroup[key] ?? []);
-    }
-    this._setParamGroups();
-  }
-
-  private _setParamGroups(): void {
-    if (!this.templateOptions.metadata) {
-      this.templateOptions.metadata = {};
-    }
-    const mkgrp = (label: string, params: CfnParameter[]) => {
-      return {
-        Label: {default: label},
-        Parameters: params.map(p => {
-          return p ? p.logicalId : '';
-        }).filter(id => id),
-      };
-    };
-    this.templateOptions.metadata['AWS::CloudFormation::Interface'] = {
-      ParameterGroups: Object.keys(this._paramGroup).map(key => mkgrp(key, this._paramGroup[key])),
-    };
-  }
-}
-
-export class CloudFrontMonitoringStack extends SolutionStack {
+export class CloudFrontMonitoringStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
-    this.setDescription("(SO8150) - Cloudfront monitoring stack.");
+    this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
 
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
       description: 'Max number of days to keep cloudfront realtime logs in S3',
@@ -314,7 +277,7 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       handler: 'index.handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_orgin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_origin')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
