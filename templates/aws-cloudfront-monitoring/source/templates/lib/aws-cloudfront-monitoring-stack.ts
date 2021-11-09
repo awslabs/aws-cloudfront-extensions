@@ -1,16 +1,18 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
-import * as sns from '@aws-cdk/aws-sns';
 import * as cdk from '@aws-cdk/core';
 import {CfnParameter, CfnParameterProps, Construct, Duration, RemovalPolicy, Stack, StackProps} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import {ManagedPolicy} from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
-import {BlockPublicAccess, Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
-import {GatewayVpcEndpointAwsService, Vpc} from "@aws-cdk/aws-ec2";
-import {AuthorizationType, EndpointType, LambdaRestApi} from "@aws-cdk/aws-apigateway";
-import * as subscriptions from '@aws-cdk/aws-sns-subscriptions';
+import {AuthorizationType, CognitoUserPoolsAuthorizer, EndpointType, LambdaRestApi} from "@aws-cdk/aws-apigateway";
+import * as cognito from '@aws-cdk/aws-cognito';
+import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
+import * as kinesis from "@aws-cdk/aws-kinesis";
+import {DeliveryStream, LambdaFunctionProcessor} from "@aws-cdk/aws-kinesisfirehose";
+import * as destinations from '@aws-cdk/aws-kinesisfirehose-destinations';
+import {Database, InputFormat, OutputFormat, SerializationLibrary, Table } from "@aws-cdk/aws-glue"
 
 export class SolutionStack extends Stack {
   private _paramGroup: { [grpname: string]: CfnParameter[] } = {}
@@ -56,7 +58,7 @@ export class CloudFrontMonitoringStack extends SolutionStack {
     this.setDescription("(SO8150) - Cloudfront monitoring stack.");
 
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
-      description: 'Max number of days to keep generated Captcha in S3',
+      description: 'Max number of days to keep cloudfront realtime logs in S3',
       type: 'Number',
       default: 120,
     })
@@ -89,14 +91,13 @@ export class CloudFrontMonitoringStack extends SolutionStack {
 
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: RemovalPolicy.RETAIN,
+      removalPolicy: RemovalPolicy.DESTROY,
       serverAccessLogsPrefix: 'accessLogBucketAccessLog' + '-' + deployStage.valueAsString,
     });
 
     const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
-      bucketName: "cloudfront-monitoring-s3-buckets-" + this.account + '-' + this.region + '-' + deployStage.valueAsString,
       encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: RemovalPolicy.RETAIN,
+      removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       serverAccessLogsBucket: accessLogBucket,
       serverAccessLogsPrefix: 'dataBucketAccessLog' + '-' + deployStage.valueAsString,
@@ -107,6 +108,8 @@ export class CloudFrontMonitoringStack extends SolutionStack {
         },
       ]
     });
+
+
 
     // create Dynamodb table to save the captcha index file
     const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
@@ -347,11 +350,6 @@ export class CloudFrontMonitoringStack extends SolutionStack {
     metricsCollectorRequestOrigin.node.addDependency(cloudfront_metrics_table);
     metricsManager.node.addDependency(cloudfront_metrics_table);
 
-    const captcha_generating_result_topic = new sns.Topic(this, 'CaptchaGenerateResultTopic', {
-      displayName: 'Captcha Generating result',
-      fifo: false,
-      topicName: 'captchaGeneratingResultTopic',
-    });
 
     const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
       handler: metricsManager,
@@ -363,13 +361,33 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       }
     })
 
-    const performance_proxy = rest_api.root.addResource('metric');
-    performance_proxy.addMethod('GET', undefined, {
-      authorizationType: AuthorizationType.COGNITO
-    })
+    // create cognito user pool
+    const cloudfront_metrics_userpool = new cognito.UserPool(this, 'CloudFrontMetricsCognitoUserPool', {
+      userPoolName: 'cloudfront-metrics-userpool',
+      selfSignUpEnabled: true,
+      signInAliases: {
+        email: true,
+      },
+      autoVerify: {
+        email: true,
+      },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+    });
+
+    const cognitoAuthorizer = new CognitoUserPoolsAuthorizer(this, `Cloudfront-Metrics-CognitoAuthorizer`, {
+      authorizerName : `Metric-Cognito-Authorizer`,
+      cognitoUserPools : [ cloudfront_metrics_userpool ],
+      identitySource : "method.request.header.Authorization"
+    });
+
+    const performance_metric_proxy = rest_api.root.addResource('metric');
+    performance_metric_proxy.addMethod('GET', undefined, {
+      authorizationType: AuthorizationType.COGNITO,
+      authorizer: cognitoAuthorizer
+    });
 
     //Policy to allow client to call this restful api
-    const api_client_policy = new ManagedPolicy(this, "captcha_client_policy", {
+    const api_client_policy = new ManagedPolicy(this, "cloudfront_metrics_api_client_policy", {
       managedPolicyName: "cloudfront_metric_client_policy_"+deployStage.valueAsString,
       description: "policy for client to call stage:"+deployStage.valueAsString,
       statements: [
@@ -381,8 +399,361 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       ],
     });
 
+    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
+      streamName: "cloudfront-real-time-log-data-stream",
+      shardCount: 200
+    })
+
+    // Provide a Lambda function that will transform records before delivery, with custom
+    // buffering and retry configuration
+    const cloudfrontRealtimeLogTransformer = new lambda.Function(this, 'Cloudfront-realtime-log-transformer', {
+      functionName: "cf-real-time-logs-transformer",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'app.lambda_handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
+    });
+
+    const lambdaProcessor = new LambdaFunctionProcessor(cloudfrontRealtimeLogTransformer, {
+      bufferInterval: cdk.Duration.minutes(1),
+      bufferSize: cdk.Size.mebibytes(3),
+      retries: 3,
+    });
+
+    const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
+      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
+    });
+    const destinationRole = new iam.Role(this, 'Destination Role', {
+      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
+    });
+
+    const s3Destination = new destinations.S3Bucket(cloudfront_monitoring_s3_bucket, {
+      processor: lambdaProcessor,
+      role:destinationRole
+    });
+
+    const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Delivery Stream', {
+      sourceStream: cloudfront_realtime_log_stream,
+      destinations: [s3Destination],
+      role: deliveryStreamRole
+    });
+
+    const glueDatabase = new Database(this, "cf_reatime_database",{
+      databaseName: "glue_accesslogs_database"
+    });
+    const glueTable = new Table(this, "cf_realtime_logs", {
+      compressed: false,
+      columns: [
+        {
+          name: "timestamp",
+          type: {
+              inputString: "bigint",
+              isPrimitive: false
+          }
+        },
+        {
+          name: "c-ip",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "time-to-first-byte",
+          type: {
+            inputString: "float",
+            isPrimitive: false
+          }
+        },
+        {
+          name: "sc-status",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "sc-bytes",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-method",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-protocol",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-host",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-uri-stem",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-bytes",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-edge-location",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-edge-request-id",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-host-header",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "time-taken",
+          type: {
+            inputString: "float",
+            isPrimitive: false
+          }
+        },
+        {
+          name: "cs-protocol-version",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "c-ip-version",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-user-agent",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-referer",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-cookie",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-uri-query",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-edge-response-result-type",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-forwarded-for",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "ssl-protocol",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "ssl-cipher",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-edge-result-type",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "fle-encrypted-fields",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "fle-status",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "sc-content-type",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "sc-content-len",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "sc-range-start",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "sc-range-end",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "c-port",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "x-edge-detailed-result-type",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "c-country",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-accept-encoding",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-accept",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cache-behavior-path-pattern",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-headers",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-header-names",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "cs-headers-count",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "isp",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "country-name",
+          type: {
+            inputString: "string",
+            isPrimitive: true
+          }
+        }
+      ],
+      tableName: "cloudfront_realtime_log",
+      database: glueDatabase,
+      dataFormat:{
+        // inputFormat: new InputFormat("TEXT"),
+        // outputFormat: new OutputFormat("HIVE_IGNORE_KEY_TEXT"),
+        inputFormat: new InputFormat('org.apache.hadoop.mapred.TextInputFormat'),
+        outputFormat: new OutputFormat('org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'),
+        serializationLibrary: new SerializationLibrary('org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe')
+      },
+      bucket: cloudfront_monitoring_s3_bucket
+    });
+
     new cdk.CfnOutput(this,'cloudfront_monitoring_s3_bucket', {value: cloudfront_monitoring_s3_bucket.bucketName});
     new cdk.CfnOutput(this,'cloudfront_metrics_dynamodb', {value: cloudfront_metrics_table.tableName});
     new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
+    new cdk.CfnOutput(this,'glue_table_name',{value:glueTable.tableName});
+    new cdk.CfnOutput(this,'realtime_log_firehose_delivery',{value:cloudfront_realtime_log_delivery_stream.deliveryStreamName})
   }
 }
