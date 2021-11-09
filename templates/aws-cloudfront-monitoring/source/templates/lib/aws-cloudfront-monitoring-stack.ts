@@ -53,18 +53,12 @@ export class CloudFrontMonitoringStack extends SolutionStack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
-    this.setDescription("(SO8013) - Intelligent Captcha stack.");
+    this.setDescription("(SO8150) - Cloudfront monitoring stack.");
 
-    const maxDailyIndex = new CfnParameter(this, 'MaxDailyCaptchaNumber', {
-      description: 'Max number of Captcha to be generated each day',
-      type: 'Number',
-      default: 100,
-    })
-
-    const captchaKeepingDays = new CfnParameter(this, 'MaxCaptchaKeepDays', {
+    const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
       description: 'Max number of days to keep generated Captcha in S3',
       type: 'Number',
-      default: 7,
+      default: 120,
     })
 
     const deployStage = new CfnParameter(this, 'deployStage', {
@@ -73,20 +67,6 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       default: 'prod',
       allowedValues: ['dev','beta','gamma','preprod','prod']
     })
-
-    const notifyEmail = new CfnParameter(this, 'notifyEmail', {
-      description: 'enter the email address to be notified about captcha generating status, eg: xxx@qq.com',
-      type: 'String',
-      default: '',
-    })
-
-    const captchaGenerateHour = new CfnParameter(this, 'captchaGenerateHour', {
-      description: 'enter the hour of day in UTC to start generating captcha images, from 0 to 23, default is 8 which is 16:00 of Beijing time',
-      type: 'Number',
-      default: '8',
-      allowedValues: ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
-    })
-
 
     cdk.Tags.of(this).add('stage', deployStage.valueAsString,{
       includeResourceTypes: [
@@ -107,35 +87,14 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       ],
     });
 
-    const vpcId = this.node.tryGetContext('vpcId');
-    const vpc = vpcId ? Vpc.fromLookup(this, 'CaptchaGeneratorVpc', {
-      vpcId: vpcId === 'default' ? undefined : vpcId,
-      isDefault: vpcId === 'default' ? true : undefined,
-    }) : (() => {
-      const newVpc = new Vpc(this, 'CaptchaGeneratorVpc', {
-        maxAzs: 3,
-        gatewayEndpoints: {
-          s3: {
-            service: GatewayVpcEndpointAwsService.S3,
-          },
-          dynamodb: {
-            service: GatewayVpcEndpointAwsService.DYNAMODB,
-          },
-        },
-        enableDnsHostnames: true,
-        enableDnsSupport: true
-      });
-      return newVpc;
-    })();
-
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
       serverAccessLogsPrefix: 'accessLogBucketAccessLog' + '-' + deployStage.valueAsString,
     });
 
-    const captcha_s3_bucket = new Bucket(this, 'CaptchaGenerationBucket', {
-      bucketName: "captcha-generator-buckets-" + this.account + '-' + this.region + '-' + deployStage.valueAsString,
+    const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
+      bucketName: "cloudfront-monitoring-s3-buckets-" + this.account + '-' + this.region + '-' + deployStage.valueAsString,
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
       autoDeleteObjects: true,
@@ -144,27 +103,25 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       lifecycleRules: [
         {
           enabled: true,
-          expiration: Duration.days(captchaKeepingDays.valueAsNumber),
+          expiration: Duration.days(CloudFrontLogKeepingDays.valueAsNumber),
         },
-      ],
-      blockPublicAccess: new BlockPublicAccess({ blockPublicPolicy: false })
+      ]
     });
 
     // create Dynamodb table to save the captcha index file
-    const captcha_index_table = new dynamodb.Table(this, 'Captcha_index', {
+    const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
       billingMode: dynamodb.BillingMode.PROVISIONED,
-      readCapacity: 100,
-      writeCapacity: 100,
+      readCapacity: 1,
+      writeCapacity: 1,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      partitionKey: {name: 'captcha_date', type: dynamodb.AttributeType.STRING},
-      sortKey: {name: 'captcha_index', type: dynamodb.AttributeType.NUMBER},
+      partitionKey: {name: 'metricId', type: dynamodb.AttributeType.STRING},
+      sortKey: {name: 'timestamp', type: dynamodb.AttributeType.STRING},
       pointInTimeRecovery: true,
-      timeToLiveAttribute: 'ExpirationTime'
     });
 
-    const readAutoScaling = captcha_index_table.autoScaleReadCapacity({
-      minCapacity: 100,
-      maxCapacity: 3000
+    const readAutoScaling = cloudfront_metrics_table.autoScaleReadCapacity({
+      minCapacity: 1,
+      maxCapacity: 10
     });
 
     readAutoScaling.scaleOnUtilization({
@@ -175,27 +132,220 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
     });
 
-    // front end lambda only need to access DynamoDB
     lambdaRole.addManagedPolicy(
         ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
     );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+    );
 
-    // define get captcha function
-    const getCaptchaLambda = new lambda.Function(this, 'get-captcha-lambda', {
-      runtime: lambda.Runtime.NODEJS_14_X,
+
+    // define add partition lambda function
+    const addPartition = new lambda.Function(this, 'add-partition-lambda', {
+      functionName: "addPartition",
+      runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'index.handler',
       memorySize: 512,
-      timeout: cdk.Duration.seconds(60),
-      code: lambda.Code.fromAsset(path.join(__dirname, '/../lambda.d/captchaGenerator')),
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/add_partition')),
       role: lambdaRole,
       environment: {
-        DDB_TABLE_NAME: captcha_index_table.tableName,
-        MAX_DAILY_INDEX: maxDailyIndex.valueAsString
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
-    getCaptchaLambda.node.addDependency(captcha_index_table);
+    // define delete partition lambda function
+    const deletePartition = new lambda.Function(this, 'delete-partition-lambda', {
+      functionName: "deletePartition",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/delete_partition')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorBandwidthCdn = new lambda.Function(this, 'metrics_collector_bandwidth_cdn', {
+      functionName: "metricsCollectorBandwidthCdn",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorBandwidthOrigin = new lambda.Function(this, 'metrics_collector_bandwidth_origin', {
+      functionName: "metricsCollectorBandwidthOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorChrBandwidth = new lambda.Function(this, 'metrics_collector_chr_bandwidth', {
+      functionName: "metricsCollectorChrBandwidth",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_bandwidth')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorChrRequest = new lambda.Function(this, 'metrics_collector_chr_request', {
+      functionName: "metricsCollectorChrRequest",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_request')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorDownloadSpeedCDN = new lambda.Function(this, 'metrics_collector_download_speed_cdn', {
+      functionName: "metricsCollectorDownloadSpeedCDN",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_download_speed_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metrics_collector_download_speed_origin', {
+      functionName: "metricsCollectorDownloadSpeedOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorRequestCDN = new lambda.Function(this, 'metrics_collector_request_cdn', {
+      functionName: "metricsCollectorRequestCDN",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorRequestOrigin = new lambda.Function(this, 'metrics_collector_request_origin', {
+      functionName: "metricsCollectorRequestOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'metrics_collector_status_code_cdn', {
+      functionName: "metricsCollectorStatusCodeCDN",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'metrics_collector_status_code_origin', {
+      functionName: "metricsCollectorStatusCodeOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_orgin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const metricsManager = new lambda.Function(this, 'metrics_manager', {
+      functionName: "matrics_manager",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_manager')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    addPartition.node.addDependency(cloudfront_metrics_table);
+    deletePartition.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorBandwidthCdn.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorBandwidthOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorChrBandwidth.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorChrRequest.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorStatusCodeOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorRequestCDN.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorRequestOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsManager.node.addDependency(cloudfront_metrics_table);
 
     const captcha_generating_result_topic = new sns.Topic(this, 'CaptchaGenerateResultTopic', {
       displayName: 'Captcha Generating result',
@@ -203,29 +353,24 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       topicName: 'captchaGeneratingResultTopic',
     });
 
-    if (notifyEmail.valueAsString != ''){
-      captcha_generating_result_topic.addSubscription(new subscriptions.EmailSubscription(notifyEmail.valueAsString));
-    }
-
-
-    const rest_api = new LambdaRestApi(this, 'restfulApi', {
-      handler: getCaptchaLambda,
-      description: "restful api to get the captcha",
+    const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
+      handler: metricsManager,
+      description: "restful api to get the cloudfront performance data",
       proxy: false,
-      restApiName:'restfulGetCaptcha',
+      restApiName:'CloudfrontPerformanceMetrics',
       endpointConfiguration: {
-        types: [ EndpointType.REGIONAL]
+        types: [ EndpointType.EDGE]
       }
     })
 
-    const captcha_proxy = rest_api.root.addResource('captcha');
-    captcha_proxy.addMethod('GET', undefined, {
-      authorizationType: AuthorizationType.IAM
+    const performance_proxy = rest_api.root.addResource('metric');
+    performance_proxy.addMethod('GET', undefined, {
+      authorizationType: AuthorizationType.COGNITO
     })
 
     //Policy to allow client to call this restful api
     const api_client_policy = new ManagedPolicy(this, "captcha_client_policy", {
-      managedPolicyName: "captcha_client_policy_"+deployStage.valueAsString,
+      managedPolicyName: "cloudfront_metric_client_policy_"+deployStage.valueAsString,
       description: "policy for client to call stage:"+deployStage.valueAsString,
       statements: [
         new iam.PolicyStatement({
@@ -236,8 +381,8 @@ export class CloudFrontMonitoringStack extends SolutionStack {
       ],
     });
 
-    new cdk.CfnOutput(this,'captcha_s3_bucket', {value: captcha_s3_bucket.bucketName});
-    new cdk.CfnOutput(this,'captcha_dynamodb', {value: captcha_index_table.tableName});
+    new cdk.CfnOutput(this,'cloudfront_monitoring_s3_bucket', {value: cloudfront_monitoring_s3_bucket.bucketName});
+    new cdk.CfnOutput(this,'cloudfront_metrics_dynamodb', {value: cloudfront_metrics_table.tableName});
     new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
   }
 }
