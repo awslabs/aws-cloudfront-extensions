@@ -13,6 +13,9 @@ import * as kinesis from "@aws-cdk/aws-kinesis";
 import {DeliveryStream, LambdaFunctionProcessor} from "@aws-cdk/aws-kinesisfirehose";
 import * as destinations from '@aws-cdk/aws-kinesisfirehose-destinations';
 import {Database, InputFormat, OutputFormat, SerializationLibrary, Table } from "@aws-cdk/aws-glue"
+import {StreamEncryption} from "@aws-cdk/aws-kinesis";
+import {Rule, Schedule} from "@aws-cdk/aws-events";
+import { LambdaFunction } from '@aws-cdk/aws-events-targets';
 
 export class CloudFrontMonitoringStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
@@ -77,8 +80,8 @@ export class CloudFrontMonitoringStack extends Stack {
     // create Dynamodb table to save the captcha index file
     const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
       billingMode: dynamodb.BillingMode.PROVISIONED,
-      readCapacity: 1,
-      writeCapacity: 1,
+      readCapacity: 10,
+      writeCapacity: 10,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       partitionKey: {name: 'metricId', type: dynamodb.AttributeType.STRING},
       sortKey: {name: 'timestamp', type: dynamodb.AttributeType.STRING},
@@ -364,7 +367,8 @@ export class CloudFrontMonitoringStack extends Stack {
 
     const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
       streamName: "cloudfront-real-time-log-data-stream",
-      shardCount: 200
+      shardCount: 200,
+      encryption: StreamEncryption.UNENCRYPTED
     })
 
     // Provide a Lambda function that will transform records before delivery, with custom
@@ -374,10 +378,11 @@ export class CloudFrontMonitoringStack extends Stack {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'app.lambda_handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
+      timeout: cdk.Duration.minutes(1)
     });
 
     const lambdaProcessor = new LambdaFunctionProcessor(cloudfrontRealtimeLogTransformer, {
-      bufferInterval: cdk.Duration.minutes(1),
+      bufferInterval: cdk.Duration.minutes(2),
       bufferSize: cdk.Size.mebibytes(3),
       retries: 3,
     });
@@ -391,14 +396,104 @@ export class CloudFrontMonitoringStack extends Stack {
 
     const s3Destination = new destinations.S3Bucket(cloudfront_monitoring_s3_bucket, {
       processor: lambdaProcessor,
-      role:destinationRole
+      role:destinationRole,
+      bufferingSize: cdk.Size.mebibytes(128),
+      bufferingInterval: cdk.Duration.minutes(1),
     });
 
-    const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Delivery Stream', {
+    const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Cloudfront Realtime log Delivery Stream', {
       sourceStream: cloudfront_realtime_log_stream,
       destinations: [s3Destination],
-      role: deliveryStreamRole
+      role: deliveryStreamRole,
     });
+    // const cloudfront_realtime_log_delivery_stream = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
+    //   deliveryStreamName: `cloudfront-realtime-log-delivery-stream`,
+    //   kinesisStreamSourceConfiguration: {
+    //     kinesisStreamArn: cloudfront_realtime_log_stream.streamArn,
+    //     roleArn: deliveryStreamRole.roleArn
+    //   },
+    //   s3DestinationConfiguration: {
+    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
+    //     roleArn: destinationRole.roleArn,
+    //     bufferingHints: {
+    //       intervalInSeconds: 60,
+    //       sizeInMBs: 128,
+    //     },
+    //     cloudWatchLoggingOptions: {
+    //       enabled: true,
+    //       logGroupName: "/aws/kinesisfirehose/cloudfront-realtime-log-s3-delivery",
+    //       logStreamName: 'DestinationDelivery',
+    //     },
+    //     compressionFormat: 'UNCOMPRESSED',
+    //     prefix: `year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/`,
+    //     errorOutputPrefix: `failed/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}/`,
+    //     encryptionConfiguration: {
+    //       noEncryptionConfig: "NoEncryption"
+    //     },
+    //   },
+    //   extendedS3DestinationConfiguration: {
+    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
+    //     bufferingHints: {
+    //       sizeInMBs: 128,
+    //       intervalInSeconds: 60
+    //     },
+    //     dataFormatConversionConfiguration: {
+    //       enabled: false
+    //     },
+    //     dynamicPartitioningConfiguration: {
+    //       retryOptions: {
+    //         durationInSeconds: 20
+    //       },
+    //       enabled: true
+    //     },
+    //     encryptionConfiguration: {
+    //       noEncryptionConfig: "NoEncryption"
+    //     },
+    //     prefix: "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
+    //     roleArn: destinationRole.roleArn,
+    //     processingConfiguration: {
+    //       enabled: true,
+    //       processors: [
+    //         {
+    //           type: "Lambda",
+    //           parameters: [
+    //             {
+    //               parameterName: "LambdaArn",
+    //               parameterValue: cloudfrontRealtimeLogTransformer.functionArn
+    //             },
+    //             {
+    //               parameterName: "NumberOfRetries",
+    //               parameterValue: "3"
+    //             },
+    //             {
+    //               parameterName: "RoleArn",
+    //               parameterValue: cloudfrontRealtimeLogTransformer.role.roleArn
+    //             },
+    //             {
+    //               parameterName: "BufferSizeInMBs",
+    //               parameterValue: "3"
+    //             },
+    //             {
+    //               parameterName: "BufferIntervalInSeconds",
+    //               parameterValue: "60"
+    //             }
+    //           ]
+    //         },
+    //         {
+    //           type: "RecordDeAggregation",
+    //           parameters: [
+    //             {
+    //               parameterName: "SubRecordType",
+    //               parameterValue: "JSON"
+    //             }
+    //           ]
+    //         }
+    //       ]
+    //     },
+    //     s3BackupMode: "Disabled"
+    //   }
+    // });
+    // cloudfront_realtime_log_delivery_stream.node.addDependency(cloudfrontRealtimeLogTransformer);
 
     const glueDatabase = new Database(this, "cf_reatime_database",{
       databaseName: "glue_accesslogs_database"
@@ -710,8 +805,88 @@ export class CloudFrontMonitoringStack extends Stack {
         outputFormat: new OutputFormat('org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'),
         serializationLibrary: new SerializationLibrary('org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe')
       },
-      bucket: cloudfront_monitoring_s3_bucket
+      bucket: cloudfront_monitoring_s3_bucket,
+      partitionKeys: [
+        {
+          name: "year",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "month",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "day",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "hour",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        },
+        {
+          name: "minute",
+          type: {
+            inputString: "int",
+            isPrimitive: true
+          }
+        }
+      ]
     });
+
+    const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudfrontLogs_5_minutes_rule_first', {
+      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+    });
+
+    const lambdaMetricsCollectorBandwidthCdn = new LambdaFunction(metricsCollectorBandwidthCdn);
+    const lambdaMetricsCollectorBandwidthOrigin = new LambdaFunction(metricsCollectorBandwidthOrigin);
+    const lambdaMetricsCollectorChrBandwidth = new LambdaFunction(metricsCollectorChrBandwidth);
+    const lambdaMetricsCollectorDownloadSpeedOrigin = new LambdaFunction(metricsCollectorDownloadSpeedOrigin);
+    const lambdaMetricsCollectorDownloadSpeedCDN = new LambdaFunction(metricsCollectorDownloadSpeedCDN);
+
+    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthOrigin);
+    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorChrBandwidth);
+    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedCDN);
+    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedOrigin);
+    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthCdn);
+
+    const cloudfront5MinutesRuleSecond = new Rule(this, 'CloudfrontLogs_5_minutes_rule_second', {
+      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+    });
+    const lambdaMetricsCollectorStatusCodeCDN = new LambdaFunction(metricsCollectorStatusCodeCDN);
+    const lambdaMetricsCollectorStatusCodeOrigin = new LambdaFunction(metricsCollectorStatusCodeOrigin);
+    const lambdaMetricsCollectorRequestCDN = new LambdaFunction(metricsCollectorRequestCDN);
+    const lambdaMetricsCollectorRequestOrigin = new LambdaFunction(metricsCollectorRequestOrigin);
+    const lambdaMetricsCollectorChrRequest = new LambdaFunction(metricsCollectorChrRequest);
+
+    cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorStatusCodeCDN);
+    cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorStatusCodeOrigin);
+    cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestCDN);
+    cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestOrigin);
+    cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorChrRequest);
+
+    const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
+      schedule: Schedule.expression("cron(0 22 * * ? *)"),
+    });
+    const lambdaAddPartition = new LambdaFunction(addPartition);
+    cloudfrontRuleAddPartition.addTarget(lambdaAddPartition);
+
+    const cloudfrontRuleDeletePartition = new Rule(this, 'CloudfrontLogs_delete_partition', {
+      schedule: Schedule.expression("cron(0 5 * * ? *)"),
+    });
+    const lambdaDeletePartition = new LambdaFunction(deletePartition);
+    cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
 
     new cdk.CfnOutput(this,'cloudfront_monitoring_s3_bucket', {value: cloudfront_monitoring_s3_bucket.bucketName});
     new cdk.CfnOutput(this,'cloudfront_metrics_dynamodb', {value: cloudfront_metrics_table.tableName});
