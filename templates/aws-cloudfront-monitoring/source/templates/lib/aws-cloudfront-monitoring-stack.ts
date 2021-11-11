@@ -118,11 +118,20 @@ export class CloudFrontMonitoringStack extends Stack {
     );
 
 
+    // define a lambda layer for all other lambda to use
+    const cloudfrontSharedLayer = new lambda.LayerVersion(this, 'cloudfront-shared-layer', {
+      compatibleRuntimes: [
+        lambda.Runtime.PYTHON_3_9,
+      ],
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/shared_lib')),
+      description: 'shared lib for all other lambda functions to use',
+    });
+
     // define add partition lambda function
     const addPartition = new lambda.Function(this, 'add-partition-lambda', {
       functionName: "addPartition",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'add_partition.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/add_partition')),
@@ -131,13 +140,14 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     // define delete partition lambda function
     const deletePartition = new lambda.Function(this, 'delete-partition-lambda', {
       functionName: "deletePartition",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'delete_partition.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/delete_partition')),
@@ -146,12 +156,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorBandwidthCdn = new lambda.Function(this, 'metrics_collector_bandwidth_cdn', {
       functionName: "metricsCollectorBandwidthCdn",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_bandwidth.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_cdn')),
@@ -160,12 +171,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorBandwidthOrigin = new lambda.Function(this, 'metrics_collector_bandwidth_origin', {
       functionName: "metricsCollectorBandwidthOrigin",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_bandwidth_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
@@ -174,12 +186,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorChrBandwidth = new lambda.Function(this, 'metrics_collector_chr_bandwidth', {
       functionName: "metricsCollectorChrBandwidth",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_chr_bandwidth.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_bandwidth')),
@@ -188,12 +201,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorChrRequest = new lambda.Function(this, 'metrics_collector_chr_request', {
       functionName: "metricsCollectorChrRequest",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_chr_request.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_request')),
@@ -202,12 +216,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorDownloadSpeedCDN = new lambda.Function(this, 'metrics_collector_download_speed_cdn', {
       functionName: "metricsCollectorDownloadSpeedCDN",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_download_speed_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_download_speed_cdn')),
@@ -216,12 +231,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metrics_collector_download_speed_origin', {
       functionName: "metricsCollectorDownloadSpeedOrigin",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_bandwidth_speed_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
@@ -230,12 +246,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorRequestCDN = new lambda.Function(this, 'metrics_collector_request_cdn', {
       functionName: "metricsCollectorRequestCDN",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_request_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_cdn')),
@@ -244,12 +261,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorRequestOrigin = new lambda.Function(this, 'metrics_collector_request_origin', {
       functionName: "metricsCollectorRequestOrigin",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_request_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_origin')),
@@ -258,12 +276,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'metrics_collector_status_code_cdn', {
       functionName: "metricsCollectorStatusCodeCDN",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_status_code_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_cdn')),
@@ -272,12 +291,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'metrics_collector_status_code_origin', {
       functionName: "metricsCollectorStatusCodeOrigin",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_collector_status_code_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_origin')),
@@ -286,12 +306,13 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     const metricsManager = new lambda.Function(this, 'metrics_manager', {
       functionName: "matrics_manager",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'index.handler',
+      handler: 'metric_manager.handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_manager')),
@@ -300,6 +321,7 @@ export class CloudFrontMonitoringStack extends Stack {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
     });
 
     addPartition.node.addDependency(cloudfront_metrics_table);
@@ -406,6 +428,8 @@ export class CloudFrontMonitoringStack extends Stack {
       destinations: [s3Destination],
       role: deliveryStreamRole,
     });
+
+    //TODO: Will replace with following cfn firehose template since current cdk do not support dynamic partition options
     // const cloudfront_realtime_log_delivery_stream = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
     //   deliveryStreamName: `cloudfront-realtime-log-delivery-stream`,
     //   kinesisStreamSourceConfiguration: {
