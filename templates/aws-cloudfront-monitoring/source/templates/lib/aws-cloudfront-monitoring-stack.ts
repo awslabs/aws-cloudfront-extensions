@@ -616,7 +616,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_bandwidth_speed_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_download_speed_origin')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
