@@ -4,9 +4,9 @@ from datetime import datetime
 from datetime import timedelta
 from decimal import Decimal
 import boto3
-from lib.metric_helper import get_athena_query_result
-from lib.metric_helper import format_date_time
-from lib.metric_helper import assemble_query
+from metric_helper import get_athena_query_result
+from metric_helper import format_date_time
+from metric_helper import assemble_query
 
 ATHENA_QUERY_OUTPUT = "<s3 path>"
 athena_client = boto3.client('athena')

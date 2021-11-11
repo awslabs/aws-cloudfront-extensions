@@ -3,8 +3,8 @@ import logging
 from datetime import datetime
 from datetime import timedelta
 import boto3
-from lib.metric_helper import get_athena_query_result
-from lib.metric_helper import gen_detailed_by_interval
+from metric_helper import get_athena_query_result
+from metric_helper import gen_detailed_by_interval
 
 ATHENA_QUERY_OUTPUT = "<s3 path>"
 athena_client = boto3.client('athena')

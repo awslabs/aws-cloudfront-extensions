@@ -4,7 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 import time
 import boto3
-from lib.metric_helper import gen_detailed_by_interval
+from metric_helper import gen_detailed_by_interval
 
 SLEEP_TIME = 1
 RETRY_COUNT = 60
