@@ -613,7 +613,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metrics_collector_download_speed_origin', {
       functionName: "metricsCollectorDownloadSpeedOrigin",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_bandwidth_speed_origin.lambda_handler',
+      handler: 'metric_collector_download_speed_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_download_speed_origin')),
