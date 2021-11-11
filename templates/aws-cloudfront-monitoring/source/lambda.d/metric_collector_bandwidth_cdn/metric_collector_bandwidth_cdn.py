@@ -3,14 +3,15 @@ import logging
 from datetime import datetime
 from datetime import timedelta
 import boto3
+import os
 from metric_helper import get_athena_query_result
 from metric_helper import gen_detailed_by_interval
 
-ATHENA_QUERY_OUTPUT = "<s3 path>"
+ATHENA_QUERY_OUTPUT = "s3://" + os.environ['S3_BUCKET'] + "/athena_results/"
 athena_client = boto3.client('athena')
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-DB_NAME = "<db name>"
-TABLE_NAME = "<table name>"
+dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
+DB_NAME = os.environ['GLUE_DATABASE_NAME']
+TABLE_NAME = os.environ['DDB_TABLE_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')

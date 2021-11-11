@@ -1,13 +1,14 @@
 import json
 import boto3
 import logging
+import os
 from datetime import datetime
 from datetime import timedelta
 
-DB_NAME = "glue_database"
-TABLE_NAME = "cf_rt_logs"
-CATALOG_ID = "<your_aws_account_id>"
-S3_URL = "s3://<your_s3_bucket>"
+DB_NAME = os.environ['GLUE_DATABASE_NAME']
+TABLE_NAME = os.environ['DDB_TABLE_NAME']
+CATALOG_ID = os.environ['ACCOUNT_ID']
+S3_URL = "s3://" + os.environ['S3_BUCKET']
 
 log = logging.getLogger()
 log.setLevel('INFO')

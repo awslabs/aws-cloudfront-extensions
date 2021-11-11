@@ -1,14 +1,16 @@
 import json
 import boto3
 import logging
+import os
 from datetime import datetime
 from datetime import timedelta
 
 log = logging.getLogger()
 log.setLevel('INFO')
-DB_NAME = "glue_database"
-TABLE_NAME = "cf_rt_logs"
-CATALOG_ID = "<your_aws_account_id>"
+
+DB_NAME = os.environ['GLUE_DATABASE_NAME']
+TABLE_NAME = os.environ['DDB_TABLE_NAME']
+CATALOG_ID = os.environ['ACCOUNT_ID']
 
 client = boto3.client('glue')
 

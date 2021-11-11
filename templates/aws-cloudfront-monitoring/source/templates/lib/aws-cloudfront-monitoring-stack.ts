@@ -75,8 +75,6 @@ export class CloudFrontMonitoringStack extends Stack {
       ]
     });
 
-
-
     // create Dynamodb table to save the captcha index file
     const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
       billingMode: dynamodb.BillingMode.PROVISIONED,
@@ -97,428 +95,6 @@ export class CloudFrontMonitoringStack extends Stack {
       targetUtilizationPercent: 75
     })
 
-    const lambdaRole = new iam.Role(this, 'LambdaRole', {
-      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-    });
-
-    lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
-    );
-
-
-    // define a lambda layer for all other lambda to use
-    const cloudfrontSharedLayer = new lambda.LayerVersion(this, 'cloudfront-shared-layer', {
-      compatibleRuntimes: [
-        lambda.Runtime.PYTHON_3_9,
-      ],
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/shared_lib')),
-      description: 'shared lib for all other lambda functions to use',
-    });
-
-    // define add partition lambda function
-    const addPartition = new lambda.Function(this, 'add-partition-lambda', {
-      functionName: "addPartition",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'add_partition.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/add_partition')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    // define delete partition lambda function
-    const deletePartition = new lambda.Function(this, 'delete-partition-lambda', {
-      functionName: "deletePartition",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'delete_partition.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/delete_partition')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorBandwidthCdn = new lambda.Function(this, 'metrics_collector_bandwidth_cdn', {
-      functionName: "metricsCollectorBandwidthCdn",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_bandwidth.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_cdn')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorBandwidthOrigin = new lambda.Function(this, 'metrics_collector_bandwidth_origin', {
-      functionName: "metricsCollectorBandwidthOrigin",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_bandwidth_origin.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorChrBandwidth = new lambda.Function(this, 'metrics_collector_chr_bandwidth', {
-      functionName: "metricsCollectorChrBandwidth",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_chr_bandwidth.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_bandwidth')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorChrRequest = new lambda.Function(this, 'metrics_collector_chr_request', {
-      functionName: "metricsCollectorChrRequest",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_chr_request.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_request')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorDownloadSpeedCDN = new lambda.Function(this, 'metrics_collector_download_speed_cdn', {
-      functionName: "metricsCollectorDownloadSpeedCDN",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_download_speed_cdn.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_download_speed_cdn')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metrics_collector_download_speed_origin', {
-      functionName: "metricsCollectorDownloadSpeedOrigin",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_bandwidth_speed_origin.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorRequestCDN = new lambda.Function(this, 'metrics_collector_request_cdn', {
-      functionName: "metricsCollectorRequestCDN",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_request_cdn.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_cdn')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorRequestOrigin = new lambda.Function(this, 'metrics_collector_request_origin', {
-      functionName: "metricsCollectorRequestOrigin",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_request_origin.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_origin')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'metrics_collector_status_code_cdn', {
-      functionName: "metricsCollectorStatusCodeCDN",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_status_code_cdn.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_cdn')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'metrics_collector_status_code_origin', {
-      functionName: "metricsCollectorStatusCodeOrigin",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_status_code_origin.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_origin')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const metricsManager = new lambda.Function(this, 'metrics_manager', {
-      functionName: "matrics_manager",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_manager.handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_manager')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    addPartition.node.addDependency(cloudfront_metrics_table);
-    deletePartition.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorBandwidthCdn.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorBandwidthOrigin.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorChrBandwidth.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorChrRequest.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorStatusCodeOrigin.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorRequestCDN.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorRequestOrigin.node.addDependency(cloudfront_metrics_table);
-    metricsManager.node.addDependency(cloudfront_metrics_table);
-
-
-    const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
-      handler: metricsManager,
-      description: "restful api to get the cloudfront performance data",
-      proxy: false,
-      restApiName:'CloudfrontPerformanceMetrics',
-      endpointConfiguration: {
-        types: [ EndpointType.EDGE]
-      }
-    })
-
-    // create cognito user pool
-    const cloudfront_metrics_userpool = new cognito.UserPool(this, 'CloudFrontMetricsCognitoUserPool', {
-      userPoolName: 'cloudfront-metrics-userpool',
-      selfSignUpEnabled: true,
-      signInAliases: {
-        email: true,
-      },
-      autoVerify: {
-        email: true,
-      },
-      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-    });
-
-    const cognitoAuthorizer = new CognitoUserPoolsAuthorizer(this, `Cloudfront-Metrics-CognitoAuthorizer`, {
-      authorizerName : `Metric-Cognito-Authorizer`,
-      cognitoUserPools : [ cloudfront_metrics_userpool ],
-      identitySource : "method.request.header.Authorization"
-    });
-
-    const performance_metric_proxy = rest_api.root.addResource('metric');
-    performance_metric_proxy.addMethod('GET', undefined, {
-      authorizationType: AuthorizationType.COGNITO,
-      authorizer: cognitoAuthorizer
-    });
-
-    //Policy to allow client to call this restful api
-    const api_client_policy = new ManagedPolicy(this, "cloudfront_metrics_api_client_policy", {
-      managedPolicyName: "cloudfront_metric_client_policy_"+deployStage.valueAsString,
-      description: "policy for client to call stage:"+deployStage.valueAsString,
-      statements: [
-        new iam.PolicyStatement({
-          resources: [rest_api.arnForExecuteApi()],
-          actions: ['execute-api:Invoke'],
-          effect: iam.Effect.ALLOW,
-        }),
-      ],
-    });
-
-    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
-      streamName: "cloudfront-real-time-log-data-stream",
-      shardCount: 200,
-      encryption: StreamEncryption.UNENCRYPTED
-    })
-
-    // Provide a Lambda function that will transform records before delivery, with custom
-    // buffering and retry configuration
-    const cloudfrontRealtimeLogTransformer = new lambda.Function(this, 'Cloudfront-realtime-log-transformer', {
-      functionName: "cf-real-time-logs-transformer",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'app.lambda_handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
-      timeout: cdk.Duration.minutes(1)
-    });
-
-    const lambdaProcessor = new LambdaFunctionProcessor(cloudfrontRealtimeLogTransformer, {
-      bufferInterval: cdk.Duration.minutes(2),
-      bufferSize: cdk.Size.mebibytes(3),
-      retries: 3,
-    });
-
-    const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
-      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
-    });
-    const destinationRole = new iam.Role(this, 'Destination Role', {
-      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
-    });
-
-    const s3Destination = new destinations.S3Bucket(cloudfront_monitoring_s3_bucket, {
-      processor: lambdaProcessor,
-      role:destinationRole,
-      bufferingSize: cdk.Size.mebibytes(128),
-      bufferingInterval: cdk.Duration.minutes(1),
-    });
-
-    const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Cloudfront Realtime log Delivery Stream', {
-      sourceStream: cloudfront_realtime_log_stream,
-      destinations: [s3Destination],
-      role: deliveryStreamRole,
-    });
-
-    //TODO: Will replace with following cfn firehose template since current cdk do not support dynamic partition options
-    // const cloudfront_realtime_log_delivery_stream = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
-    //   deliveryStreamName: `cloudfront-realtime-log-delivery-stream`,
-    //   kinesisStreamSourceConfiguration: {
-    //     kinesisStreamArn: cloudfront_realtime_log_stream.streamArn,
-    //     roleArn: deliveryStreamRole.roleArn
-    //   },
-    //   s3DestinationConfiguration: {
-    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
-    //     roleArn: destinationRole.roleArn,
-    //     bufferingHints: {
-    //       intervalInSeconds: 60,
-    //       sizeInMBs: 128,
-    //     },
-    //     cloudWatchLoggingOptions: {
-    //       enabled: true,
-    //       logGroupName: "/aws/kinesisfirehose/cloudfront-realtime-log-s3-delivery",
-    //       logStreamName: 'DestinationDelivery',
-    //     },
-    //     compressionFormat: 'UNCOMPRESSED',
-    //     prefix: `year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/`,
-    //     errorOutputPrefix: `failed/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}/`,
-    //     encryptionConfiguration: {
-    //       noEncryptionConfig: "NoEncryption"
-    //     },
-    //   },
-    //   extendedS3DestinationConfiguration: {
-    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
-    //     bufferingHints: {
-    //       sizeInMBs: 128,
-    //       intervalInSeconds: 60
-    //     },
-    //     dataFormatConversionConfiguration: {
-    //       enabled: false
-    //     },
-    //     dynamicPartitioningConfiguration: {
-    //       retryOptions: {
-    //         durationInSeconds: 20
-    //       },
-    //       enabled: true
-    //     },
-    //     encryptionConfiguration: {
-    //       noEncryptionConfig: "NoEncryption"
-    //     },
-    //     prefix: "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
-    //     roleArn: destinationRole.roleArn,
-    //     processingConfiguration: {
-    //       enabled: true,
-    //       processors: [
-    //         {
-    //           type: "Lambda",
-    //           parameters: [
-    //             {
-    //               parameterName: "LambdaArn",
-    //               parameterValue: cloudfrontRealtimeLogTransformer.functionArn
-    //             },
-    //             {
-    //               parameterName: "NumberOfRetries",
-    //               parameterValue: "3"
-    //             },
-    //             {
-    //               parameterName: "RoleArn",
-    //               parameterValue: cloudfrontRealtimeLogTransformer.role.roleArn
-    //             },
-    //             {
-    //               parameterName: "BufferSizeInMBs",
-    //               parameterValue: "3"
-    //             },
-    //             {
-    //               parameterName: "BufferIntervalInSeconds",
-    //               parameterValue: "60"
-    //             }
-    //           ]
-    //         },
-    //         {
-    //           type: "RecordDeAggregation",
-    //           parameters: [
-    //             {
-    //               parameterName: "SubRecordType",
-    //               parameterValue: "JSON"
-    //             }
-    //           ]
-    //         }
-    //       ]
-    //     },
-    //     s3BackupMode: "Disabled"
-    //   }
-    // });
-    // cloudfront_realtime_log_delivery_stream.node.addDependency(cloudfrontRealtimeLogTransformer);
-
     const glueDatabase = new Database(this, "cf_reatime_database",{
       databaseName: "glue_accesslogs_database"
     });
@@ -528,8 +104,8 @@ export class CloudFrontMonitoringStack extends Stack {
         {
           name: "timestamp",
           type: {
-              inputString: "bigint",
-              isPrimitive: false
+            inputString: "bigint",
+            isPrimitive: false
           }
         },
         {
@@ -868,6 +444,534 @@ export class CloudFrontMonitoringStack extends Stack {
         }
       ]
     });
+
+    const lambdaRole = new iam.Role(this, 'LambdaRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+    });
+
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
+    );
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+    );
+
+
+    // define a lambda layer for all other lambda to use
+    const cloudfrontSharedLayer = new lambda.LayerVersion(this, 'cloudfront-shared-layer', {
+      compatibleRuntimes: [
+        lambda.Runtime.PYTHON_3_9,
+      ],
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/shared_lib')),
+      description: 'shared lib for all other lambda functions to use',
+    });
+
+    // define add partition lambda function
+    const addPartition = new lambda.Function(this, 'add-partition-lambda', {
+      functionName: "addPartition",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'add_partition.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/add_partition')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    // define delete partition lambda function
+    const deletePartition = new lambda.Function(this, 'delete-partition-lambda', {
+      functionName: "deletePartition",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'delete_partition.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/delete_partition')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorBandwidthCdn = new lambda.Function(this, 'metrics_collector_bandwidth_cdn', {
+      functionName: "metricsCollectorBandwidthCdn",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_bandwidth.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorBandwidthOrigin = new lambda.Function(this, 'metrics_collector_bandwidth_origin', {
+      functionName: "metricsCollectorBandwidthOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_bandwidth_origin.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorChrBandwidth = new lambda.Function(this, 'metrics_collector_chr_bandwidth', {
+      functionName: "metricsCollectorChrBandwidth",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_chr_bandwidth.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_bandwidth')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorChrRequest = new lambda.Function(this, 'metrics_collector_chr_request', {
+      functionName: "metricsCollectorChrRequest",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_chr_request.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_chr_request')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorDownloadSpeedCDN = new lambda.Function(this, 'metrics_collector_download_speed_cdn', {
+      functionName: "metricsCollectorDownloadSpeedCDN",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_download_speed_cdn.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_download_speed_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metrics_collector_download_speed_origin', {
+      functionName: "metricsCollectorDownloadSpeedOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_bandwidth_speed_origin.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorRequestCDN = new lambda.Function(this, 'metrics_collector_request_cdn', {
+      functionName: "metricsCollectorRequestCDN",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_request_cdn.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorRequestOrigin = new lambda.Function(this, 'metrics_collector_request_origin', {
+      functionName: "metricsCollectorRequestOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_request_origin.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_request_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'metrics_collector_status_code_cdn', {
+      functionName: "metricsCollectorStatusCodeCDN",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_status_code_cdn.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_cdn')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'metrics_collector_status_code_origin', {
+      functionName: "metricsCollectorStatusCodeOrigin",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_status_code_origin.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_status_code_origin')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsManager = new lambda.Function(this, 'metrics_manager', {
+      functionName: "matrics_manager",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_manager.handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_manager')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    addPartition.node.addDependency(cloudfront_metrics_table);
+    addPartition.node.addDependency(glueDatabase);
+    addPartition.node.addDependency(glueTable);
+    addPartition.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    deletePartition.node.addDependency(cloudfront_metrics_table);
+    deletePartition.node.addDependency(glueDatabase);
+    deletePartition.node.addDependency(glueTable);
+    deletePartition.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorBandwidthCdn.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorBandwidthCdn.node.addDependency(glueDatabase);
+    metricsCollectorBandwidthCdn.node.addDependency(glueTable);
+    metricsCollectorBandwidthCdn.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorBandwidthOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorBandwidthOrigin.node.addDependency(glueDatabase);
+    metricsCollectorBandwidthOrigin.node.addDependency(glueTable);
+    metricsCollectorBandwidthOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorChrBandwidth.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorChrBandwidth.node.addDependency(glueDatabase);
+    metricsCollectorChrBandwidth.node.addDependency(glueTable);
+    metricsCollectorChrBandwidth.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorChrRequest.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorChrRequest.node.addDependency(glueDatabase);
+    metricsCollectorChrRequest.node.addDependency(glueTable);
+    metricsCollectorChrRequest.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorDownloadSpeedOrigin.node.addDependency(glueDatabase);
+    metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTable);
+    metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorDownloadSpeedCDN.node.addDependency(glueDatabase);
+    metricsCollectorDownloadSpeedCDN.node.addDependency(glueTable);
+    metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorStatusCodeCDN.node.addDependency(glueDatabase);
+    metricsCollectorStatusCodeCDN.node.addDependency(glueTable);
+    metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorStatusCodeOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorStatusCodeOrigin.node.addDependency(glueDatabase);
+    metricsCollectorStatusCodeOrigin.node.addDependency(glueTable);
+    metricsCollectorStatusCodeOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorRequestCDN.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorRequestCDN.node.addDependency(glueDatabase);
+    metricsCollectorRequestCDN.node.addDependency(glueTable);
+    metricsCollectorRequestCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorRequestOrigin.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorRequestOrigin.node.addDependency(glueDatabase);
+    metricsCollectorRequestOrigin.node.addDependency(glueTable);
+    metricsCollectorRequestOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsManager.node.addDependency(cloudfront_metrics_table);
+    metricsManager.node.addDependency(glueDatabase);
+    metricsManager.node.addDependency(glueTable);
+    metricsManager.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+
+    const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
+      handler: metricsManager,
+      description: "restful api to get the cloudfront performance data",
+      proxy: false,
+      restApiName:'CloudfrontPerformanceMetrics',
+      endpointConfiguration: {
+        types: [ EndpointType.EDGE]
+      }
+    })
+
+    // create cognito user pool
+    const cloudfront_metrics_userpool = new cognito.UserPool(this, 'CloudFrontMetricsCognitoUserPool', {
+      userPoolName: 'cloudfront-metrics-userpool',
+      selfSignUpEnabled: true,
+      signInAliases: {
+        email: true,
+      },
+      autoVerify: {
+        email: true,
+      },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+    });
+
+    const cognitoAuthorizer = new CognitoUserPoolsAuthorizer(this, `Cloudfront-Metrics-CognitoAuthorizer`, {
+      authorizerName : `Metric-Cognito-Authorizer`,
+      cognitoUserPools : [ cloudfront_metrics_userpool ],
+      identitySource : "method.request.header.Authorization"
+    });
+
+    const performance_metric_proxy = rest_api.root.addResource('metric');
+    performance_metric_proxy.addMethod('GET', undefined, {
+      authorizationType: AuthorizationType.COGNITO,
+      authorizer: cognitoAuthorizer
+    });
+
+    //Policy to allow client to call this restful api
+    const api_client_policy = new ManagedPolicy(this, "cloudfront_metrics_api_client_policy", {
+      managedPolicyName: "cloudfront_metric_client_policy_"+deployStage.valueAsString,
+      description: "policy for client to call stage:"+deployStage.valueAsString,
+      statements: [
+        new iam.PolicyStatement({
+          resources: [rest_api.arnForExecuteApi()],
+          actions: ['execute-api:Invoke'],
+          effect: iam.Effect.ALLOW,
+        }),
+      ],
+    });
+
+    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
+      streamName: "cloudfront-real-time-log-data-stream",
+      shardCount: 200,
+      encryption: StreamEncryption.UNENCRYPTED
+    })
+
+    // Provide a Lambda function that will transform records before delivery, with custom
+    // buffering and retry configuration
+    // TODO: may need to replace this lambda with SAR
+    const cloudfrontRealtimeLogTransformer = new lambda.Function(this, 'Cloudfront-realtime-log-transformer', {
+      functionName: "cf-real-time-logs-transformer",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'app.lambda_handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
+      timeout: cdk.Duration.minutes(1)
+    });
+
+    const lambdaProcessor = new LambdaFunctionProcessor(cloudfrontRealtimeLogTransformer, {
+      bufferInterval: cdk.Duration.minutes(2),
+      bufferSize: cdk.Size.mebibytes(3),
+      retries: 3,
+    });
+
+    const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
+      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
+    });
+    const destinationRole = new iam.Role(this, 'Destination Role', {
+      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
+    });
+
+    const s3Destination = new destinations.S3Bucket(cloudfront_monitoring_s3_bucket, {
+      processor: lambdaProcessor,
+      role:destinationRole,
+      bufferingSize: cdk.Size.mebibytes(128),
+      bufferingInterval: cdk.Duration.minutes(1),
+    });
+
+    const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Cloudfront Realtime log Delivery Stream', {
+      sourceStream: cloudfront_realtime_log_stream,
+      destinations: [s3Destination],
+      role: deliveryStreamRole,
+    });
+
+    //TODO: Will replace with following cfn firehose template since current cdk do not support dynamic partition options
+    // const cloudfront_realtime_log_delivery_stream = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
+    //   deliveryStreamName: `cloudfront-realtime-log-delivery-stream`,
+    //   kinesisStreamSourceConfiguration: {
+    //     kinesisStreamArn: cloudfront_realtime_log_stream.streamArn,
+    //     roleArn: deliveryStreamRole.roleArn
+    //   },
+    //   s3DestinationConfiguration: {
+    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
+    //     roleArn: destinationRole.roleArn,
+    //     bufferingHints: {
+    //       intervalInSeconds: 60,
+    //       sizeInMBs: 128,
+    //     },
+    //     cloudWatchLoggingOptions: {
+    //       enabled: true,
+    //       logGroupName: "/aws/kinesisfirehose/cloudfront-realtime-log-s3-delivery",
+    //       logStreamName: 'DestinationDelivery',
+    //     },
+    //     compressionFormat: 'UNCOMPRESSED',
+    //     prefix: `year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/`,
+    //     errorOutputPrefix: `failed/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}/`,
+    //     encryptionConfiguration: {
+    //       noEncryptionConfig: "NoEncryption"
+    //     },
+    //   },
+    //   extendedS3DestinationConfiguration: {
+    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
+    //     bufferingHints: {
+    //       sizeInMBs: 128,
+    //       intervalInSeconds: 60
+    //     },
+    //     dataFormatConversionConfiguration: {
+    //       enabled: false
+    //     },
+    //     dynamicPartitioningConfiguration: {
+    //       retryOptions: {
+    //         durationInSeconds: 20
+    //       },
+    //       enabled: true
+    //     },
+    //     encryptionConfiguration: {
+    //       noEncryptionConfig: "NoEncryption"
+    //     },
+    //     prefix: "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
+    //     roleArn: destinationRole.roleArn,
+    //     processingConfiguration: {
+    //       enabled: true,
+    //       processors: [
+    //         {
+    //           type: "Lambda",
+    //           parameters: [
+    //             {
+    //               parameterName: "LambdaArn",
+    //               parameterValue: cloudfrontRealtimeLogTransformer.functionArn
+    //             },
+    //             {
+    //               parameterName: "NumberOfRetries",
+    //               parameterValue: "3"
+    //             },
+    //             {
+    //               parameterName: "RoleArn",
+    //               parameterValue: cloudfrontRealtimeLogTransformer.role.roleArn
+    //             },
+    //             {
+    //               parameterName: "BufferSizeInMBs",
+    //               parameterValue: "3"
+    //             },
+    //             {
+    //               parameterName: "BufferIntervalInSeconds",
+    //               parameterValue: "60"
+    //             }
+    //           ]
+    //         },
+    //         {
+    //           type: "RecordDeAggregation",
+    //           parameters: [
+    //             {
+    //               parameterName: "SubRecordType",
+    //               parameterValue: "JSON"
+    //             }
+    //           ]
+    //         }
+    //       ]
+    //     },
+    //     s3BackupMode: "Disabled"
+    //   }
+    // });
+    // cloudfront_realtime_log_delivery_stream.node.addDependency(cloudfrontRealtimeLogTransformer);
+
+
 
     const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudfrontLogs_5_minutes_rule_first', {
       schedule: Schedule.expression("cron(0/5 * * * ? *)"),
