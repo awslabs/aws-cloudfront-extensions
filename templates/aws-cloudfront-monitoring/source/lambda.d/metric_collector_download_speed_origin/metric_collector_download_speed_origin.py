@@ -14,7 +14,7 @@ ATHENA_QUERY_OUTPUT = "s3://" + os.environ['S3_BUCKET'] + "/athena_results/"
 athena_client = boto3.client('athena')
 dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
-TABLE_NAME = os.environ['DDB_TABLE_NAME']
+DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -229,7 +229,7 @@ def lambda_handler(event, context):
                     'timestamp': data_item["timestamp"],
                     'metricData': data_item
                 }
-                table = dynamodb.Table("CloudFrontMetrics")
+                table = dynamodb.Table(DDB_TABLE_NAME)
                 ddb_response = table.put_item(Item=table_item)
                 log.info(str(table_item))
                 log.info(str(ddb_response))

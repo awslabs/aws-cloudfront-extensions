@@ -487,6 +487,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -507,6 +508,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -526,6 +528,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -545,6 +548,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -564,6 +568,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -583,6 +588,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -602,6 +608,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -621,6 +628,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -640,6 +648,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -659,6 +668,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -678,6 +688,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -697,6 +708,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region
@@ -716,6 +728,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         REGION_NAME: this.region

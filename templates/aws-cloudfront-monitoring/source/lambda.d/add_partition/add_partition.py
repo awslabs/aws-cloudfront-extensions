@@ -6,7 +6,7 @@ from datetime import datetime
 from datetime import timedelta
 
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
-TABLE_NAME = os.environ['DDB_TABLE_NAME']
+TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 CATALOG_ID = os.environ['ACCOUNT_ID']
 S3_URL = "s3://" + os.environ['S3_BUCKET']
 

@@ -9,7 +9,7 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
-TABLE_NAME = os.environ['DDB_TABLE_NAME']
+TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 CATALOG_ID = os.environ['ACCOUNT_ID']
 
 client = boto3.client('glue')
