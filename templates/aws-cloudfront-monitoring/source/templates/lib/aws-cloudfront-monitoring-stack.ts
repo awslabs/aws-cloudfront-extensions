@@ -10,8 +10,7 @@ import {AuthorizationType, CognitoUserPoolsAuthorizer, EndpointType, LambdaRestA
 import * as cognito from '@aws-cdk/aws-cognito';
 import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
 import * as kinesis from "@aws-cdk/aws-kinesis";
-import {DeliveryStream, LambdaFunctionProcessor} from "@aws-cdk/aws-kinesisfirehose";
-import * as destinations from '@aws-cdk/aws-kinesisfirehose-destinations';
+import {CfnDeliveryStream} from "@aws-cdk/aws-kinesisfirehose";
 import {Database, InputFormat, OutputFormat, SerializationLibrary, Table } from "@aws-cdk/aws-glue"
 import {StreamEncryption} from "@aws-cdk/aws-kinesis";
 import {Rule, Schedule} from "@aws-cdk/aws-events";
@@ -886,12 +885,6 @@ export class CloudFrontMonitoringStack extends Stack {
       timeout: cdk.Duration.minutes(2)
     });
 
-    const lambdaProcessor = new LambdaFunctionProcessor(cloudfrontRealtimeLogTransformer, {
-      bufferInterval: cdk.Duration.minutes(2),
-      bufferSize: cdk.Size.mebibytes(3),
-      retries: 3,
-    });
-
     const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
       assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
@@ -899,111 +892,81 @@ export class CloudFrontMonitoringStack extends Stack {
       assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
 
-    const s3Destination = new destinations.S3Bucket(cloudfront_monitoring_s3_bucket, {
-      processor: lambdaProcessor,
-      role:destinationRole,
-      bufferingSize: cdk.Size.mebibytes(128),
-      bufferingInterval: cdk.Duration.minutes(1),
-      errorOutputPrefix: 'failed/'
+    const cloudfront_realtime_log_delivery_stream_cfn = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
+      deliveryStreamName: cloudfront_realtime_log_stream.streamName + '_delivery_stream',
+      deliveryStreamType: 'KinesisStreamAsSource',
+      kinesisStreamSourceConfiguration: {
+        kinesisStreamArn: cloudfront_realtime_log_stream.streamArn,
+        roleArn: deliveryStreamRole.roleArn
+      },
+      extendedS3DestinationConfiguration: {
+        bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
+        bufferingHints: {
+          sizeInMBs: 128,
+          intervalInSeconds: 60
+        },
+        dataFormatConversionConfiguration: {
+          enabled: false
+        },
+        dynamicPartitioningConfiguration: {
+          retryOptions: {
+            durationInSeconds: 20
+          },
+          enabled: true
+        },
+        encryptionConfiguration: {
+          noEncryptionConfig: "NoEncryption"
+        },
+        prefix: "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
+        errorOutputPrefix: 'failed/',
+        roleArn: destinationRole.roleArn,
+        processingConfiguration: {
+          enabled: true,
+          processors: [
+            {
+              type: "Lambda",
+              parameters: [
+                {
+                  parameterName: "LambdaArn",
+                  parameterValue: cloudfrontRealtimeLogTransformer.functionArn
+                },
+                {
+                  parameterName: "NumberOfRetries",
+                  parameterValue: "3"
+                },
+                {
+                  parameterName: "RoleArn",
+                  parameterValue: lambdaRole.roleArn
+                },
+                {
+                  parameterName: "BufferSizeInMBs",
+                  parameterValue: "3"
+                },
+                {
+                  parameterName: "BufferIntervalInSeconds",
+                  parameterValue: "60"
+                }
+              ]
+            },
+            {
+              type: "RecordDeAggregation",
+              parameters: [
+                {
+                  parameterName: "SubRecordType",
+                  parameterValue: "JSON"
+                }
+              ]
+            }
+          ]
+        },
+        s3BackupMode: "Disabled"
+      }
     });
-
-    const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Cloudfront Realtime log Delivery Stream', {
-      sourceStream: cloudfront_realtime_log_stream,
-      destinations: [s3Destination],
-      role: deliveryStreamRole,
-    });
-
-    //TODO: Will replace with following cfn firehose template since current cdk do not support dynamic partition options
-    // const cloudfront_realtime_log_delivery_stream = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
-    //   deliveryStreamName: `cloudfront-realtime-log-delivery-stream`,
-    //   kinesisStreamSourceConfiguration: {
-    //     kinesisStreamArn: cloudfront_realtime_log_stream.streamArn,
-    //     roleArn: deliveryStreamRole.roleArn
-    //   },
-    //   s3DestinationConfiguration: {
-    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
-    //     roleArn: destinationRole.roleArn,
-    //     bufferingHints: {
-    //       intervalInSeconds: 60,
-    //       sizeInMBs: 128,
-    //     },
-    //     cloudWatchLoggingOptions: {
-    //       enabled: true,
-    //       logGroupName: "/aws/kinesisfirehose/cloudfront-realtime-log-s3-delivery",
-    //       logStreamName: 'DestinationDelivery',
-    //     },
-    //     compressionFormat: 'UNCOMPRESSED',
-    //     prefix: `year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/`,
-    //     errorOutputPrefix: `failed/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}/`,
-    //     encryptionConfiguration: {
-    //       noEncryptionConfig: "NoEncryption"
-    //     },
-    //   },
-    //   extendedS3DestinationConfiguration: {
-    //     bucketArn: cloudfront_monitoring_s3_bucket.bucketArn,
-    //     bufferingHints: {
-    //       sizeInMBs: 128,
-    //       intervalInSeconds: 60
-    //     },
-    //     dataFormatConversionConfiguration: {
-    //       enabled: false
-    //     },
-    //     dynamicPartitioningConfiguration: {
-    //       retryOptions: {
-    //         durationInSeconds: 20
-    //       },
-    //       enabled: true
-    //     },
-    //     encryptionConfiguration: {
-    //       noEncryptionConfig: "NoEncryption"
-    //     },
-    //     prefix: "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
-    //     roleArn: destinationRole.roleArn,
-    //     processingConfiguration: {
-    //       enabled: true,
-    //       processors: [
-    //         {
-    //           type: "Lambda",
-    //           parameters: [
-    //             {
-    //               parameterName: "LambdaArn",
-    //               parameterValue: cloudfrontRealtimeLogTransformer.functionArn
-    //             },
-    //             {
-    //               parameterName: "NumberOfRetries",
-    //               parameterValue: "3"
-    //             },
-    //             {
-    //               parameterName: "RoleArn",
-    //               parameterValue: cloudfrontRealtimeLogTransformer.role.roleArn
-    //             },
-    //             {
-    //               parameterName: "BufferSizeInMBs",
-    //               parameterValue: "3"
-    //             },
-    //             {
-    //               parameterName: "BufferIntervalInSeconds",
-    //               parameterValue: "60"
-    //             }
-    //           ]
-    //         },
-    //         {
-    //           type: "RecordDeAggregation",
-    //           parameters: [
-    //             {
-    //               parameterName: "SubRecordType",
-    //               parameterValue: "JSON"
-    //             }
-    //           ]
-    //         }
-    //       ]
-    //     },
-    //     s3BackupMode: "Disabled"
-    //   }
-    // });
-    // cloudfront_realtime_log_delivery_stream.node.addDependency(cloudfrontRealtimeLogTransformer);
-
-
+    cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(cloudfront_realtime_log_stream)
+    cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(deliveryStreamRole)
+    cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(cloudfront_monitoring_s3_bucket)
+    cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(destinationRole)
+    cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(cloudfrontRealtimeLogTransformer)
 
     const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudfrontLogs_5_minutes_rule_first', {
       schedule: Schedule.expression("cron(0/5 * * * ? *)"),
@@ -1052,6 +1015,5 @@ export class CloudFrontMonitoringStack extends Stack {
     new cdk.CfnOutput(this,'cloudfront_metrics_dynamodb', {value: cloudfront_metrics_table.tableName});
     new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
     new cdk.CfnOutput(this,'glue_table_name',{value:glueTable.tableName});
-    new cdk.CfnOutput(this,'realtime_log_firehose_delivery',{value:cloudfront_realtime_log_delivery_stream.deliveryStreamName})
   }
 }
