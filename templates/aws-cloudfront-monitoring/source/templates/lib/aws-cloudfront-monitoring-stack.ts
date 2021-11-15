@@ -23,7 +23,7 @@ export class CloudFrontMonitoringStack extends Stack {
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
 
     const CloudFrontDomainName = new CfnParameter(this, 'CloudFrontDomainName', {
-      description: 'The cloudfront domain name to be monitored',
+      description: 'The cloudfront domain name to be monitored, for example: d1v8v39goa3nap.cloudfront.net',
       type: 'String',
     })
 
@@ -79,7 +79,7 @@ export class CloudFrontMonitoringStack extends Stack {
       ]
     });
 
-    // create Dynamodb table to save the captcha index file
+    // create Dynamodb table to save the cloudfront metrics data
     const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 10,
@@ -99,10 +99,11 @@ export class CloudFrontMonitoringStack extends Stack {
       targetUtilizationPercent: 75
     })
 
-    const glueDatabase = new Database(this, "cf_reatime_database",{
-      databaseName: "glue_accesslogs_database"
+    const glueDatabase = new Database(this, "cf_realtime_log_glue_database",{
+      databaseName: "glue_cf_realtime_log_database"
     });
-    const glueTable = new Table(this, "cf_realtime_logs", {
+
+    const glueTable = new Table(this, "cf_realtime_log_glue_table", {
       compressed: false,
       columns: [
         {
@@ -403,8 +404,6 @@ export class CloudFrontMonitoringStack extends Stack {
       tableName: "cloudfront_realtime_log",
       database: glueDatabase,
       dataFormat:{
-        // inputFormat: new InputFormat("TEXT"),
-        // outputFormat: new OutputFormat("HIVE_IGNORE_KEY_TEXT"),
         inputFormat: new InputFormat('org.apache.hadoop.mapred.TextInputFormat'),
         outputFormat: new OutputFormat('org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'),
         serializationLibrary: new SerializationLibrary('org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe')
@@ -469,8 +468,7 @@ export class CloudFrontMonitoringStack extends Stack {
         ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
     );
 
-
-    // define a lambda layer for all other lambda to use
+    // define a shared lambda layer for all other lambda to use
     const cloudfrontSharedLayer = new lambda.LayerVersion(this, 'cloudfront-shared-layer', {
       compatibleRuntimes: [
         lambda.Runtime.PYTHON_3_9,
@@ -479,7 +477,6 @@ export class CloudFrontMonitoringStack extends Stack {
       description: 'shared lib for all other lambda functions to use',
     });
 
-    // define add partition lambda function
     const addPartition = new lambda.Function(this, 'add-partition-lambda', {
       functionName: "addPartition",
       runtime: lambda.Runtime.PYTHON_3_9,
@@ -501,7 +498,6 @@ export class CloudFrontMonitoringStack extends Stack {
       layers: [cloudfrontSharedLayer]
     });
 
-    // define delete partition lambda function
     const deletePartition = new lambda.Function(this, 'delete-partition-lambda', {
       functionName: "deletePartition",
       runtime: lambda.Runtime.PYTHON_3_9,
@@ -818,7 +814,6 @@ export class CloudFrontMonitoringStack extends Stack {
     metricsManager.node.addDependency(glueDatabase);
     metricsManager.node.addDependency(glueTable);
     metricsManager.node.addDependency(cloudfront_monitoring_s3_bucket);
-
 
     const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
       handler: metricsManager,
