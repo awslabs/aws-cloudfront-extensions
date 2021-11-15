@@ -520,7 +520,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const metricsCollectorBandwidthCdn = new lambda.Function(this, 'metrics_collector_bandwidth_cdn', {
       functionName: "metricsCollectorBandwidthCdn",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_bandwidth.lambda_handler',
+      handler: 'metric_collector_bandwidth_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_bandwidth_cdn')),
@@ -865,7 +865,7 @@ export class CloudFrontMonitoringStack extends Stack {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'app.lambda_handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
-      timeout: cdk.Duration.minutes(1)
+      timeout: cdk.Duration.minutes(2)
     });
 
     const lambdaProcessor = new LambdaFunctionProcessor(cloudfrontRealtimeLogTransformer, {
@@ -886,6 +886,7 @@ export class CloudFrontMonitoringStack extends Stack {
       role:destinationRole,
       bufferingSize: cdk.Size.mebibytes(128),
       bufferingInterval: cdk.Duration.minutes(1),
+      errorOutputPrefix: 'failed/'
     });
 
     const cloudfront_realtime_log_delivery_stream = new DeliveryStream(this, 'Cloudfront Realtime log Delivery Stream', {

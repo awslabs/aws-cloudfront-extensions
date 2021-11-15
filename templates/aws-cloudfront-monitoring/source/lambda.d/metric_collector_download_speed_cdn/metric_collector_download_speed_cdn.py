@@ -14,6 +14,7 @@ athena_client = boto3.client('athena')
 dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
+GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 INTERVAL = 5
 
 log = logging.getLogger()
@@ -52,7 +53,7 @@ def schedule_athena_query(query_string):
 def assemble_speed(metric, start_time, end_time, domain):
     log.info('[assemble_query_string] Start')
     # Dynamically build query string using partition
-    query_string = 'SELECT "sc-bytes"/"time-taken" as speed, "country-name", isp FROM "' + DB_NAME + '"."' + TABLE_NAME + '" WHERE '
+    query_string = 'SELECT "sc-bytes"/"time-taken" as speed, "country-name", isp FROM "' + DB_NAME + '"."' + GLUE_TABLE_NAME + '" WHERE '
     query_string = assemble_query(start_time, end_time, query_string)
     query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
         format_date_time(end_time)
