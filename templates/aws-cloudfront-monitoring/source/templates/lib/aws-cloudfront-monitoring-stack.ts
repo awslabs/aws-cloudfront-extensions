@@ -23,6 +23,11 @@ export class CloudFrontMonitoringStack extends Stack {
 
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
 
+    const CloudFrontDomainName = new CfnParameter(this, 'CloudFrontDomainName', {
+      description: 'The cloudfront domain name to be monitored',
+      type: 'String',
+    })
+
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
       description: 'Max number of days to keep cloudfront realtime logs in S3',
       type: 'Number',
@@ -490,6 +495,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -511,6 +517,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -531,6 +538,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -551,6 +559,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -571,6 +580,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -591,6 +601,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -611,6 +622,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -631,6 +643,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -651,6 +664,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -671,6 +685,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -691,6 +706,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -711,6 +727,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -720,7 +737,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const metricsManager = new lambda.Function(this, 'metrics_manager', {
       functionName: "matrics_manager",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_manager.handler',
+      handler: 'metric_manager.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_manager')),
@@ -731,6 +748,7 @@ export class CloudFrontMonitoringStack extends Stack {
         GLUE_TABLE_NAME: glueTable.tableName,
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
+        CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,

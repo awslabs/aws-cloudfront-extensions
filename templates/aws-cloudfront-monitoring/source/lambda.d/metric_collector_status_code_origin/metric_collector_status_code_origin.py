@@ -13,6 +13,7 @@ dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
+CLOUDFRONT_DOMAIN_NAME = os.environ['CLOUDFRONT_DOMAIN_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -34,7 +35,7 @@ def lambda_handler(event, context):
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    domain = "<domain>"
+    domain = CLOUDFRONT_DOMAIN_NAME
     metric = "statusCodeOrigin"
 
     try:
