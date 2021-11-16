@@ -16,7 +16,6 @@ dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
-CLOUDFRONT_DOMAIN_NAME = os.environ['CLOUDFRONT_DOMAIN_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -211,33 +210,35 @@ def lambda_handler(event, context):
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    domain = CLOUDFRONT_DOMAIN_NAME
+    domain_list = os.getenv('DOMAIN_LIST').split(",")
     metric = "downloadSpeedOrigin"
 
-    try:
-        gen_data = {}
-        gen_data = gen_detailed_by_interval(metric, start_time, end_time,
-                                            domain)
+    for domain in domain_list:
+        domain = domain.strip()
+        try:
+            gen_data = {}
+            gen_data = gen_detailed_by_interval(metric, start_time, end_time,
+                                                domain)
 
-        for data_item in gen_data:
-            has_value = False
-            for key in data_item:
-                if key != "timestamp" and key != "domain":
-                    has_value = True
-                    break
-            if has_value is True:
-                table_item = {
-                    'metricId': metric + '-' + domain,
-                    'timestamp': data_item["timestamp"],
-                    'metricData': data_item
-                }
-                table = dynamodb.Table(DDB_TABLE_NAME)
-                ddb_response = table.put_item(Item=table_item)
-                log.info(str(table_item))
-                log.info(str(ddb_response))
+            for data_item in gen_data:
+                has_value = False
+                for key in data_item:
+                    if key != "timestamp" and key != "domain":
+                        has_value = True
+                        break
+                if has_value is True:
+                    table_item = {
+                        'metricId': metric + '-' + domain,
+                        'timestamp': data_item["timestamp"],
+                        'metricData': data_item
+                    }
+                    table = dynamodb.Table(DDB_TABLE_NAME)
+                    ddb_response = table.put_item(Item=table_item)
+                    log.info(str(table_item))
+                    log.info(str(ddb_response))
 
-    except Exception as error:
-        log.error(str(error))
+        except Exception as error:
+            log.error(str(error))
 
     log.info('[lambda_handler] End')
     return response
