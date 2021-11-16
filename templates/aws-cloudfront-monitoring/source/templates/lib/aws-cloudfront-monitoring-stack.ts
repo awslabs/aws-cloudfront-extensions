@@ -11,7 +11,7 @@ import * as cognito from '@aws-cdk/aws-cognito';
 import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
 import * as kinesis from "@aws-cdk/aws-kinesis";
 import {CfnDeliveryStream} from "@aws-cdk/aws-kinesisfirehose";
-import {Database, InputFormat, OutputFormat, SerializationLibrary, Table } from "@aws-cdk/aws-glue"
+import {CfnTable, Database, Table} from "@aws-cdk/aws-glue"
 import {StreamEncryption} from "@aws-cdk/aws-kinesis";
 import {Rule, Schedule} from "@aws-cdk/aws-events";
 import { LambdaFunction } from '@aws-cdk/aws-events-targets';
@@ -24,6 +24,7 @@ export class CloudFrontMonitoringStack extends Stack {
 
     const CloudFrontDomainName = new CfnParameter(this, 'CloudFrontDomainName', {
       description: 'The cloudfront domain name to be monitored, for example: d1v8v39goa3nap.cloudfront.net',
+      allowedPattern: '(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]',
       type: 'String',
     })
 
@@ -103,350 +104,585 @@ export class CloudFrontMonitoringStack extends Stack {
       databaseName: "glue_cf_realtime_log_database"
     });
 
-    const glueTable = new Table(this, "cf_realtime_log_glue_table", {
-      compressed: false,
+
+    const glueTableCFN = new CfnTable(this, 'GlueTable', {
+      databaseName: glueDatabase.databaseName,
+      catalogId: glueDatabase.catalogId,
+      tableInput: {
+        tableType: "EXTERNAL_TABLE",
+        parameters: {
+          external: "TRUE",
+          'skip.header.line.count': "2"
+        },
+     storageDescriptor: {
       columns: [
         {
           name: "timestamp",
-          type: {
-            inputString: "bigint",
-            isPrimitive: false
-          }
+          type: "bigint"
         },
         {
           name: "c-ip",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "time-to-first-byte",
-          type: {
-            inputString: "float",
-            isPrimitive: false
-          }
+          type: "float"
         },
         {
           name: "sc-status",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "sc-bytes",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "cs-method",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-protocol",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-host",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-uri-stem",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-bytes",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "x-edge-location",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "x-edge-request-id",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "x-host-header",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "time-taken",
-          type: {
-            inputString: "float",
-            isPrimitive: false
-          }
+          type: "float"
         },
         {
           name: "cs-protocol-version",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "c-ip-version",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-user-agent",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-referer",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-cookie",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-uri-query",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "x-edge-response-result-type",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "x-forwarded-for",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "ssl-protocol",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "ssl-cipher",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "x-edge-result-type",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "fle-encrypted-fields",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "fle-status",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "sc-content-type",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "sc-content-len",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "sc-range-start",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "sc-range-end",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "c-port",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "x-edge-detailed-result-type",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "c-country",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-accept-encoding",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-accept",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cache-behavior-path-pattern",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-headers",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-header-names",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "cs-headers-count",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          type: "int"
         },
         {
           name: "isp",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         },
         {
           name: "country-name",
-          type: {
-            inputString: "string",
-            isPrimitive: true
-          }
+          type: "string"
         }
       ],
-      tableName: "cloudfront_realtime_log",
-      database: glueDatabase,
-      dataFormat:{
-        inputFormat: new InputFormat('org.apache.hadoop.mapred.TextInputFormat'),
-        outputFormat: new OutputFormat('org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'),
-        serializationLibrary: new SerializationLibrary('org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe')
-      },
-      bucket: cloudfront_monitoring_s3_bucket,
-      partitionKeys: [
-        {
-          name: "year",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
-        },
-        {
-          name: "month",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
-        },
-        {
-          name: "day",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
-        },
-        {
-          name: "hour",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
-        },
-        {
-          name: "minute",
-          type: {
-            inputString: "int",
-            isPrimitive: true
-          }
+          location: "s3://" + cloudfront_monitoring_s3_bucket.bucketName,
+          inputFormat: "org.apache.hadoop.mapred.TextInputFormat",
+          outputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+          compressed: false,
+          numberOfBuckets: -1,
+          serdeInfo: {
+        serializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+            parameters: {
+              'field.delim': '\t',
+              'serialization.format': '\t'
         }
-      ]
-    });
+      },
+      parameters: {
+
+      },
+      skewedInfo: {
+        skewedColumnValueLocationMaps: {
+        }
+      },
+      storedAsSubDirectories: false
+    },
+    partitionKeys: [
+      {
+        name: "year",
+        type: "int"
+      },
+      {
+        name: "month",
+        type: "int"
+      },
+      {
+        name: "day",
+        type: "int"
+      },
+      {
+        name: "hour",
+        type: "int"
+      },
+      {
+        name: "minute",
+        type: "int"
+      }
+    ],
+     retention: 0,
+     name: "cloudfront_realtime_log"
+
+  }
+  });
+
+    const glueTable = Table.fromTableArn(this, 'glue_table', glueTableCFN.ref)
+
+
+
+    // const glueTable = new Table(this, "cf_realtime_log_glue_table", {
+    //   compressed: false,
+    //   columns: [
+    //     {
+    //       name: "timestamp",
+    //       type: {
+    //         inputString: "bigint",
+    //         isPrimitive: false
+    //       }
+    //     },
+    //     {
+    //       name: "c-ip",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "time-to-first-byte",
+    //       type: {
+    //         inputString: "float",
+    //         isPrimitive: false
+    //       }
+    //     },
+    //     {
+    //       name: "sc-status",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "sc-bytes",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-method",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-protocol",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-host",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-uri-stem",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-bytes",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-edge-location",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-edge-request-id",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-host-header",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "time-taken",
+    //       type: {
+    //         inputString: "float",
+    //         isPrimitive: false
+    //       }
+    //     },
+    //     {
+    //       name: "cs-protocol-version",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "c-ip-version",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-user-agent",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-referer",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-cookie",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-uri-query",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-edge-response-result-type",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-forwarded-for",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "ssl-protocol",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "ssl-cipher",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-edge-result-type",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "fle-encrypted-fields",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "fle-status",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "sc-content-type",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "sc-content-len",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "sc-range-start",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "sc-range-end",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "c-port",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "x-edge-detailed-result-type",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "c-country",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-accept-encoding",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-accept",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cache-behavior-path-pattern",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-headers",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-header-names",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "cs-headers-count",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "isp",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "country-name",
+    //       type: {
+    //         inputString: "string",
+    //         isPrimitive: true
+    //       }
+    //     }
+    //   ],
+    //   tableName: "cloudfront_realtime_log",
+    //   database: glueDatabase,
+    //   dataFormat:{
+    //     inputFormat: new InputFormat('org.apache.hadoop.mapred.TextInputFormat'),
+    //     outputFormat: new OutputFormat('org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'),
+    //     serializationLibrary: new SerializationLibrary('org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'),
+    //
+    //   },
+    //   bucket: cloudfront_monitoring_s3_bucket,
+    //   partitionKeys: [
+    //     {
+    //       name: "year",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "month",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "day",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "hour",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     },
+    //     {
+    //       name: "minute",
+    //       type: {
+    //         inputString: "int",
+    //         isPrimitive: true
+    //       }
+    //     }
+    //   ]
+    // });
 
     const lambdaRole = new iam.Role(this, 'LambdaRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -488,7 +724,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -509,7 +745,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -530,7 +766,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -551,7 +787,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -572,7 +808,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -593,7 +829,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -614,7 +850,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -635,7 +871,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -656,7 +892,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -677,7 +913,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -698,7 +934,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -719,7 +955,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -740,7 +976,7 @@ export class CloudFrontMonitoringStack extends Stack {
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: glueTable.tableName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         CLOUDFRONT_DOMAIN_NAME: CloudFrontDomainName.valueAsString,
@@ -752,67 +988,80 @@ export class CloudFrontMonitoringStack extends Stack {
 
     addPartition.node.addDependency(cloudfront_metrics_table);
     addPartition.node.addDependency(glueDatabase);
+    addPartition.node.addDependency(glueTableCFN);
     addPartition.node.addDependency(glueTable);
     addPartition.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     deletePartition.node.addDependency(cloudfront_metrics_table);
     deletePartition.node.addDependency(glueDatabase);
     deletePartition.node.addDependency(glueTable);
+    deletePartition.node.addDependency(glueTableCFN);
     deletePartition.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorBandwidthCdn.node.addDependency(cloudfront_metrics_table);
     metricsCollectorBandwidthCdn.node.addDependency(glueDatabase);
     metricsCollectorBandwidthCdn.node.addDependency(glueTable);
+    metricsCollectorBandwidthCdn.node.addDependency(glueTableCFN);
     metricsCollectorBandwidthCdn.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorBandwidthOrigin.node.addDependency(cloudfront_metrics_table);
     metricsCollectorBandwidthOrigin.node.addDependency(glueDatabase);
     metricsCollectorBandwidthOrigin.node.addDependency(glueTable);
+    metricsCollectorBandwidthOrigin.node.addDependency(glueTableCFN);
     metricsCollectorBandwidthOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorChrBandwidth.node.addDependency(cloudfront_metrics_table);
     metricsCollectorChrBandwidth.node.addDependency(glueDatabase);
     metricsCollectorChrBandwidth.node.addDependency(glueTable);
+    metricsCollectorChrBandwidth.node.addDependency(glueTableCFN);
     metricsCollectorChrBandwidth.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorChrRequest.node.addDependency(cloudfront_metrics_table);
     metricsCollectorChrRequest.node.addDependency(glueDatabase);
     metricsCollectorChrRequest.node.addDependency(glueTable);
+    metricsCollectorChrRequest.node.addDependency(glueTableCFN);
     metricsCollectorChrRequest.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
     metricsCollectorDownloadSpeedOrigin.node.addDependency(glueDatabase);
     metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTable);
+    metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTableCFN);
     metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_metrics_table);
     metricsCollectorDownloadSpeedCDN.node.addDependency(glueDatabase);
     metricsCollectorDownloadSpeedCDN.node.addDependency(glueTable);
+    metricsCollectorDownloadSpeedCDN.node.addDependency(glueTableCFN);
     metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_metrics_table);
     metricsCollectorStatusCodeCDN.node.addDependency(glueDatabase);
     metricsCollectorStatusCodeCDN.node.addDependency(glueTable);
+    metricsCollectorStatusCodeCDN.node.addDependency(glueTableCFN);
     metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorStatusCodeOrigin.node.addDependency(cloudfront_metrics_table);
     metricsCollectorStatusCodeOrigin.node.addDependency(glueDatabase);
     metricsCollectorStatusCodeOrigin.node.addDependency(glueTable);
+    metricsCollectorStatusCodeOrigin.node.addDependency(glueTableCFN);
     metricsCollectorStatusCodeOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorRequestCDN.node.addDependency(cloudfront_metrics_table);
     metricsCollectorRequestCDN.node.addDependency(glueDatabase);
     metricsCollectorRequestCDN.node.addDependency(glueTable);
+    metricsCollectorRequestCDN.node.addDependency(glueTableCFN);
     metricsCollectorRequestCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorRequestOrigin.node.addDependency(cloudfront_metrics_table);
     metricsCollectorRequestOrigin.node.addDependency(glueDatabase);
     metricsCollectorRequestOrigin.node.addDependency(glueTable);
+    metricsCollectorRequestOrigin.node.addDependency(glueTableCFN);
     metricsCollectorRequestOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsManager.node.addDependency(cloudfront_metrics_table);
     metricsManager.node.addDependency(glueDatabase);
     metricsManager.node.addDependency(glueTable);
+    metricsManager.node.addDependency(glueTableCFN);
     metricsManager.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
@@ -883,6 +1132,11 @@ export class CloudFrontMonitoringStack extends Stack {
     const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
       assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
+
+    deliveryStreamRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
+    )
+
     const destinationRole = new iam.Role(this, 'Destination Role', {
       assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
@@ -908,6 +1162,11 @@ export class CloudFrontMonitoringStack extends Stack {
             durationInSeconds: 20
           },
           enabled: true
+        },
+        cloudWatchLoggingOptions: {
+          enabled: true,
+          logGroupName: "/aws/kinesisfirehose/" + cloudfront_realtime_log_stream.streamName + '_delivery_stream',
+          logStreamName: "DestinationDelivery"
         },
         encryptionConfiguration: {
           noEncryptionConfig: "NoEncryption"
@@ -1009,6 +1268,6 @@ export class CloudFrontMonitoringStack extends Stack {
     new cdk.CfnOutput(this,'cloudfront_monitoring_s3_bucket', {value: cloudfront_monitoring_s3_bucket.bucketName});
     new cdk.CfnOutput(this,'cloudfront_metrics_dynamodb', {value: cloudfront_metrics_table.tableName});
     new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
-    new cdk.CfnOutput(this,'glue_table_name',{value:glueTable.tableName});
+    new cdk.CfnOutput(this,'glue_table_name',{value:'cloudfront_realtime_log'});
   }
 }
