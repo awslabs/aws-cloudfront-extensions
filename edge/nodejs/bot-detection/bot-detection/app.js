@@ -1,9 +1,7 @@
 "use strict";
 
-const cacheAge = "public, max-age=63072000";
 const cacheAge = "PARA_AGE";
-const botPara = "PARA_ROBOT_LIST"
-const botPara = "googlebot, bingbot";
+const botPara = "PARA_ROBOT_LIST";
 
 exports.handler = (event, context, callback) => {
   let response = event.Records[0].cf.response;
