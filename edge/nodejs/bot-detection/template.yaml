@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8149)
+  bot-detection
+
+  Detect bots and add cache control header to make the bots request to CloudFront cache instead of the origin
+
+Globals:
+  Function:
+    Timeout: 5
+    Tags:
+      Publisher: AWS
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: bot-detection
+    Description: Detect bots and add cache control header to make the bots request to CloudFront cache instead of the origin
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','cloudfront+','aws-cloudfront-extensions','edge','lambda-edge', 'aws']
+    HomePageUrl: https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/bot-detection
+
+Parameters:
+  BotPara:
+    Type: String
+    Default: ""
+    Description: "The bot to be detected, use comma to separate multiple bots, eg. googlebot, bingbot"
+  CacheAge:
+    Type: String
+    Default: "public, max-age=259200"
+    Description: "The age in cache control header, the default value is public, max-age=63072000"
+
+Resources:
+  BotDetectionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: bot-detection/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function
+    DependsOn: BotDetectionFunction
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
+      Handler: index.handler
+      Runtime: python3.7
+      Timeout: 180
+      Policies:
+        - Statement:
+          - Sid: BotDetectionPolicy 
+            Effect: Allow
+            Action:
+            - lambda:UpdateFunction*
+            Resource: !GetAtt BotDetectionFunction.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/bot-detection/bot-detection.zip'
+      EdgeFunctionArn: !GetAtt BotDetectionFunction.Arn
+      HandlerFileName: 'app.js'
+      PARA_AGE: !Ref CacheAge
+      PARA_ROBOT_LIST: !Ref BotPara 
+
+Outputs:
+  BotDetectionFunction:
+    Description: "Lambda Edge function ARN"
+    Value: !GetAtt BotDetectionFunction.Arn
+  BotDetectionFunctionRole:
+    Description: "Implicit IAM Role created for Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8149"
