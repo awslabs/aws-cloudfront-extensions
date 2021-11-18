@@ -9,7 +9,9 @@ This solution detects bots according to User Agent and add cache control header 
 
 <img src='./diagram.png'>
 
-CloudFront event type for this Lambda@Edge: viewer response
+CloudFront event type for this Lambda@Edge: origin response or viewer response
+
+If you use it in origin response, you need to add user-agent(User-Agent) into CloudFront header whitelist so that the user agent header can be passed to origin response, or else the user agent will be Amazon CloudFront
 
 
 ## Use Cases
