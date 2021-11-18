@@ -6,7 +6,13 @@ import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
-import {AuthorizationType, CognitoUserPoolsAuthorizer, EndpointType, LambdaRestApi} from "@aws-cdk/aws-apigateway";
+import {
+  AuthorizationType,
+  CognitoUserPoolsAuthorizer,
+  EndpointType,
+  LambdaRestApi,
+  RequestValidator
+} from "@aws-cdk/aws-apigateway";
 import * as cognito from '@aws-cdk/aws-cognito';
 import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
 import * as kinesis from "@aws-cdk/aws-kinesis";
@@ -15,6 +21,12 @@ import {CfnTable, Database, Table} from "@aws-cdk/aws-glue"
 import {StreamEncryption} from "@aws-cdk/aws-kinesis";
 import {Rule, Schedule} from "@aws-cdk/aws-events";
 import { LambdaFunction } from '@aws-cdk/aws-events-targets';
+import {
+  OAuthScope,
+  ResourceServerScope,
+  UserPoolClientIdentityProvider,
+  UserPoolResourceServer
+} from "@aws-cdk/aws-cognito";
 
 export class CloudFrontMonitoringStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
@@ -1083,7 +1095,6 @@ export class CloudFrontMonitoringStack extends Stack {
 
     // create cognito user pool
     const cloudfront_metrics_userpool = new cognito.UserPool(this, 'CloudFrontMetricsCognitoUserPool', {
-      userPoolName: 'cloudfront-metrics-userpool',
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
       signInAliases: {
@@ -1095,6 +1106,35 @@ export class CloudFrontMonitoringStack extends Stack {
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
     });
 
+    const getMetricScope = new ResourceServerScope({
+      scopeName: "getMetrics",
+      scopeDescription: "get cloudfront metrics",
+    });
+    const userPoolResourceServer = new UserPoolResourceServer(this,"cloudfront-metrics-api-resource-server",{
+      identifier: 'cloudfront-metrics-api',
+      userPool: cloudfront_metrics_userpool,
+      scopes: [getMetricScope]
+    })
+
+    cloudfront_metrics_userpool.addClient('cloudfront-metrics-api-client', {
+      userPoolClientName: 'cloudfront-log-metrics-client',
+      generateSecret: true,
+      oAuth: {
+        flows: {clientCredentials: true},
+        scopes: [OAuthScope.resourceServer(userPoolResourceServer, getMetricScope)],
+
+      },
+      supportedIdentityProviders: [
+        UserPoolClientIdentityProvider.COGNITO,
+      ]
+    });
+
+    cloudfront_metrics_userpool.addDomain("CloudfrontCognitoDomain", {
+      cognitoDomain: {
+        domainPrefix: "cloudfront-monitoring-" + this.account + '-' +this.stackName,
+      },
+    });
+
     const cognitoAuthorizer = new CognitoUserPoolsAuthorizer(this, `Cloudfront-Metrics-CognitoAuthorizer`, {
       authorizerName : `Metric-Cognito-Authorizer`,
       cognitoUserPools : [ cloudfront_metrics_userpool ],
@@ -1104,7 +1144,22 @@ export class CloudFrontMonitoringStack extends Stack {
     const performance_metric_proxy = rest_api.root.addResource('metric');
     performance_metric_proxy.addMethod('GET', undefined, {
       authorizationType: AuthorizationType.COGNITO,
-      authorizer: cognitoAuthorizer
+      authorizer: cognitoAuthorizer,
+      requestParameters: {
+        'method.request.querystring.Action': false,
+        'method.request.querystring.Domains': false,
+        'method.request.querystring.StartTime': true,
+        'method.request.querystring.EndTime': true,
+        'method.request.querystring.Metric': true,
+        'method.request.querystring.Project': false,
+      },
+      authorizationScopes: ['cloudfront-metrics-api/getMetrics'],
+      requestValidator: new RequestValidator(this, "metricsApiValidator",{
+        validateRequestBody: false,
+        validateRequestParameters: true,
+        requestValidatorName: 'defaultValidator',
+        restApi: rest_api
+      }),
     });
 
     //Policy to allow client to call this restful api
