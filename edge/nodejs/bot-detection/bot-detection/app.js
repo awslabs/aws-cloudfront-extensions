@@ -15,7 +15,7 @@ exports.handler = (event, context, callback) => {
 
     for (let j = 0; j < botList.length; j++) {
       if (agent.includes(botList[j].trim())) {
-        console.log("Bot detected, update cache control header: " + botList[0]);
+        console.log("Bot detected, update cache control header: " + botList[j]);
         // Set the cache-control header
         response.headers["cache-control"] = [
           {
