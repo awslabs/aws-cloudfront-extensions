@@ -984,8 +984,8 @@ export class CloudFrontMonitoringStack extends Stack {
       layers: [cloudfrontSharedLayer]
     });
 
-    const metricsManager = new lambda.Function(this, 'metrics_manager', {
-      functionName: "matrics_manager",
+    const metricsManager = new lambda.Function(this, 'metricsManager', {
+      functionName: "metricsManager",
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'metric_manager.lambda_handler',
       memorySize: 512,
