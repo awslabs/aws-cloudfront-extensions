@@ -4,7 +4,7 @@ import * as cdk from '@aws-cdk/core';
 import {CfnParameter, Construct, Duration, RemovalPolicy, Stack, StackProps} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
-import {ManagedPolicy} from '@aws-cdk/aws-iam';
+import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
 import {AuthorizationType, CognitoUserPoolsAuthorizer, EndpointType, LambdaRestApi} from "@aws-cdk/aws-apigateway";
 import * as cognito from '@aws-cdk/aws-cognito';
@@ -685,7 +685,10 @@ export class CloudFrontMonitoringStack extends Stack {
     // });
 
     const lambdaRole = new iam.Role(this, 'LambdaRole', {
-      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      assumedBy: new CompositePrincipal(
+          new ServicePrincipal("firehose.amazonaws.com"),
+          new ServicePrincipal("lambda.amazonaws.com"),
+      ),
     });
 
     lambdaRole.addManagedPolicy(
@@ -702,6 +705,10 @@ export class CloudFrontMonitoringStack extends Stack {
     );
     lambdaRole.addManagedPolicy(
         ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+    );
+
+    lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
     );
 
     // define a shared lambda layer for all other lambda to use
@@ -1077,6 +1084,7 @@ export class CloudFrontMonitoringStack extends Stack {
     // create cognito user pool
     const cloudfront_metrics_userpool = new cognito.UserPool(this, 'CloudFrontMetricsCognitoUserPool', {
       userPoolName: 'cloudfront-metrics-userpool',
+      removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -1125,6 +1133,8 @@ export class CloudFrontMonitoringStack extends Stack {
       functionName: "cf-real-time-logs-transformer",
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'app.lambda_handler',
+      memorySize: 10240,
+      role: lambdaRole,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
       timeout: cdk.Duration.minutes(2)
     });
@@ -1138,8 +1148,29 @@ export class CloudFrontMonitoringStack extends Stack {
     )
 
     const destinationRole = new iam.Role(this, 'Destination Role', {
-      assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
+      assumedBy: new CompositePrincipal(
+          new ServicePrincipal("firehose.amazonaws.com"),
+      ),
     });
+
+    destinationRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
+    );
+    destinationRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
+    );
+    destinationRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
+    );
+    destinationRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
+    );
+    destinationRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+    );
+    destinationRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
+    );
 
     const cloudfront_realtime_log_delivery_stream_cfn = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
       deliveryStreamName: cloudfront_realtime_log_stream.streamName + '_delivery_stream',
