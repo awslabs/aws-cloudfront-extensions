@@ -1129,9 +1129,15 @@ export class CloudFrontMonitoringStack extends Stack {
       ]
     });
 
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    let todayString = yyyy + '-' + mm + '-' + dd;
     cloudfront_metrics_userpool.addDomain("CloudfrontCognitoDomain", {
       cognitoDomain: {
-        domainPrefix: "cloudfront-monitoring-" + this.account + '-' +this.stackName,
+        domainPrefix: this.stackName.toLowerCase() + this.account + '-' + this.region + '-' + todayString,
       },
     });
 
