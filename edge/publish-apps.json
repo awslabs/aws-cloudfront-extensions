@@ -1,8 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      "python/rt_log_transformer",
-      "python/metric_manager"
+      "nodejs/bot-detection"
     ],
     "tag": "v1.0.0"
   }
