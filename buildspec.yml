@@ -6,7 +6,7 @@ phases:
       nodejs: 12
   pre_build:
     commands:
-      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git -b yyan-waf-ci /tmp/repo
+      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
       - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
   build:
     commands:
