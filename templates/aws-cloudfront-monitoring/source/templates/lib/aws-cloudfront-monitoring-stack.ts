@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
-import {CfnParameter, Construct, Duration, RemovalPolicy, Stack, StackProps} from '@aws-cdk/core';
+import { CfnParameter, Construct, Duration, RemovalPolicy, Stack, StackProps } from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
-import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from '@aws-cdk/aws-iam';
+import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
 import {
   AuthorizationType,
@@ -14,12 +14,12 @@ import {
   RequestValidator
 } from "@aws-cdk/aws-apigateway";
 import * as cognito from '@aws-cdk/aws-cognito';
-import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
+import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import * as kinesis from "@aws-cdk/aws-kinesis";
-import {CfnDeliveryStream} from "@aws-cdk/aws-kinesisfirehose";
-import {CfnTable, Database, Table} from "@aws-cdk/aws-glue"
-import {StreamEncryption} from "@aws-cdk/aws-kinesis";
-import {Rule, Schedule} from "@aws-cdk/aws-events";
+import { CfnDeliveryStream } from "@aws-cdk/aws-kinesisfirehose";
+import { CfnTable, Database, Table } from "@aws-cdk/aws-glue"
+import { StreamEncryption } from "@aws-cdk/aws-kinesis";
+import { Rule, Schedule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from '@aws-cdk/aws-events-targets';
 import {
   OAuthScope,
@@ -50,10 +50,10 @@ export class CloudFrontMonitoringStack extends Stack {
       description: 'stageName of the deployment, this allow multiple deployment into one account',
       type: 'String',
       default: 'prod',
-      allowedValues: ['dev','beta','gamma','preprod','prod']
+      allowedValues: ['dev', 'beta', 'gamma', 'preprod', 'prod']
     })
 
-    cdk.Tags.of(this).add('stage', deployStage.valueAsString,{
+    cdk.Tags.of(this).add('stage', deployStage.valueAsString, {
       includeResourceTypes: [
         'AWS::Lambda::Function',
         'AWS::S3::Bucket',
@@ -98,8 +98,8 @@ export class CloudFrontMonitoringStack extends Stack {
       readCapacity: 10,
       writeCapacity: 10,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      partitionKey: {name: 'metricId', type: dynamodb.AttributeType.STRING},
-      sortKey: {name: 'timestamp', type: dynamodb.AttributeType.STRING},
+      partitionKey: { name: 'metricId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
       pointInTimeRecovery: true,
     });
 
@@ -112,7 +112,7 @@ export class CloudFrontMonitoringStack extends Stack {
       targetUtilizationPercent: 75
     })
 
-    const glueDatabase = new Database(this, "cf_realtime_log_glue_database",{
+    const glueDatabase = new Database(this, "cf_realtime_log_glue_database", {
       databaseName: "glue_cf_realtime_log_database"
     });
 
@@ -126,253 +126,253 @@ export class CloudFrontMonitoringStack extends Stack {
           external: "TRUE",
           'skip.header.line.count': "2"
         },
-     storageDescriptor: {
-      columns: [
-        {
-          name: "timestamp",
-          type: "bigint"
-        },
-        {
-          name: "c-ip",
-          type: "string"
-        },
-        {
-          name: "time-to-first-byte",
-          type: "float"
-        },
-        {
-          name: "sc-status",
-          type: "int"
-        },
-        {
-          name: "sc-bytes",
-          type: "int"
-        },
-        {
-          name: "cs-method",
-          type: "string"
-        },
-        {
-          name: "cs-protocol",
-          type: "string"
-        },
-        {
-          name: "cs-host",
-          type: "string"
-        },
-        {
-          name: "cs-uri-stem",
-          type: "string"
-        },
-        {
-          name: "cs-bytes",
-          type: "int"
-        },
-        {
-          name: "x-edge-location",
-          type: "string"
-        },
-        {
-          name: "x-edge-request-id",
-          type: "string"
-        },
-        {
-          name: "x-host-header",
-          type: "string"
-        },
-        {
-          name: "time-taken",
-          type: "float"
-        },
-        {
-          name: "cs-protocol-version",
-          type: "string"
-        },
-        {
-          name: "c-ip-version",
-          type: "string"
-        },
-        {
-          name: "cs-user-agent",
-          type: "string"
-        },
-        {
-          name: "cs-referer",
-          type: "string"
-        },
-        {
-          name: "cs-cookie",
-          type: "string"
-        },
-        {
-          name: "cs-uri-query",
-          type: "string"
-        },
-        {
-          name: "x-edge-response-result-type",
-          type: "string"
-        },
-        {
-          name: "x-forwarded-for",
-          type: "string"
-        },
-        {
-          name: "ssl-protocol",
-          type: "string"
-        },
-        {
-          name: "ssl-cipher",
-          type: "string"
-        },
-        {
-          name: "x-edge-result-type",
-          type: "string"
-        },
-        {
-          name: "fle-encrypted-fields",
-          type: "string"
-        },
-        {
-          name: "fle-status",
-          type: "string"
-        },
-        {
-          name: "sc-content-type",
-          type: "string"
-        },
-        {
-          name: "sc-content-len",
-          type: "int"
-        },
-        {
-          name: "sc-range-start",
-          type: "int"
-        },
-        {
-          name: "sc-range-end",
-          type: "int"
-        },
-        {
-          name: "c-port",
-          type: "int"
-        },
-        {
-          name: "x-edge-detailed-result-type",
-          type: "string"
-        },
-        {
-          name: "c-country",
-          type: "string"
-        },
-        {
-          name: "cs-accept-encoding",
-          type: "string"
-        },
-        {
-          name: "cs-accept",
-          type: "string"
-        },
-        {
-          name: "cache-behavior-path-pattern",
-          type: "string"
-        },
-        {
-          name: "cs-headers",
-          type: "string"
-        },
-        {
-          name: "cs-header-names",
-          type: "string"
-        },
-        {
-          name: "cs-headers-count",
-          type: "int"
-        },
-        {
-          name: "isp",
-          type: "string"
-        },
-        {
-          name: "country-name",
-          type: "string"
-        }
-      ],
+        storageDescriptor: {
+          columns: [
+            {
+              name: "timestamp",
+              type: "bigint"
+            },
+            {
+              name: "c-ip",
+              type: "string"
+            },
+            {
+              name: "time-to-first-byte",
+              type: "float"
+            },
+            {
+              name: "sc-status",
+              type: "int"
+            },
+            {
+              name: "sc-bytes",
+              type: "int"
+            },
+            {
+              name: "cs-method",
+              type: "string"
+            },
+            {
+              name: "cs-protocol",
+              type: "string"
+            },
+            {
+              name: "cs-host",
+              type: "string"
+            },
+            {
+              name: "cs-uri-stem",
+              type: "string"
+            },
+            {
+              name: "cs-bytes",
+              type: "int"
+            },
+            {
+              name: "x-edge-location",
+              type: "string"
+            },
+            {
+              name: "x-edge-request-id",
+              type: "string"
+            },
+            {
+              name: "x-host-header",
+              type: "string"
+            },
+            {
+              name: "time-taken",
+              type: "float"
+            },
+            {
+              name: "cs-protocol-version",
+              type: "string"
+            },
+            {
+              name: "c-ip-version",
+              type: "string"
+            },
+            {
+              name: "cs-user-agent",
+              type: "string"
+            },
+            {
+              name: "cs-referer",
+              type: "string"
+            },
+            {
+              name: "cs-cookie",
+              type: "string"
+            },
+            {
+              name: "cs-uri-query",
+              type: "string"
+            },
+            {
+              name: "x-edge-response-result-type",
+              type: "string"
+            },
+            {
+              name: "x-forwarded-for",
+              type: "string"
+            },
+            {
+              name: "ssl-protocol",
+              type: "string"
+            },
+            {
+              name: "ssl-cipher",
+              type: "string"
+            },
+            {
+              name: "x-edge-result-type",
+              type: "string"
+            },
+            {
+              name: "fle-encrypted-fields",
+              type: "string"
+            },
+            {
+              name: "fle-status",
+              type: "string"
+            },
+            {
+              name: "sc-content-type",
+              type: "string"
+            },
+            {
+              name: "sc-content-len",
+              type: "int"
+            },
+            {
+              name: "sc-range-start",
+              type: "int"
+            },
+            {
+              name: "sc-range-end",
+              type: "int"
+            },
+            {
+              name: "c-port",
+              type: "int"
+            },
+            {
+              name: "x-edge-detailed-result-type",
+              type: "string"
+            },
+            {
+              name: "c-country",
+              type: "string"
+            },
+            {
+              name: "cs-accept-encoding",
+              type: "string"
+            },
+            {
+              name: "cs-accept",
+              type: "string"
+            },
+            {
+              name: "cache-behavior-path-pattern",
+              type: "string"
+            },
+            {
+              name: "cs-headers",
+              type: "string"
+            },
+            {
+              name: "cs-header-names",
+              type: "string"
+            },
+            {
+              name: "cs-headers-count",
+              type: "int"
+            },
+            {
+              name: "isp",
+              type: "string"
+            },
+            {
+              name: "country-name",
+              type: "string"
+            }
+          ],
           location: "s3://" + cloudfront_monitoring_s3_bucket.bucketName,
           inputFormat: "org.apache.hadoop.mapred.TextInputFormat",
           outputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
           compressed: false,
           numberOfBuckets: -1,
           serdeInfo: {
-        serializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+            serializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
             parameters: {
               'field.delim': '\t',
               'serialization.format': '\t'
-        }
-      },
-      parameters: {
+            }
+          },
+          parameters: {
 
-      },
-      skewedInfo: {
-        skewedColumnValueLocationMaps: {
-        }
-      },
-      storedAsSubDirectories: false
-    },
-    partitionKeys: [
-      {
-        name: "year",
-        type: "int"
-      },
-      {
-        name: "month",
-        type: "int"
-      },
-      {
-        name: "day",
-        type: "int"
-      },
-      {
-        name: "hour",
-        type: "int"
-      },
-      {
-        name: "minute",
-        type: "int"
+          },
+          skewedInfo: {
+            skewedColumnValueLocationMaps: {
+            }
+          },
+          storedAsSubDirectories: false
+        },
+        partitionKeys: [
+          {
+            name: "year",
+            type: "int"
+          },
+          {
+            name: "month",
+            type: "int"
+          },
+          {
+            name: "day",
+            type: "int"
+          },
+          {
+            name: "hour",
+            type: "int"
+          },
+          {
+            name: "minute",
+            type: "int"
+          }
+        ],
+        retention: 0,
+        name: "cloudfront_realtime_log"
+
       }
-    ],
-     retention: 0,
-     name: "cloudfront_realtime_log"
-
-  }
-  });
+    });
 
     const glueTable = Table.fromTableArn(this, 'glue_table', glueTableCFN.ref)
 
     const lambdaRole = new iam.Role(this, 'LambdaRole', {
       assumedBy: new CompositePrincipal(
-          new ServicePrincipal("firehose.amazonaws.com"),
-          new ServicePrincipal("lambda.amazonaws.com"),
+        new ServicePrincipal("firehose.amazonaws.com"),
+        new ServicePrincipal("lambda.amazonaws.com"),
       ),
     });
 
     lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
     );
     lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
     );
     lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
     );
     lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
     );
     lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+      ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
     );
 
     lambdaRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
     );
 
     // define a shared lambda layer for all other lambda to use
@@ -739,9 +739,9 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: metricsManager,
       description: "restful api to get the cloudfront performance data",
       proxy: false,
-      restApiName:'CloudfrontPerformanceMetrics',
+      restApiName: 'CloudfrontPerformanceMetrics',
       endpointConfiguration: {
-        types: [ EndpointType.EDGE]
+        types: [EndpointType.EDGE]
       }
     })
 
@@ -762,7 +762,7 @@ export class CloudFrontMonitoringStack extends Stack {
       scopeName: "getMetrics",
       scopeDescription: "get cloudfront metrics",
     });
-    const userPoolResourceServer = new UserPoolResourceServer(this,"cloudfront-metrics-api-resource-server",{
+    const userPoolResourceServer = new UserPoolResourceServer(this, "cloudfront-metrics-api-resource-server", {
       identifier: 'cloudfront-metrics-api',
       userPool: cloudfront_metrics_userpool,
       scopes: [getMetricScope]
@@ -772,7 +772,7 @@ export class CloudFrontMonitoringStack extends Stack {
       userPoolClientName: 'cloudfront-log-metrics-client',
       generateSecret: true,
       oAuth: {
-        flows: {clientCredentials: true},
+        flows: { clientCredentials: true },
         scopes: [OAuthScope.resourceServer(userPoolResourceServer, getMetricScope)],
 
       },
@@ -794,9 +794,9 @@ export class CloudFrontMonitoringStack extends Stack {
     });
 
     const cognitoAuthorizer = new CognitoUserPoolsAuthorizer(this, `Cloudfront-Metrics-CognitoAuthorizer`, {
-      authorizerName : `Metric-Cognito-Authorizer`,
-      cognitoUserPools : [ cloudfront_metrics_userpool ],
-      identitySource : "method.request.header.Authorization"
+      authorizerName: `Metric-Cognito-Authorizer`,
+      cognitoUserPools: [cloudfront_metrics_userpool],
+      identitySource: "method.request.header.Authorization"
     });
 
     const performance_metric_proxy = rest_api.root.addResource('metric');
@@ -812,7 +812,7 @@ export class CloudFrontMonitoringStack extends Stack {
         'method.request.querystring.Project': false,
       },
       authorizationScopes: ['cloudfront-metrics-api/getMetrics'],
-      requestValidator: new RequestValidator(this, "metricsApiValidator",{
+      requestValidator: new RequestValidator(this, "metricsApiValidator", {
         validateRequestBody: false,
         validateRequestParameters: true,
         requestValidatorName: 'defaultValidator',
@@ -822,8 +822,8 @@ export class CloudFrontMonitoringStack extends Stack {
 
     //Policy to allow client to call this restful api
     const api_client_policy = new ManagedPolicy(this, "cloudfront_metrics_api_client_policy", {
-      managedPolicyName: "cloudfront_metric_client_policy_"+deployStage.valueAsString,
-      description: "policy for client to call stage:"+deployStage.valueAsString,
+      managedPolicyName: "cloudfront_metric_client_policy_" + deployStage.valueAsString,
+      description: "policy for client to call stage:" + deployStage.valueAsString,
       statements: [
         new iam.PolicyStatement({
           resources: [rest_api.arnForExecuteApi()],
@@ -836,7 +836,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
       streamName: "cloudfront-real-time-log-data-stream",
       shardCount: 200,
-      encryption: StreamEncryption.UNENCRYPTED
+      encryption: StreamEncryption.KMS
     })
 
     // Provide a Lambda function that will transform records before delivery, with custom
@@ -857,32 +857,32 @@ export class CloudFrontMonitoringStack extends Stack {
     });
 
     deliveryStreamRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
     )
 
     const destinationRole = new iam.Role(this, 'Destination Role', {
       assumedBy: new CompositePrincipal(
-          new ServicePrincipal("firehose.amazonaws.com"),
+        new ServicePrincipal("firehose.amazonaws.com"),
       ),
     });
 
     destinationRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
     );
     destinationRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
     );
     destinationRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
     );
     destinationRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
     );
     destinationRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+      ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
     );
     destinationRole.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
     );
 
     const cloudfront_realtime_log_delivery_stream_cfn = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
@@ -1009,9 +1009,9 @@ export class CloudFrontMonitoringStack extends Stack {
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
 
-    new cdk.CfnOutput(this,'cloudfront_monitoring_s3_bucket', {value: cloudfront_monitoring_s3_bucket.bucketName});
-    new cdk.CfnOutput(this,'cloudfront_metrics_dynamodb', {value: cloudfront_metrics_table.tableName});
-    new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
-    new cdk.CfnOutput(this,'glue_table_name',{value:'cloudfront_realtime_log'});
+    new cdk.CfnOutput(this, 'cloudfront_monitoring_s3_bucket', { value: cloudfront_monitoring_s3_bucket.bucketName });
+    new cdk.CfnOutput(this, 'cloudfront_metrics_dynamodb', { value: cloudfront_metrics_table.tableName });
+    new cdk.CfnOutput(this, 'api-gateway_policy', { value: api_client_policy.managedPolicyName });
+    new cdk.CfnOutput(this, 'glue_table_name', { value: 'cloudfront_realtime_log' });
   }
 }

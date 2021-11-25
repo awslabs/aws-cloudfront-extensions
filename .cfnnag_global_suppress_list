@@ -1,0 +1,26 @@
+---
+RulesToSuppress:
+  - id: W58
+    reason: The Lambda function does have the permission to write CloudWatch Logs.
+  - id: W89
+    reason: The Lambda function does not have to be deployed inside a VPC
+  - id: W92
+    reason: No concurrencies required for this Lambda function
+
+  - id: W12
+  - id: W92
+  - id: W28
+  - id: W68
+    reason: Customer doesn't require to use usage plan
+  - id: W69
+  - id: W64
+    reason: Customer doesn't require to use usage plan 
+  - id: W49
+  - id: W51
+  - id: W73
+  - id: W74
+
+    
+
+
+
