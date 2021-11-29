@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 10
+      nodejs: 12
   pre_build:
     commands:
       - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
