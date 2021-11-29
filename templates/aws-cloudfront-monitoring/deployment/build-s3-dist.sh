@@ -15,7 +15,7 @@ run() {
 
 __dir="$(cd "$(dirname $0)";pwd)"
 SRC_PATH="${__dir}/../source"
-CDK_OUT_PATH="${__dir}/cdk.out"
+CDK_OUT_PATH="${__dir}/../source/cdk.out"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
     echo "Parameters not enough"
@@ -48,9 +48,7 @@ echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 title "cdk synth"
 
 run cd ${SRC_PATH}
-run yarn install --check-files --frozen-lockfile
-sed -i "1,210s/version:.*$/version: '$VERSION',/g" .projenrc.js
-run npx projen
+run npm install
 
 export USE_BSS=true
 # How to config https://github.com/wchaws/cdk-bootstrapless-synthesizer/blob/main/API.md
@@ -60,7 +58,7 @@ export BSS_FILE_ASSET_PREFIX="${SOLUTION_NAME}/${VERSION}/"
 export BSS_FILE_ASSET_REGION_SET="us-east-1,${BSS_FILE_ASSET_REGION_SET}"
 
 run mkdir -p ${CDK_OUT_PATH}
-run npx cdk synth --json --output ${CDK_OUT_PATH} > ${GLOBAL_S3_ASSETS_PATH}/cloudfront-realtime-monitoring.template.json
+run cdk synth --json --output ${CDK_OUT_PATH} > ${GLOBAL_S3_ASSETS_PATH}/cloudfront-realtime-monitoring.template.json
 run ${__dir}/helper.py ${CDK_OUT_PATH}
 
 title "tips!"
