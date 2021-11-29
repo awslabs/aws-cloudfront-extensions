@@ -48,6 +48,7 @@ echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 title "cdk synth"
 
 run cd ${SRC_PATH}
+#run npm install -g aws-cdk
 run npm install
 
 export USE_BSS=true
@@ -58,7 +59,7 @@ export BSS_FILE_ASSET_PREFIX="${SOLUTION_NAME}/${VERSION}/"
 export BSS_FILE_ASSET_REGION_SET="us-east-1,${BSS_FILE_ASSET_REGION_SET}"
 
 run mkdir -p ${CDK_OUT_PATH}
-run cdk synth --json --output ${CDK_OUT_PATH} > ${GLOBAL_S3_ASSETS_PATH}/cloudfront-realtime-monitoring.template.json
+run npm run synth -- --output ${CDK_OUT_PATH}
 run ${__dir}/helper.py ${CDK_OUT_PATH}
 
 title "tips!"
