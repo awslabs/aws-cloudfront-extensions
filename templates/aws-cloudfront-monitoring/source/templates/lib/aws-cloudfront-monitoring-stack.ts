@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
-import { CfnParameter, Construct, Duration, RemovalPolicy, Stack, StackProps } from '@aws-cdk/core';
+import {CfnParameter, Construct, Duration, RemovalPolicy, Stack} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from '@aws-cdk/aws-iam';
@@ -29,7 +29,7 @@ import {
 } from "@aws-cdk/aws-cognito";
 
 export class CloudFrontMonitoringStack extends Stack {
-  constructor(scope: Construct, id: string, props: StackProps = {}) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps ) {
     super(scope, id, props);
 
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";

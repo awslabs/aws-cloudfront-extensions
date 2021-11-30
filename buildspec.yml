@@ -4,6 +4,7 @@ phases:
   install:
     runtime-versions:
       nodejs: 12
+      python: 3.8
   pre_build:
     commands:
 #      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
