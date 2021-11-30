@@ -70,4 +70,6 @@ echo " - ${BUCKET_NAME}"
 echo ${BSS_FILE_ASSET_REGION_SET} | tr ',' '\n' | xargs -I {} echo " - ${BUCKET_NAME}-{}"
 echo "run \`aws s3 cp --recursive ${GLOBAL_S3_ASSETS_PATH} s3://${BUCKET_NAME}/${SOLUTION_NAME}/${VERSION}\`"
 echo "run \`echo \"${BSS_FILE_ASSET_REGION_SET}\" | tr ',' '\n' | xargs -t -I {} aws s3 cp --recursive --region {} ${REGIONAL_S3_ASSETS_PATH} s3://${BUCKET_NAME}-{}/${SOLUTION_NAME}/${VERSION}\`"
-cp -r deployment/ ../../deployment/
+ls -l ../
+ls -l ../..
+cp -r ../deployment/ ../../deployment/
