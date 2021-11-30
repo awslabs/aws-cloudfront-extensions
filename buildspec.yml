@@ -21,6 +21,7 @@ artifacts:
   files:
     - .git/**/*
     - deployment/**/*
+    - templates/aws-cloudfront-monitoring/deployment/**/*
     - buildspec.yml
     - CHANGELOG.md
     - .cfnnagignore
