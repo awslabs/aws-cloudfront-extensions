@@ -8,7 +8,7 @@ const Sharp = require("sharp");
 
 // set your S3 bucket name here
 const BUCKET = "PARA_S3BUCKET";
-const FIT_TYPE = PARA_FIT_TYPE;
+const FIT_TYPE = "PARA_FIT_TYPE";
 
 exports.handler = (event, context, callback) => {
   let response = event.Records[0].cf.response;
