@@ -836,7 +836,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
       streamName: "cloudfront-real-time-log-data-stream",
       shardCount: 200,
-      encryption: StreamEncryption.KMS
+      encryption: StreamEncryption.UNENCRYPTED
     })
 
     // Provide a Lambda function that will transform records before delivery, with custom
