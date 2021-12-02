@@ -9,7 +9,18 @@ This solution resizes your pictures on the fly, here's how it works
 
 2. If the object is existed in S3 bucket, then do nothing and return it
    
-3. If the object is not existed in S3 bucket, a 404 Not Found response will returned to CloudFront edge location, Lambda@Edge will fetch the source image (e.g. images/demo.png) from S3 bucket into buffer, resize it and store the resized image into relative folder(e.g. images/200x300) in S3 bucket
+3. If the object is not existed in S3 bucket, a 404 Not Found response will returned to CloudFront edge location, Lambda@Edge will fetch the source image (e.g. images/demo.png) from S3 bucket into buffer, resize it and store the resized image into relative folder(e.g. images/200x300) in S3 bucket (If you see a 403 instead of 404 error, you will need to add s3:ListBucket into the bucket policy)
+    Here's an example:
+        {
+            "Sid": "1",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity Example"
+            },
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::example-bucket"
+        }
+
    
 4. After the image is resized and stored, update the status code to 200 and return the resized image
    
