@@ -9,7 +9,7 @@ phases:
     commands:
 #      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
 #      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
-      - git clone https://github.com/guming3d/aws-cloudfront-extensions.git /tmp/repo
+      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
       - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
   build:
     commands:
