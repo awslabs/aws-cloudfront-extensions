@@ -15,7 +15,7 @@ phases:
     commands:
       - cd templates/aws-cloudfront-waf/deployment/
       - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
-      - cd templates/aws-cloudfront-monitoring/deployment/
+      - cd ${CODEBUILD_SRC_DIR}/templates/aws-cloudfront-monitoring/deployment/
       - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
   post_build:
     commands:
