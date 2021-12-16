@@ -47,7 +47,7 @@ The metric data are collected every 5 minutes, you can customize it by update th
 
 #### Request
 
-'''
+'''json
 {
     "Response": {
         "Data": [
@@ -90,13 +90,11 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-
-
 '''
 
 #### Bandwidth
 
-'''
+'''json
 {
     "Response": {
         "Data": [
@@ -139,13 +137,11 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-
 '''
-
 
 #### Download Speed
 
-'''
+'''json
 {
     "Response": {
         "Data": [
@@ -219,7 +215,7 @@ The metric data are collected every 5 minutes, you can customize it by update th
 
 #### CHR
 
-'''
+'''json
 {
     "Response": {
         "Data": [
@@ -266,7 +262,7 @@ The metric data are collected every 5 minutes, you can customize it by update th
 
 #### Status Code
 
-'''
+'''json
 {
     "Response": {
         "Data": [
