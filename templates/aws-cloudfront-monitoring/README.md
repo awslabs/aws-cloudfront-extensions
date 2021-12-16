@@ -39,7 +39,7 @@ This solution uses the following default values during deployment.
 
 ### URI Format
 
-https://<domain-name>/prod/metric?StartTime=2021-10-21%2011:00:00&EndTime=2021-10-21%2011:30:00&Metric=all&Domain=example.cloudfront.net
+https://domain-name.com/prod/metric?StartTime=2021-10-21%2011:00:00&EndTime=2021-10-21%2011:30:00&Metric=all&Domain=example.cloudfront.net
 
 ### Response
 
@@ -47,7 +47,7 @@ The metric data are collected every 5 minutes, you can customize it by update th
 
 #### Request
 
-'''json
+```json
 {
     "Response": {
         "Data": [
@@ -90,11 +90,11 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-'''
+```
 
 #### Bandwidth
 
-'''json
+```json
 {
     "Response": {
         "Data": [
@@ -137,11 +137,11 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-'''
+```
 
 #### Download Speed
 
-'''json
+```json
 {
     "Response": {
         "Data": [
@@ -211,11 +211,11 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-'''
+```
 
 #### CHR
 
-'''json
+```json
 {
     "Response": {
         "Data": [
@@ -258,11 +258,11 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-'''
+```
 
 #### Status Code
 
-'''json
+```json
 {
     "Response": {
         "Data": [
@@ -367,5 +367,5 @@ The metric data are collected every 5 minutes, you can customize it by update th
     }
 }
 
-'''
+```
 
