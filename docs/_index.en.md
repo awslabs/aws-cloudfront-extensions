@@ -64,5 +64,5 @@ CloudFront Extensions offers common solutions for using CloudFront, such as Shie
 
 ### Out-of-box experience when integrating with external monitoring system
 
-The fact that metrics and events are retrieved from different AWS services (for example, events are from Evert Bridge, access logs are from s3, etc.), make it a big challenge for improvement of monitor experience when using CloudFront. Customers have wanted to a universal place to handle those logs/events with generic monitoring capability. CloudFront Extensions has provided out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system.
+The fact that metrics and events are retrieved from different AWS services (for example, events are from Evert Bridge, access logs are from s3, etc.), make it a big challenge for improvement of monitor experience when using CloudFront. Customers have wanted to a universal place to handle those logs/events with generic monitoring capability. CloudFront Extensions has provided out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system. [More details](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/templates/aws-cloudfront-monitoring)
 
