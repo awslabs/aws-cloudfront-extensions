@@ -12,7 +12,7 @@ Amazon CloudFront Extensions包含覆盖常用用户场景的Lambda@Edge、Cloud
 CloudFront Extensions包含三个部分
 - 覆盖如下用户场景的Lambda@Edge和CloudFront Function，例如鉴权、预热、根据设备类型跳转、图片缩放
 - CDK模块，例如WAF&Shield自动部署模版，用户通过部署此模版可为CloudFront实现DDos、爬虫、XSS、SQL注入等的防御功能
-- 监控工具（开发中），通过将CloudFront访问日志或实时日志加载到Amazon Elasticsearch Service，从而在Kibana中展示相应指标，如城市维度的流量使用情况
+- 监控工具，通过分析CloudFront实时日志获取缓存命中率、下载速率等指标，并通过Restful API输出 [部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudfront-monitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/v2.0.0/CloudFrontMonitoringStack.template)
 
 #### Lambda@Edge
 
@@ -55,5 +55,6 @@ CloudFront Extensions包含三个部分
 | [Redirect Based on Country](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/redirect-based-on-country) | 根据用户所在地区返回相应的内容 | [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=redirect-based-on-country&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fredirect-based-on-country.yaml) |
 | [Default Dir Index](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/default-dir-index) | 为CloudFront的链接增加默认的结尾，例如为所有以'/'结尾的url增加index.html| [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fdefault-dir-index.yaml) |
 | [Verify Json Web Token](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/verify-jwt) | 验证query string中的JSON Web Token (JWT)，一般用于鉴权场景 | [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=verify-jwt&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fverify-jwt.yaml) |
+| [Verify Token in URL](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/verify-jwt) | 根据时间戳、路径等验证URL中的Token是否有效，一般用于鉴权场景 | [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=verify-jwt-uri&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/verify-jwt-uri.yaml) |
 | [Customize Request Host](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/custom-host) | 将host替换为自定义的标头的内容，例如用户可自定义一个标头awscustomhost，最终host会被替换为此标头的内容 | [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=custom-host&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcustom-host.yaml) |
 
