@@ -12,7 +12,7 @@ Amazon CloudFront Extensions包含覆盖常用用户场景的Lambda@Edge、Cloud
 CloudFront Extensions包含三个部分
 - 覆盖如下用户场景的Lambda@Edge和CloudFront Function，例如鉴权、预热、根据设备类型跳转、图片缩放
 - CDK模块，例如WAF&Shield自动部署模版，用户通过部署此模版可为CloudFront实现DDos、爬虫、XSS、SQL注入等的防御功能
-- 监控工具，通过分析CloudFront实时日志获取缓存命中率、下载速率等指标，并通过Restful API输出 [部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudfront-monitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/v2.0.0/CloudFrontMonitoringStack.template)
+- 监控工具，通过分析CloudFront实时日志获取缓存命中率、下载速率等指标，并通过Restful API输出 [![部署](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudfront-monitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/v2.0.0/CloudFrontMonitoringStack.template)
 
 #### Lambda@Edge
 
