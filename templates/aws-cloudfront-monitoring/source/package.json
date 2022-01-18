@@ -1,7 +1,7 @@
 {
   "name": "aws-gcr-solutions-init-repo",
   "scripts": {
-    "test": "rm -fr lib && npm run test:compile && jest --passWithNoTests --all --updateSnapshot && eslint",
+    "test": "jest",
     "build": "npm run test && npm run synth",
     "bump": "standard-version -i ../CHANGELOG.md",
     "test:watch": "jest --watch",
@@ -89,7 +89,7 @@
     "preset": "ts-jest",
     "globals": {
       "ts-jest": {
-        "tsconfig": "tsconfig.jest.json"
+        "tsconfig": "jest.config.js"
       }
     }
   }
