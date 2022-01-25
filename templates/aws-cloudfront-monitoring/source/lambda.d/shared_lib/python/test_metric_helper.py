@@ -140,14 +140,3 @@ def test_gen_detailed_by_interval():
 def test_format_date_time():
     resultTime = format_date_time('2022-01-24 09:22:44')
     assert resultTime != None
-
-
-
-
-
-
-
-
-
-
-
