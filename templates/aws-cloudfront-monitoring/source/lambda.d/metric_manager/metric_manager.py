@@ -1,14 +1,13 @@
 import json
 import logging
+import os
 from datetime import datetime
 from decimal import Decimal
-from boto3.dynamodb.conditions import Key
+
 import boto3
-import os
+from boto3.dynamodb.conditions import Key
 
 athena_client = boto3.client('athena')
-dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
-TABLE_NAME = os.environ['DDB_TABLE_NAME']
 
 INTERVAL = 5
 METRIC_DICT = [
@@ -17,18 +16,20 @@ METRIC_DICT = [
     "downloadSpeedOrigin"
 ]
 
-
 log = logging.getLogger()
 log.setLevel('INFO')
 
 
 def query_metric_ddb(start_time, end_time, metric, domain):
     """Query from Dynamodb table"""
+    TABLE_NAME = os.environ['DDB_TABLE_NAME']
+    dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
+
     detailed_data = []
     table = dynamodb.Table(TABLE_NAME)
     response = table.query(
         KeyConditionExpression=Key('metricId').eq(metric + '-' + domain)
-        & Key('timestamp').between(str(int(start_time)), str(int(end_time))))
+                               & Key('timestamp').between(str(int(start_time)), str(int(end_time))))
 
     log.info("[query_metric_ddb] The query result is")
     log.info(str(response))
