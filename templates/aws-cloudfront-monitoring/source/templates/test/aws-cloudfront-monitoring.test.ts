@@ -502,9 +502,6 @@ test('Stack contains KinesisFirehose', () => {
                     "DurationInSeconds": 20
                 }
             },
-            "EncryptionConfiguration": {
-                "NoEncryptionConfig": "NoEncryption"
-            },
             "ErrorOutputPrefix": "failed/",
             "Prefix": "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
         },
