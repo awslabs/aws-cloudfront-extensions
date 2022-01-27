@@ -111,12 +111,18 @@ export class CloudFrontMonitoringStack extends Stack {
 
     readAutoScaling.scaleOnUtilization({
       targetUtilizationPercent: 75
-    })
+    });
+
+    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
+      streamName: "cloudfront-real-time-log-data-stream",
+      shardCount: 200,
+      encryption: StreamEncryption.MANAGED
+
+    });
 
     const glueDatabase = new Database(this, "cf_realtime_log_glue_database", {
       databaseName: "glue_cf_realtime_log_database"
     });
-
 
     const glueTableCFN = new CfnTable(this, 'GlueTable', {
       databaseName: glueDatabase.databaseName,
@@ -361,16 +367,13 @@ export class CloudFrontMonitoringStack extends Stack {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: ['*'],
+          resources: [cloudfront_metrics_table.tableArn],
           actions: [
             "dynamodb:*",
             "iam:CreateServiceLinkedRole",
             "iam:PassRole",
             "iam:GetRole",
-            "iam:ListRoles",
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
+            "iam:ListRoles"
           ]
         })
       ]
@@ -437,37 +440,27 @@ export class CloudFrontMonitoringStack extends Stack {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: ['*'],
+          resources: [
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`
+          ],
           actions: [
-            "cloudformation:DescribeStacks",
-            "cloudformation:ListStackResources",
-            "cloudwatch:ListMetrics",
-            "cloudwatch:GetMetricData",
+            "lambda:*"
+          ],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*`,
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*:log-stream:*`
+          ],
+          actions: [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "ec2:DescribeSecurityGroups",
-            "ec2:DescribeSubnets",
-            "ec2:DescribeVpcs",
-            "kms:ListAliases",
-            "iam:GetPolicy",
-            "iam:GetPolicyVersion",
-            "iam:GetRole",
-            "iam:GetRolePolicy",
-            "iam:ListAttachedRolePolicies",
-            "iam:ListRolePolicies",
-            "iam:ListRoles",
-            "lambda:*",
-            "logs:DescribeLogGroups",
-            "logs:DescribeLogStreams",
-            "logs:GetLogEvents",
-            "logs:FilterLogEvents",
-            "states:DescribeStateMachine",
-            "states:ListStateMachines",
-            "tag:GetResources",
-            "xray:GetTraceSummaries",
-            "xray:BatchGetTraces",
-            "iam:PassRole",
+            "logs:PutLogEvents"
           ],
         })
       ]
@@ -478,9 +471,19 @@ export class CloudFrontMonitoringStack extends Stack {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: ['*'],
+          resources: [
+            `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:*/*/consumer/*:*`, 
+            `arn:aws:kms:*:${cdk.Aws.ACCOUNT_ID}:key/*`,
+            `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:stream/*`
+          ],
           actions: [
             "kinesis:*",
+          ]
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:firehose:*:${cdk.Aws.ACCOUNT_ID}:deliverystream/*`],
+          actions: [
             "firehose:*",
           ]
         })
@@ -950,13 +953,6 @@ export class CloudFrontMonitoringStack extends Stack {
         }),
       ],
     });
-
-    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
-      streamName: "cloudfront-real-time-log-data-stream",
-      shardCount: 200,
-      encryption: StreamEncryption.MANAGED
-
-    })
 
     // Provide a Lambda function that will transform records before delivery, with custom
     // buffering and retry configuration
