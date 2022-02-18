@@ -97,7 +97,7 @@ geoname_id,locale_code,continent_code,continent_name,country_iso_code,country_na
 1873107,en,AS,Asia,KP,"North Korea",0
 1880251,en,AS,Asia,SG,Singapore,0
 1899402,en,OC,Oceania,CK,"Cook Islands",0
-1966436,en,OC,Oceania,TL,"East Timor",0
+1966436,en,OC,Oceania,TL,Timor-Leste,0
 2017370,en,EU,Europe,RU,Russia,0
 2029969,en,AS,Asia,MN,Mongolia,0
 2077456,en,OC,Oceania,AU,Australia,0
@@ -187,7 +187,7 @@ geoname_id,locale_code,continent_code,continent_name,country_iso_code,country_na
 3439705,en,SA,"South America",UY,Uruguay,0
 3469034,en,SA,"South America",BR,Brazil,0
 3474414,en,SA,"South America",FK,"Falkland Islands",0
-3474415,en,AN,Antarctica,GS,"South Georgia and South Sandwich Islands",0
+3474415,en,AN,Antarctica,GS,"South Georgia and the South Sandwich Islands",0
 3489940,en,NA,"North America",JM,Jamaica,0
 3508796,en,NA,"North America",DO,"Dominican Republic",0
 3562981,en,NA,"North America",CU,Cuba,0

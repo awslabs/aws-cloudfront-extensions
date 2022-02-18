@@ -13,7 +13,7 @@ The solution can get below metrics:
 6. Back-to-origin status code: HTTP status codes(000, 2xx, 3xx, 4xx and 5xx) that are returned from the origin
 7. CHR (Cache Hit Ratio calculated by request)
 8. CHR (Cache Hit Ratio calculated by bandwidth)
-9. Download speed: the download speed of the resources from CloudFront. It will be separated by country code and ISP
+9. Download speed: the download speed of the resources from CloudFront. It will be separated by country code and ISP (This product includes GeoLite2 Data created by MaxMind, available from https://www.maxmind.com")
 10. Back-to-origin download speed: the download speed of the resources from the origin 
 
 

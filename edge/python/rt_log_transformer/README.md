@@ -8,7 +8,10 @@ This Lambda will add custom content(eg. country code, isp) into the real-time Cl
 
 <img src='./CloudFrontMetrics.png'>
 
-The solution will collect real-time logs by Kinesis Data Stream and store it in S3 bucket. EventBridge will trigger MetricCollector every 5 min to collect the metric data by Athena and put it into DynamoDB table. The user can invoke the API Gateway to get the metric data in DynamoDB table. The API Gateway is authorized by Cognito and the user needs to provide a valid access token to invoke it
+The solution will collect real-time logs by Kinesis Data Stream and store it in S3 bucket. EventBridge will trigger MetricCollector every 5 min to collect the metric data by Athena and put it into DynamoDB table. The user can invoke the API Gateway to get the metric data in DynamoDB table. The API Gateway is authorized by Cognito and the user needs to provide a valid access token to invoke it.
+
+This product includes GeoLite2 Data created by MaxMind, available from https://www.maxmind.com").
+
 
 ## Deployment
 
