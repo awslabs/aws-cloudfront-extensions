@@ -1,0 +1,997 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/deployment/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.1">
+    
+    
+      
+        <title>Automated deployment - CloudFront Extensions Implementation Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e8d9bf0c.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lambdaedge-cloudfront-functions-collection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="CloudFront Extensions Implementation Guide" class="md-header__button md-logo" aria-label="CloudFront Extensions Implementation Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudFront Extensions Implementation Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Automated deployment
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <div class="md-header__option">
+        <div class="md-select">
+          
+          <button class="md-header__button md-icon" aria-label="Select language">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24z"/></svg>
+          </button>
+          <div class="md-select__inner">
+            <ul class="md-select__list">
+              
+                <li class="md-select__item">
+                  <a href="/aws-cloudfront-extensions/en/" hreflang="en" class="md-select__link">
+                    English
+                  </a>
+                </li>
+                
+                <li class="md-select__item">
+                  <a href="/aws-cloudfront-extensions/zh/" hreflang="zh" class="md-select__link">
+                    中文
+                  </a>
+                </li>
+                
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/awslabs/aws-cloudfront-extensions/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CloudFront Extensions Implementation Guide" class="md-nav__button md-logo" aria-label="CloudFront Extensions Implementation Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    CloudFront Extensions Implementation Guide
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/awslabs/aws-cloudfront-extensions/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost/" class="md-nav__link">
+        Cost
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        Architecture overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        Security
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../regions/" class="md-nav__link">
+        Supported regions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../template/" class="md-nav__link">
+        CloudFormation template
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Automated deployment
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Automated deployment
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#lambdaedge-cloudfront-functions-collection" class="md-nav__link">
+    Lambda@Edge &amp; CloudFront Functions collection
+  </a>
+  
+    <nav class="md-nav" aria-label="Lambda@Edge &amp; CloudFront Functions collection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview" class="md-nav__link">
+    Deployment overview
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lambdaedge" class="md-nav__link">
+    Lambda@Edge
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudfront-functions" class="md-nav__link">
+    CloudFront Functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lambdaedge-deployment-in-sar" class="md-nav__link">
+    Lambda@Edge Deployment in SAR
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cloudfront-security-automations-with-amazon-waf-and-amazon-shield" class="md-nav__link">
+    CloudFront security automations with Amazon WAF and Amazon Shield
+  </a>
+  
+    <nav class="md-nav" aria-label="CloudFront security automations with Amazon WAF and Amazon Shield">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview_1" class="md-nav__link">
+    Deployment overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps" class="md-nav__link">
+    Deployment steps
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-solution" class="md-nav__link">
+    Monitoring solution
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview_2" class="md-nav__link">
+    Deployment overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps_1" class="md-nav__link">
+    Deployment steps
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../additional-resources/" class="md-nav__link">
+        Additional resources
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uninstall/" class="md-nav__link">
+        Uninstall the solution
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../source/" class="md-nav__link">
+        Source code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../revisions/" class="md-nav__link">
+        Revisions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notices/" class="md-nav__link">
+        Notices
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#lambdaedge-cloudfront-functions-collection" class="md-nav__link">
+    Lambda@Edge &amp; CloudFront Functions collection
+  </a>
+  
+    <nav class="md-nav" aria-label="Lambda@Edge &amp; CloudFront Functions collection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview" class="md-nav__link">
+    Deployment overview
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lambdaedge" class="md-nav__link">
+    Lambda@Edge
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudfront-functions" class="md-nav__link">
+    CloudFront Functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lambdaedge-deployment-in-sar" class="md-nav__link">
+    Lambda@Edge Deployment in SAR
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cloudfront-security-automations-with-amazon-waf-and-amazon-shield" class="md-nav__link">
+    CloudFront security automations with Amazon WAF and Amazon Shield
+  </a>
+  
+    <nav class="md-nav" aria-label="CloudFront security automations with Amazon WAF and Amazon Shield">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview_1" class="md-nav__link">
+    Deployment overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps" class="md-nav__link">
+    Deployment steps
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-solution" class="md-nav__link">
+    Monitoring solution
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview_2" class="md-nav__link">
+    Deployment overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps_1" class="md-nav__link">
+    Deployment steps
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/awslabs/aws-cloudfront-extensions/edit/master/docs/deployment.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+
+  <h1>Automated deployment</h1>
+
+<p>Before you launch the solution, review the architecture, supported regions, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.</p>
+<h2 id="lambdaedge-cloudfront-functions-collection">Lambda@Edge &amp; CloudFront Functions collection</h2>
+<p><strong>Time to deploy</strong>: Approximately [3] minutes</p>
+<h3 id="deployment-overview">Deployment overview</h3>
+<p>Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR(Serverless Application Repository)</p>
+<h4 id="lambdaedge">Lambda@Edge</h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Deploy</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-cognito">Authentication by Cognito</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-cognito"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/blob/main/edge/nodejs/add-security-headers">Adding security header</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/add-security-headers"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/serving-based-on-device">Serving content based on device type</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serving-based-on-device"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/cross-origin-resource-sharing">Cross origin resource sharing</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/cross-origin-resource-sharing"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code">Modify response status code</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-status-code"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-header">Modify response header</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-header"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/access-origin-by-weight-rate">Access origin by weight rate</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/access-origin-by-weight-rate"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/multiple-origin-IP-retry">Failover to alternative origin</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/multiple-origin-IP-retry"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/http302-from-origin">Support 302 from origin</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/http302-from-origin"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/prewarm">Pre-warm</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/prewarm"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/resize-picture">Resize picture</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/resize-picture"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking">Anti-hotlinking</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/anti-hotlinking"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/normalize-query-string">Standardize query string</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/normalize-query-string"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-aliyun-cdn-typeA">Authentication with Alibaba Cloud</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-aliyun-cdn-typeA"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/rewrite-url">Rewrite host for custom origin</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/rewrite-url"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/serverless-load-balancer">Serverless load balancer</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serverless-load-balancer"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/custom-response-with-replaced-url">Custom response with new URL</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/custom-response-with-replaced-url"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+</tbody>
+</table>
+<h4 id="cloudfront-functions">CloudFront Functions</h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Deploy</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers">Add security headers</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/cross-origin-resource-sharing">Cross origin resource sharing</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cross-origin-resource-sharing&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcross-origin-resource-sharing.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-cache-control-header">Add cache control headers</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-cache-control-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-cache-control-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-origin-header">Add origin headers</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-origin-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-origin-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-true-client-ip-header">Add true client IP headers</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-true-client-ip-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-true-client-ip-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/redirect-based-on-country">Redirect based on country</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=redirect-based-on-country&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fredirect-based-on-country.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/default-dir-index">Default dir index</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fdefault-dir-index.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/verify-jwt">Verify JSON web token</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=verify-jwt&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fverify-jwt.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/custom-host">Customize request host</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=custom-host&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcustom-host.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+</tbody>
+</table>
+<h4 id="lambdaedge-deployment-in-sar">Lambda@Edge Deployment in SAR</h4>
+<ol>
+<li>Open <a href="https://serverlessrepo.aws.amazon.com/applications">the Amazon Serverless Application Repository page</a> in the Console</li>
+<li>Check <strong>Show apps that create custom IAM roles or resource policies</strong></li>
+<li>Search <strong>aws-cloudfront-extensions</strong>, all the extensions will be shown, choose an application (eg. serving-based-on-device) and click <strong>Deploy</strong>.</li>
+<li>On the application detail page, check <strong>I acknowledge that this app creates custom IAM roles</strong></li>
+<li>Choose <strong>Deploy</strong>. After the deployment is completed, it will redirect to Lambda application page, and you can deploy it to Lambda@Edge.</li>
+</ol>
+<h2 id="cloudfront-security-automations-with-amazon-waf-and-amazon-shield">CloudFront security automations with Amazon WAF and Amazon Shield</h2>
+<p><strong>Time to deploy</strong>: Approximately [15] minutes</p>
+<h3 id="deployment-overview_1">Deployment overview</h3>
+<p>Use the following steps to deploy this solution on Amazon Web Service. </p>
+<ul>
+<li>Launch the CloudFormation template into your Amazon Web Service account.</li>
+<li>Review the template parameters, and adjust them if necessary.</li>
+</ul>
+<h3 id="deployment-steps">Deployment steps</h3>
+<ol>
+<li>
+<p>The template launches in the US East (N. Virginia) Region by default. You can deploy the solution with existing CloudFormation templates.<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template"><img alt="Deploy" src="../images/deploy_button.png" /></a>
+You can also <a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template">download the template</a> as a starting point for your own implementation.</p>
+</li>
+<li>
+<p>The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.</p>
+</li>
+<li>
+<p>Under Parameters, review the parameters for the template, and modify them as necessary. </p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WAFBlockPeriod</td>
+<td>240</td>
+<td>The period (in minutes) to block applicable IP addresses</td>
+</tr>
+<tr>
+<td>WAFScope</td>
+<td>CLOUDFRONT</td>
+<td>Specifies whether this is for an AWS CloudFront distribution</td>
+</tr>
+<tr>
+<td>appAccessLogBucket</td>
+<td>access-log-bucket-cloudfront</td>
+<td>The name for the Amazon S3 bucket where you want to store Cloud Front access logs for your CloudFront distribution</td>
+</tr>
+<tr>
+<td>errorThreshold</td>
+<td>50</td>
+<td>The maximum acceptable bad requests per minute per IP</td>
+</tr>
+<tr>
+<td>requestThreshold</td>
+<td>100</td>
+<td>The maximum acceptable requests per FIVE-minute period per IP address</td>
+</tr>
+<tr>
+<td>wafLogBucketName</td>
+<td>waf-log-bucket-cloudfront</td>
+<td>The name for the Amazon S3 bucket where you want to store WAF access logs</td>
+</tr>
+</tbody>
+</table>
+<p>!!! note Note
+         For CLOUDFRONT, you must create your WAFv2 resources in the US East (N. Virginia) Region, us-east-1.</p>
+<ol>
+<li>Choose <strong>Next</strong>. </li>
+<li>On the <strong>Configure stack options</strong> page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose <strong>Next</strong>. </li>
+<li>On the <strong>Review</strong> page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required. </li>
+<li>Choose <strong>Create</strong> to deploy the stack. You can view the status of the stack in the AWS CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.</li>
+<li>To see details for the stack resources, choose the <strong>Outputs</strong> tab. </li>
+</ol>
+<h2 id="monitoring-solution">Monitoring solution</h2>
+<p><strong>Time to deploy</strong>: Approximately [15] minutes</p>
+<h3 id="deployment-overview_2">Deployment overview</h3>
+<p>Use the following steps to deploy this solution on Amazon Web Service.</p>
+<ul>
+<li>Launch the CloudFormation template into your Amazon Web Service account.</li>
+<li>Review the template parameters, and adjust them if necessary.</li>
+</ul>
+<h3 id="deployment-steps_1">Deployment steps</h3>
+<ol>
+<li>
+<p>The template launches in the US East (N. Virginia) Region by default. You can deploy the solution with existing CloudFormation templates.<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template"><img alt="Deploy" src="../images/deploy_button.png" /></a>
+   You can also <a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template">download the template</a> as a starting point for your own implementation.</p>
+</li>
+<li>
+<p>The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.</p>
+</li>
+<li>
+<p>Under Parameters, review the parameters for the template, and modify them as necessary.
+   | Parameter | Default value | Details |
+   |-----------|---------------|---------|
+   | CloudFrontDomainList | - | The CloudFront domain name list, use comma as seperation for multiple domain names  |
+   | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket |
+   | deployStage | prod | API Gateway deployment stage |</p>
+</li>
+<li>
+<p>Choose <strong>Next</strong>.</p>
+</li>
+<li>On the <strong>Configure stack options</strong> page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose <strong>Next</strong>.</li>
+<li>On the <strong>Review</strong> page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.</li>
+<li>Choose <strong>Create</strong> to deploy the stack. You can view the status of the stack in the AWS CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.</li>
+<li>To see details for the stack resources, choose the <strong>Outputs</strong> tab. </li>
+</ol>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../template/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CloudFormation template" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              CloudFormation template
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../additional-resources/" class="md-footer__link md-footer__link--next" aria-label="Next: Additional resources" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Additional resources
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["tabs", "search.suggest", "search.highlight"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.8aa65030.min.js"></script>
+      
+    
+  </body>
+</html>
