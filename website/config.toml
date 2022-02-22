@@ -1,4 +1,4 @@
-baseURL = "https://awslabs.github.io/aws-cloudfront-extensions/"
+baseURL = "https://awslabs.github.io/aws-cloudfront-extensions/workshop/"
 theme = "hugo-theme-learn"
 contentDir = "../docs"
 canonifyURLs = true
