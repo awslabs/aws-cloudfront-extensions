@@ -907,16 +907,37 @@ You can also <a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-
 <p>The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.</p>
 </li>
 <li>
-<p>Under Parameters, review the parameters for the template, and modify them as necessary.
-   | Parameter | Default value | Details |
-   |-----------|---------------|---------|
-   | CloudFrontDomainList | - | The CloudFront domain name list, use comma as seperation for multiple domain names  |
-   | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket |
-   | deployStage | prod | API Gateway deployment stage |</p>
+<p>Under Parameters, review the parameters for the template, and modify them as necessary.</p>
 </li>
-<li>
-<p>Choose <strong>Next</strong>.</p>
-</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CloudFrontDomainList</td>
+<td>-</td>
+<td>The CloudFront domain name list, use comma as seperation for multiple domain names</td>
+</tr>
+<tr>
+<td>CloudFrontLogKeepDays</td>
+<td>120</td>
+<td>The number of days to keep CloudFront realtime logs in the S3 bucket</td>
+</tr>
+<tr>
+<td>deployStage</td>
+<td>prod</td>
+<td>API Gateway deployment stage</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Choose <strong>Next</strong>.</li>
 <li>On the <strong>Configure stack options</strong> page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose <strong>Next</strong>.</li>
 <li>On the <strong>Review</strong> page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.</li>
 <li>Choose <strong>Create</strong> to deploy the stack. You can view the status of the stack in the AWS CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.</li>
