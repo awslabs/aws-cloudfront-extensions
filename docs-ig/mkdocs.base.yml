@@ -1,4 +1,4 @@
-site_name: CloudFront Extensions Docs
+site_name: Amazon CloudFront Extensions Docs
 site_url: https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/
 repo_url: https://github.com/awslabs/aws-cloudfront-extensions
 theme:

@@ -1,5 +1,5 @@
 INHERIT: ./mkdocs.base.yml
-site_name: CloudFront Extensions Implementation Guide
+site_name: Amazon CloudFront Extensions Implementation Guide
 docs_dir: en
 site_dir: ./site/en
 theme:

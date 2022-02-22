@@ -1,6 +1,6 @@
 INHERIT: ./mkdocs.base.yml
-site_name: CloudFront Extensions解决方案 实施指南
-site_description: CloudFront Extensions解决方案
+site_name: Amazon CloudFront Extensions解决方案 实施指南
+site_description: Amazon CloudFront Extensions解决方案
 docs_dir: zh
 site_dir: ./site/zh
 theme:
