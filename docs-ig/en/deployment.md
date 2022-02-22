@@ -116,6 +116,7 @@ Use the following steps to deploy this solution on Amazon Web Service.
 2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
+
    | Parameter | Default value | Details |
    |-----------|---------------|---------|
    | CloudFrontDomainList | - | The CloudFront domain name list, use comma as seperation for multiple domain names  |
