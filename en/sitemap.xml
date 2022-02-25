@@ -1,63 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/additional-resources/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/additional-resources/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/architecture/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/architecture/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/cost/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/cost/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/deployment/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/deployment/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/notices/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/notices/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/regions/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/regions/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/revisions/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/revisions/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/security/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/security/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/source/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/source/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/template/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/template/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/solutions/amazon-cloudfront-extensions/uninstall/</loc>
-         <lastmod>2022-02-24</lastmod>
+         <loc>https://www.amazonaws.cn/solutions/cloudfront-extensions/uninstall/</loc>
+         <lastmod>2022-02-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
