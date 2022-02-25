@@ -1,6 +1,6 @@
 | Date          | Change            |
 |---------------|-------------------|
-| March 2021 | Intitial release v1.0.0  |
-| July 2021 | Release v1.1.0: added 12 Lambda@Edge functions and 9 CloudFront Functions, added CloudFront security automation with Amazon WAF and Shield Advanced  |
-| December 2021 | Release v1.2.0: added 10 Lambda@Edge functions and 2 CloudFront Functions |
-| February 2022 | Release v1.3.0: added a monitoring API which provides performance metrics |
+| March 2021 | Initial release of v1.0.0  |
+| July 2021 | Released v1.1.0 <br>1. Added 12 Lambda@Edge functions and 9 CloudFront Functions; <br> 2. Added CloudFront security automation with Amazon WAF and Shield Advanced  |
+| December 2021 | Released v1.2.0  <br>Added 10 Lambda@Edge functions and 2 CloudFront functions |
+| February 2022 | Released v1.3.0 <br>Added a CloudFront real-time log monitoring API which provides performance metrics |

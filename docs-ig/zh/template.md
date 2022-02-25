@@ -5,7 +5,7 @@
  
 [![View template](../images/view-template.png)](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template)**AwsCloudfrontWafStack.template**: 您可以使用该模板启动解决方案以及相关组件。您还可以根据需要定制模板。
 
-### 监控API
+### CloudFront实时日志监控API
  
 [![View template](../images/view-template.png)](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/v2.0.0/CloudFrontMonitoringStack.template)**CloudFrontMonitoringStack.template**: 您可以使用该模板启动解决方案以及相关组件。您还可以根据需要定制模板。
 
