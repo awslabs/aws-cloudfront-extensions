@@ -3,20 +3,22 @@ Before you launch the solution, review the architecture, supported regions, and 
 
 ## Lambda@Edge & CloudFront Functions collection
 
-**Time to deploy**: Approximately [3] minutes
+**Time to deploy**: Approximately 3 minutes
 
 ### Deployment overview
 
-Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR(Serverless Application Repository)
+Click below deploy button to deploy this solution in your Amazon Web Services account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR (Serverless Application Repository).
+
+For more information about Lambda@Edge and CloudFront functions, see [Welcome](index.md).
 
 
 #### Lambda@Edge
 
 |    **Name**   |  **Deploy** |
 |------------------|--------------------|
-| [Authentication by Cognito](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-cognito) |  [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-cognito) |
+| [Authentication with Cognito](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-cognito) |  [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-cognito) |
 | [Adding security header](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/edge/nodejs/add-security-headers) |  [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/add-security-headers) |
-| [Serving content based on device type](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/serving-based-on-device) |  [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serving-based-on-device) |
+| [Serve content based on device type](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/serving-based-on-device) |  [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serving-based-on-device) |
 | [Cross origin resource sharing](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/cross-origin-resource-sharing)  | [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/cross-origin-resource-sharing) |
 | [Modify response status code](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code)  | [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-status-code) |
 | [Modify response header](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-header) | [![Deploy](../images/deploy_button.png)](https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-header) |
@@ -50,83 +52,94 @@ Click below deploy button to deploy this solution in your AWS account. As for La
 #### Lambda@Edge Deployment in SAR
 
 
-1. Open [the Amazon Serverless Application Repository page](https://serverlessrepo.aws.amazon.com/applications) in the Console
-2. Check **Show apps that create custom IAM roles or resource policies**
-3. Search **aws-cloudfront-extensions**, all the extensions will be shown, choose an application (eg. serving-based-on-device) and click **Deploy**.
-4. On the application detail page, check **I acknowledge that this app creates custom IAM roles**
+1. Access the [Amazon Serverless Application Repository page](https://serverlessrepo.aws.amazon.com/applications) in the Console.
+2. Check **Show apps that create custom IAM roles or resource policies**.
+3. Search **aws-cloudfront-extensions** to display all extensions, and choose an application (for example, serving-based-on-device) and click **Deploy**.
+4. On the application detail page, check **I acknowledge that this app creates custom IAM roles**.
 5. Choose **Deploy**. After the deployment is completed, it will redirect to Lambda application page, and you can deploy it to Lambda@Edge.
 
 
 ## CloudFront security automations with Amazon WAF and Amazon Shield
  
-**Time to deploy**: Approximately [15] minutes
+**Time to deploy**: Approximately 15 minutes
 
 ### Deployment overview
 
-Use the following steps to deploy this solution on Amazon Web Service. 
+Use the following steps to deploy this solution on Amazon Web Services. 
 
-- Launch the CloudFormation template into your Amazon Web Service account.
+- Launch the CloudFormation template into your Amazon Web Services account.
 - Review the template parameters, and adjust them if necessary.
 
 ### Deployment steps
 
-1. The template launches in the US East (N. Virginia) Region by default. You can deploy the solution with existing CloudFormation templates.[![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template)
-You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template) as a starting point for your own implementation.
+1. Sign in to the Amazon Web Services Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template) as a starting point for your own implementation.
+
+      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template)
+
 
 2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary. 
 
-   | Parameter | Default value | Details |
-   |-----------|---------------|---------|
-   |WAFBlockPeriod| 240 | The period (in minutes) to block applicable IP addresses |
-   | WAFScope | CLOUDFRONT | Specifies whether this is for an AWS CloudFront distribution |
-   | appAccessLogBucket | access-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store Cloud Front access logs for your CloudFront distribution |
-   | errorThreshold | 50 | The maximum acceptable bad requests per minute per IP |
-   | requestThreshold | 100 | The maximum acceptable requests per FIVE-minute period per IP address |
-   | wafLogBucketName |waf-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store WAF access logs |
-   
-   !!! note Note
-         For CLOUDFRONT, you must create your WAFv2 resources in the US East (N. Virginia) Region, us-east-1.
+      | Parameter | Default value | Description |
+      |-----------|---------------|---------|
+      |WAFBlockPeriod| 240 | The period (in minutes) to block applicable IP addresses. |
+      | WAFScope | CLOUDFRONT | Specifies whether this is for an Amazon Web Services CloudFront distribution. |
+      | appAccessLogBucket | access-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store Cloud Front access logs for your CloudFront distribution. |
+      | errorThreshold | 50 | The maximum acceptable bad requests per minute per IP. |
+      | requestThreshold | 100 | The maximum acceptable requests per FIVE-minute period per IP address. |
+      | wafLogBucketName |waf-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store WAF access logs. |
+      
+         !!! note "Note"
+           
+            If the parameter WAFScope uses the default value CLOUDFRONT, you must create your WAFv2 resources in the US East (N. Virginia) Region, us-east-1.
 
 
 4. Choose **Next**. 
 5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**. 
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required. 
-7. Choose **Create** to deploy the stack. You can view the status of the stack in the AWS CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
-8. To see details for the stack resources, choose the **Outputs** tab. 
+6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create Amazon Web Services Identity and Access Management (IAM) resources and any additional capabilities required. 
+7. Choose **Create** to deploy the stack. 
+
+You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
+
+To see details for the stack resources, choose the **Outputs** tab. 
 
 
-## Monitoring solution
+## CloudFront Real-time Log Monitoring API
  
-**Time to deploy**: Approximately [15] minutes
+**Time to deploy**: Approximately 15 minutes
 
 ### Deployment overview
 
-Use the following steps to deploy this solution on Amazon Web Service.
+Use the following steps to deploy this solution on Amazon Web Services.
 
-- Launch the CloudFormation template into your Amazon Web Service account.
+- Launch the CloudFormation template into your Amazon Web Services account.
 - Review the template parameters, and adjust them if necessary.
 
 ### Deployment steps
 
-1. The template launches in the US East (N. Virginia) Region by default. You can deploy the solution with existing CloudFormation templates.[![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template)
-   You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template) as a starting point for your own implementation.
+1. Sign in to the Amazon Web Services Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template) as a starting point for your own implementation.
 
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
+      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template)
+
+
+2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different Amazon Web Services Region, use the Region selector in the console navigation bar.
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
 
-   | Parameter | Default value | Details |
-   |-----------|---------------|---------|
-   | CloudFrontDomainList | - | The CloudFront domain name list, use comma as seperation for multiple domain names  |
-   | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket |
-   | deployStage | prod | API Gateway deployment stage |
+      | Parameter | Default value | Description |
+      |-----------|---------------|---------|
+      | CloudFrontDomainList | - | The CloudFront domain name list. Use comma as separation for multiple domain names.  |
+      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket. |
+      | deployStage | prod | API Gateway deployment stage. |
   
 
 4. Choose **Next**.
 5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.
-7. Choose **Create** to deploy the stack. You can view the status of the stack in the AWS CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
-8. To see details for the stack resources, choose the **Outputs** tab. 
+6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create Amazon Web Services Identity and Access Management (IAM) resources and any additional capabilities required.
+7. Choose **Create** to deploy the stack. 
+
+You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
+
+To see details for the stack resources, choose the **Outputs** tab. 
 

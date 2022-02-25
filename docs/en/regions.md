@@ -1,17 +1,18 @@
-As of February 2022, this solution is supported in the following Amazon Web Services Regions:
+As of February 2022, this solution is supported in the following Amazon Web Services Regions: 
 
-- us-east-1 (Virginia)
-- us-east-2 (Ohio)   
-- us-west-2 (Oregon)  
-- ca-central-1 (Canada) 
-- sa-east-1 (Sao Paulo)
-- eu-west-1 (Ireland)
-- eu-west-2 (London)
-- eu-west-3 (Paris)   
-- eu-central-1 (Frankfurt)   
-- ap-northeast-1 (Tokyo) 
-- ap-northeast-2 (Seoul)  
-- ap-southeast-1 (Singapore)  
-- ap-southeast-2 (Sydney)   
-- ap-south-1 (Mumbai)  
-- ap-east-1 (Hong Kong)
+| Region Name | Region ID |
+|----------|--------|
+| US East (N. Virginia) | us-east-1
+| US East (Ohio) | us-east-2
+| US West (Oregon) | us-west-2
+| Asia Pacific (Mumbai) | ap-south-1
+| Asia Pacific (Tokyo) | ap-northeast-1
+| Asia Pacific (Seoul) | ap-northeast-2
+| Asia Pacific (Singapore) | ap-southeast-1
+| Asia Pacific (Sydney) | ap-southeast-2
+| Canada (Central) | ca-central-1
+| Europe (Ireland) | eu-west-1
+| Europe (London) | eu-west-2
+| Europe (Paris) | eu-west-3
+| Europe (Frankfurt) | eu-central-1
+| South America (São Paulo) | sa-east-1
