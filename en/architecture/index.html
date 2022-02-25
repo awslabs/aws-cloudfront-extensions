@@ -549,7 +549,7 @@
 <p><img alt="architecture" src="../images/arch-monitoring.png" /></p>
 <p><em>Figure 3: CloudFront Real-time Log Monitoring API architecture</em></p>
 <p>This solution deploys the Amazon CloudFormation template in your Amazon Web Services Cloud account and completes the following settings.</p>
-<ul>
+<ol>
 <li>
 <p>Enable CloudFront real-time logs</p>
 <p>You need to configure the corresponding Kinesis data stream.</p>
@@ -570,7 +570,7 @@
 <p>The end user interface uses API Gateway</p>
 <p>The user interface generates a RESTful API through API Gateway and the Lambda function MetricManager. MetricManager reads the monitoring indicators in the DynamoDB table and returns the corresponding results. In order to further strengthen security management and restrict API access, Cognito authorization is enabled in API Gateway, and users who access the API need to carry a Cognito token to request the API normally.</p>
 </li>
-</ul>
+</ol>
 
               
             </article>
