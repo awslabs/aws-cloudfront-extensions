@@ -137,5 +137,6 @@
 您可以在Amazon CloudFormation控制台的**状态**列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为**CREATE_COMPLETE**。
 
 您还可以选择**输出**标签页查看堆栈资源的详细信息。
+更多信息请参考[博客](https://aws.amazon.com/cn/blogs/china/quickly-build-custom-cdn-monitoring-through-amazon-cloudfront-real-time-log/)。
 
  
