@@ -12,7 +12,7 @@ Amazon CloudFront Extensions is an extension for using CloudFront. CloudFront Ex
 
 ### One stop to find Lambda@Edge and CloudFront Function for different use cases
 
-CloudFront Extensions offers production level Lambda@Edge and CloudFront Function for common CloudFront use cases, such as redirect, authentication, pre-warm etc.
+CloudFront Extensions offers production level Lambda@Edge and CloudFront Function for common CloudFront use cases, such as redirect, authentication verification, pre-warm etc.
 
 #### Lambda@Edge
 
