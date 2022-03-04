@@ -72,7 +72,7 @@ Amazon CloudFront Extensions解决方案包含三个模块：Lambda@Edge和Cloud
 - downloadSpeed: 从客户端到CloudFront的下载速率
 - downloadSpeedOrigin: 回源的下载速率
 
-上述参考指标有效地补充了目前CloudWatch对CloudFront的监控指标，可以帮助您从多个维度了解CloudFront的运行情况。有关CloudFront默认内置的监控指标，可以参考[使用Amazon CloudWatch监控CloudFront](https://docs.aws.amazon.com/zh_cn/AmazonCloudFront/latest/DeveloperGuide/monitoring-using-cloudwatch.html)。
+上述参考指标有效地补充了目前CloudWatch对CloudFront的监控指标，可以帮助您从多个维度了解CloudFront的运行情况。详情请见[博客](https://aws.amazon.com/cn/blogs/china/quickly-build-custom-cdn-monitoring-through-amazon-cloudfront-real-time-log/)，有关CloudFront默认内置的监控指标，可以参考[使用Amazon CloudWatch监控CloudFront](https://docs.aws.amazon.com/zh_cn/AmazonCloudFront/latest/DeveloperGuide/monitoring-using-cloudwatch.html)。
 
 本实施指南介绍在Amazon Web Services（亚马逊云科技）云中部署解决方案的架构信息和具体配置步骤。它包含指向[CloudFormation][cloudformation]模板的链接，这些模板使用亚马逊云科技在安全性和可用性方面的最佳实践来启动和配置本解决方案所需的亚马逊云科技服务。
 

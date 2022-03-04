@@ -1,8 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/resize-picture"
+      "python/rt_log_transformer"
     ],
-    "tag": "v1.0.2"
+    "tag": "v1.1.0"
   }
 }
