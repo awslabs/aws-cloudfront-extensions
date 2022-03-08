@@ -2,6 +2,7 @@
 !jest.config.js
 *.d.ts
 node_modules
+deployment/regional-s3-assets
 
 # CDK asset staging directory
 .cdk.staging
