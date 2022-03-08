@@ -3,7 +3,6 @@ import boto3
 import logging
 import os
 from datetime import datetime
-from datetime import timedelta
 
 CATALOG_ID = os.environ['ACCOUNT_ID']
 S3_URL = "s3://" + os.environ['S3_BUCKET']

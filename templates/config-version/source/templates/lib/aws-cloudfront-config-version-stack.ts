@@ -7,6 +7,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
 import {
+  AuthorizationType,
   EndpointType,
   LambdaRestApi,
 } from "@aws-cdk/aws-apigateway";
@@ -46,14 +47,13 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.RETAIN,
       serverAccessLogsPrefix: 'accessLogBucketAccessLog' + '-',
     });
 
-    const cloudfront_config_version_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
+    const cloudfront_config_version_s3_bucket = new Bucket(this, 'CloudfrontConfigVersionS3Bucket', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
-      autoDeleteObjects: true,
       serverAccessLogsBucket: accessLogBucket,
       serverAccessLogsPrefix: 'dataBucketAccessLog' + '-' + 'config-version'
     });
@@ -66,15 +66,6 @@ export class CloudFrontConfigVersionStack extends Stack {
       sortKey: { name: 'versionId', type: dynamodb.AttributeType.NUMBER },
       pointInTimeRecovery: true,
     });
-
-    const readAutoScaling = cloudfront_config_version_table.autoScaleReadCapacity({
-      minCapacity: 10,
-      maxCapacity: 200
-    });
-
-    readAutoScaling.scaleOnUtilization({
-      targetUtilizationPercent: 75
-    })
 
     const lambdaRole = new iam.Role(this, 'LambdaRole', {
       assumedBy: new CompositePrincipal(
@@ -164,9 +155,29 @@ export class CloudFrontConfigVersionStack extends Stack {
       }
     })
 
+    const config_diff_proxy = rest_api.root.addResource('cf_config_diff');
+    config_diff_proxy.addMethod('GET', undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
+
+    //Policy to allow client to call this restful api
+    const api_client_policy = new ManagedPolicy(this, "captcha_client_policy", {
+      managedPolicyName: "cf_config_diff_client_policy",
+      description: "policy for client to call cf config diff",
+      statements: [
+        new iam.PolicyStatement({
+          resources: [rest_api.arnForExecuteApi()],
+          actions: ['execute-api:Invoke'],
+          effect: iam.Effect.ALLOW,
+        }),
+      ],
+    });
+
     new cdk.CfnOutput(this, 'cloudfront_config_version_s3_bucket', { value: cloudfront_config_version_s3_bucket.bucketName });
     new cdk.CfnOutput(this, 'cloudfront_metrics_dynamodb', { value: cloudfront_config_version_table.tableName });
     new cdk.CfnOutput(this, 'cloudfront_config_exporter',{value: cloudfrontConfigVersionExporter.functionName});
     new cdk.CfnOutput(this, 'cloudfront_config_diff',{value: cloudfrontConfigVersionDiff.functionName});
+    new cdk.CfnOutput(this, 'cloudfront_config_rest_api',{value: rest_api.restApiName});
+    new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
   }
 }
