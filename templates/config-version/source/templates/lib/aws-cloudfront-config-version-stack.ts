@@ -88,11 +88,9 @@ export class CloudFrontConfigVersionStack extends Stack {
     lambdaRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
     );
-
     lambdaRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
     );
-
     lambdaRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
     );
