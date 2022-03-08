@@ -1,0 +1,3854 @@
+{
+  "Description": "(SO8150) - Cloudfront monitoring stack.",
+  "Parameters": {
+    "CloudFrontDomainList": {
+      "Type": "String",
+      "AllowedPattern": "(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]",
+      "Description": "The cloudfront domain name to be monitored, for example: d1v8v39goa3nap.cloudfront.net, for multiple domain, using ',' as seperation"
+    },
+    "CloudFrontLogKeepDays": {
+      "Type": "Number",
+      "Default": 120,
+      "Description": "Max number of days to keep cloudfront realtime logs in S3"
+    },
+    "deployStage": {
+      "Type": "String",
+      "Default": "prod",
+      "AllowedValues": [
+        "dev",
+        "beta",
+        "gamma",
+        "preprod",
+        "prod"
+      ],
+      "Description": "stageName of the deployment, this allow multiple deployment into one account"
+    }
+  },
+  "Resources": {
+    "BucketAccessLog9C13C446": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "LogDeliveryWrite",
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "LoggingConfiguration": {
+          "LogFilePrefix": {
+            "Fn::Join": [
+              "",
+              [
+                "accessLogBucketAccessLog-",
+                {
+                  "Ref": "deployStage"
+                }
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/BucketAccessLog/Resource"
+      }
+    },
+    "CloudfrontMonitoringS3Bucket0DF1F15F": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": {
+                "Ref": "CloudFrontLogKeepDays"
+              },
+              "Status": "Enabled"
+            }
+          ]
+        },
+        "LoggingConfiguration": {
+          "DestinationBucketName": {
+            "Ref": "BucketAccessLog9C13C446"
+          },
+          "LogFilePrefix": {
+            "Fn::Join": [
+              "",
+              [
+                "dataBucketAccessLog-",
+                {
+                  "Ref": "deployStage"
+                }
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontMonitoringS3Bucket/Resource"
+      }
+    },
+    "CloudfrontMonitoringS3BucketPolicy8652423B": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn"
+                  ]
+                }
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "CloudfrontMonitoringS3Bucket0DF1F15F",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "CloudfrontMonitoringS3Bucket0DF1F15F",
+                          "Arn"
+                        ]
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontMonitoringS3Bucket/Policy/Resource"
+      }
+    },
+    "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB": {
+      "Type": "Custom::S3AutoDeleteObjects",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn"
+          ]
+        },
+        "BucketName": {
+          "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+        }
+      },
+      "DependsOn": [
+        "CloudfrontMonitoringS3BucketPolicy8652423B"
+      ],
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontMonitoringS3Bucket/AutoDeleteObjectsCustomResource/Default"
+      }
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+      }
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/00f2465b209575c44977ca8ff1c81d86d002849272ede5a8a90ac87dfff1e494.zip"
+        },
+        "Timeout": 900,
+        "MemorySize": 128,
+        "Handler": "__entrypoint__.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs12.x",
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Lambda function for auto-deleting objects in ",
+              {
+                "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+              },
+              " S3 bucket."
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler"
+      }
+    },
+    "CloudFrontMetricsTableCF1022A5": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": [
+          {
+            "AttributeName": "metricId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "timestamp",
+            "KeyType": "RANGE"
+          }
+        ],
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "metricId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "timestamp",
+            "AttributeType": "S"
+          }
+        ],
+        "PointInTimeRecoverySpecification": {
+          "PointInTimeRecoveryEnabled": true
+        },
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 10,
+          "WriteCapacityUnits": 10
+        },
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudFrontMetricsTable/Resource"
+      }
+    },
+    "CloudFrontMetricsTableReadScalingTargetBDC94D2C": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "Properties": {
+        "MaxCapacity": 10,
+        "MinCapacity": 1,
+        "ResourceId": {
+          "Fn::Join": [
+            "",
+            [
+              "table/",
+              {
+                "Ref": "CloudFrontMetricsTableCF1022A5"
+              }
+            ]
+          ]
+        },
+        "RoleARN": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":iam::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+            ]
+          ]
+        },
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "ServiceNamespace": "dynamodb"
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudFrontMetricsTable/ReadScaling/Target/Resource"
+      }
+    },
+    "CloudFrontMetricsTableReadScalingTargetTracking89FE2270": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "Properties": {
+        "PolicyName": "CloudFrontMonitoringStackCloudFrontMetricsTableReadScalingTargetTracking1453B888",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "CloudFrontMetricsTableReadScalingTargetBDC94D2C"
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
+          },
+          "TargetValue": 75
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudFrontMetricsTable/ReadScaling/Target/Tracking/Resource"
+      }
+    },
+    "cfrealtimeloggluedatabase77E2A80F": {
+      "Type": "AWS::Glue::Database",
+      "Properties": {
+        "CatalogId": {
+          "Ref": "AWS::AccountId"
+        },
+        "DatabaseInput": {
+          "Name": "glue_cf_realtime_log_database"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/cf_realtime_log_glue_database/Resource"
+      }
+    },
+    "GlueTable": {
+      "Type": "AWS::Glue::Table",
+      "Properties": {
+        "CatalogId": {
+          "Ref": "AWS::AccountId"
+        },
+        "DatabaseName": {
+          "Ref": "cfrealtimeloggluedatabase77E2A80F"
+        },
+        "TableInput": {
+          "Name": "cloudfront_realtime_log",
+          "Parameters": {
+            "external": "TRUE",
+            "skip.header.line.count": "2"
+          },
+          "PartitionKeys": [
+            {
+              "Name": "year",
+              "Type": "int"
+            },
+            {
+              "Name": "month",
+              "Type": "int"
+            },
+            {
+              "Name": "day",
+              "Type": "int"
+            },
+            {
+              "Name": "hour",
+              "Type": "int"
+            },
+            {
+              "Name": "minute",
+              "Type": "int"
+            }
+          ],
+          "Retention": 0,
+          "StorageDescriptor": {
+            "Columns": [
+              {
+                "Name": "timestamp",
+                "Type": "bigint"
+              },
+              {
+                "Name": "c-ip",
+                "Type": "string"
+              },
+              {
+                "Name": "time-to-first-byte",
+                "Type": "float"
+              },
+              {
+                "Name": "sc-status",
+                "Type": "int"
+              },
+              {
+                "Name": "sc-bytes",
+                "Type": "int"
+              },
+              {
+                "Name": "cs-method",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-protocol",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-host",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-uri-stem",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-bytes",
+                "Type": "int"
+              },
+              {
+                "Name": "x-edge-location",
+                "Type": "string"
+              },
+              {
+                "Name": "x-edge-request-id",
+                "Type": "string"
+              },
+              {
+                "Name": "x-host-header",
+                "Type": "string"
+              },
+              {
+                "Name": "time-taken",
+                "Type": "float"
+              },
+              {
+                "Name": "cs-protocol-version",
+                "Type": "string"
+              },
+              {
+                "Name": "c-ip-version",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-user-agent",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-referer",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-cookie",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-uri-query",
+                "Type": "string"
+              },
+              {
+                "Name": "x-edge-response-result-type",
+                "Type": "string"
+              },
+              {
+                "Name": "x-forwarded-for",
+                "Type": "string"
+              },
+              {
+                "Name": "ssl-protocol",
+                "Type": "string"
+              },
+              {
+                "Name": "ssl-cipher",
+                "Type": "string"
+              },
+              {
+                "Name": "x-edge-result-type",
+                "Type": "string"
+              },
+              {
+                "Name": "fle-encrypted-fields",
+                "Type": "string"
+              },
+              {
+                "Name": "fle-status",
+                "Type": "string"
+              },
+              {
+                "Name": "sc-content-type",
+                "Type": "string"
+              },
+              {
+                "Name": "sc-content-len",
+                "Type": "int"
+              },
+              {
+                "Name": "sc-range-start",
+                "Type": "int"
+              },
+              {
+                "Name": "sc-range-end",
+                "Type": "int"
+              },
+              {
+                "Name": "c-port",
+                "Type": "int"
+              },
+              {
+                "Name": "x-edge-detailed-result-type",
+                "Type": "string"
+              },
+              {
+                "Name": "c-country",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-accept-encoding",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-accept",
+                "Type": "string"
+              },
+              {
+                "Name": "cache-behavior-path-pattern",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-headers",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-header-names",
+                "Type": "string"
+              },
+              {
+                "Name": "cs-headers-count",
+                "Type": "int"
+              },
+              {
+                "Name": "isp",
+                "Type": "string"
+              },
+              {
+                "Name": "country-name",
+                "Type": "string"
+              }
+            ],
+            "Compressed": false,
+            "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+            "Location": {
+              "Fn::Join": [
+                "",
+                [
+                  "s3://",
+                  {
+                    "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+                  }
+                ]
+              ]
+            },
+            "NumberOfBuckets": -1,
+            "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+            "Parameters": {},
+            "SerdeInfo": {
+              "Parameters": {
+                "field.delim": "\t",
+                "serialization.format": "\t"
+              },
+              "SerializationLibrary": "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"
+            },
+            "SkewedInfo": {
+              "SkewedColumnValueLocationMaps": {}
+            },
+            "StoredAsSubDirectories": false
+          },
+          "TableType": "EXTERNAL_TABLE"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/GlueTable"
+      }
+    },
+    "LambdaRole3A44B857": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "firehose.amazonaws.com",
+                  "lambda.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonDynamoDBFullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonS3FullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonAthenaFullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AWSLambda_FullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonKinesisFullAccess"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/LambdaRole/Resource"
+      }
+    },
+    "cloudfrontsharedlayerD2327813": {
+      "Type": "AWS::Lambda::LayerVersion",
+      "Properties": {
+        "Content": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/b9bc73f1b10f59fb78888b37c7fb99bae0c46394bad39b3337e068181d80c9c2.zip"
+        },
+        "CompatibleRuntimes": [
+          "python3.9"
+        ],
+        "Description": "shared lib for all other lambda functions to use"
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/cloudfront-shared-layer/Resource",
+        "aws:asset:path": "asset.b9bc73f1b10f59fb78888b37c7fb99bae0c46394bad39b3337e068181d80c9c2",
+        "aws:asset:property": "Content"
+      }
+    },
+    "addpartitionlambda771E7496": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/bf2e0049d982ea28201f3df1c4c3ad32225b13a606fcb6ab7951f83df8bb6c76.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "addPartition",
+        "Handler": "add_partition.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/add-partition-lambda/Resource",
+        "aws:asset:path": "asset.bf2e0049d982ea28201f3df1c4c3ad32225b13a606fcb6ab7951f83df8bb6c76",
+        "aws:asset:property": "Code"
+      }
+    },
+    "addpartitionlambdaLogRetention02202F03": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "addpartitionlambda771E7496"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/add-partition-lambda/LogRetention/Resource"
+      }
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+      }
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:PutRetentionPolicy",
+                "logs:DeleteRetentionPolicy"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "Roles": [
+          {
+            "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+      }
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "Runtime": "nodejs14.x",
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/b120b13d9d868c7622e7db1b68bae4c0f82ffd0227b8c15f2cef38e186ff3827.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource"
+      }
+    },
+    "deletepartitionlambda1B559F58": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/06269f8678ae52e7cb76c9a130860b01b0b6541db4c0bd97f6e8635c79b37ce1.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "deletePartition",
+        "Handler": "delete_partition.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/delete-partition-lambda/Resource",
+        "aws:asset:path": "asset.06269f8678ae52e7cb76c9a130860b01b0b6541db4c0bd97f6e8635c79b37ce1",
+        "aws:asset:property": "Code"
+      }
+    },
+    "deletepartitionlambdaLogRetentionF8FA7395": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "deletepartitionlambda1B559F58"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/delete-partition-lambda/LogRetention/Resource"
+      }
+    },
+    "metricscollectorbandwidthcdn3182B851": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/16f35ca0fddf5365bb37071482b9dd27496aec0588618942e0b534b771a55f78.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorBandwidthCdn",
+        "Handler": "metric_collector_bandwidth_cdn.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_bandwidth_cdn/Resource",
+        "aws:asset:path": "asset.16f35ca0fddf5365bb37071482b9dd27496aec0588618942e0b534b771a55f78",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorbandwidthcdnLogRetention86177D41": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorbandwidthcdn3182B851"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_bandwidth_cdn/LogRetention/Resource"
+      }
+    },
+    "metricscollectorbandwidthorigin65C7429F": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/ed89acaceccf3c229f6eb936bf87deb7322d59ff152b262d95623cf33f88d0e9.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorBandwidthOrigin",
+        "Handler": "metric_collector_bandwidth_origin.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_bandwidth_origin/Resource",
+        "aws:asset:path": "asset.ed89acaceccf3c229f6eb936bf87deb7322d59ff152b262d95623cf33f88d0e9",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorbandwidthoriginLogRetention86C4F2FF": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorbandwidthorigin65C7429F"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_bandwidth_origin/LogRetention/Resource"
+      }
+    },
+    "metricscollectorchrbandwidth4F5C337D": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/659f71b710ef8b6198c36cb641cdd2d76227bb9759c2888d0b3580dc94a0b4c3.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorChrBandwidth",
+        "Handler": "metric_collector_chr_bandwidth.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_chr_bandwidth/Resource",
+        "aws:asset:path": "asset.659f71b710ef8b6198c36cb641cdd2d76227bb9759c2888d0b3580dc94a0b4c3",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorchrbandwidthLogRetention826D6327": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorchrbandwidth4F5C337D"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_chr_bandwidth/LogRetention/Resource"
+      }
+    },
+    "metricscollectorchrrequestC74A483A": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/a3dc5ebf6bc88f588e803adff29845298d932efbfb37f8c8c0c88525b568644f.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorChrRequest",
+        "Handler": "metric_collector_chr_request.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_chr_request/Resource",
+        "aws:asset:path": "asset.a3dc5ebf6bc88f588e803adff29845298d932efbfb37f8c8c0c88525b568644f",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorchrrequestLogRetention21D80D0A": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorchrrequestC74A483A"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_chr_request/LogRetention/Resource"
+      }
+    },
+    "metricscollectordownloadspeedcdnA1C750FA": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/f6ed5c1639808b238ba82960868827af190d83c872c4336d4bea60b6bfff2867.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorDownloadSpeedCDN",
+        "Handler": "metric_collector_download_speed_cdn.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_download_speed_cdn/Resource",
+        "aws:asset:path": "asset.f6ed5c1639808b238ba82960868827af190d83c872c4336d4bea60b6bfff2867",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectordownloadspeedcdnLogRetentionA7729CE8": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectordownloadspeedcdnA1C750FA"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_download_speed_cdn/LogRetention/Resource"
+      }
+    },
+    "metricscollectordownloadspeedorigin8EBBBE82": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/9579006c4e2cf7d20c6e9ce6772b3d39bf4668f863e6bea765a3afa055813c26.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorDownloadSpeedOrigin",
+        "Handler": "metric_collector_download_speed_origin.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_download_speed_origin/Resource",
+        "aws:asset:path": "asset.9579006c4e2cf7d20c6e9ce6772b3d39bf4668f863e6bea765a3afa055813c26",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectordownloadspeedoriginLogRetentionF816690B": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectordownloadspeedorigin8EBBBE82"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_download_speed_origin/LogRetention/Resource"
+      }
+    },
+    "metricscollectorrequestcdnA4781973": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/fb0fc394e9e6b74620340e5f31093ba6c0434efae882393f172256c53b99dd54.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorRequestCDN",
+        "Handler": "metric_collector_request_cdn.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_request_cdn/Resource",
+        "aws:asset:path": "asset.fb0fc394e9e6b74620340e5f31093ba6c0434efae882393f172256c53b99dd54",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorrequestcdnLogRetention005D1FAD": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorrequestcdnA4781973"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_request_cdn/LogRetention/Resource"
+      }
+    },
+    "metricscollectorrequestorigin70624F05": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/5b45a9a45d7160b3cda2ae89ba08df04b8f42855ab6bbebb6b906a074186e18a.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorRequestOrigin",
+        "Handler": "metric_collector_request_origin.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_request_origin/Resource",
+        "aws:asset:path": "asset.5b45a9a45d7160b3cda2ae89ba08df04b8f42855ab6bbebb6b906a074186e18a",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorrequestoriginLogRetentionC1C22AEC": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorrequestorigin70624F05"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_request_origin/LogRetention/Resource"
+      }
+    },
+    "metricscollectorstatuscodecdn698CB4AC": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/dc3921304b23b03197eaa8ea3ea96607ee1a3d659a49750d669bcf865e2e3dc5.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorStatusCodeCDN",
+        "Handler": "metric_collector_status_code_cdn.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_status_code_cdn/Resource",
+        "aws:asset:path": "asset.dc3921304b23b03197eaa8ea3ea96607ee1a3d659a49750d669bcf865e2e3dc5",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorstatuscodecdnLogRetentionA4C578F8": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorstatuscodecdn698CB4AC"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_status_code_cdn/LogRetention/Resource"
+      }
+    },
+    "metricscollectorstatuscodeorigin87A93542": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/bae5d76eb9a32c4c49744d295725ffaaf8d27757a0c2f52fb89975b71b187a00.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsCollectorStatusCodeOrigin",
+        "Handler": "metric_collector_status_code_origin.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_status_code_origin/Resource",
+        "aws:asset:path": "asset.bae5d76eb9a32c4c49744d295725ffaaf8d27757a0c2f52fb89975b71b187a00",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricscollectorstatuscodeoriginLogRetentionF6275FD3": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricscollectorstatuscodeorigin87A93542"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metrics_collector_status_code_origin/LogRetention/Resource"
+      }
+    },
+    "metricsManager57CF735C": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/47291e85150b17a7b2d5e905890730aa10b93735d2c7d8ffe65738ace7645347.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "DDB_TABLE_NAME": {
+              "Ref": "CloudFrontMetricsTableCF1022A5"
+            },
+            "GLUE_DATABASE_NAME": {
+              "Ref": "cfrealtimeloggluedatabase77E2A80F"
+            },
+            "GLUE_TABLE_NAME": "cloudfront_realtime_log",
+            "S3_BUCKET": {
+              "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+            },
+            "ACCOUNT_ID": {
+              "Ref": "AWS::AccountId"
+            },
+            "DOMAIN_LIST": {
+              "Ref": "CloudFrontDomainList"
+            },
+            "REGION_NAME": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "FunctionName": "metricsManager",
+        "Handler": "metric_manager.lambda_handler",
+        "Layers": [
+          {
+            "Ref": "cloudfrontsharedlayerD2327813"
+          }
+        ],
+        "MemorySize": 512,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable",
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metricsManager/Resource",
+        "aws:asset:path": "asset.47291e85150b17a7b2d5e905890730aa10b93735d2c7d8ffe65738ace7645347",
+        "aws:asset:property": "Code"
+      }
+    },
+    "metricsManagerLogRetention7CD87879": {
+      "Type": "Custom::LogRetention",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn"
+          ]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "metricsManager57CF735C"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 7
+      },
+      "DependsOn": [
+        "cfrealtimeloggluedatabase77E2A80F",
+        "CloudFrontMetricsTableReadScalingTargetBDC94D2C",
+        "CloudFrontMetricsTableReadScalingTargetTracking89FE2270",
+        "CloudFrontMetricsTableCF1022A5",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "GlueTable"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metricsManager/LogRetention/Resource"
+      }
+    },
+    "performancemetricsrestfulApiAB424D73": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Description": "restful api to get the cloudfront performance data",
+        "EndpointConfiguration": {
+          "Types": [
+            "EDGE"
+          ]
+        },
+        "Name": "CloudfrontPerformanceMetrics",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Resource"
+      }
+    },
+    "performancemetricsrestfulApiCloudWatchRole6E113716": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/CloudWatchRole/Resource"
+      }
+    },
+    "performancemetricsrestfulApiAccount3CD89065": {
+      "Type": "AWS::ApiGateway::Account",
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "performancemetricsrestfulApiCloudWatchRole6E113716",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "performancemetricsrestfulApiAB424D73"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Account"
+      }
+    },
+    "performancemetricsrestfulApiDeployment108FF18E5ef0fca478a06bfcfb9911cac05ea7c0": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "performancemetricsrestfulApiAB424D73"
+        },
+        "Description": "Automatically created by the RestApi construct"
+      },
+      "DependsOn": [
+        "metricsApiValidator7EBFB70E",
+        "performancemetricsrestfulApimetricGETF71909AE",
+        "performancemetricsrestfulApimetricA2206D40"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Deployment/Resource"
+      }
+    },
+    "performancemetricsrestfulApiDeploymentStageprod6CF674F5": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "performancemetricsrestfulApiAB424D73"
+        },
+        "DeploymentId": {
+          "Ref": "performancemetricsrestfulApiDeployment108FF18E5ef0fca478a06bfcfb9911cac05ea7c0"
+        },
+        "StageName": "prod"
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/DeploymentStage.prod/Resource"
+      }
+    },
+    "performancemetricsrestfulApimetricA2206D40": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "performancemetricsrestfulApiAB424D73",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "metric",
+        "RestApiId": {
+          "Ref": "performancemetricsrestfulApiAB424D73"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Default/metric/Resource"
+      }
+    },
+    "performancemetricsrestfulApimetricGETApiPermissionCloudFrontMonitoringStackperformancemetricsrestfulApiD3BB3AA4GETmetricFFEFE7BA": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricsManager57CF735C",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "performancemetricsrestfulApiAB424D73"
+              },
+              "/",
+              {
+                "Ref": "performancemetricsrestfulApiDeploymentStageprod6CF674F5"
+              },
+              "/GET/metric"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Default/metric/GET/ApiPermission.CloudFrontMonitoringStackperformancemetricsrestfulApiD3BB3AA4.GET..metric"
+      }
+    },
+    "performancemetricsrestfulApimetricGETApiPermissionTestCloudFrontMonitoringStackperformancemetricsrestfulApiD3BB3AA4GETmetricB2E9C630": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricsManager57CF735C",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "performancemetricsrestfulApiAB424D73"
+              },
+              "/test-invoke-stage/GET/metric"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Default/metric/GET/ApiPermission.Test.CloudFrontMonitoringStackperformancemetricsrestfulApiD3BB3AA4.GET..metric"
+      }
+    },
+    "performancemetricsrestfulApimetricGETF71909AE": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "ResourceId": {
+          "Ref": "performancemetricsrestfulApimetricA2206D40"
+        },
+        "RestApiId": {
+          "Ref": "performancemetricsrestfulApiAB424D73"
+        },
+        "AuthorizationScopes": [
+          "cloudfront-metrics-api/getMetrics"
+        ],
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "CloudfrontMetricsCognitoAuthorizer34C359A3"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "metricsManager57CF735C",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "RequestParameters": {
+          "method.request.querystring.Action": false,
+          "method.request.querystring.Domains": false,
+          "method.request.querystring.StartTime": true,
+          "method.request.querystring.EndTime": true,
+          "method.request.querystring.Metric": true,
+          "method.request.querystring.Project": false
+        },
+        "RequestValidatorId": {
+          "Ref": "metricsApiValidator7EBFB70E"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/performance_metrics_restfulApi/Default/metric/GET/Resource"
+      }
+    },
+    "CloudFrontMetricsCognitoUserPool362B1A33": {
+      "Type": "AWS::Cognito::UserPool",
+      "Properties": {
+        "AccountRecoverySetting": {
+          "RecoveryMechanisms": [
+            {
+              "Name": "verified_email",
+              "Priority": 1
+            }
+          ]
+        },
+        "AdminCreateUserConfig": {
+          "AllowAdminCreateUserOnly": false
+        },
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "EmailVerificationMessage": "The verification code to your new account is {####}",
+        "EmailVerificationSubject": "Verify your new account",
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UsernameAttributes": [
+          "email"
+        ],
+        "VerificationMessageTemplate": {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "The verification code to your new account is {####}",
+          "EmailSubject": "Verify your new account",
+          "SmsMessage": "The verification code to your new account is {####}"
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudFrontMetricsCognitoUserPool/Resource"
+      }
+    },
+    "CloudFrontMetricsCognitoUserPoolcloudfrontmetricsapiclientD95ACE95": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "CloudFrontMetricsCognitoUserPool362B1A33"
+        },
+        "AllowedOAuthFlows": [
+          "client_credentials"
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "cloudfrontmetricsapiresourceserverDD33C78A"
+                },
+                "/getMetrics"
+              ]
+            ]
+          }
+        ],
+        "ClientName": "cloudfront-log-metrics-client",
+        "GenerateSecret": true,
+        "SupportedIdentityProviders": [
+          "COGNITO"
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudFrontMetricsCognitoUserPool/cloudfront-metrics-api-client/Resource"
+      }
+    },
+    "CloudFrontMetricsCognitoUserPoolCloudfrontCognitoDomain7CBE6BAC": {
+      "Type": "AWS::Cognito::UserPoolDomain",
+      "Properties": {
+        "Domain": {
+          "Fn::Join": [
+            "",
+            [
+              "cloudfrontmonitoringstack",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-",
+              {
+                "Ref": "AWS::Region"
+              },
+              "-2021-11-30"
+            ]
+          ]
+        },
+        "UserPoolId": {
+          "Ref": "CloudFrontMetricsCognitoUserPool362B1A33"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudFrontMetricsCognitoUserPool/CloudfrontCognitoDomain/Resource"
+      }
+    },
+    "cloudfrontmetricsapiresourceserverDD33C78A": {
+      "Type": "AWS::Cognito::UserPoolResourceServer",
+      "Properties": {
+        "Identifier": "cloudfront-metrics-api",
+        "Name": "cloudfront-metrics-api",
+        "UserPoolId": {
+          "Ref": "CloudFrontMetricsCognitoUserPool362B1A33"
+        },
+        "Scopes": [
+          {
+            "ScopeDescription": "get cloudfront metrics",
+            "ScopeName": "getMetrics"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/cloudfront-metrics-api-resource-server/Resource"
+      }
+    },
+    "CloudfrontMetricsCognitoAuthorizer34C359A3": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "performancemetricsrestfulApiAB424D73"
+        },
+        "Type": "COGNITO_USER_POOLS",
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "Metric-Cognito-Authorizer",
+        "ProviderARNs": [
+          {
+            "Fn::GetAtt": [
+              "CloudFrontMetricsCognitoUserPool362B1A33",
+              "Arn"
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/Cloudfront-Metrics-CognitoAuthorizer/Resource"
+      }
+    },
+    "metricsApiValidator7EBFB70E": {
+      "Type": "AWS::ApiGateway::RequestValidator",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "performancemetricsrestfulApiAB424D73"
+        },
+        "Name": "defaultValidator",
+        "ValidateRequestBody": false,
+        "ValidateRequestParameters": true
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/metricsApiValidator/Resource"
+      }
+    },
+    "cloudfrontmetricsapiclientpolicy142D80DF": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "execute-api:Invoke",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "performancemetricsrestfulApiAB424D73"
+                    },
+                    "/*/*/*"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "policy for client to call stage:",
+              {
+                "Ref": "deployStage"
+              }
+            ]
+          ]
+        },
+        "ManagedPolicyName": {
+          "Fn::Join": [
+            "",
+            [
+              "cloudfront_metric_client_policy_",
+              {
+                "Ref": "deployStage"
+              }
+            ]
+          ]
+        },
+        "Path": "/"
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/cloudfront_metrics_api_client_policy/Resource"
+      }
+    },
+    "TaskStreamKey4DDE64A2": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Action": [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion",
+                "kms:GenerateDataKey",
+                "kms:TagResource",
+                "kms:UntagResource"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":root"
+                    ]
+                  ]
+                }
+              },
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Description": "Created by CloudFrontMonitoringStack/TaskStream"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/TaskStream/Key/Resource"
+      }
+    },
+    "TaskStreamAFF9EF09": {
+      "Type": "AWS::Kinesis::Stream",
+      "Properties": {
+        "ShardCount": 200,
+        "Name": "cloudfront-real-time-log-data-stream",
+        "RetentionPeriodHours": 24,
+        "StreamEncryption": {
+          "EncryptionType": "KMS",
+          "KeyId": {
+            "Fn::GetAtt": [
+              "TaskStreamKey4DDE64A2",
+              "Arn"
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/TaskStream/Resource"
+      }
+    },
+    "CloudfrontrealtimelogtransformerCD426D6D": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "aws-gcr-solutions-${AWS::Region}"
+          },
+          "S3Key": "aws-cloudfront-extensions/v1.2.8/47193535c98f10890ca7a6fba416f2f1159226145ebe5b85bf1a1981a8409156.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole3A44B857",
+            "Arn"
+          ]
+        },
+        "FunctionName": "cf-real-time-logs-transformer",
+        "Handler": "app.lambda_handler",
+        "MemorySize": 10240,
+        "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ],
+        "Timeout": 120
+      },
+      "DependsOn": [
+        "LambdaRole3A44B857"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/Cloudfront-realtime-log-transformer/Resource",
+        "aws:asset:path": "asset.47193535c98f10890ca7a6fba416f2f1159226145ebe5b85bf1a1981a8409156",
+        "aws:asset:property": "Code"
+      }
+    },
+    "DeliveryStreamRole15032569": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "firehose.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonKinesisFullAccess"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/Delivery Stream Role/Resource"
+      }
+    },
+    "DestinationRole715116B2": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "firehose.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonDynamoDBFullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonS3FullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonAthenaFullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AWSLambda_FullAccess"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonKinesisFullAccess"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "stage",
+            "Value": {
+              "Ref": "deployStage"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/Destination Role/Resource"
+      }
+    },
+    "cloudfrontKinesisFirehoseDeliveryStream": {
+      "Type": "AWS::KinesisFirehose::DeliveryStream",
+      "Properties": {
+        "DeliveryStreamName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "TaskStreamAFF9EF09"
+              },
+              "_delivery_stream"
+            ]
+          ]
+        },
+        "DeliveryStreamType": "KinesisStreamAsSource",
+        "ExtendedS3DestinationConfiguration": {
+          "BucketARN": {
+            "Fn::GetAtt": [
+              "CloudfrontMonitoringS3Bucket0DF1F15F",
+              "Arn"
+            ]
+          },
+          "BufferingHints": {
+            "IntervalInSeconds": 60,
+            "SizeInMBs": 128
+          },
+          "CloudWatchLoggingOptions": {
+            "Enabled": true,
+            "LogGroupName": {
+              "Fn::Join": [
+                "",
+                [
+                  "/aws/kinesisfirehose/",
+                  {
+                    "Ref": "TaskStreamAFF9EF09"
+                  },
+                  "_delivery_stream"
+                ]
+              ]
+            },
+            "LogStreamName": "DestinationDelivery"
+          },
+          "DataFormatConversionConfiguration": {
+            "Enabled": false
+          },
+          "DynamicPartitioningConfiguration": {
+            "Enabled": true,
+            "RetryOptions": {
+              "DurationInSeconds": 20
+            }
+          },
+          "EncryptionConfiguration": {
+            "NoEncryptionConfig": "NoEncryption"
+          },
+          "ErrorOutputPrefix": "failed/",
+          "Prefix": "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
+          "ProcessingConfiguration": {
+            "Enabled": true,
+            "Processors": [
+              {
+                "Parameters": [
+                  {
+                    "ParameterName": "LambdaArn",
+                    "ParameterValue": {
+                      "Fn::GetAtt": [
+                        "CloudfrontrealtimelogtransformerCD426D6D",
+                        "Arn"
+                      ]
+                    }
+                  },
+                  {
+                    "ParameterName": "NumberOfRetries",
+                    "ParameterValue": "3"
+                  },
+                  {
+                    "ParameterName": "RoleArn",
+                    "ParameterValue": {
+                      "Fn::GetAtt": [
+                        "LambdaRole3A44B857",
+                        "Arn"
+                      ]
+                    }
+                  },
+                  {
+                    "ParameterName": "BufferSizeInMBs",
+                    "ParameterValue": "3"
+                  },
+                  {
+                    "ParameterName": "BufferIntervalInSeconds",
+                    "ParameterValue": "60"
+                  }
+                ],
+                "Type": "Lambda"
+              },
+              {
+                "Parameters": [
+                  {
+                    "ParameterName": "SubRecordType",
+                    "ParameterValue": "JSON"
+                  }
+                ],
+                "Type": "RecordDeAggregation"
+              }
+            ]
+          },
+          "RoleARN": {
+            "Fn::GetAtt": [
+              "DestinationRole715116B2",
+              "Arn"
+            ]
+          },
+          "S3BackupMode": "Disabled"
+        },
+        "KinesisStreamSourceConfiguration": {
+          "KinesisStreamARN": {
+            "Fn::GetAtt": [
+              "TaskStreamAFF9EF09",
+              "Arn"
+            ]
+          },
+          "RoleARN": {
+            "Fn::GetAtt": [
+              "DeliveryStreamRole15032569",
+              "Arn"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "CloudfrontrealtimelogtransformerCD426D6D",
+        "CloudfrontMonitoringS3BucketAutoDeleteObjectsCustomResource46C3F6DB",
+        "CloudfrontMonitoringS3BucketPolicy8652423B",
+        "CloudfrontMonitoringS3Bucket0DF1F15F",
+        "DeliveryStreamRole15032569",
+        "DestinationRole715116B2",
+        "TaskStreamKey4DDE64A2",
+        "TaskStreamAFF9EF09"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/cloudfrontKinesisFirehoseDeliveryStream"
+      }
+    },
+    "CloudfrontLogs5minutesrulefirst230700A5": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(0/5 * * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorbandwidthorigin65C7429F",
+                "Arn"
+              ]
+            },
+            "Id": "Target0"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorchrbandwidth4F5C337D",
+                "Arn"
+              ]
+            },
+            "Id": "Target1"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectordownloadspeedcdnA1C750FA",
+                "Arn"
+              ]
+            },
+            "Id": "Target2"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectordownloadspeedorigin8EBBBE82",
+                "Arn"
+              ]
+            },
+            "Id": "Target3"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorbandwidthcdn3182B851",
+                "Arn"
+              ]
+            },
+            "Id": "Target4"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_first/Resource"
+      }
+    },
+    "CloudfrontLogs5minutesrulefirstAllowEventRuleCloudFrontMonitoringStackmetricscollectorbandwidthoriginE0C16B971DF9E815": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorbandwidthorigin65C7429F",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulefirst230700A5",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_first/AllowEventRuleCloudFrontMonitoringStackmetricscollectorbandwidthoriginE0C16B97"
+      }
+    },
+    "CloudfrontLogs5minutesrulefirstAllowEventRuleCloudFrontMonitoringStackmetricscollectorchrbandwidthD41E6579A5909AA3": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorchrbandwidth4F5C337D",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulefirst230700A5",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_first/AllowEventRuleCloudFrontMonitoringStackmetricscollectorchrbandwidthD41E6579"
+      }
+    },
+    "CloudfrontLogs5minutesrulefirstAllowEventRuleCloudFrontMonitoringStackmetricscollectordownloadspeedcdnF4BE22A89FB17D56": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectordownloadspeedcdnA1C750FA",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulefirst230700A5",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_first/AllowEventRuleCloudFrontMonitoringStackmetricscollectordownloadspeedcdnF4BE22A8"
+      }
+    },
+    "CloudfrontLogs5minutesrulefirstAllowEventRuleCloudFrontMonitoringStackmetricscollectordownloadspeedorigin42A78C8B21DB7C79": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectordownloadspeedorigin8EBBBE82",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulefirst230700A5",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_first/AllowEventRuleCloudFrontMonitoringStackmetricscollectordownloadspeedorigin42A78C8B"
+      }
+    },
+    "CloudfrontLogs5minutesrulefirstAllowEventRuleCloudFrontMonitoringStackmetricscollectorbandwidthcdnFD3CD812A659CBFB": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorbandwidthcdn3182B851",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulefirst230700A5",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_first/AllowEventRuleCloudFrontMonitoringStackmetricscollectorbandwidthcdnFD3CD812"
+      }
+    },
+    "CloudfrontLogs5minutesrulesecondB6D407BE": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(0/5 * * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorstatuscodecdn698CB4AC",
+                "Arn"
+              ]
+            },
+            "Id": "Target0"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorstatuscodeorigin87A93542",
+                "Arn"
+              ]
+            },
+            "Id": "Target1"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorrequestcdnA4781973",
+                "Arn"
+              ]
+            },
+            "Id": "Target2"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorrequestorigin70624F05",
+                "Arn"
+              ]
+            },
+            "Id": "Target3"
+          },
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "metricscollectorchrrequestC74A483A",
+                "Arn"
+              ]
+            },
+            "Id": "Target4"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_second/Resource"
+      }
+    },
+    "CloudfrontLogs5minutesrulesecondAllowEventRuleCloudFrontMonitoringStackmetricscollectorstatuscodecdn1C4A11065B2A7CAB": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorstatuscodecdn698CB4AC",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulesecondB6D407BE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_second/AllowEventRuleCloudFrontMonitoringStackmetricscollectorstatuscodecdn1C4A1106"
+      }
+    },
+    "CloudfrontLogs5minutesrulesecondAllowEventRuleCloudFrontMonitoringStackmetricscollectorstatuscodeorigin4D6F9BC4573961DA": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorstatuscodeorigin87A93542",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulesecondB6D407BE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_second/AllowEventRuleCloudFrontMonitoringStackmetricscollectorstatuscodeorigin4D6F9BC4"
+      }
+    },
+    "CloudfrontLogs5minutesrulesecondAllowEventRuleCloudFrontMonitoringStackmetricscollectorrequestcdn2F266AFC4BC5A227": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorrequestcdnA4781973",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulesecondB6D407BE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_second/AllowEventRuleCloudFrontMonitoringStackmetricscollectorrequestcdn2F266AFC"
+      }
+    },
+    "CloudfrontLogs5minutesrulesecondAllowEventRuleCloudFrontMonitoringStackmetricscollectorrequestorigin3502F78EEA9A8412": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorrequestorigin70624F05",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulesecondB6D407BE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_second/AllowEventRuleCloudFrontMonitoringStackmetricscollectorrequestorigin3502F78E"
+      }
+    },
+    "CloudfrontLogs5minutesrulesecondAllowEventRuleCloudFrontMonitoringStackmetricscollectorchrrequest387E3F4D26031021": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "metricscollectorchrrequestC74A483A",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogs5minutesrulesecondB6D407BE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_5_minutes_rule_second/AllowEventRuleCloudFrontMonitoringStackmetricscollectorchrrequest387E3F4D"
+      }
+    },
+    "CloudfrontLogsaddpartition82E30C20": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(0 22 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "addpartitionlambda771E7496",
+                "Arn"
+              ]
+            },
+            "Id": "Target0"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_add_partition/Resource"
+      }
+    },
+    "CloudfrontLogsaddpartitionAllowEventRuleCloudFrontMonitoringStackaddpartitionlambda0492364AC5801A89": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "addpartitionlambda771E7496",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogsaddpartition82E30C20",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_add_partition/AllowEventRuleCloudFrontMonitoringStackaddpartitionlambda0492364A"
+      }
+    },
+    "CloudfrontLogsdeletepartitionD3A571B9": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(0 5 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "deletepartitionlambda1B559F58",
+                "Arn"
+              ]
+            },
+            "Id": "Target0"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_delete_partition/Resource"
+      }
+    },
+    "CloudfrontLogsdeletepartitionAllowEventRuleCloudFrontMonitoringStackdeletepartitionlambda6A69537EE6ACCC95": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "deletepartitionlambda1B559F58",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CloudfrontLogsdeletepartitionD3A571B9",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CloudfrontLogs_delete_partition/AllowEventRuleCloudFrontMonitoringStackdeletepartitionlambda6A69537E"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/21US2/bMAz+Lbsr6rIWOy9NsMtazHCy3hmZddXYoqdHCs/wfx8l2XVS9MSPH98i7bVcf7uTX7/8gDe3UtXpZlBkUQ57D+okts+mAAsterRiS8Z5G5QX2+A8tSU6ClZh9FrwlamwdNYVx26cQ885a21qcRn4O/gu+Ig4faW9JjOK2MvgbuVwH9QJk3VCWRTUaNUv9KRn5R4cjqLqDbRUHeVwgGOTSiXAybuOvSFWguDJKWi4Ka7FcXtWotfGe6uPwaOYmQPYOnfygcniYPm5OM0+Z1savCJGUTeBH3cHHo5cLjpc4qlDDa0cSspdJ7nkm9AjGKixWvgrYhQNtMcK5PAAPdontI6njW5X+s9glJ8Ml7hA22rn0irc7Qri7pxMKxQN1U4+UF3ySZgUAJ2uweMb9LFcLMv79ZtOT3cxw41SFIwXO+wa6luOTuMvWjyPNHIG85XEvYhPb+0R/QtVafoJUW20pz8ObUHUuE1g2up/8Xi5gUUr8W/gzp54NxV4sjntNTcKldPJYU4Y3d7xDLaNnmb5wMzqjlrQ5tJhYmZ1HmiP9pxb/dwyCj4xdNrFz9MitPmxImJTy/QvTMfA4t33WVt8IYcyPXajOU8/ReOZ2+SoMkynxnIcR2GoQvnqbs7rO7n+zj+HV6f1yvLydIuyzPI/iULtATkEAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "CloudFrontMonitoringStack/CDKMetadata/Default"
+      },
+      "Condition": "CDKMetadataAvailable"
+    }
+  },
+  "Outputs": {
+    "performancemetricsrestfulApiEndpoint2369DC49": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "performancemetricsrestfulApiAB424D73"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/",
+            {
+              "Ref": "performancemetricsrestfulApiDeploymentStageprod6CF674F5"
+            },
+            "/"
+          ]
+        ]
+      }
+    },
+    "cloudfrontmonitorings3bucket": {
+      "Value": {
+        "Ref": "CloudfrontMonitoringS3Bucket0DF1F15F"
+      }
+    },
+    "cloudfrontmetricsdynamodb": {
+      "Value": {
+        "Ref": "CloudFrontMetricsTableCF1022A5"
+      }
+    },
+    "apigatewaypolicy": {
+      "Value": {
+        "Fn::Select": [
+          1,
+          {
+            "Fn::Split": [
+              "/",
+              {
+                "Fn::Select": [
+                  5,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Ref": "cloudfrontmetricsapiclientpolicy142D80DF"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "gluetablename": {
+      "Value": "cloudfront_realtime_log"
+    }
+  },
+  "Conditions": {
+    "CDKMetadataAvailable": {
+      "Fn::Or": [
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "af-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ca-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-northwest-1"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-3"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "me-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "sa-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-2"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-2"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
