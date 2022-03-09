@@ -59,6 +59,14 @@ export class CloudFrontConfigVersionStack extends Stack {
     });
 
     // create Dynamodb table to save the cloudfront config version data
+    const cloudfront_config_latestVersion_table = new dynamodb.Table(this, 'CloudFrontConfigLatestVersionTable', {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      partitionKey: { name: 'distributionId', type: dynamodb.AttributeType.STRING },
+      pointInTimeRecovery: true,
+    });
+
+    // create Dynamodb table to save the cloudfront config version data
     const cloudfront_config_version_table = new dynamodb.Table(this, 'CloudFrontConfigVersionTable', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -95,7 +103,8 @@ export class CloudFrontConfigVersionStack extends Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_exporter')),
       role: lambdaRole,
       environment: {
-        DDB_TABLE_NAME: cloudfront_config_version_table.tableName,
+        DDB_VERSION_TABLE_NAME: cloudfront_config_version_table.tableName,
+        DDB_LATESTVERSION_TABLE_NAME: cloudfront_config_latestVersion_table.tableName,
         S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDistributionIDList.valueAsString,
@@ -105,6 +114,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     });
 
     cloudfrontConfigVersionExporter.node.addDependency(cloudfront_config_version_table);
+    cloudfrontConfigVersionExporter.node.addDependency(cloudfront_config_latestVersion_table);
     cloudfrontConfigVersionExporter.node.addDependency(cloudfront_config_version_s3_bucket);
 
     const cloudfrontConfigVersionDiff = new lambda.Function(this, 'cf-config-version-diff-lambda', {
@@ -116,7 +126,8 @@ export class CloudFrontConfigVersionStack extends Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_diff')),
       role: lambdaRole,
       environment: {
-        DDB_TABLE_NAME: cloudfront_config_version_table.tableName,
+        DDB_VERSION_TABLE_NAME: cloudfront_config_version_table.tableName,
+        DDB_LATESTVERSION_TABLE_NAME: cloudfront_config_latestVersion_table.tableName,
         S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDistributionIDList.valueAsString,
@@ -126,6 +137,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     });
 
     cloudfrontConfigVersionDiff.node.addDependency(cloudfront_config_version_table);
+    cloudfrontConfigVersionDiff.node.addDependency(cloudfront_config_latestVersion_table);
     cloudfrontConfigVersionDiff.node.addDependency(cloudfront_config_version_s3_bucket);
 
 
@@ -174,10 +186,11 @@ export class CloudFrontConfigVersionStack extends Stack {
     });
 
     new cdk.CfnOutput(this, 'cloudfront_config_version_s3_bucket', { value: cloudfront_config_version_s3_bucket.bucketName });
-    new cdk.CfnOutput(this, 'cloudfront_metrics_dynamodb', { value: cloudfront_config_version_table.tableName });
+    new cdk.CfnOutput(this, 'cloudfront_config_version_dynamodb', { value: cloudfront_config_version_table.tableName });
+    new cdk.CfnOutput(this, 'cloudfront_config_latest_version_dynamodb', { value: cloudfront_config_latestVersion_table.tableName });
     new cdk.CfnOutput(this, 'cloudfront_config_exporter',{value: cloudfrontConfigVersionExporter.functionName});
     new cdk.CfnOutput(this, 'cloudfront_config_diff',{value: cloudfrontConfigVersionDiff.functionName});
     new cdk.CfnOutput(this, 'cloudfront_config_rest_api',{value: rest_api.restApiName});
-    new cdk.CfnOutput(this,'api-gateway_policy', {value: api_client_policy.managedPolicyName});
+    new cdk.CfnOutput(this, 'api-gateway_policy', {value: api_client_policy.managedPolicyName});
   }
 }
