@@ -1,17 +1,14 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
+import {LayerVersion} from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
 import {CfnParameter, Construct, RemovalPolicy, Stack} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
-import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from '@aws-cdk/aws-iam';
+import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
-import {
-  AuthorizationType,
-  EndpointType,
-  LambdaRestApi,
-} from "@aws-cdk/aws-apigateway";
-import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
+import {AuthorizationType, EndpointType, LambdaRestApi,} from "@aws-cdk/aws-apigateway";
+import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
 import {Rule} from '@aws-cdk/aws-events';
 import targets = require('@aws-cdk/aws-events-targets');
 
@@ -97,10 +94,16 @@ export class CloudFrontConfigVersionStack extends Stack {
       ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
     );
 
+    // define a shared lambda layer for all other lambda to use
+    const powertools_layer = LayerVersion.fromLayerVersionArn(
+        this, "lambda-powertools","arn:aws:lambda:" + this.region + ":017000801446:layer:AWSLambdaPowertoolsPython:13"
+    )
+
     const cloudfrontConfigVersionExporter = new lambda.Function(this, 'cf-config-version-export-lambda', {
       functionName: "cf_config_version_exporter",
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'cf_config_version_exporter.lambda_handler',
+      layers: [powertools_layer],
       memorySize: 1024,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_exporter')),
@@ -120,13 +123,14 @@ export class CloudFrontConfigVersionStack extends Stack {
     cloudfrontConfigVersionExporter.node.addDependency(cloudfront_config_latestVersion_table);
     cloudfrontConfigVersionExporter.node.addDependency(cloudfront_config_version_s3_bucket);
 
-    const cloudfrontConfigVersionDiff = new lambda.Function(this, 'cf-config-version-diff-lambda', {
-      functionName: "cf_config_version_diff",
+    const cloudfrontConfigVersionManager = new lambda.Function(this, 'cf-config-version-manager-lambda', {
+      functionName: "cf_config_version_manager",
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'cf_config_version_diff.lambda_handler',
+      layers: [powertools_layer],
+      handler: 'cf_config_version_manager.lambda_handler',
       memorySize: 1024,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_diff')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_manager')),
       role: lambdaRole,
       environment: {
         DDB_VERSION_TABLE_NAME: cloudfront_config_version_table.tableName,
@@ -139,9 +143,9 @@ export class CloudFrontConfigVersionStack extends Stack {
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
-    cloudfrontConfigVersionDiff.node.addDependency(cloudfront_config_version_table);
-    cloudfrontConfigVersionDiff.node.addDependency(cloudfront_config_latestVersion_table);
-    cloudfrontConfigVersionDiff.node.addDependency(cloudfront_config_version_s3_bucket);
+    cloudfrontConfigVersionManager.node.addDependency(cloudfront_config_version_table);
+    cloudfrontConfigVersionManager.node.addDependency(cloudfront_config_latestVersion_table);
+    cloudfrontConfigVersionManager.node.addDependency(cloudfront_config_version_s3_bucket);
 
 
     const distributionList = CloudFrontDistributionIDList.valueAsString.split(',');
@@ -161,7 +165,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     cloudfront_config_change_rule.addTarget(new targets.LambdaFunction(cloudfrontConfigVersionExporter))
 
     const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
-      handler: cloudfrontConfigVersionDiff,
+      handler: cloudfrontConfigVersionManager,
       description: "restful api to get the cloudfront config diff",
       proxy: false,
       restApiName: 'CloudfrontConfigDiff',
@@ -170,8 +174,18 @@ export class CloudFrontConfigVersionStack extends Stack {
       }
     })
 
-    const config_diff_proxy = rest_api.root.addResource('cf_config_diff');
+    const config_diff_proxy = rest_api.root.addResource('cf_config_manager');
     config_diff_proxy.addMethod('GET', undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
+
+    const versionList_proxy = config_diff_proxy.addResource('versions');
+    versionList_proxy.addMethod('GET',undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
+
+    const getVersion_proxy = versionList_proxy.addResource('{version_id}');
+    getVersion_proxy.addMethod('GET', undefined, {
       authorizationType: AuthorizationType.IAM
     })
 
@@ -192,7 +206,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     new cdk.CfnOutput(this, 'cloudfront_config_version_dynamodb', { value: cloudfront_config_version_table.tableName });
     new cdk.CfnOutput(this, 'cloudfront_config_latest_version_dynamodb', { value: cloudfront_config_latestVersion_table.tableName });
     new cdk.CfnOutput(this, 'cloudfront_config_exporter',{value: cloudfrontConfigVersionExporter.functionName});
-    new cdk.CfnOutput(this, 'cloudfront_config_diff',{value: cloudfrontConfigVersionDiff.functionName});
+    new cdk.CfnOutput(this, 'cloudfront_config_diff',{value: cloudfrontConfigVersionManager.functionName});
     new cdk.CfnOutput(this, 'cloudfront_config_rest_api',{value: rest_api.restApiName});
     new cdk.CfnOutput(this, 'api-gateway_policy', {value: api_client_policy.managedPolicyName});
   }
