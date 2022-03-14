@@ -1,10 +1,11 @@
+import logging
+
 import json
 import boto3
-import logging
-import os
-from datetime import datetime
-
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Key
+import subprocess
 
 app = APIGatewayRestResolver()
 
@@ -15,13 +16,127 @@ DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLat
 log = logging.getLogger()
 log.setLevel('INFO')
 
-@app.get("/cf_config_manager/versions/<versionId>")
-def hello_name(versionId):
-    return {"message": f"hello {versionId}!"}
+
+@app.get("/cf_config_manager/diff")
+def manager_version_diff():
+    query_strings_as_dict = app.current_event.query_string_parameters
+    json_payload = app.current_event.json_body
+    payload = app.current_event.body
+
+    distId = app.current_event.get_query_string_value(name="distributionId", default_value="")
+    version1 = app.current_event.get_query_string_value(name="version1", default_value="")
+    version2 = app.current_event.get_query_string_value(name="version2", default_value="")
+
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distId,
+            "versionId": int(version1)
+        })
+    data = response['Item']
+
+    s3_bucket = data['s3_bucket']
+    s3_key1 = data['s3_key']
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distId,
+            "versionId": int(version2)
+        })
+    data = response['Item']
+    s3_key2 = data['s3_key']
+
+    s3_client = boto3.client('s3')
+    local_config_file_name_version1 = '/tmp/' + distId + "_" + version1 + ".json"
+    local_config_file_name_version2 = '/tmp/' + distId + "_" + version2 + ".json"
+    s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version1)
+    s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
+
+    # compare the two files
+    cmd = ['git', 'diff', '--no-index', local_config_file_name_version1, local_config_file_name_version2, '>/tmp/diff.txt']
+
+    shell_cmd= ' '.join(cmd)
+    log.info(shell_cmd)
+
+    output = subprocess.check_output(shell_cmd, shell=True)
+
+    return output
+
+
+@app.get("/cf_config_manager/versions/config_link/<versionId>")
+def manager_version_get_link(versionId):
+    distId = app.current_event.get_query_string_value(name="distributionId", default_value="")
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distId,
+            "versionId": int(versionId)
+        })
+    data = response['Item']
+
+    config_link = data['config_link']
+    log.info("target s3 link is " + config_link)
+
+    return {
+        "config_link": config_link
+    }
+
+
+@app.get("/cf_config_manager/versions/config_content/<versionId>")
+def manager_version_get_content(versionId):
+    distId = app.current_event.get_query_string_value(name="distributionId", default_value="")
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distId,
+            "versionId": int(versionId)
+        })
+    data = response['Item']
+
+    config_link = data['config_link']
+    log.info("target s3 link is " + config_link)
+
+    s3_client = boto3.client('s3')
+    local_config_file_name = '/tmp/' + distId + "_" + versionId + ".json"
+    # s3_client.download_file(data['s3_bucket'], data['s3_key'], local_config_file_name)
+    data = s3_client.get_object(Bucket=data['s3_bucket'], Key=data['s3_key'])
+    # contents = data['Body'].read().decode('utf-8')
+    for line in data['Body'].iter_lines():
+        object = json.loads(line)
+
+    log.info(object)
+
+    return object
+
 
 @app.get("/cf_config_manager/versions")
-def manager_version_get():
-    return {"message": "getting all version of specific distribution!"}
+def manager_version_get_all():
+    query_strings_as_dict = app.current_event.query_string_parameters
+    json_payload = app.current_event.json_body
+    payload = app.current_event.body
+
+    distId = app.current_event.get_query_string_value(name="distributionId", default_value="")
+
+    # get all the versions of the specific cloudfront distributions
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.scan(
+        FilterExpression=Attr('distributionId').eq(distId)
+    )
+    data = response['Items']
+
+    return data
+
 
 @app.get("/cf_config_manager")
 def manager():

@@ -99,11 +99,17 @@ export class CloudFrontConfigVersionStack extends Stack {
         this, "lambda-powertools","arn:aws:lambda:" + this.region + ":017000801446:layer:AWSLambdaPowertoolsPython:13"
     )
 
+    // define a git lambda layer for all other lambda to use
+    const git_layer = LayerVersion.fromLayerVersionArn(
+        this, "lambda-git","arn:aws:lambda:" + this.region + ":553035198032:layer:git-lambda2:8"
+    )
+
+
     const cloudfrontConfigVersionExporter = new lambda.Function(this, 'cf-config-version-export-lambda', {
       functionName: "cf_config_version_exporter",
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'cf_config_version_exporter.lambda_handler',
-      layers: [powertools_layer],
+      layers: [powertools_layer, git_layer],
       memorySize: 1024,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_exporter')),
@@ -126,7 +132,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     const cloudfrontConfigVersionManager = new lambda.Function(this, 'cf-config-version-manager-lambda', {
       functionName: "cf_config_version_manager",
       runtime: lambda.Runtime.PYTHON_3_9,
-      layers: [powertools_layer],
+      layers: [powertools_layer, git_layer],
       handler: 'cf_config_version_manager.lambda_handler',
       memorySize: 1024,
       timeout: cdk.Duration.seconds(900),
@@ -179,13 +185,24 @@ export class CloudFrontConfigVersionStack extends Stack {
       authorizationType: AuthorizationType.IAM
     })
 
+    const diff_proxy = config_diff_proxy.addResource('diff');
+    diff_proxy.addMethod('GET',undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
     const versionList_proxy = config_diff_proxy.addResource('versions');
     versionList_proxy.addMethod('GET',undefined, {
       authorizationType: AuthorizationType.IAM
     })
 
-    const getVersion_proxy = versionList_proxy.addResource('{version_id}');
-    getVersion_proxy.addMethod('GET', undefined, {
+    const config_link_path = versionList_proxy.addResource('config_link');
+    const config_link_proxy = config_link_path.addResource('{version_id}');
+    config_link_proxy.addMethod('GET',undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
+
+    const config_content_path = versionList_proxy.addResource('config_content');
+    const config_content_proxy = config_content_path.addResource('{version_id}');
+    config_content_proxy.addMethod('GET', undefined, {
       authorizationType: AuthorizationType.IAM
     })
 

@@ -90,7 +90,9 @@ def lambda_handler(event, context):
             'versionId': newVersion,
             'dateTime': currentTime,
             'note': 'auto_save',
-            'config_link': s3_path
+            'config_link': s3_path,
+            's3_bucket': S3_BUCKET,
+            's3_key': s3_key
         })
 
     # update the config latest version ddb
