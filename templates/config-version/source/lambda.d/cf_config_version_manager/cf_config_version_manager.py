@@ -5,6 +5,7 @@ import subprocess
 
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Key
 
 app = APIGatewayRestResolver()
 
@@ -71,7 +72,6 @@ def manager_version_diff():
 
     return diff_content
 
-
 @app.get("/cf_config_manager/versions/config_link/<versionId>")
 def manager_version_get_link(versionId):
     distId = app.current_event.get_query_string_value(name="distributionId", default_value="")
@@ -92,7 +92,6 @@ def manager_version_get_link(versionId):
     return {
         "config_link": config_link
     }
-
 
 @app.get("/cf_config_manager/versions/config_content/<versionId>")
 def manager_version_get_content(versionId):
@@ -123,7 +122,6 @@ def manager_version_get_content(versionId):
 
     return object
 
-
 @app.get("/cf_config_manager/versions")
 def manager_version_get_all():
     query_strings_as_dict = app.current_event.query_string_parameters
@@ -132,22 +130,21 @@ def manager_version_get_all():
 
     distId = app.current_event.get_query_string_value(name="distributionId", default_value="")
 
-    # get all the versions of the specific cloudfront distributions
+    # get all the versions of the specific cloudfront distributions, latest version come firist
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
 
-    response = ddb_table.scan(
-        FilterExpression=Attr('distributionId').eq(distId)
+    response = ddb_table.query(
+        KeyConditionExpression=Key('distributionId').eq(distId),
+        ScanIndexForward=False
     )
     data = response['Items']
 
     return data
 
-
 @app.get("/cf_config_manager")
 def manager():
     return {"message": "hello unknown!"}
-
 
 def lambda_handler(event, context):
     return app.resolve(event, context)
