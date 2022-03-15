@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     configName = distributionId + "_" + currentTime + ".json"
     with open("/tmp/" + configName, "w") as outfile:
         log.info(json.dumps(response["DistributionConfig"], indent=4))
-        json.dump(response["DistributionConfig"], outfile)
+        json.dump(response["DistributionConfig"], outfile, indent=4)
 
     s3_client = boto3.client('s3')
     s3_path = "s3://" + S3_BUCKET + "/" + distributionId + "/" + year + "/" + month + "/" + day + "/" + configName

@@ -5,8 +5,8 @@
   "httpMethod": "GET",
   "isBase64Encoded": true,
   "queryStringParameters": {
-    "version1": "4",
-    "version2": "5",
+    "version1": "8",
+    "version2": "9",
     "distributionId": "EZVWX0EG9VYPE"
   },
   "multiValueQueryStringParameters": {

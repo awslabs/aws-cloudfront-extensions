@@ -1,11 +1,10 @@
 import logging
-
 import json
 import boto3
+import subprocess
+
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from boto3.dynamodb.conditions import Attr
-from boto3.dynamodb.conditions import Key
-import subprocess
 
 app = APIGatewayRestResolver()
 
@@ -56,14 +55,21 @@ def manager_version_diff():
     s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
 
     # compare the two files
-    cmd = ['git', 'diff', '--no-index', local_config_file_name_version1, local_config_file_name_version2, '>/tmp/diff.txt']
+    cmd = ['git', 'diff', '--no-index', local_config_file_name_version1, local_config_file_name_version2,
+           '>/tmp/diff.txt', ';', 'exit 0']
 
-    shell_cmd= ' '.join(cmd)
+    shell_cmd = ' '.join(cmd)
     log.info(shell_cmd)
 
     output = subprocess.check_output(shell_cmd, shell=True)
 
-    return output
+    diff_file = open("/tmp/diff.txt", "r")
+
+    diff_content = diff_file.read()
+
+    diff_file.close()
+
+    return diff_content
 
 
 @app.get("/cf_config_manager/versions/config_link/<versionId>")
