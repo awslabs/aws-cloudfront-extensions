@@ -18,32 +18,33 @@ DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
 log = logging.getLogger()
 log.setLevel('INFO')
 
+
 def lambda_handler(event, context):
     # extract the distribution id from the input
-    requestParameters = event["detail"]["requestParameters"]
-    distributionId = requestParameters["id"]
-    log.info(requestParameters["id"])
+    request_parameters = event["detail"]["requestParameters"]
+    distribution_id = request_parameters["id"]
+    log.info(request_parameters["id"])
 
     # export the cloudfront config to S3 bucket and directory
     cf_client = boto3.client('cloudfront')
     response = cf_client.get_distribution_config(
-        Id=distributionId
+        Id=distribution_id
     )
-    currentTime = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    current_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     year = str(datetime.now().year)
     month = str('%02d' % datetime.now().month)
     day = str('%02d' % datetime.now().day)
 
-    configName = distributionId + "_" + currentTime + ".json"
-    with open("/tmp/" + configName, "w") as outfile:
+    config_name = distribution_id + "_" + current_time + ".json"
+    with open("/tmp/" + config_name, "w") as outfile:
         log.info(json.dumps(response["DistributionConfig"], indent=4))
         json.dump(response["DistributionConfig"], outfile, indent=4)
 
     s3_client = boto3.client('s3')
-    s3_path = "s3://" + S3_BUCKET + "/" + distributionId + "/" + year + "/" + month + "/" + day + "/" + configName
-    s3_key = distributionId + "/" + year + "/" + month + "/" + day + "/" + configName
+    s3_path = "s3://" + S3_BUCKET + "/" + distribution_id + "/" + year + "/" + month + "/" + day + "/" + config_name
+    s3_key = distribution_id + "/" + year + "/" + month + "/" + day + "/" + config_name
     try:
-        response = s3_client.upload_file("/tmp/" + configName, S3_BUCKET, s3_key)
+        response = s3_client.upload_file("/tmp/" + config_name, S3_BUCKET, s3_key)
     except ClientError as e:
         logging.error(e)
 
@@ -52,29 +53,29 @@ def lambda_handler(event, context):
     ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
     try:
         resp = ddb_table.query(
-            KeyConditionExpression=Key('distributionId').eq(distributionId)
+            KeyConditionExpression=Key('distributionId').eq(distribution_id)
         )
         log.info(resp)
     except ClientError as e:
         logging.error(e)
 
-    recordList = resp['Items']
-    if len(recordList) == 0:
-        logging.info("not found any records for distribution:" + distributionId)
-        logging.info("create first record for distribution:" + distributionId)
+    record_list = resp['Items']
+    if len(record_list) == 0:
+        logging.info("not found any records for distribution:" + distribution_id)
+        logging.info("create first record for distribution:" + distribution_id)
         ddb_table.put_item(
             Item={
-                'distributionId': distributionId,
+                'distributionId': distribution_id,
                 'versionId': 0
             })
         resp = ddb_table.query(
-            KeyConditionExpression=Key('distributionId').eq(distributionId)
+            KeyConditionExpression=Key('distributionId').eq(distribution_id)
         )
 
     if 'Items' in resp:
         ddb_record = resp['Items'][0]
-        currentVersion = ddb_record['versionId']
-        newVersion = currentVersion + 1
+        current_version = ddb_record['versionId']
+        new_version = current_version + 1
     else:
         logging.error("failed to get the versionId")
         return {
@@ -86,24 +87,24 @@ def lambda_handler(event, context):
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
     response = ddb_table.put_item(
         Item={
-            'distributionId': str(distributionId),
-            'versionId': newVersion,
-            'dateTime': currentTime,
+            'distributionId': str(distribution_id),
+            'versionId': new_version,
+            'dateTime': current_time,
             'note': 'auto_save',
             'config_link': s3_path,
             's3_bucket': S3_BUCKET,
             's3_key': s3_key
         })
 
-    # update the config latest version ddb
+    # update the config latest_version ddb
     ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
     response = ddb_table.update_item(
         Key={
-            'distributionId': distributionId,
+            'distributionId': distribution_id,
         },
         UpdateExpression="set versionId=:r",
         ExpressionAttributeValues={
-            ':r': newVersion
+            ':r': new_version
         },
         ReturnValues="UPDATED_NEW"
     )
