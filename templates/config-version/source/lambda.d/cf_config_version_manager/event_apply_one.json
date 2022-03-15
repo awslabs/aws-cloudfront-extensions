@@ -1,11 +1,13 @@
 {
   "body": "eyJ0ZXN0IjoiYm9keSJ9",
   "resource": "/{proxy+}",
-  "path": "/cf_config_manager/versions/config_content/9",
+  "path": "/cf_config_manager/apply_config",
   "httpMethod": "GET",
   "isBase64Encoded": true,
   "queryStringParameters": {
-    "distributionId": "EZVWX0EG9VYPE"
+    "src_distribution_id": "EZVWX0EG9VYPE",
+    "version": "9",
+    "target_distribution_id": "EZVWX0EG9VYPE"
   },
   "multiValueQueryStringParameters": {
     "foo": [
@@ -13,7 +15,7 @@
     ]
   },
   "pathParameters": {
-    "proxy": "/cf_config_manager/versions/config_content/9"
+    "proxy": "/cf_config_manager/apply_config"
   },
   "stageVariables": {
     "baz": "qux"
@@ -114,7 +116,7 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/cf_config_manager/versions/config_content/9",
+    "path": "/cf_config_manager/apply_config",
     "resourcePath": "/{proxy+}",
     "httpMethod": "GET",
     "apiId": "1234567890",

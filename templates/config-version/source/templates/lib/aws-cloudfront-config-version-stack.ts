@@ -194,6 +194,10 @@ export class CloudFrontConfigVersionStack extends Stack {
       authorizationType: AuthorizationType.IAM
     })
 
+    const apply_config_proxy = config_diff_proxy.addResource('apply_config');
+    apply_config_proxy.addMethod('GET',undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
     const config_link_path = versionList_proxy.addResource('config_link');
     const config_link_proxy = config_link_path.addResource('{version_id}');
     config_link_proxy.addMethod('GET',undefined, {
