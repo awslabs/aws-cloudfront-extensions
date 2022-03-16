@@ -9,8 +9,8 @@ from boto3.dynamodb.conditions import Key
 app = APIGatewayRestResolver()
 
 S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
-DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-D8I07GGNBYFJ'
-DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-7LF5V48RKDK0'
+DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
+DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-1OS79LINC6BHC'
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -129,6 +129,60 @@ def manager_version_apply_config():
 
     return response['Distribution']['Status']
 
+
+@app.post("/cf_config_manager/config_tag_update")
+def manager_version_config_tag_update():
+    dist_id = app.current_event.get_query_string_value(name="distribution_id", default_value="")
+    version_id = app.current_event.get_query_string_value(name="version", default_value="")
+    note = app.current_event.get_query_string_value(name="note", default_value="")
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": dist_id,
+            "versionId": int(version_id)
+        })
+    data = response['Item']
+
+    data['note'] = note
+
+    response = ddb_table.update_item(
+        Key={
+            "distributionId": dist_id,
+            "versionId": int(version_id)
+        },
+        UpdateExpression="set note = :r",
+        ExpressionAttributeValues={':r': note},
+        ReturnValues="UPDATED_NEW"
+    )
+    return response
+
+
+@app.get("/cf_config_manager/cf_list")
+def manager_version_config_cf_list():
+
+    # first get distribution List from current account
+    cf_client = boto3.client('cloudfront')
+    response = cf_client.list_distributions()
+
+    result = []
+    for dist in response['DistributionList']['Items']:
+        tmp_dist = {}
+        tmp_dist['Id'] = dist['Id']
+        tmp_dist['DomainName'] = dist['DomainName']
+        tmp_dist['Status'] = dist['Status']
+        result.append(tmp_dist)
+
+    # get latest version from ddb latest version ddb
+
+    # return the result
+
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
+
+    return result
 
 @app.get("/cf_config_manager/versions/config_link/<versionId>")
 def manager_version_get_link(versionId):

@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
 import {LayerVersion} from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
-import {CfnParameter, Construct, RemovalPolicy, Stack} from '@aws-cdk/core';
+import {Construct, RemovalPolicy, Stack} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from '@aws-cdk/aws-iam';
@@ -17,11 +17,6 @@ export class CloudFrontConfigVersionStack extends Stack {
     super(scope, id, props);
 
     this.templateOptions.description = "(SO8150) - Cloudfront Config Version stack.";
-
-    const CloudFrontDistributionIDList = new CfnParameter(this, 'CloudFrontDistributionIDList', {
-      description: 'The cloudfront domain name to be monitored, for example: EZVWX0EG9VYPE , for multiple domain, using \',\' as seperation',
-      type: 'String',
-    })
 
     cdk.Tags.of(this).add('solution', 'Cloudfront Extension Config Version', {
       includeResourceTypes: [
@@ -119,7 +114,6 @@ export class CloudFrontConfigVersionStack extends Stack {
         DDB_LATESTVERSION_TABLE_NAME: cloudfront_config_latestVersion_table.tableName,
         S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDistributionIDList.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -143,7 +137,6 @@ export class CloudFrontConfigVersionStack extends Stack {
         DDB_LATESTVERSION_TABLE_NAME: cloudfront_config_latestVersion_table.tableName,
         S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDistributionIDList.valueAsString,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -154,16 +147,12 @@ export class CloudFrontConfigVersionStack extends Stack {
     cloudfrontConfigVersionManager.node.addDependency(cloudfront_config_version_s3_bucket);
 
 
-    const distributionList = CloudFrontDistributionIDList.valueAsString.split(',');
 
     const cloudfront_config_change_rule = new Rule(this, 'cloudfront_config_change_rule', {
       eventPattern: {
         source: ["aws.cloudfront"],
         detail:{
-         "eventName": ["UpdateDistribution"],
-         "requestParameters": {
-         "id": distributionList   //TODO: need to figure out how to generate the distribution list automatically
-         }
+         "eventName": ["UpdateDistribution","CreateDistribution"],
         }
       },
     });
@@ -198,6 +187,17 @@ export class CloudFrontConfigVersionStack extends Stack {
     apply_config_proxy.addMethod('GET',undefined, {
       authorizationType: AuthorizationType.IAM
     })
+
+    const config_tag_update_proxy = config_diff_proxy.addResource('config_tag_update');
+    config_tag_update_proxy.addMethod('POST',undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
+
+    const cf_list_proxy = config_diff_proxy.addResource('cf_list');
+    cf_list_proxy.addMethod('GET',undefined, {
+      authorizationType: AuthorizationType.IAM
+    })
+
     const config_link_path = versionList_proxy.addResource('config_link');
     const config_link_proxy = config_link_path.addResource('{version_id}');
     config_link_proxy.addMethod('GET',undefined, {
