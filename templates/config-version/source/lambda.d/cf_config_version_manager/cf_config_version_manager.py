@@ -167,21 +167,26 @@ def manager_version_config_cf_list():
     cf_client = boto3.client('cloudfront')
     response = cf_client.list_distributions()
 
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
+
     result = []
     for dist in response['DistributionList']['Items']:
         tmp_dist = {}
         tmp_dist['Id'] = dist['Id']
         tmp_dist['DomainName'] = dist['DomainName']
         tmp_dist['Status'] = dist['Status']
+        tmp_dist['Enabled'] = dist['Enabled']
+
+        # get latest version from ddb latest version ddb
+        ddb_data = ddb_table.get_item(
+            Key={
+                "distributionId": dist['Id'],
+            })
+        data = ddb_data['Item']
+        tmp_dist['versionCount'] = data['versionId']
+
         result.append(tmp_dist)
-
-    # get latest version from ddb latest version ddb
-
-    # return the result
-
-    ddb_client = boto3.resource('dynamodb')
-    ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
-
     return result
 
 @app.get("/cf_config_manager/versions/config_link/<versionId>")
