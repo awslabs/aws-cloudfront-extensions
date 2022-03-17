@@ -8,8 +8,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "aws-sdk": "^2.889.0",
-    "axios": "^0.24.0",
-    "sharp": "^0.29.0"
+    "axios": "^0.26.0",
+    "sharp": "^0.30.0"
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"

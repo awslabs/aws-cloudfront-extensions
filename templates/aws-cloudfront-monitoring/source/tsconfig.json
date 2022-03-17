@@ -24,7 +24,7 @@
     "strictPropertyInitialization": true,
     "stripInternal": true,
     "target": "ES2018",
-    "types": ["node"]
+    "types": ["jest","node"]
   },
   "include": [
     "templates/**/*.ts"

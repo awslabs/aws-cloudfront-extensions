@@ -7,7 +7,7 @@
   "author": "GCR Solutions",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.24.0",
+    "axios": "^0.26.0",
     "weighted-random": "^0.1.0"
   },
   "scripts": {

@@ -5,11 +5,14 @@ import os
 
 
 def load_ipdb():
-    db_path = 'ipipfree.ipdb'
+    db_filename = 'ipipfree.ipdb'
 
     # hack db location path for unit test
+    db_path = db_filename
+    if not os.path.exists(db_filename):
+        db_path = os.path.join(os.getcwd(), '../geo-traffic-blocker/geo_traffic_blocker/', db_filename)
     if not os.path.exists(db_path):
-        db_path = os.path.join(os.getcwd(), 'geo_traffic_blocker/', db_path)
+        db_path = os.path.join(os.getcwd(), '../../geo_traffic_blocker/', db_filename)
     return ipdb.City(db_path)
 
 
@@ -24,14 +27,14 @@ def lambda_handler(event, context):
     # block ip from China Mainland
 
     # The commercial version of IPDB can use 'country_code' field to find out the source
-    # if info.country_code == 'CN':
+    # if info and info.country_code == 'CN':
     #     return {
     #         'status': '403',
     #         'statusDescription': 'Forbidden'
     #     }
 
     # Free IPDB only support 3 filed：city_name, county_name, region_name
-    if info.country_name == '中国' and (info.region_name not in ('香港', '澳门', '台湾')):
+    if info and info.country_name == '中国' and (info.region_name not in ('香港', '澳门', '台湾')):
         return {
             'status': '403',
             'statusDescription': 'Forbidden'

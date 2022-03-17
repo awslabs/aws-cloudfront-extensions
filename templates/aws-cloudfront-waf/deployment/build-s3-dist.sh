@@ -56,7 +56,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] Log Parser"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/log_parser || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/log_parser/package || exit 1
 zip -q -r9 "$build_dist_dir"/log_parser.zip .
 cd "$source_dir"/log_parser || exit 1
@@ -68,7 +68,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] Access Handler"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/access_handler || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/access_handler/package || exit 1
 zip -q -r9 "$build_dist_dir"/access_handler.zip .
 cd "$source_dir"/access_handler || exit 1
@@ -80,7 +80,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] IP Lists Parser"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/reputation_lists_parser || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/reputation_lists_parser/package || exit 1
 zip -q -r9 "$build_dist_dir"/reputation_lists_parser.zip .
 cd "$source_dir"/reputation_lists_parser || exit 1
@@ -92,7 +92,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] Custom Resource"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/custom_resource || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/custom_resource/package || exit 1
 zip -q -r9 "$build_dist_dir"/custom_resource.zip .
 cd "$source_dir"/custom_resource || exit 1
@@ -104,7 +104,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] Helper"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/helper || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/helper/package || exit 1
 zip -q -r9 "$build_dist_dir"/helper.zip ./*
 cd "$source_dir"/helper || exit 1
@@ -116,7 +116,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] Timer"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/timer || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/timer/package || exit 1
 zip -q -r9 "$build_dist_dir"/timer.zip ./*
 cd "$source_dir"/timer || exit 1
@@ -128,7 +128,7 @@ echo "--------------------------------------------------------------------------
 echo "[Packing] Shield Protection"
 echo "------------------------------------------------------------------------------"
 cd "$source_dir"/timer || exit 1
-pip install -r requirements.txt --target ./package
+pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/timer/package || exit 1
 zip -q -r9 "$build_dist_dir"/shield_protection.zip ./*
 cd "$source_dir"/shield_protection || exit 1

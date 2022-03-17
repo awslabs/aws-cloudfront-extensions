@@ -20,6 +20,7 @@ import { CfnDeliveryStream } from "@aws-cdk/aws-kinesisfirehose";
 import { CfnTable, Database, Table } from "@aws-cdk/aws-glue"
 import { StreamEncryption } from "@aws-cdk/aws-kinesis";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
+import * as kms from "@aws-cdk/aws-kms";
 import { LambdaFunction } from '@aws-cdk/aws-events-targets';
 import {
   OAuthScope,
@@ -110,12 +111,18 @@ export class CloudFrontMonitoringStack extends Stack {
 
     readAutoScaling.scaleOnUtilization({
       targetUtilizationPercent: 75
-    })
+    });
+
+    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
+      streamName: "cloudfront-real-time-log-data-stream",
+      shardCount: 200,
+      encryption: StreamEncryption.MANAGED
+
+    });
 
     const glueDatabase = new Database(this, "cf_realtime_log_glue_database", {
       databaseName: "glue_cf_realtime_log_database"
     });
-
 
     const glueTableCFN = new CfnTable(this, 'GlueTable', {
       databaseName: glueDatabase.databaseName,
@@ -355,25 +362,139 @@ export class CloudFrontMonitoringStack extends Stack {
       ),
     });
 
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
-    );
+    const ddbReadAndWritePolicy = new iam.Policy(this, 'DDBReadAndWritePolicy', {
+      policyName: 'DDBReadAndWritePolicy',
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [cloudfront_metrics_table.tableArn],
+          actions: [
+            "dynamodb:*",
+            "iam:CreateServiceLinkedRole",
+            "iam:PassRole",
+            "iam:GetRole",
+            "iam:ListRoles"
+          ]
+        })
+      ]
+    });
 
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
-    );
+    const s3ReadAndWritePolicy = new iam.Policy(this, 'S3ReadAndWritePolicy', {
+      policyName: 'S3ReadAndWritePolicy',
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "s3:*"
+          ]
+        })
+      ]
+    });
+
+    const athenaReadAndWritePolicy = new iam.Policy(this, 'AthenaReadAndWritePolicy', {
+      policyName: 'AthenaReadAndWritePolicy',
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "glue:Create*",
+            "glue:DeleteDatabase",
+            "glue:Get*",
+            "glue:UpdateDatabase",
+            "glue:CreateTable",
+            "glue:DeleteTable",
+            "glue:BatchDeleteTable",
+            "glue:UpdateTable",
+            "glue:BatchCreatePartition",
+            "glue:CreatePartition",
+            "glue:DeletePartition",
+            "glue:BatchDeletePartition",
+            "glue:UpdatePartition",
+            "glue:BatchGetPartition",
+            "athena:*",
+            "s3:GetBucketLocation",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:ListBucketMultipartUploads",
+            "s3:ListMultipartUploadParts",
+            "s3:AbortMultipartUpload",
+            "s3:CreateBucket",
+            "s3:PutObject",
+            "s3:PutBucketPublicAccessBlock",
+            "s3:ListAllMyBuckets",
+            "sns:ListTopics",
+            "sns:GetTopicAttributes",
+            "cloudwatch:PutMetricAlarm",
+            "cloudwatch:DescribeAlarms",
+            "cloudwatch:DeleteAlarms",
+            "lakeformation:GetDataAccess"
+          ],
+        })
+      ]
+    });
+
+    const lambdaReadAndWritePolicy = new iam.Policy(this, 'LambdaReadAndWritePolicy', {
+      policyName: 'LambdaReadAndWritePolicy',
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`
+          ],
+          actions: [
+            "lambda:*"
+          ],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*`,
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*:log-stream:*`
+          ],
+          actions: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+        })
+      ]
+    });
+    
+    const kinesisReadAndWritePolicy = new iam.Policy(this, 'KinesisReadAndWritePolicy', {
+      policyName: 'KinesisReadAndWritePolicy',
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:*/*/consumer/*:*`, 
+            `arn:aws:kms:*:${cdk.Aws.ACCOUNT_ID}:key/*`,
+            `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:stream/*`
+          ],
+          actions: [
+            "kinesis:*",
+          ]
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:firehose:*:${cdk.Aws.ACCOUNT_ID}:deliverystream/*`],
+          actions: [
+            "firehose:*",
+          ]
+        })
+      ]
+    });
+
+    lambdaRole.attachInlinePolicy(ddbReadAndWritePolicy);
+    lambdaRole.attachInlinePolicy(s3ReadAndWritePolicy);
+    lambdaRole.attachInlinePolicy(athenaReadAndWritePolicy);
+    lambdaRole.attachInlinePolicy(lambdaReadAndWritePolicy);
+    lambdaRole.attachInlinePolicy(kinesisReadAndWritePolicy);
 
     // define a shared lambda layer for all other lambda to use
     const cloudfrontSharedLayer = new lambda.LayerVersion(this, 'cloudfront-shared-layer', {
@@ -833,12 +954,6 @@ export class CloudFrontMonitoringStack extends Stack {
       ],
     });
 
-    const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
-      streamName: "cloudfront-real-time-log-data-stream",
-      shardCount: 200,
-      encryption: StreamEncryption.UNENCRYPTED
-    })
-
     // Provide a Lambda function that will transform records before delivery, with custom
     // buffering and retry configuration
     // TODO: may need to replace this lambda with SAR
@@ -855,10 +970,8 @@ export class CloudFrontMonitoringStack extends Stack {
     const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
       assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
-
-    deliveryStreamRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
-    )
+    
+    deliveryStreamRole.attachInlinePolicy(kinesisReadAndWritePolicy);
 
     const destinationRole = new iam.Role(this, 'Destination Role', {
       assumedBy: new CompositePrincipal(
@@ -866,25 +979,10 @@ export class CloudFrontMonitoringStack extends Stack {
       ),
     });
 
-    destinationRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
-    );
-    destinationRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
-    );
-    destinationRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonAthenaFullAccess')
-    );
-    destinationRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AWSLambda_FullAccess')
-    );
-    destinationRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
-    );
-    destinationRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonKinesisFullAccess')
-    );
-
+    destinationRole.attachInlinePolicy(s3ReadAndWritePolicy);
+    destinationRole.attachInlinePolicy(lambdaReadAndWritePolicy);
+    destinationRole.attachInlinePolicy(kinesisReadAndWritePolicy);
+    
     const cloudfront_realtime_log_delivery_stream_cfn = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
       deliveryStreamName: cloudfront_realtime_log_stream.streamName + '_delivery_stream',
       deliveryStreamType: 'KinesisStreamAsSource',
@@ -913,7 +1011,9 @@ export class CloudFrontMonitoringStack extends Stack {
           logStreamName: "DestinationDelivery"
         },
         encryptionConfiguration: {
-          noEncryptionConfig: "NoEncryption"
+          kmsEncryptionConfig: {
+            awskmsKeyArn: kms.Alias.fromAliasName(this, 'S3ManagedKey', 'alias/aws/s3').keyArn
+          }
         },
         prefix: "year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/hour=!{partitionKeyFromLambda:hour}/minute=!{partitionKeyFromLambda:minute}/domain=!{partitionKeyFromLambda:domain}/",
         errorOutputPrefix: 'failed/',
