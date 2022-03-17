@@ -21,9 +21,15 @@ log.setLevel('INFO')
 
 def lambda_handler(event, context):
     # extract the distribution id from the input
-    request_parameters = event["detail"]["requestParameters"]
-    distribution_id = request_parameters["id"]
-    log.info(request_parameters["id"])
+    log.info(event['detail'])
+    if event['detail']['eventName'] == 'CreateDistribution':
+        response_parameters = event["detail"]["responseElements"]
+        distribution_id = response_parameters['distribution']['id']
+    else:
+        request_parameters = event["detail"]["requestParameters"]
+        distribution_id = request_parameters["id"]
+
+    log.info(distribution_id)
 
     # export the cloudfront config to S3 bucket and directory
     cf_client = boto3.client('cloudfront')
