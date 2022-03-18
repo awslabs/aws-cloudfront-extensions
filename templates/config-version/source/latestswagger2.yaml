@@ -1,0 +1,107 @@
+---
+swagger: '2.0'
+info:
+  description: restful api to get the cloudfront config diff
+  version: '2022-03-17T02:31:40Z'
+  title: CloudfrontConfigDiff
+host: z7blvkdb6k.execute-api.us-east-1.amazonaws.com
+basePath: "/prod"
+schemes:
+  - https
+paths:
+  "/cf_config_manager":
+    get:
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/apply_config":
+    get:
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/cf_list":
+    get:
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/config_tag_update":
+    post:
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/diff":
+    get:
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/versions":
+    get:
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/versions/config_content/{version_id}":
+    get:
+      parameters:
+        - name: version_id
+          in: path
+          required: true
+          type: string
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+  "/cf_config_manager/versions/config_link/{version_id}":
+    get:
+      parameters:
+        - name: version_id
+          in: path
+          required: true
+          type: string
+      responses: {}
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348167721134:function:cf_config_version_manager/invocations
+        passthroughBehavior: when_no_match
+securityDefinitions:
+  sigv4:
+    type: apiKey
+    name: Authorization
+    in: header
+    x-amazon-apigateway-authtype: awsSigv4

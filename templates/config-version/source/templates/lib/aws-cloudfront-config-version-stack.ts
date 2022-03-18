@@ -159,11 +159,11 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     cloudfront_config_change_rule.addTarget(new targets.LambdaFunction(cloudfrontConfigVersionExporter))
 
-    const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
+    const rest_api = new LambdaRestApi(this, 'cloudfront_config_version_restfulApi', {
       handler: cloudfrontConfigVersionManager,
       description: "restful api to get the cloudfront config diff",
       proxy: false,
-      restApiName: 'CloudfrontConfigDiff',
+      restApiName: 'CloudfrontConfigManager',
       endpointConfiguration: {
         types: [EndpointType.EDGE]
       }

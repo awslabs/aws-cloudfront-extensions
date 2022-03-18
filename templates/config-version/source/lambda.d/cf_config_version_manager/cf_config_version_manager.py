@@ -162,7 +162,6 @@ def manager_version_config_tag_update():
 
 @app.get("/cf_config_manager/cf_list")
 def manager_version_config_cf_list():
-
     # first get distribution List from current account
     cf_client = boto3.client('cloudfront')
     response = cf_client.list_distributions()
@@ -188,6 +187,7 @@ def manager_version_config_cf_list():
 
         result.append(tmp_dist)
     return result
+
 
 @app.get("/cf_config_manager/versions/config_link/<versionId>")
 def manager_version_get_link(versionId):
