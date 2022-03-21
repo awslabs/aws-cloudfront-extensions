@@ -1,9 +1,16 @@
 ---
 swagger: '2.0'
 info:
-  description: restful api to get the cloudfront config diff
-  version: '2022-03-17T02:31:40Z'
-  title: CloudfrontConfigDiff
+  description: restful api to manage the cloudfront config info
+  version: '1.0.0'
+  title: CloudfrontConfigManager
+  contact:
+    url: https://www.amazonaws.cn/contact-us
+    name: Amazon Web Services Solutions
+  termsOfService: https://www.amazonaws.cn/en/terms/?nc1=f_cc
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: z7blvkdb6k.execute-api.us-east-1.amazonaws.com
 basePath: "/prod"
 schemes:
@@ -12,6 +19,7 @@ paths:
   "/cf_config_manager":
     get:
       responses: {}
+      summary: root of config manager
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -22,6 +30,26 @@ paths:
   "/cf_config_manager/apply_config":
     get:
       responses: {}
+      requestBody: {}
+      parameters:
+        - in: query
+          name: src_distribution_id
+          schema:
+            type: string
+          required: true
+          description: source cloudfront distribution id
+        - in: query
+          name: version
+          schema:
+            type: string
+          required: true
+          description: source version number to be applied
+        - in: query
+          name: target_distribution_id
+          schema:
+            type: string
+          required: true
+          description: target cloudfront distribution id
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -32,6 +60,7 @@ paths:
   "/cf_config_manager/cf_list":
     get:
       responses: {}
+      requestBody: {}
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -42,6 +71,26 @@ paths:
   "/cf_config_manager/config_tag_update":
     post:
       responses: {}
+      requestBody: {}
+      parameters:
+        - in: query
+          name: distribution_id
+          schema:
+            type: string
+          required: true
+          description: cloudfront distribution id
+        - in: query
+          name: version
+          schema:
+            type: string
+          required: true
+          description: version number to be applied
+        - in: query
+          name: note
+          schema:
+            type: string
+          required: true
+          description: note to be updated
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -52,6 +101,26 @@ paths:
   "/cf_config_manager/diff":
     get:
       responses: {}
+      requestBody: {}
+      parameters:
+        - in: query
+          name: distributionId
+          schema:
+            type: string
+          required: true
+          description: cloudfront distribution id
+        - in: query
+          name: version1
+          schema:
+            type: string
+          required: true
+          description: first version number to be compared
+        - in: query
+          name: version2
+          schema:
+            type: string
+          required: true
+          description: second version number ot be compared
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -62,6 +131,14 @@ paths:
   "/cf_config_manager/versions":
     get:
       responses: {}
+      requestBody: {}
+      parameters:
+        - in: query
+          name: distributionId
+          schema:
+            type: string
+          required: true
+          description: cloudfront distribution id
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -76,7 +153,9 @@ paths:
           in: path
           required: true
           type: string
+          description: version id of the cloudfront distribution
       responses: {}
+      requestBody: {}
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -91,7 +170,9 @@ paths:
           in: path
           required: true
           type: string
+          description: version id of the cloudfront distribution
       responses: {}
+      requestBody: {}
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
