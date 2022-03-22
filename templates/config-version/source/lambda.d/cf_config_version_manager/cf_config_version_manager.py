@@ -96,14 +96,6 @@ def manager_version_apply_config():
     s3_bucket = data['s3_bucket']
     s3_key1 = data['s3_key']
 
-    response = ddb_table.get_item(
-        Key={
-            "distributionId": source_dist_id,
-            "versionId": int(version)
-        })
-    data = response['Item']
-    s3_key2 = data['s3_key']
-
     s3_client = boto3.client('s3')
     local_config_file_name_version = '/tmp/' + source_dist_id + "_" + version + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
@@ -116,10 +108,11 @@ def manager_version_apply_config():
         Id=target_dist_id
     )
     etag = response['ETag']
+    target_dist_caller_reference = response['DistributionConfig']['CallerReference']
 
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
-        # distribution_config = distribution_config_response['DistributionConfig']
+        dictData['CallerReference'] = target_dist_caller_reference
 
         response = cf_client.update_distribution(
             DistributionConfig=dictData,
