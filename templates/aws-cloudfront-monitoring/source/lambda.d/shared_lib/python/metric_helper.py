@@ -3,12 +3,32 @@ import logging
 from datetime import datetime
 import time
 from datetime import timedelta
+import boto3
+import os
 
+cf_client = boto3.client('cloudfront')
 log = logging.getLogger()
 log.setLevel('INFO')
 
 SLEEP_TIME = 1
 RETRY_COUNT = 60
+
+
+def get_domain_list():
+    domain_list_env = os.getenv('DOMAIN_LIST')
+    domain_list = []
+    if domain_list_env == "ALL":
+        list_distributions_response = cf_client.list_distributions()
+        list_distributions = list_distributions_response['DistributionList']
+
+        if list_distributions['Quantity'] != 0:
+            for distribution in list_distributions['Items']:
+                dist_domain_name = distribution['DomainName']
+                domain_list.append(dist_domain_name)
+    else:
+        domain_list = os.getenv('DOMAIN_LIST').split(",")
+
+    return domain_list
 
 
 def get_athena_query_result(athena_client, query_execution_id):
@@ -81,11 +101,12 @@ def assemble_query(start_time, end_time, query_string):
     return query_string
 
 
-def schedule_athena_query(metric, start_time, end_time, domain, athena_client,
+def schedule_athena_query(metric, start_time, end_time, athena_client,
                           db_name, table_name, query_output):
     log.info('[schedule_athena_query] Start')
 
-    query_string = construct_query_string(db_name, domain, start_time, end_time, metric, table_name)
+    query_string = construct_query_string(
+        db_name, start_time, end_time, metric, table_name)
 
     log.info("[schedule_athena_query] Query string: " + query_string)
 
@@ -99,102 +120,86 @@ def schedule_athena_query(metric, start_time, end_time, domain, athena_client,
             }
         },
         WorkGroup="primary"
-        )
+    )
 
     log.info('[schedule_athena_query] End')
     return response
 
 
-def construct_query_string(db_name, domain, start_time, end_time, metric, table_name):
+def construct_query_string(db_name, start_time, end_time, metric, table_name):
     # Dynamically build query string using partition
     if metric == 'request':
-        query_string = 'SELECT count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
+        query_string = 'SELECT count(timestamp), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-            format_date_time(start_time)) + ';'
+            format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'requestOrigin':
-        query_string = 'SELECT count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
+        query_string = 'SELECT count(timestamp), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type"=\'Miss\';'
+        ) + ' AND "x-edge-response-result-type"=\'Miss\' group by "cs-host";'
     elif metric == 'statusCode':
-        query_string = 'SELECT "sc-status", count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
+        query_string = 'SELECT "sc-status", count(timestamp), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-            format_date_time(start_time)) + ' GROUP BY "sc-status";'
+            format_date_time(start_time)) + ' GROUP BY "sc-status", "cs-host";'
     elif metric == 'statusCodeOrigin':
-        query_string = 'SELECT "sc-status", count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
+        query_string = 'SELECT "sc-status", count(timestamp), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type"=\'Miss\' GROUP BY "sc-status";'
+        ) + ' AND "x-edge-response-result-type"=\'Miss\' GROUP BY "sc-status", "cs-host";'
     elif metric == 'bandwidth':
-        query_string = 'SELECT sum("sc-bytes") FROM "' + db_name + '"."' + table_name + '" WHERE '
+        query_string = 'SELECT sum("sc-bytes"), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-            format_date_time(start_time)) + ';'
+            format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'bandwidthOrigin':
-        query_string = 'SELECT sum("sc-bytes") FROM "' + db_name + '"."' + table_name + '" WHERE '
+        query_string = 'SELECT sum("sc-bytes"), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type"=\'Miss\';'
+        ) + ' AND "x-edge-response-result-type"=\'Miss\' group by "cs-host";'
     elif metric == 'chr':
-        query_string = 'SELECT cast(A.hitCount as decimal(38,2)) * 100 / cast(B.all as decimal(38,2)) as CHR FROM '
-        molecule_query_string = '(SELECT count(timestamp) as hitCount FROM "' + db_name + '"."' + table_name + '" WHERE '
-        molecule_query_string = assemble_query(start_time, end_time,
-                                               molecule_query_string)
-        molecule_query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string = 'SELECT cast((100.0 - sum(case when "x-edge-response-result-type" = \'Miss\' then 1 else 0 end) * 100.0 / count("timestamp")) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
+        query_string = assemble_query(start_time, end_time,
+                                      query_string)
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND ("x-edge-response-result-type" = \'Hit\' OR "x-edge-response-result-type" = \'RefreshHit\')) A, '
-
-        denom_query_string = '(SELECT count(timestamp) as all FROM "' + db_name + '"."' + table_name + '" WHERE '
-        denom_query_string = assemble_query(start_time, end_time,
-                                            denom_query_string)
-        denom_query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
-            format_date_time(end_time)
-        ) + ' AND timestamp > ' + str(
-            format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' AND "x-edge-response-result-type" <> \'Error\' AND "x-edge-response-result-type" <> \'Redirect\') B;'
-
-        query_string = query_string + molecule_query_string + denom_query_string
+        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' AND "x-edge-response-result-type" <> \'Error\' AND "x-edge-response-result-type" <> \'Redirect\' group by "cs-host";'
     elif metric == 'chrBandWith':
-        query_string = 'SELECT cast(A.hitCount as decimal(38,2)) * 100 / cast(B.all as decimal(38,2)) as CHR FROM '
-        molecule_query_string = '(SELECT sum("cs-bytes") as hitCount FROM "' + db_name + '"."' + table_name + '" WHERE '
-        molecule_query_string = assemble_query(start_time, end_time,
-                                               molecule_query_string)
-        molecule_query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
+        query_string = 'SELECT cast((100.0 - sum(case when "x-edge-response-result-type" = \'Miss\' then "cs-bytes" else 0 end) * 100.0 / sum("cs-bytes")) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
+        query_string = assemble_query(start_time, end_time,
+                                      query_string)
+        query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND ("x-edge-response-result-type" = \'Hit\' OR "x-edge-response-result-type" = \'RefreshHit\')) A, '
-
-        denom_query_string = '(SELECT sum("cs-bytes") as all FROM "' + db_name + '"."' + table_name + '" WHERE '
-        denom_query_string = assemble_query(start_time, end_time,
-                                            denom_query_string)
-        denom_query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
-            format_date_time(end_time)
-        ) + ' AND timestamp > ' + str(
-            format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' AND "x-edge-response-result-type" <> \'Error\' AND "x-edge-response-result-type" <> \'Redirect\') B;'
-
-        query_string = query_string + molecule_query_string + denom_query_string
+        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' AND "x-edge-response-result-type" <> \'Error\' AND "x-edge-response-result-type" <> \'Redirect\' group by "cs-host";'
     else:
         raise Exception('[schedule_athena_query] Invalid metric ' + metric)
     return query_string
 
 
-def gen_detailed_by_interval(metric, start_time, end_time, domain,
+def gen_detailed_by_interval(metric, start_time, end_time,
                              athena_client, db_name, table_name, query_output):
     '''Generate detailed data according to start time, end time and interval'''
     interval_list = []
@@ -212,14 +217,14 @@ def gen_detailed_by_interval(metric, start_time, end_time, domain,
         if not temp_datetime < end_datetime:
             interval_item['end'] = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
             athena_query_result = schedule_athena_query(
-                metric, interval_item['start'], interval_item['end'], domain,
+                metric, interval_item['start'], interval_item['end'],
                 athena_client, db_name, table_name, query_output)
             interval_item['QueryId'] = athena_query_result['QueryExecutionId']
             interval_list.append(interval_item)
             break
         interval_item['end'] = temp_datetime.strftime("%Y-%m-%d %H:%M:%S")
         athena_query_result_5m = schedule_athena_query(
-            metric, interval_item['start'], interval_item['end'], domain,
+            metric, interval_item['start'], interval_item['end'],
             athena_client, db_name, table_name, query_output)
         interval_item['QueryId'] = athena_query_result_5m['QueryExecutionId']
         interval_list.append(interval_item)
