@@ -80,7 +80,7 @@ def manager_version_apply_config():
 
     source_dist_id = app.current_event.get_query_string_value(name="src_distribution_id", default_value="")
     version = app.current_event.get_query_string_value(name="version", default_value="")
-    target_dist_id = app.current_event.get_query_string_value(name="target_distribution_id", default_value="")
+    target_dist_ids = query_strings_as_dict['target_distribution_ids']
 
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
@@ -103,24 +103,25 @@ def manager_version_apply_config():
     # call boto to apply the config to target distribution
     cf_client = boto3.client('cloudfront')
 
-    # first get the current ETAG for target distribution
-    response = cf_client.get_distribution_config(
-        Id=target_dist_id
-    )
-    etag = response['ETag']
-    target_dist_caller_reference = response['DistributionConfig']['CallerReference']
-
-    with open(local_config_file_name_version) as config_file:
-        dictData = json.load(config_file)
-        dictData['CallerReference'] = target_dist_caller_reference
-
-        response = cf_client.update_distribution(
-            DistributionConfig=dictData,
-            Id=target_dist_id,
-            IfMatch=etag
+    for distribution_id in target_dist_ids:
+        # first get the current ETAG for target distribution
+        response = cf_client.get_distribution_config(
+            Id=distribution_id
         )
+        etag = response['ETag']
+        target_dist_caller_reference = response['DistributionConfig']['CallerReference']
 
-    return response['Distribution']['Status']
+        with open(local_config_file_name_version) as config_file:
+            dictData = json.load(config_file)
+            dictData['CallerReference'] = target_dist_caller_reference
+
+            response = cf_client.update_distribution(
+                DistributionConfig=dictData,
+                Id=distribution_id,
+                IfMatch=etag
+            )
+
+    return 'target distributions been updated'
 
 
 @app.post("/cf_config_manager/config_tag_update")
