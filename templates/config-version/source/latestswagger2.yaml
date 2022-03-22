@@ -45,11 +45,11 @@ paths:
           required: true
           description: source version number to be applied
         - in: query
-          name: target_distribution_id
+          name: target_distribution_ids
           schema:
-            type: string
+            type: array
           required: true
-          description: target cloudfront distribution id
+          description: target cloudfront distribution id list
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
