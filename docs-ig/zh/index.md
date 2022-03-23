@@ -80,4 +80,3 @@ Amazon CloudFront Extensions解决方案包含三个模块：Lambda@Edge和Cloud
 本指南面向具有亚马逊云科技架构实践经验的IT架构师、开发人员等专业人士。您可通过[动手实验](https://awslabs.github.io/aws-cloudfront-extensions/workshop/cn/)快速熟悉CloudFront Extensions。
 
 [cloudformation]: https://aws.amazon.com/en/cloudformation/
-
