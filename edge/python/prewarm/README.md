@@ -1,88 +1,58 @@
+[English | [中文](./README-cn.md)]
+
 # Prewarm
 
 ## Description
 
-This Lambda will prewarm static content in specific pop, for example, prewarm a video file in SEA19-C3
+This Lambda can prewarm static content in specific pop, for example, prewarm a video file in SEA19-C3
 
-To use this Lambda, you need to input below parameters
-
-- PARA_POP - The pop which you want to prewarm, it supports multiple value with comma as separator, eg. 'ATL56-C1, DFW55-C3, SEA19-C3'
-- PARA_MAPPING - Domain name mapping, it is a json line, eg. {\"www.example.com\":\"d123456789012.cloudfront.net\", \"www.example.net\": \"d123456789013.cloudfront.net\"}, use {} if you don't need a mapping
-- PARA_S3BUCKET - S3 bucket name to store the file which contains urls to pre-warm. eg. pre-warm-bucket
-- PARA_S3KEY - The S3 key of the file which contains urls to pre-warm, the file should be stored in an S3 bucket. eg. Prewarm/urls.txt. In this file, each line is a url which means the urls are separated by '\n'
+After pre-warming the resources, the user can access the resources with lower latency.
 
 
-## Deployment
+## Usage
 
-You can deploy it in SAR(Serverless Application Repository) with one click or use SAM CLI as well
+To use this feature
 
-### Use SAR
+1. Login your AWS account and go to [S3 console](https://s3.console.aws.amazon.com/s3/home)
+2. Create an S3 bucket (Skip this step if you already have one)
+3. Upload a txt file which contains the urls that need to be pre-warm into this S3 bucket
+    File content
+![url](./images/url.png)
+    Upload the file into S3 bucket
+![s3](./images/s3.png)
 
-- Go to https://serverlessrepo.aws.amazon.com/applications
-- Check the check box "Show apps that create custom IAM roles or resource policies" and search "aws-cloudfront-extensions"
-- Find the Lambda and deploy it to your AWS account
+4. Go to [CloudFront Extensions](https://awslabs.github.io/aws-cloudfront-extensions/en/deployment/), find Pre-warm and click Launch Stack button
+![deploy](./images/deployment.png)
+5. Click Deploy button
+6. In create function page, input the parameters. (If your website have a CName, you need to add the mapping in PARA_MAPPING, such as {\"www.example.com\":\"d123456789012.cloudfront.net\",\"www.demo.com\":\"d12dbadtwi013.cloudfront.net\"}.)
+![para](./images/para.png)
+  Here're the details of each parameters:
 
+  | Parameter | Description |
+  |  ----  | ----  | 
+  | PARA_POP | The pop which you want to prewarm, it supports multiple value with comma as separator, eg. 'ATL56-C1, DFW55-C3, SEA19-C3'. You can get the pop node id by x-amz-cf-pop header, please refer to below screenshot |
+  | PARA_MAPPING | If your website has CName, you need to specify the relationship between CName and CloudFront domain name. For example, the CName of d123456789012.cloudfront.net is www.example.com, you need to add this JSON line {\"www.example.com\":\"d123456789012.cloudfront.net\"}. Use {} if your website doesn't use CName. |
+  | PARA_S3BUCKET  | S3 bucket name to store the file which contains urls to pre-warm. eg. pre-warm-bucket |
+  | PARA_S3KEY | The S3 key of the file which contains urls to pre-warm, the file should be stored in an S3 bucket. eg. Prewarm/urls.txt. In this file, each line is a url which means the urls are separated by '\n' |
 
-### Use SAM CLI
+  PARA_POP: you can get the pop node id by x-amz-cf-pop header when accessing the resources
+  
+  ![pop](./images/pop.png)
 
-This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
-
-- prewarm - Code for the application's Lambda function.
-- events - Invocation events that you can use to invoke the function.
-- tests - Unit tests for the application code. 
-- template.yaml - A template that defines the application's AWS resources.
-
-
-The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
-
-To use the SAM CLI, you need the following tools.
-
-* SAM CLI - [Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-* [Python 3 installed](https://www.python.org/downloads/)
-* Docker - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
-
-To build and deploy your application for the first time, run the following in your shell:
-
-```bash
-sam build --use-container
-sam deploy --guided
-```
-
-
-## Use the SAM CLI to build and test locally
-
-Build your application with the `sam build --use-container` command.
-
-```bash
-prewarm$ sam build --use-container
-```
-
-The SAM CLI installs dependencies defined in `prewarm/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
-
-Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
-
-Run functions locally and invoke them with the `sam local invoke` command.
-
-```bash
-prewarm$ sam local invoke PrewarmFunction --event events/event.json
-```
-
-## Add a resource to your application
-The application template uses AWS Serverless Application Model (AWS SAM) to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources such as functions, triggers, and APIs. For resources not included in [the SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use standard [AWS CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) resource types.
+7. Check "I acknowledge ..." checkbox and click Deploy button
+8. Keep waiting until the prewarm function is deployed, it will show the deployed resources
+  ![res](./images/res.png)
+9. Click PrewarmFunction in the resources table
+10. Click Test button
+![test_button](./images/test_button.png)
+11. As this is the first time to click test button, a dialog will be shown. Input an event name and use default values for other paramters
+![test_para](./images/test_para.png)
+12. Click Save button
+13. Click Test button again, the urls will be prewarmed, you will see the result after prewarm is completed
+![result](./images/result.png)
 
 
-## Tests
 
-Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
-
-```bash
-prewarm$ pip install -r tests/requirements.txt --user
-# unit test
-prewarm$ python -m pytest tests/unit -v
-# integration test, requiring deploying the stack first.
-# Create the env variable AWS_SAM_STACK_NAME with the name of the stack we are testing
-prewarm$ AWS_SAM_STACK_NAME=<stack-name> python -m pytest tests/integration -v
-```
 
 ## Cleanup
 
