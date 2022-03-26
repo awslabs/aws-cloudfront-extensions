@@ -16,6 +16,7 @@ To use this feature
 1. Login your AWS account and go to [S3 console](https://s3.console.aws.amazon.com/s3/home)
 2. Create an S3 bucket (Skip this step if you already have one)
 3. Upload a txt file which contains the urls that need to be pre-warm into this S3 bucket
+    
     File content
 ![url](./images/url.png)
     Upload the file into S3 bucket
@@ -26,7 +27,9 @@ To use this feature
 5. Click Deploy button
 6. In create function page, input the parameters. (If your website have a CName, you need to add the mapping in PARA_MAPPING, such as {\"www.example.com\":\"d123456789012.cloudfront.net\",\"www.demo.com\":\"d12dbadtwi013.cloudfront.net\"}.)
 ![para](./images/para.png)
-  Here're the details of each parameters:
+  
+  
+   Here're the details of each parameters:
 
   | Parameter | Description |
   |  ----  | ----  | 
