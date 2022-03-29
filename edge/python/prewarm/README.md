@@ -8,6 +8,12 @@ This Lambda can prewarm static content in specific pop, for example, prewarm a v
 
 After pre-warming the resources, the user can access the resources with lower latency.
 
+## Architecture Diagram
+
+![url](./images/prewarm_arch.png)
+
+1. The urls that need to be prewarmed are stored in a file in the S3 bucket
+2. Lambda function read the urls from S3 and send prewarm requests to PoP(Points of Presence)
 
 ## Usage
 
@@ -29,7 +35,7 @@ To use this feature
 ![para](./images/para.png)
   
   
-   Here're the details of each parameters:
+   Here're the details of each parameter:
 
   | Parameter | Description |
   |  ----  | ----  | 
