@@ -39,7 +39,7 @@
   | 参数 | 描述 |
   |  ----  | ----  | 
   | PARA_POP | 进行预热的节点，若您需要在多个节点预热，各节点名称需要用逗号分隔，例如： 'ATL56-C1,DFW55-C3,SEA19-C3'。在访问一个网页时，您可通过x-amz-cf-pop标头获取当前响应的PoP节点名称，请参考下面截图 |
-  | PARA_MAPPING | 如果您的网站有CName，您需要添加CName和CloudFront域名的映射关系。例如：某CloudFront分配的域名是 d123456789012.cloudfront.net，他的CName是www.example.com，您需要在这个参数里添加此行JSON {\"www.example.com\":\"d123456789012.cloudfront.net\"}。如果您的网站直接使用的是CloudFront域名，如xxx.cloudfront.net，您只需要在这里填入{} |
+  | PARA_MAPPING | 如果您的网站有CName，您需要添加CName和CloudFront域名的映射关系。例如：某CloudFront分配的域名是 d123456789012.cloudfront.net，他的CName是www.example.com，您需要在这个参数里添加此行JSON {\"www.example.com\":\"d123456789012.cloudfront.net\"}。</p>如果您的网站直接使用的是CloudFront域名，如xxx.cloudfront.net， 您只需要在这里填入{} |
   | PARA_S3BUCKET  | S3桶的名称。 您需要指定一个S3桶用于存放包含要预热URL的文件，例如：pre-warm-bucket |
   | PARA_S3KEY | 包含URL的文件名。您需要创建一个文件，其中包含了所有要预热的URL，各个URL以换行符分隔，即每个URL在一行。此文件需要上传到PARA_S3BUCKET参数指定的S3桶中 |
 
