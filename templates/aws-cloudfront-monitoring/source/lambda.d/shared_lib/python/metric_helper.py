@@ -85,26 +85,47 @@ def schedule_athena_query(metric, start_time, end_time, domain, athena_client,
                           db_name, table_name, query_output):
     log.info('[schedule_athena_query] Start')
 
+    query_string = construct_query_string(db_name, domain, start_time, end_time, metric, table_name)
+
+    log.info("[schedule_athena_query] Query string: " + query_string)
+
+    response = athena_client.start_query_execution(
+        QueryString=query_string,
+        QueryExecutionContext={'Database': db_name},
+        ResultConfiguration={
+            'OutputLocation': query_output,
+            'EncryptionConfiguration': {
+                'EncryptionOption': 'SSE_S3'
+            }
+        },
+        WorkGroup="primary"
+        )
+
+    log.info('[schedule_athena_query] End')
+    return response
+
+
+def construct_query_string(db_name, domain, start_time, end_time, metric, table_name):
     # Dynamically build query string using partition
     if metric == 'request':
         query_string = 'SELECT count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-                format_date_time(start_time)) + ';'
+            format_date_time(start_time)) + ';'
     elif metric == 'requestOrigin':
         query_string = 'SELECT count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-                format_date_time(start_time)
-            ) + ' AND "x-edge-response-result-type"=\'Miss\';'
+            format_date_time(start_time)
+        ) + ' AND "x-edge-response-result-type"=\'Miss\';'
     elif metric == 'statusCode':
         query_string = 'SELECT "sc-status", count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-                format_date_time(start_time)) + ' GROUP BY "sc-status";'
+            format_date_time(start_time)) + ' GROUP BY "sc-status";'
     elif metric == 'statusCodeOrigin':
         query_string = 'SELECT "sc-status", count(timestamp) FROM "' + db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
@@ -118,14 +139,14 @@ def schedule_athena_query(metric, start_time, end_time, domain, athena_client,
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-                format_date_time(start_time)) + ';'
+            format_date_time(start_time)) + ';'
     elif metric == 'bandwidthOrigin':
         query_string = 'SELECT sum("sc-bytes") FROM "' + db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND "cs-host" = \'' + domain + '\' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
-                format_date_time(start_time)
-            ) + ' AND "x-edge-response-result-type"=\'Miss\';'
+            format_date_time(start_time)
+        ) + ' AND "x-edge-response-result-type"=\'Miss\';'
     elif metric == 'chr':
         query_string = 'SELECT cast(A.hitCount as decimal(38,2)) * 100 / cast(B.all as decimal(38,2)) as CHR FROM '
         molecule_query_string = '(SELECT count(timestamp) as hitCount FROM "' + db_name + '"."' + table_name + '" WHERE '
@@ -170,22 +191,7 @@ def schedule_athena_query(metric, start_time, end_time, domain, athena_client,
         query_string = query_string + molecule_query_string + denom_query_string
     else:
         raise Exception('[schedule_athena_query] Invalid metric ' + metric)
-
-    log.info("[schedule_athena_query] Query string: " + query_string)
-
-    response = athena_client.start_query_execution(
-        QueryString=query_string,
-        QueryExecutionContext={'Database': db_name},
-        ResultConfiguration={
-            'OutputLocation': query_output,
-            'EncryptionConfiguration': {
-                'EncryptionOption': 'SSE_S3'
-            }
-        },
-        WorkGroup="primary")
-
-    log.info('[schedule_athena_query] End')
-    return response
+    return query_string
 
 
 def gen_detailed_by_interval(metric, start_time, end_time, domain,

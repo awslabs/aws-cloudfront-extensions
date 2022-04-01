@@ -1,0 +1,15 @@
+.gsui-copy-text {
+  position: relative;
+  padding-left: 24px;
+  // text-indent: 24px;
+  .copy-icon {
+    // margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    position: absolute;
+    // left: 0;
+    margin: 1px 0 0 -26px;
+    transform: rotate(-180deg);
+  }
+}

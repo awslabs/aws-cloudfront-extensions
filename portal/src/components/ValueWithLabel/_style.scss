@@ -1,0 +1,23 @@
+.gsui-value-label {
+  padding: 1px 10px 1px 20px;
+  // margin-bottom: 1px;
+  &_label {
+    color: #545b64;
+    font-size: $font-size-sm;
+  }
+  &_value {
+    padding: 3px 0;
+    color: #16191f;
+    font-size: $font-size-sm;
+    min-height: 40px;
+    word-break: break-all;
+  }
+}
+
+.value-label-span {
+  .flex-1:first-child {
+    .gsui-value-label {
+      padding-left: 0;
+    }
+  }
+}

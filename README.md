@@ -1,10 +1,8 @@
 # CloudFront Extensions
 
-[中文]() | [English]()
 
 
-
-“CloudFront Extensions” GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using [Lambda@Edge](https://aws.amazon.com/lambda/edge/) and [Amazon CloudFront](https://aws.amazon.com/cloudfront/). 
+CloudFront Extensions GitHub project offers an open source package consisting of a set of applications and solution templates that covers various user scenarios for using [Lambda@Edge](https://aws.amazon.com/lambda/edge/) and [Amazon CloudFront](https://aws.amazon.com/cloudfront/). 
 
 
 ## Overview
@@ -12,7 +10,7 @@ Ultimately, we want to provide out-of-box experience from three dimensions
 
 <img src='docs/images/aws-cloudfront-extensions.png'>
 
-## Lambda@Edge & CloudFront Function
+## Lambda@Edge & CloudFront Functions
 * **One stop to find Lambda@Edge and CloudFront Function scripts for various use cases**
 
 This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge and CloudFront Function services are available), and help you to simplify global CloudFront configuration via Lambda functions. You can directly deploy them from the [workshop](https://awslabs.github.io/aws-cloudfront-extensions/).
@@ -30,7 +28,7 @@ This project offers common solutions for using CloudFront. These solutions are p
 
 
 
-## Observability
+## CloudFront Monitoring API
 
 * **Out-of-box experience when integrating with external monitoring system** 
 
@@ -39,11 +37,13 @@ This project also provides out-of-box monitoring solution to enhance the overall
 
 |        *Name*    | *Description*      |
 |------------------|--------------------|
-| End-to-end monitoring | Centralized logs management solution and built-in dashboards on top of ElasticSearch, collecting file & real-time logs from CloudFront and related services.   | 
+| [CloudFront Monitoring API](templates/aws-cloudfront-monitoring/README.md) | CloudFront Extensions provides a monitoring API, it obtains metrics such as cache hit rate and download rate by analyzing CloudFront real-time logs, and outputs them through Restful API.   | 
 
 ## Tutorial
 
-To get started, please find the step-by-step workshop material here: https://awslabs.github.io/aws-cloudfront-extensions/
+To get started, please find more details at: https://awslabs.github.io/aws-cloudfront-extensions/
+
+For workshop, please refer to https://awslabs.github.io/aws-cloudfront-extensions/workshop/ 
 
 ## Contribution
 

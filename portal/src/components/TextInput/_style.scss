@@ -1,0 +1,31 @@
+.gsui-textinput {
+  position: relative;
+  &.is-search {
+    .input-icon {
+      position: absolute;
+      color: #666;
+      margin: 4px 0 0 6px;
+    }
+    input {
+      padding-left: 30px;
+    }
+  }
+  input {
+    padding: 4px 10px 4px 10px;
+    border-radius: 2px;
+    border: 1px solid #aab7b8;
+    background-color: #fff;
+    height: 32px;
+    line-height: 32px;
+    width: 100%;
+    &:read-only {
+      color: #879596;
+      background-color: #eaeded;
+      border: 1px solid #eaeded;
+    }
+  }
+}
+.input-tip {
+  font-size: 14px;
+  color: #888;
+}

@@ -1,0 +1,67 @@
+.gsui-tag-list {
+  .no-tag-tips {
+    color: #666;
+    font-size: $font-size-sm;
+    padding: 10px 10px 20px;
+  }
+  .key {
+    padding: 10px;
+    &.t-title {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+  .value {
+    padding: 10px;
+    &.t-title {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+  .remove {
+    padding: 10px;
+    width: 100px;
+    &.t-title {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+  .add-tag-tips {
+    color: #666;
+    font-size: $font-size-12;
+    padding: 1px 0 0 4px;
+  }
+}
+
+.gsui-show-tag-list {
+  padding: 10px 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  align-items: center;
+  &:nth-of-type(odd) {
+    background: #fafafa;
+  }
+  &:last-child {
+    border-bottom: 0;
+  }
+  &.no-stripe {
+    &:nth-of-type(odd) {
+      background: #fff;
+    }
+  }
+  .checkbox {
+    width: 30px;
+    text-align: center;
+  }
+  .tag-key {
+    min-width: 400px;
+    &.log {
+      min-width: 220px;
+      width: 220px;
+    }
+    padding-left: 10px;
+    &.w-alarm {
+      min-width: 800px;
+    }
+  }
+}

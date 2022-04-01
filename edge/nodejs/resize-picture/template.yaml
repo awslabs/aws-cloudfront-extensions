@@ -31,6 +31,11 @@ Parameters:
     Type: String
     Default: ""
     Description: "S3 bucket to store the pictures, you need to create the bucket first"
+  FitType:
+    Type: String
+    Default: "fill"
+    Description: "How to fit the image. Valid values are cover(Preserving aspect ratio, ensure the image covers both provided dimensions by cropping to fit); contain(Preserving aspect ratio, contain within both provided dimensions using letterboxing where necessary); fill(Ignore the aspect ratio of the input and stretch to both provided dimensions); inside(Preserving aspect ratio, resize the image to be as large as possible while ensuring its dimensions are less than or equal to both those specified), outside (Preserving aspect ratio, resize the image to be as small as possible while ensuring its dimensions are greater than or equal to both those specified)"
+
 
 Resources:
   ResizeLambdaEdgeFunction:
@@ -83,6 +88,7 @@ Resources:
       EdgeFunctionArn: !GetAtt ResizeLambdaEdgeFunction.Arn
       HandlerFileName: 'app.js'
       PARA_S3BUCKET: !Ref S3BucketName
+      PARA_FIT_TYPE: !Ref FitType
 
 Outputs:
   ResizeLambdaEdgeFunction:

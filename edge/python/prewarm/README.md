@@ -8,8 +8,8 @@ To use this Lambda, you need to input below parameters
 
 - PARA_POP - The pop which you want to prewarm, it supports multiple value with comma as separator, eg. 'ATL56-C1, DFW55-C3, SEA19-C3'
 - PARA_MAPPING - Domain name mapping, it is a json line, eg. {\"www.example.com\":\"d123456789012.cloudfront.net\", \"www.example.net\": \"d123456789013.cloudfront.net\"}, use {} if you don't need a mapping
-- PARA_S3BUCKET - S3 bucket name to store the file which contains urls to pre-warm. eg. pre-warm-bucke
-- PARA_S3KEY - The S3 key of the file which contains urls to pre-warm, the file should be stored in an S3 bucket. eg. Prewarm/urls.txt
+- PARA_S3BUCKET - S3 bucket name to store the file which contains urls to pre-warm. eg. pre-warm-bucket
+- PARA_S3KEY - The S3 key of the file which contains urls to pre-warm, the file should be stored in an S3 bucket. eg. Prewarm/urls.txt. In this file, each line is a url which means the urls are separated by '\n'
 
 
 ## Deployment

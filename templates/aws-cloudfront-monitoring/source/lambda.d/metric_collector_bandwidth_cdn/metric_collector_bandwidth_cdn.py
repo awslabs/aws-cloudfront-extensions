@@ -34,7 +34,20 @@ def lambda_handler(event, context):
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    domain_list = os.getenv('DOMAIN_LIST').split(",")
+
+    domain_list_env = os.getenv('DOMAIN_LIST')
+    domain_list = [] 
+    if domain_list_env == "ALL":
+        cf_client = boto3.client('cloudfront')
+        list_distributions_response = cf_client.list_distributions()
+        list_distributions = list_distributions_response['DistributionList']
+
+        if list_distributions['Quantity'] != 0:
+            for distribution in list_distributions['Items']:
+                dist_domain_name = distribution['DomainName']
+                domain_list.append(dist_domain_name)
+    else:
+        domain_list = os.getenv('DOMAIN_LIST').split(",")
     metric = "bandwidth"
 
     for domain in domain_list:

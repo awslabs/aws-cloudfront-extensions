@@ -1,6 +1,7 @@
 # Amazon CloudFront Extensions 
 
 Amazon CloudFront Extensions解决方案包含三个模块：Lambda@Edge和CloudFront Functions合集、基于AWS WAF与AWS Shield的CloudFront安全自动化，和CloudFront实时日志监控API，从而帮助客户更方便地使用CloudFront的拓展功能。
+您可通过[动手实验](https://awslabs.github.io/aws-cloudfront-extensions/workshop/cn/)快速熟悉CloudFront Extensions。
 
 ## Lambda@Edge & CloudFront Functions合集
 本模块包含了一系列Lambda@Edge和CloudFront Functions，覆盖了如鉴权验证、预热、根据设备类型跳转和图片缩放等常用的用户场景，具体信息见下表。
@@ -76,7 +77,7 @@ Amazon CloudFront Extensions解决方案包含三个模块：Lambda@Edge和Cloud
 
 本实施指南介绍在Amazon Web Services（亚马逊云科技）云中部署CloudFront Extensions解决方案的架构信息和具体配置步骤。它包含指向[CloudFormation][cloudformation]模板的链接，这些模板使用亚马逊云科技在安全性和可用性方面的最佳实践来启动和配置本解决方案所需的亚马逊云科技服务。
 
-本指南面向具有亚马逊云科技架构实践经验的IT架构师、开发人员等专业人士。
+本指南面向具有亚马逊云科技架构实践经验的IT架构师、开发人员等专业人士。您可通过[动手实验](https://awslabs.github.io/aws-cloudfront-extensions/workshop/cn/)快速熟悉CloudFront Extensions。
 
 [cloudformation]: https://aws.amazon.com/en/cloudformation/
 

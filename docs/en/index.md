@@ -1,6 +1,7 @@
 # Amazon CloudFront Extensions 
 
 Amazon CloudFront Extensions includes three components: Lambda@Edge & CloudFront Functions collection, CloudFront Security Automations with Amazon WAF and Amazon Shield, and CloudFront Real-time Log Monitoring API. The solution aims to help customers use CloudFront more conveniently.
+Please refer to [workshop](https://awslabs.github.io/aws-cloudfront-extensions/workshop/cn/) to get familiar with CloudFront Extensions.
 
 ## One stop to find Lambda@Edge and CloudFront Function for different use cases
 
@@ -75,7 +76,7 @@ The above reference indicators effectively supplement the current CloudWatch mon
 
 This implementation guide describes architectural considerations and configuration steps for deploying CloudFront Extensions in the Amazon Web Services Cloud. It includes links to an Amazon Web Services [CloudFormation][cloudformation] template that launches and configures the services required to deploy this solution using Amazon Web Services best practices for security and availability.
 
-The guide is intended for IT architects, and developers who have practical experience architecting in the Amazon Web Services Cloud.
+The guide is intended for IT architects, and developers who have practical experience architecting in the Amazon Web Services Cloud. Please refer to [workshop](https://awslabs.github.io/aws-cloudfront-extensions/workshop/cn/) to get familiar with CloudFront Extensions.
 
 [cloudformation]: https://aws.amazon.com/en/cloudformation/
 
