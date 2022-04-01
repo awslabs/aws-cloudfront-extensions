@@ -1,0 +1,391 @@
+// config
+@import "variables";
+
+//layout
+@import "reboot";
+
+//mixin
+@import "mixin";
+
+// animation
+@import "animation";
+
+// Header
+@import "../layouts/PageHeader/style";
+
+// Footer
+@import "../layouts/PageFooter/style";
+
+// Container
+@import "../layouts/PageContainer/style";
+
+// PageLanding
+@import "../layouts/PageLanding/style";
+
+// external link
+@import "../ExtLink/style";
+
+// side menu
+@import "../SideMenu/style";
+
+// button
+@import "../Button/style";
+
+// header panel
+@import "../HeaderPanel/style";
+
+// loading text
+@import "../LoadingText/style";
+
+// alert
+@import "../Alert/style";
+
+// autocomplete
+@import "../AutoComplete/style";
+
+// copy button
+@import "../CopyButton/style";
+
+// copy text
+@import "../CopyText/style";
+
+// info Span
+@import "../InfoSpan/style";
+
+// create step
+@import "../CreateStep/style";
+
+// form item
+@import "../FormItem/style";
+
+// text input
+@import "../TextInput/style";
+
+// help panel
+@import "../HelpPanel/style";
+
+// select
+@import "../Select/style";
+
+// multiple select
+@import "../MultiSelect/style";
+
+// Modal
+@import "../Modal/style";
+
+// page panel
+@import "../PagePanel/style";
+
+// status
+@import "../Status/style";
+
+// tab
+@import "../Tab/style";
+
+// table panel
+@import "../TablePanel/style";
+
+// tag list
+@import "../TagList/style";
+
+// text area
+@import "../TextArea/style";
+
+// tiles
+@import "../Tiles/style";
+
+//value with label
+@import "../ValueWithLabel/style";
+
+//value with label
+@import "../Switch/style";
+
+// // s3 select
+// @import "../components/S3Select/style";
+
+// //upload
+// @import "../components/Upload/style";
+
+// //progress
+// @import "../components/Progress/style";
+
+.gsui-copy-pop-over {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 5px 10px;
+  margin: -12px 0 0 -8px;
+  color: green;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+}
+
+.select-no-data {
+  padding: 10px;
+  color: #999;
+}
+
+.code {
+  background-color: #eee;
+  padding: 10px;
+}
+
+.hide {
+  display: none !important;
+}
+
+.cp {
+  cursor: pointer;
+}
+
+.no-data {
+  padding: 20px;
+  color: #888;
+}
+
+.sign-out {
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.json-format {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.white-bg {
+  background-color: #fff;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-15 {
+  margin-top: 15px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.mb-15 {
+  margin-bottom: 15px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.ml-10 {
+  margin-left: 10px;
+}
+
+.ml-20 {
+  margin-left: 20px;
+}
+
+.mr-10 {
+  margin-right: 10px;
+}
+
+.mr-20 {
+  margin-right: 20px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
+.flex-3 {
+  flex: 3;
+}
+
+.flex-4 {
+  flex: 3;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-warp {
+  flex-wrap: wrap;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.border-left-c {
+  border-left: 1px solid #eaeded;
+}
+
+.pd-lr-10 {
+  padding: 0 10px;
+}
+
+.pd-10 {
+  padding: 10px;
+}
+
+.pd-20 {
+  padding: 20px;
+}
+
+.ptb-10 {
+  padding: 10px 0;
+}
+
+.ptb-20 {
+  padding: 20px 0;
+}
+
+.pr {
+  position: relative;
+}
+
+.pb-20 {
+  padding-bottom: 20px;
+}
+
+.pr-10 {
+  padding-right: 10px;
+}
+
+.pr-20 {
+  padding-right: 20px;
+}
+
+.pb-50 {
+  padding-bottom: 50px;
+}
+
+.pb-100 {
+  padding-bottom: 100px;
+}
+
+.reverse {
+  transform: rotate(-180deg);
+}
+
+.reverse-90 {
+  transform: rotate(-90deg);
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.inline-block {
+  display: inline-block !important;
+}
+
+.m-w-320 {
+  max-width: 320px;
+}
+
+.m-w-800 {
+  max-width: 800px;
+}
+
+.m-w-75p {
+  max-width: 75%;
+}
+
+.m-w-45p {
+  max-width: 45%;
+}
+
+.m-w-1024 {
+  max-width: 1024px;
+}
+
+.bread-crumb {
+  padding: 10px 0 15px 0;
+}
+
+.button-action {
+  padding-bottom: 40px;
+  &.no-pb {
+    padding-bottom: 0;
+  }
+  button {
+    margin-left: 12px;
+  }
+}
+
+.chart-item {
+  width: 33%;
+}
+
+/**material ui*/
+.PrivateSwitchBase-root-1 {
+  padding: 0 !important;
+}
+
+.MuiList-padding {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.MuiAutocomplete-listbox {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.MuiPaper-rounded {
+  border-radius: 0 !important;
+}
+
+.invalid {
+  .gsui-autocomplete-select input,
+  .gsui-textinput input,
+  .MuiSelect-select {
+    // color: $error !important;
+    border: 1px solid $error !important;
+    border-left: 4px solid $error !important;
+  }
+  .input-icon {
+    color: $error !important;
+  }
+}
+
+.swal2-container {
+  z-index: 1999 !important;
+}

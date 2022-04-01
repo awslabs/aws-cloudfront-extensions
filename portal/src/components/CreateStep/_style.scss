@@ -1,0 +1,47 @@
+.gsui-create-step {
+  display: inline-block;
+  width: 240px;
+  min-width: 240px;
+  margin-right: 30px;
+  padding-top: 4px;
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    li {
+      border-bottom: 1px solid #d5dbdb;
+      margin-top: 16px;
+      padding-bottom: 16px;
+    }
+    small {
+      font-size: $font-size-12;
+      line-height: $font-size-base;
+      color: #687078;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .step-name {
+      > span {
+        font-weight: 700;
+        font-size: $font-size-sm;
+        line-height: 22px;
+        color: #16191f;
+        &.link {
+          color: #0073bb;
+          font-weight: normal;
+          cursor: pointer;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+.gsui-create-wrapper {
+  display: flex;
+  .create-content {
+    padding-top: 10px;
+    flex: 1;
+  }
+}

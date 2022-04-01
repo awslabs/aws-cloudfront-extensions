@@ -1,0 +1,31 @@
+.gsui-formitem-wrap {
+  margin-bottom: 15px;
+  .formitem-title {
+    font-size: $font-size-base;
+  }
+  .formitem-desc {
+    color: #687078;
+    padding: 2px 0 6px 0;
+  }
+  .form-text {
+    font-size: $font-size-12;
+    padding: 7px 0 3px 23px;
+    position: relative;
+    .icon {
+      position: absolute;
+      margin: -1px 0 0 -22px;
+    }
+    &.error-text {
+      color: $error;
+    }
+    &.warning-text {
+      color: $orange;
+    }
+    &.info-text {
+      color: $info;
+    }
+    &.success-text {
+      color: $success;
+    }
+  }
+}

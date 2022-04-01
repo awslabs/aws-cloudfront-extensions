@@ -1,0 +1,10 @@
+.gsui-info-span {
+  color: #0073bb !important;
+  font-weight: bold !important;
+  font-size: 12px;
+  margin-left: 7px;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
