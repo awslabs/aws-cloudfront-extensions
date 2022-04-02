@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
 import {LayerVersion} from '@aws-cdk/aws-lambda';
+import * as appsync from '@aws-cdk/aws-appsync';
 import * as cdk from '@aws-cdk/core';
 import {Construct, RemovalPolicy, Stack} from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
@@ -221,6 +222,57 @@ export class CloudFrontConfigVersionStack extends Stack {
           effect: iam.Effect.ALLOW,
         }),
       ],
+    });
+
+    const cloudfrontConfigVersionManager_graphql = new lambda.Function(this, 'cf-config-version-manager-lambda-graphql', {
+      functionName: "cf_config_version_manager_graphql",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      layers: [powertools_layer, git_layer],
+      handler: 'cf_config_version_manager_graphql.lambda_handler',
+      memorySize: 1024,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/cf_config_version_manager_graphql')),
+      role: lambdaRole,
+      environment: {
+        DDB_VERSION_TABLE_NAME: cloudfront_config_version_table.tableName,
+        DDB_LATESTVERSION_TABLE_NAME: cloudfront_config_latestVersion_table.tableName,
+        S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    cloudfrontConfigVersionManager_graphql.node.addDependency(cloudfront_config_version_table);
+    cloudfrontConfigVersionManager_graphql.node.addDependency(cloudfront_config_latestVersion_table);
+    cloudfrontConfigVersionManager_graphql.node.addDependency(cloudfront_config_version_s3_bucket);
+    // Creates the AppSync API
+    const graphql_api = new appsync.GraphqlApi(this, 'GraphqlApi', {
+      name: 'cdk-graphql-appsync-api',
+      schema: appsync.Schema.fromAsset(path.join(__dirname, '../graphql/schema.graphql')),
+      authorizationConfig: {
+        defaultAuthorization: {
+          authorizationType: appsync.AuthorizationType.IAM,
+        },
+      },
+      xrayEnabled: true,
+    });
+
+    graphql_api.addLambdaDataSource('lambdaDatasource', cloudfrontConfigVersionManager_graphql)
+
+    // Prints out the AppSync GraphQL endpoint to the terminal
+    new cdk.CfnOutput(this, "GraphQLAPIURL", {
+      value: graphql_api.graphqlUrl
+    });
+
+    // Prints out the AppSync GraphQL API key to the terminal
+    new cdk.CfnOutput(this, "GraphQLAPIKey", {
+      value: graphql_api.apiKey || ''
+    });
+
+    // Prints out the stack region to the terminal
+    new cdk.CfnOutput(this, "Stack Region", {
+      value: this.region
     });
 
     new cdk.CfnOutput(this, 'cloudfront_config_version_s3_bucket', { value: cloudfront_config_version_s3_bucket.bucketName });
