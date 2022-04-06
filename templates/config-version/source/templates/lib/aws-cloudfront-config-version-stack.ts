@@ -258,7 +258,43 @@ export class CloudFrontConfigVersionStack extends Stack {
       xrayEnabled: true,
     });
 
-    graphql_api.addLambdaDataSource('lambdaDatasource', cloudfrontConfigVersionManager_graphql)
+    const lambdaDs = graphql_api.addLambdaDataSource('lambdaDatasource', cloudfrontConfigVersionManager_graphql)
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "apply_config"
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "cf_list"
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "config_tag_update"
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "diff"
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "versions"
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "config_link"
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "config_content"
+    });
+
 
     // Prints out the AppSync GraphQL endpoint to the terminal
     new cdk.CfnOutput(this, "GraphQLAPIURL", {

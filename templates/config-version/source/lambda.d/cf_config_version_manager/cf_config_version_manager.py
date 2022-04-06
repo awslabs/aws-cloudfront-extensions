@@ -3,8 +3,12 @@ import logging
 import subprocess
 
 import boto3
+from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from boto3.dynamodb.conditions import Key
+
+tracer = Tracer(service="config_version_resolver")
+logger = Logger(service="config_version_resolver")
 
 app = APIGatewayRestResolver()
 
@@ -176,10 +180,12 @@ def manager_version_config_cf_list():
             Key={
                 "distributionId": dist['Id'],
             })
-        data = ddb_data['Item']
-        tmp_dist['versionCount'] = data['versionId']
-
-        result.append(tmp_dist)
+        if 'Item' in ddb_data:
+            data = ddb_data['Item']
+            tmp_dist['versionCount'] = data['versionId']
+            result.append(tmp_dist)
+        else:
+            logger.info(f"no ddb record for {tmp_dist}")
     return result
 
 

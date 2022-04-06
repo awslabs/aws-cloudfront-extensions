@@ -3,10 +3,15 @@ import logging
 import subprocess
 
 import boto3
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+from aws_lambda_powertools import Logger, Tracer
+from aws_lambda_powertools.logging import correlation_paths
+from aws_lambda_powertools.event_handler import AppSyncResolver
 from boto3.dynamodb.conditions import Key
 
-app = APIGatewayRestResolver()
+tracer = Tracer(service="config_version_resolver")
+logger = Logger(service="config_version_resolver")
+
+app = AppSyncResolver()
 
 S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
 DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
@@ -16,15 +21,11 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 
-@app.get("/cf_config_manager/diff")
-def manager_version_diff():
-    query_strings_as_dict = app.current_event.query_string_parameters
-    json_payload = app.current_event.json_body
-    payload = app.current_event.body
-
-    dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
-    version1 = app.current_event.get_query_string_value(name="version1", default_value="")
-    version2 = app.current_event.get_query_string_value(name="version2", default_value="")
+@app.resolver(type_name="Query", field_name="diff")
+def manager_version_diff(distribution_id: str = "", version1: str = "", version2: str = ""):
+    dist_id = distribution_id
+    version_1 = version1
+    version_2 = version2
 
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
@@ -33,7 +34,7 @@ def manager_version_diff():
     response = ddb_table.get_item(
         Key={
             "distributionId": dist_id,
-            "versionId": int(version1)
+            "versionId": int(version_1)
         })
     data = response['Item']
 
@@ -43,14 +44,14 @@ def manager_version_diff():
     response = ddb_table.get_item(
         Key={
             "distributionId": dist_id,
-            "versionId": int(version2)
+            "versionId": int(version_2)
         })
     data = response['Item']
     s3_key2 = data['s3_key']
 
     s3_client = boto3.client('s3')
-    local_config_file_name_version1 = '/tmp/' + dist_id + "_" + version1 + ".json"
-    local_config_file_name_version2 = '/tmp/' + dist_id + "_" + version2 + ".json"
+    local_config_file_name_version1 = '/tmp/' + dist_id + "_" + version_1 + ".json"
+    local_config_file_name_version2 = '/tmp/' + dist_id + "_" + version_2 + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version1)
     s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
 
@@ -72,15 +73,11 @@ def manager_version_diff():
     return diff_content
 
 
-@app.get("/cf_config_manager/apply_config")
-def manager_version_apply_config():
-    query_strings_as_dict = app.current_event.query_string_parameters
-    json_payload = app.current_event.json_body
-    payload = app.current_event.body
-
-    source_dist_id = app.current_event.get_query_string_value(name="src_distribution_id", default_value="")
-    version = app.current_event.get_query_string_value(name="version", default_value="")
-    target_dist_ids = query_strings_as_dict['target_distribution_ids']
+@app.resolver(type_name="Query", field_name="apply_config")
+def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [],version: str = ""):
+    source_dist_id = src_distribution_id
+    src_version = version
+    target_dist_ids = target_distribution_ids
 
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
@@ -89,7 +86,7 @@ def manager_version_apply_config():
     response = ddb_table.get_item(
         Key={
             "distributionId": source_dist_id,
-            "versionId": int(version)
+            "versionId": int(src_version)
         })
     data = response['Item']
 
@@ -97,7 +94,7 @@ def manager_version_apply_config():
     s3_key1 = data['s3_key']
 
     s3_client = boto3.client('s3')
-    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + version + ".json"
+    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + src_version + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
 
     # call boto to apply the config to target distribution
@@ -124,11 +121,11 @@ def manager_version_apply_config():
     return 'target distributions been updated'
 
 
-@app.post("/cf_config_manager/config_tag_update")
-def manager_version_config_tag_update():
-    dist_id = app.current_event.get_query_string_value(name="distribution_id", default_value="")
-    version_id = app.current_event.get_query_string_value(name="version", default_value="")
-    note = app.current_event.get_query_string_value(name="note", default_value="")
+@app.resolver(type_name="Query", field_name="config_tag_update")
+def manager_version_config_tag_update(distribution_id: str="", note: str = "", version: str = ""):
+    dist_id = distribution_id
+    version_id = version
+    dist_note = note
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
@@ -140,7 +137,7 @@ def manager_version_config_tag_update():
         })
     data = response['Item']
 
-    data['note'] = note
+    data['note'] = dist_note
 
     response = ddb_table.update_item(
         Key={
@@ -148,13 +145,13 @@ def manager_version_config_tag_update():
             "versionId": int(version_id)
         },
         UpdateExpression="set note = :r",
-        ExpressionAttributeValues={':r': note},
+        ExpressionAttributeValues={':r': dist_note},
         ReturnValues="UPDATED_NEW"
     )
     return response
 
 
-@app.get("/cf_config_manager/cf_list")
+@app.resolver(type_name="Query", field_name="cf_list")
 def manager_version_config_cf_list():
     # first get distribution List from current account
     cf_client = boto3.client('cloudfront')
@@ -165,34 +162,38 @@ def manager_version_config_cf_list():
 
     result = []
     for dist in response['DistributionList']['Items']:
+
         tmp_dist = {}
         tmp_dist['Id'] = dist['Id']
         tmp_dist['DomainName'] = dist['DomainName']
         tmp_dist['Status'] = dist['Status']
         tmp_dist['Enabled'] = dist['Enabled']
 
+        logger.info(tmp_dist)
         # get latest version from ddb latest version ddb
         ddb_data = ddb_table.get_item(
             Key={
                 "distributionId": dist['Id'],
             })
-        data = ddb_data['Item']
-        tmp_dist['versionCount'] = data['versionId']
-
-        result.append(tmp_dist)
+        logger.info(f"ddb data for dist is {ddb_data}")
+        if 'Item' in ddb_data:
+            data = ddb_data['Item']
+            tmp_dist['versionCount'] = data['versionId']
+            result.append(tmp_dist)
+        else:
+            logger.info(f"no ddb record for {tmp_dist}")
     return result
 
 
-@app.get("/cf_config_manager/versions/config_link/<versionId>")
-def manager_version_get_link(versionId):
-    dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
+@app.resolver(type_name="Query", field_name="config_link")
+def manager_version_get_link(distribution_id: str = "", versionId: str = ""):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
 
     response = ddb_table.get_item(
         Key={
-            "distributionId": dist_id,
+            "distributionId": distribution_id,
             "versionId": int(versionId)
         })
     data = response['Item']
@@ -205,16 +206,15 @@ def manager_version_get_link(versionId):
     }
 
 
-@app.get("/cf_config_manager/versions/config_content/<versionId>")
-def manager_version_get_content(versionId):
-    dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
+@app.resolver(type_name="Query", field_name="config_content")
+def manager_version_get_content(distribution_id: str = "", versionId: str = ""):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
 
     response = ddb_table.get_item(
         Key={
-            "distributionId": dist_id,
+            "distributionId": distribution_id,
             "versionId": int(versionId)
         })
     data = response['Item']
@@ -230,13 +230,9 @@ def manager_version_get_content(versionId):
     return result
 
 
-@app.get("/cf_config_manager/versions")
-def manager_version_get_all():
-    query_strings_as_dict = app.current_event.query_string_parameters
-    json_payload = app.current_event.json_body
-    payload = app.current_event.body
-
-    dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
+@app.resolver(type_name="Query", field_name="versions")
+def manager_version_get_all(distribution_id: str = ""):
+    dist_id = distribution_id
 
     # get all the versions of the specific cloudfront distributions, latest version come first
     ddb_client = boto3.resource('dynamodb')
@@ -250,11 +246,7 @@ def manager_version_get_all():
 
     return data
 
-
-@app.get("/cf_config_manager")
-def manager():
-    return {"message": "hello unknown!"}
-
-
+@logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
+@tracer.capture_lambda_handler
 def lambda_handler(event, context):
     return app.resolve(event, context)
