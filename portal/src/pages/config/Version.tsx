@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import { SelectType, TablePanel } from "components/TablePanel";
-import { MOCK_CLOUDFRONT_LIST, CloudFrontType } from "mock/data";
+import { CloudFrontType } from "mock/data";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Status from "components/Status/Status";
 import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
+import { appSyncRequestQuery } from "assets/js/request";
+import { cf_list } from "graphql/queries";
 
 const BreadCrunbList = [
   {
@@ -21,8 +23,26 @@ const BreadCrunbList = [
 ];
 
 const Version = () => {
-  const [cloudFrontList, setCloudFrontList] = useState(MOCK_CLOUDFRONT_LIST);
+  const [cloudFrontList, setCloudFrontList] = useState([]);
   const [searchParams, setSearchParams] = useState("");
+
+  // Get Distribution List
+  const getCloudfrontDistributionList = async () => {
+    setCloudFrontList([]);
+    try {
+      // setLoadingData(true);
+      // setServiceLogList([]);
+      const resData: any = await appSyncRequestQuery(cf_list, {});
+      console.log(resData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getCloudfrontDistributionList();
+  }, []);
+
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -70,7 +90,7 @@ const Version = () => {
             },
           ]}
           changeSelected={() => {
-            setCloudFrontList(MOCK_CLOUDFRONT_LIST);
+            // setCloudFrontList(MOCK_CLOUDFRONT_LIST);
           }}
           filter={
             <div>
