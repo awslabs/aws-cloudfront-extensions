@@ -1,0 +1,38 @@
+.gsui-multi-select-wrap {
+  .gsui-multi-select {
+    position: relative;
+    width: 100%;
+  }
+
+  .gsui-multi-select-item-box {
+    margin-top: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    border: 1px solid #00a1c9;
+    padding: 4px 4px 4px 8px;
+    border-radius: 2px;
+    background: #f1faff;
+    position: relative;
+    .item-content {
+      // flex: 1;
+      padding-right: 30px;
+      min-height: 52px;
+      .item-title {
+        padding: 3px 0 2px 0;
+        font-weight: 600;
+      }
+    }
+    .icon-remove {
+      position: absolute;
+      cursor: pointer;
+      // width: 26px;
+      right: 5px;
+      top: 4px;
+    }
+  }
+
+  .refresh-button {
+    width: 60px;
+    text-align: center;
+  }
+}

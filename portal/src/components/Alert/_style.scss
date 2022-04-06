@@ -1,0 +1,44 @@
+.gsui-alert-wrap {
+  border: 1px solid #0073bb;
+  background-color: #f1faff;
+  padding: 12px 20px;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  &.error {
+    border: 1px solid #aab7b8;
+    background-color: #ffffff;
+  }
+  &.success {
+    border: 1px solid #1d8102;
+    background-color: #f2f8f0;
+  }
+  .icon {
+    color: #0073bb;
+    width: 30px;
+    .error-text {
+      color: $error;
+    }
+    .success-text {
+      font-size: 28px;
+      color: $success;
+    }
+  }
+  .text {
+    padding-left: 5px;
+    flex: 1;
+    &-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000;
+    }
+    &-content {
+      padding-top: 2px;
+      font-size: $font-size-sm;
+    }
+  }
+  .space-between {
+    display: flex;
+    justify-content: space-between;
+  }
+}

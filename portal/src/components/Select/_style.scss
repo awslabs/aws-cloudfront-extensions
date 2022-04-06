@@ -1,0 +1,15 @@
+.gsui-select-wrap {
+  .gsui-select {
+    position: relative;
+    width: 100%;
+    &.Mui-disabled {
+      .MuiSelect-select {
+        background-color: #eaeded;
+      }
+    }
+  }
+  .refresh-button {
+    width: 60px;
+    text-align: center;
+  }
+}

@@ -1,0 +1,288 @@
+import React, { useState, useEffect } from "react";
+import HeaderPanel from "components/HeaderPanel";
+import PagePanel from "components/PagePanel";
+import TagList from "components/TagList";
+import Tiles from "components/Tiles";
+import Switch from "components/Switch";
+import FormItem from "components/FormItem";
+import TextInput from "components/TextInput";
+import TextArea from "components/TextArea";
+import { CertificateType, CERT_IN_ACCOUNT_LIST } from "mock/data";
+import { SelectType, TablePanel } from "components/TablePanel";
+
+const enum ImportMethod {
+  CREATE = "Create",
+  IMPORT = "Import",
+}
+
+const enum ImportCertificate {
+  IMPORT_ONE = "ImportOne",
+  IMPORT_MULTI = "ImportMulti",
+}
+
+interface CertInfo {
+  name: string;
+  body: string;
+  privateKey: string;
+  chain: string;
+}
+
+const ConfigCertificate: React.FC = () => {
+  const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
+  const [aggregation, setAggregation] = useState(false);
+  const [createAuto, setCreateAuto] = useState(false);
+  const [originDomain, setOriginDomain] = useState("");
+  const [importCert, setImportCert] = useState<string>(
+    ImportCertificate.IMPORT_ONE
+  );
+  const [certInfo, setCertInfo] = useState<CertInfo>({
+    name: "",
+    body: "",
+    privateKey: "",
+    chain: "",
+  });
+  const [s3FilePath, setS3FilePath] = useState("");
+  const [certInAccountList, setCertInAccountList] = useState<CertificateType[]>(
+    []
+  );
+
+  useEffect(() => {
+    setCertInAccountList(CERT_IN_ACCOUNT_LIST);
+  }, []);
+
+  return (
+    <div>
+      <PagePanel title="Create certification">
+        <HeaderPanel title="Certification type">
+          <div>
+            <FormItem optionTitle="Import method" optionDesc="">
+              <Tiles
+                name="importMethod"
+                value={importMethod}
+                onChange={(event) => {
+                  setImportMethod(event.target.value);
+                }}
+                items={[
+                  {
+                    label: "Create a new certification",
+                    description: "Create an ACM certificate",
+                    value: ImportMethod.CREATE,
+                  },
+                  {
+                    label: "Import existed certifications",
+                    description: "Import existed certifications",
+                    value: ImportMethod.IMPORT,
+                  },
+                ]}
+              />
+            </FormItem>
+            <div className="mt-10">
+              <Switch
+                label="Aggregation"
+                desc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                isOn={aggregation}
+                handleToggle={() => {
+                  setAggregation(!aggregation);
+                }}
+              />
+            </div>
+            <div className="mt-10">
+              <Switch
+                label="Create CloudFront distribution automatically"
+                desc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                isOn={createAuto}
+                handleToggle={() => setCreateAuto(!createAuto)}
+              />
+            </div>
+            <div className="mt-10">
+              <FormItem
+                optionTitle="Origin domain"
+                optionDesc="Choose an AWS origin, or enter your origin's domain name."
+              >
+                <TextInput
+                  className="m-w-75p"
+                  placeholder="www.example.com"
+                  value={originDomain}
+                  onChange={(event) => {
+                    setOriginDomain(event.target.value);
+                  }}
+                />
+              </FormItem>
+            </div>
+          </div>
+        </HeaderPanel>
+        {importMethod === ImportMethod.IMPORT ? (
+          <HeaderPanel title="Certification details">
+            <FormItem optionTitle="Import Certification" optionDesc="">
+              <Tiles
+                name="importCertificate"
+                value={importCert}
+                onChange={(event) => {
+                  setImportCert(event.target.value);
+                }}
+                items={[
+                  {
+                    label: "Import one certification",
+                    description: "Import one",
+                    value: ImportCertificate.IMPORT_ONE,
+                  },
+                  {
+                    label: "Import multiple certifications",
+                    description:
+                      "Import multiple certification by providing cert link, etc.",
+                    value: ImportCertificate.IMPORT_MULTI,
+                  },
+                ]}
+              />
+            </FormItem>
+            {importCert === ImportCertificate.IMPORT_ONE ? (
+              <div>
+                <FormItem
+                  optionTitle="Certification name"
+                  optionDesc="Enter the name of the object that you want CloudFront to return when a viewer request points to your root URL."
+                >
+                  <TextInput
+                    placeholder="Demo"
+                    value={certInfo.name}
+                    onChange={(event) => {
+                      setCertInfo((prev) => {
+                        return { ...prev, name: event.target.value };
+                      });
+                    }}
+                  />
+                </FormItem>
+                <FormItem
+                  optionTitle="Certificate body"
+                  optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                >
+                  <TextArea
+                    rows={3}
+                    placeholder="PEM-encoded certificate"
+                    value={certInfo.name}
+                    onChange={(event) => {
+                      setCertInfo((prev) => {
+                        return { ...prev, name: event.target.value };
+                      });
+                    }}
+                  />
+                </FormItem>
+                <FormItem
+                  optionTitle="Certificate private key"
+                  optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                >
+                  <TextArea
+                    rows={3}
+                    placeholder="PEM-encoded certificate"
+                    value={certInfo.name}
+                    onChange={(event) => {
+                      setCertInfo((prev) => {
+                        return { ...prev, name: event.target.value };
+                      });
+                    }}
+                  />
+                </FormItem>
+                <FormItem
+                  optionTitle="Certificate chain"
+                  optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                >
+                  <TextArea
+                    rows={3}
+                    placeholder="PEM-encoded certificate"
+                    value={certInfo.chain}
+                    onChange={(event) => {
+                      setCertInfo((prev) => {
+                        return { ...prev, chain: event.target.value };
+                      });
+                    }}
+                  />
+                </FormItem>
+              </div>
+            ) : (
+              <FormItem
+                optionTitle="Certification file path"
+                optionDesc="S3 bucket path"
+              >
+                <TextInput
+                  placeholder="s3://auth-at-edge-origin-public-348167721134/js/"
+                  value={s3FilePath}
+                  onChange={(event) => {
+                    setS3FilePath(event.target.value);
+                  }}
+                />
+              </FormItem>
+            )}
+          </HeaderPanel>
+        ) : (
+          ""
+        )}
+        <HeaderPanel contentNoPadding title="Certificates in Account">
+          <TablePanel
+            hideHeader
+            title=""
+            actions={<div></div>}
+            selectType={SelectType.NONE}
+            pagination={<div></div>}
+            items={certInAccountList}
+            columnDefinitions={[
+              {
+                // width: 250,
+                id: "id",
+                header: "id",
+                cell: (e: CertificateType) => e.id,
+                // sortingField: "alt",
+              },
+              {
+                id: "domainName",
+                header: "Domain Name",
+                cell: (e: CertificateType) => e.domainName,
+              },
+              {
+                width: 120,
+                id: "type",
+                header: "Type",
+                cell: (e: CertificateType) => e.type,
+              },
+              {
+                width: 160,
+                id: "status",
+                header: "Status",
+                cell: (e: CertificateType) => e.status,
+              },
+              {
+                // width: 150,
+                id: "tags",
+                header: "Tags",
+                cell: (e: CertificateType) => e.tags,
+              },
+            ]}
+            filter={<div></div>}
+            changeSelected={(item) => {
+              console.info("select item:", item);
+              // setSelectedItems(item);
+              // setExtentionList(MOCK_REPOSITORY_LIST);
+            }}
+          />
+        </HeaderPanel>
+        <HeaderPanel
+          title="Tags"
+          desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."
+        >
+          <TagList
+            tagList={[]}
+            addTag={() => {
+              console.info("add");
+            }}
+            removeTag={(e) => {
+              console.info(e);
+            }}
+            onChange={(e) => {
+              console.info(e);
+            }}
+          />
+        </HeaderPanel>
+      </PagePanel>
+    </div>
+  );
+};
+
+export default ConfigCertificate;

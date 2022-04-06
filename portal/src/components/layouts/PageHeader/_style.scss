@@ -1,0 +1,16 @@
+.gsui-header {
+  height: 40px;
+  line-height: 40px;
+  background-color: $black-bg;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  .logo {
+    padding-left: 15px;
+    font-weight: 600;
+  }
+  .user {
+    padding-right: 15px;
+  }
+}

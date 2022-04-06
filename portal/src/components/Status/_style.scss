@@ -1,0 +1,52 @@
+.gsui-status {
+  .status-text {
+    position: relative;
+    padding-left: 22px;
+    text-transform: capitalize;
+    i {
+      position: absolute;
+      margin-left: -22px;
+      margin-top: -1px;
+    }
+    &.green {
+      color: green;
+    }
+    &.enabled {
+      color: green;
+    }
+    &.active {
+      color: green;
+    }
+    &.online {
+      color: green;
+    }
+    &.create_complele {
+      color: green;
+      text-transform: uppercase;
+    }
+    &.installing {
+      color: #666;
+    }
+    &.creating {
+      color: #666;
+    }
+    &.inactive {
+      color: #666;
+    }
+    &.error {
+      color: red;
+    }
+    &.red {
+      color: red;
+    }
+    &.offline {
+      color: red;
+    }
+    &.disabled {
+      color: red;
+    }
+    &.yellow {
+      color: #ff9900;
+    }
+  }
+}
