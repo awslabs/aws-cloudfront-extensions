@@ -1,0 +1,47 @@
+
+schema {
+	query: Query
+	mutation: Mutation
+}
+
+enum ExtensionType {
+    Lambda,
+    LambdaEdge,
+    CFF,
+}
+
+type Extension {
+    name: String!
+    templateUri: String!
+    type: ExtensionType!
+    desc: String!
+    codeUri: String!
+    stage: String
+    updateDate: String!
+    author: String
+    status: String!
+    tag: String
+    cfnParameter: String
+}
+
+input ExtensionParameter {
+    parameterKey: String
+    parameterValue: String
+}
+
+type Query {
+    # List CloudFront extensions in extension repo
+    listExtensions(page: Int, count: Int): String
+
+    # Get the extension details
+    queryByName(name: String!): Extension
+}
+
+type Mutation {
+    # Deploy an extension
+    deployExtension(name: String!, parameters: [ExtensionParameter]): String
+
+    # Get the latest extensions
+    syncExtensions: String
+}
+

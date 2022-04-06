@@ -1,0 +1,42 @@
+{
+  "name": "cloudfront-extensions-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest",
+    "build": "npm run test && npm run synth",
+    "bump": "standard-version -i ../CHANGELOG.md",
+    "test:watch": "jest --watch",
+    "test:update": "jest --updateSnapshot",
+    "test:compile": "tsc --noEmit --project tsconfig.jest.json",
+    "watch": "tsc -w",
+    "eslint": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test",
+    "cdk": "cdk",
+    "diff": "cdk diff",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.128.0",
+    "@aws-cdk/cloud-assembly-schema": "^2.18.0",
+    "@types/jest": "^26.0.10",
+    "@types/node": "10.17.27",
+    "aws-cdk": "1.128.0",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-cloudfront": "1.128.0",
+    "@aws-cdk/aws-cloudfront-origins": "1.128.0",
+    "@aws-cdk/aws-iam": "1.128.0",
+    "@aws-cdk/aws-lambda": "1.128.0",
+    "@aws-cdk/aws-lambda-nodejs": "1.128.0",
+    "@aws-cdk/aws-s3": "1.128.0",
+    "@aws-cdk/aws-s3-deployment": "1.128.0",
+    "@aws-cdk/aws-sam": "1.128.0",
+    "@aws-cdk/core": "1.128.0",
+    "source-map-support": "^0.5.16"
+  }
+}
