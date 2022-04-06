@@ -1,0 +1,112 @@
+# {
+#   "acm_op": "create",
+#   "auto_creation": "true",
+#   "dist_aggregate": "false",
+#   "cnameList": [
+#     {
+#       "domainName": "cdn2.risetron.cn",
+#       "sanList": [
+#         "*.risetron.cn"
+#       ],
+#       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#     },
+#     {
+#       "domainName": "cdn4.risetron.cn",
+#       "sanList": [
+#         "cdn5.risetron.cn"
+#       ],
+#       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#     }
+#   ],
+#   "pemList": [
+#     {
+#       "CertPem": "\n-----BEGIN CERTIFICATE-----\nxx\n-----END CERTIFICATE-----\n",
+#       "PrivateKeyPem": "\n-----BEGIN PRIVATE KEY-----\nxx\n-----END PRIVATE KEY-----\n",
+#       "ChainPem": "\n-----BEGIN CERTIFICATE-----\nxx\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nxx5\n-----END CERTIFICATE-----\n",
+#       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#     }
+#   ]
+# }
+
+type cname {
+  domainName: String!
+  sanList: [String!]
+  originsItemsDomainName: String!
+}
+
+type pem {
+  CertPem: String!
+  PrivateKeyPem: String!
+  ChainPem: String!
+  originsItemsDomainName: String!
+}
+
+input createParams {
+  acm_op: String!
+  auto_creation: String!
+  dist_aggregate: String!
+  cnameList: [cname]!
+  pemList: [pem]
+}
+type createPayload {
+  status: String!
+}
+
+input importParams {
+  acm_op: String!
+  auto_creation: String!
+  dist_aggregate: String!
+  cnameList: [cname]
+  pemList: [pem]!
+}
+type importPayload {
+  status: String!
+}
+
+type Query {
+  Notifications(limit: Int): [Notification]
+}
+
+# type Mutation {
+# 	certCreate(params: createParams!): createPayload
+# }
+
+# type Mutation {
+#     certCreate (  
+#       acm_op: String!
+#       auto_creation: String!
+#       dist_aggregate: String!
+#       cnameList: [cname]!
+#       pemList: [pem]
+#     ): createPayload
+#     certImport (
+#       acm_op: String!
+#       auto_creation: String!
+#       dist_aggregate: String!
+#       cnameList: [cname]
+#       pemList: [pem]!
+#     ): importPayload
+# }
+
+type Notification {
+    id: ID
+    date: AWSDate
+    type: String
+}
+
+scalar AWSDate
+
+# type Subscription {
+#   createdTodo(userId: ID!): CreateTodoPayload
+#   @aws_subscribe(mutations: ["createTodo"])
+#   updatedTodo(userId: ID!): UpdateTodoPayload
+#   @aws_subscribe(mutations: ["updateTodo"])
+#   deletedTodo(userId: ID!): DeleteTodoPayload
+#   @aws_subscribe(mutations: ["deleteTodo"])
+# }
+
+schema {
+  query: Query
+  # mutation: Mutation
+  # subscription: Subscription
+}

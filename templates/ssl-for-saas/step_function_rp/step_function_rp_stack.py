@@ -1,21 +1,24 @@
+from unicodedata import name
 from aws_cdk import (
+    Stack,
     aws_iam as iam,
-    aws_s3 as s3,
-    aws_s3_notifications as s3_notifications,
     aws_stepfunctions as _step,
     aws_stepfunctions_tasks as _task,
     aws_lambda as _lambda,
-    aws_lambda_event_sources as lambda_event_sources,
-    aws_sqs as sqs,
     aws_sns as sns,
     aws_sns_subscriptions as subs,
     aws_dynamodb as dynamodb,
     aws_events as events,
     aws_events_targets as targets,
-    aws_ecr as ecr,
     aws_apigateway as _apigw,
-    core
+    aws_appsync as _appsync,
+    aws_appsync_alpha as _appsync_alpha,
+    CfnParameter,
+    Duration,
+    # core
 )
+
+from constructs import Construct
 
 START_EXECUTION_REQUEST_TEMPLATE = """
   {
@@ -51,44 +54,9 @@ RESPONSE_TEMPLATE = """
 #end
 """
 
-# Step Function definition
-STEP_FUNCTION_DEFINITION = """
-{
-    "StartAt": "Get Order Metadata",
-    "States": {
-    "Get Order Metadata": {
-        "Type": "Task",
-        "Resource": "${GetOrderMetadataFunction.Arn}",
-        "ResultPath": "$.order_contents",
-        "Next": "Shipping Service Callback"
-    },
-    "Shipping Service Callback": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
-        "Parameters": {
-        "FunctionName": "${SNSCallbackFunction.Arn}",
-        "Payload": {
-            "token.$": "$$.Task.Token",
-            "input.$": "$",
-            "callback": "true"
-        }
-        },
-        "ResultPath": "$.shipping_info",
-        "Next": "Process Shipping Results"
-    },
-    "Process Shipping Results": {
-        "Type": "Task",
-        "Resource": "${ProcessShippingResultFunction.Arn}",
-        "ResultPath": "$",
-        "End": true
-    }
-    }
-}
-"""
+class StepFunctionRpStack(Stack):
 
-class StepFunctionRpStack(core.Stack):
-
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
         # dynadmodb table for acm callback
@@ -113,8 +81,18 @@ class StepFunctionRpStack(core.Stack):
         )
 
         # create email subscription
-        email_address = core.CfnParameter(self, "email-subs")
+        email_address = CfnParameter(self, "email-subs")
         sns_topic.add_subscription(subs.EmailSubscription(email_address.value_as_string))
+
+        _fn_appsync_func_role = iam.Role(self, "_fn_appsync_func_role",
+            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
+                iam.ManagedPolicy.from_aws_managed_policy_name("AWSCertificateManagerFullAccess"),
+                iam.ManagedPolicy.from_aws_managed_policy_name("AmazonDynamoDBFullAccess"),
+                iam.ManagedPolicy.from_aws_managed_policy_name("AWSStepFunctionsFullAccess")
+            ]
+        )
 
         _fn_acm_direct_op_role = iam.Role(self, "_fn_acm_direct_op_role",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
@@ -175,15 +153,15 @@ class StepFunctionRpStack(core.Stack):
             ]
         )
 
-        fn_acm_import_cb = _lambda.DockerImageFunction(self, "acm_import_callback", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_import_cb"), environment={'SNS_TOPIC': sns_topic.topic_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=core.Duration.seconds(900), role=_fn_acm_import_cb_role, memory_size=1024)
+        fn_acm_import_cb = _lambda.DockerImageFunction(self, "acm_import_callback", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_import_cb"), environment={'SNS_TOPIC': sns_topic.topic_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_acm_import_cb_role, memory_size=1024)
 
-        fn_acm_cb = _lambda.DockerImageFunction(self, "acm_callback", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_cb"), environment={'SNS_TOPIC': sns_topic.topic_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=core.Duration.seconds(900), role=_fn_acm_cb_role, memory_size=512)
+        fn_acm_cb = _lambda.DockerImageFunction(self, "acm_callback", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_cb"), environment={'SNS_TOPIC': sns_topic.topic_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_acm_cb_role, memory_size=512)
 
-        fn_acm_cb_handler = _lambda.DockerImageFunction(self, "acm_callback_handler", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_cb_handler"), environment={'PAYLOAD_EVENT_KEY': 'placeholder', 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=core.Duration.seconds(900), role=_fn_acm_cb_handler_role, memory_size=1024)
+        fn_acm_cb_handler = _lambda.DockerImageFunction(self, "acm_callback_handler", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_cb_handler"), environment={'PAYLOAD_EVENT_KEY': 'placeholder', 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_acm_cb_handler_role, memory_size=1024)
 
-        fn_acm_cron = _lambda.DockerImageFunction(self, "acm_cron_job", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_cron"), environment={'PAYLOAD_EVENT_KEY': 'placeholder', 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=core.Duration.seconds(900), role=_fn_acm_cron_role, memory_size=1024)
+        fn_acm_cron = _lambda.DockerImageFunction(self, "acm_cron_job", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_cron"), environment={'PAYLOAD_EVENT_KEY': 'placeholder', 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_acm_cron_role, memory_size=1024)
 
-        fn_sns_notify = _lambda.DockerImageFunction(self, "sns_notify", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/sns_notify"), environment={'SNS_TOPIC': sns_topic.topic_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=core.Duration.seconds(900), role=_fn_sns_notify_role, memory_size=1024)
+        fn_sns_notify = _lambda.DockerImageFunction(self, "sns_notify", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/sns_notify"), environment={'SNS_TOPIC': sns_topic.topic_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_sns_notify_role, memory_size=1024)
 
         # {
         # "Error": "{\"status\": \"FAILED\"}",
@@ -298,8 +276,8 @@ class StepFunctionRpStack(core.Stack):
             result_path = "$.fn_sns_notify"
         )
 
-        wait_10s_for_cert_create = _step.Wait(self, "Wait 10 Seconds for cert create", time=_step.WaitTime.duration(core.Duration.seconds(10)))
-        wait_10s_for_cert_import = _step.Wait(self, "Wait 10 Seconds for cert import", time=_step.WaitTime.duration(core.Duration.seconds(10)))
+        wait_10s_for_cert_create = _step.Wait(self, "Wait 10 Seconds for cert create", time=_step.WaitTime.duration(Duration.seconds(10)))
+        wait_10s_for_cert_import = _step.Wait(self, "Wait 10 Seconds for cert import", time=_step.WaitTime.duration(Duration.seconds(10)))
 
         # entry point for step function with cert create/import process
         stepFunctionEntry = _step.Choice(self, "Initial entry point")
@@ -318,11 +296,11 @@ class StepFunctionRpStack(core.Stack):
             state_machine_name="SSL-for-SaaS-StateMachine",
             state_machine_type=_step.StateMachineType.STANDARD,
             # set global timeout, don't set timeout in callback inside
-            timeout=core.Duration.hours(24),
+            timeout=Duration.hours(24),
         )
 
         # lambda in step function & cron job
-        fn_acm_direct_op = _lambda.DockerImageFunction(self, "acm_direct_op", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_direct_op"), environment={'STEP_FUNCTION_ARN': stepFunction.state_machine_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=core.Duration.seconds(900), role=_fn_acm_direct_op_role, memory_size=1024)
+        fn_acm_direct_op = _lambda.DockerImageFunction(self, "acm_direct_op", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/acm_direct_op"), environment={'STEP_FUNCTION_ARN': stepFunction.state_machine_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_acm_direct_op_role, memory_size=1024)
 
         # API Gateway with Lambda proxy integration
         api_acm_direct_op = _apigw.LambdaRestApi(self, "api_acm_direct_op", handler=fn_acm_direct_op, proxy=True)
@@ -364,3 +342,64 @@ class StepFunctionRpStack(core.Stack):
             ), 
             targets=[targets.SnsTopic(sns_topic)]
         )
+
+        # Lambda function to integrate with AppSync
+        fn_appsync_function = _lambda.DockerImageFunction(self, "appsync_func", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/appsync_func"), environment={'STEP_FUNCTION_ARN': stepFunction.state_machine_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_appsync_func_role, memory_size=1024)
+
+        api_appsync = _appsync_alpha.GraphqlApi(self, "Api",
+            name="SSL for SaaS",
+            schema=_appsync_alpha.Schema.from_asset("step_function_rp/appsync_schema/schema.graphql"),
+            authorization_config=_appsync_alpha.AuthorizationConfig(
+                default_authorization=_appsync_alpha.AuthorizationMode(
+                    authorization_type=_appsync_alpha.AuthorizationType.IAM
+                )
+            ),
+            xray_enabled=False
+        )
+
+        # An AppSync datasource backed by a Lambda function
+        lambda_data_source = _appsync_alpha.LambdaDataSource(
+            self,
+            'LambdaDataSource',
+            api=api_appsync,
+            lambda_function=fn_appsync_function,
+            description = 'Lambda Data Source',
+            name = 'certCreate',
+            # service_role=lambda_service_role,
+        )
+
+        lambda_data_source.create_resolver(
+            type_name='Mutation',
+            field_name='certCreate',
+            request_mapping_template=_appsync_alpha.MappingTemplate.from_string(
+                """
+                {
+                    "version": "2017-02-28",
+                    "method": "POST",
+                    "resourcePath": "/",
+                    "params":{
+                        "headers": {
+                            "Accept":"application/json",
+                            "Content-Type":"application/json"
+                        },
+                        "queryParams": {},
+                        "path": "/",
+                        "body": $input.json('$')
+                    }
+                }
+                """
+            ),
+            response_mapping_template=_appsync_alpha.MappingTemplate.from_string(
+                """
+                {
+                    "body": $util.toJson($context.result),
+                    "headers": {
+                        "Content-Type": "application/json"
+                    }
+                }
+                """
+            )
+        )
+
+        
+
