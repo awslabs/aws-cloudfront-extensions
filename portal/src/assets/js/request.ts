@@ -31,7 +31,7 @@ interface AmplifyConfigType {
 
 const buildAppsyncLink = () => {
   const configJSONObj: AmplifyConfigType = {
-    aws_api_key: "da2-lx7gur74kna75g3c7fawsdwufi",
+    aws_api_key: "da2-adxs4vpsxzgrpfrnuroiz7fime",
     aws_project_region: "us-east-1",
     aws_appsync_graphqlEndpoint:
       "https://jdm77ubkn5ef7b2o4zhnxj5aa4.appsync-api.us-east-1.amazonaws.com/graphql",

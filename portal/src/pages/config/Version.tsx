@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import { SelectType, TablePanel } from "components/TablePanel";
-import { CloudFrontType } from "mock/data";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Status from "components/Status/Status";
@@ -10,6 +9,7 @@ import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
 import { cf_list } from "graphql/queries";
+import { Cloudfront_info } from "../../API";
 
 const BreadCrunbList = [
   {
@@ -23,7 +23,7 @@ const BreadCrunbList = [
 ];
 
 const Version = () => {
-  const [cloudFrontList, setCloudFrontList] = useState([]);
+  const [cloudFrontList, setCloudFrontList] = useState<Cloudfront_info[]>([]);
   const [searchParams, setSearchParams] = useState("");
 
   // Get Distribution List
@@ -32,8 +32,12 @@ const Version = () => {
     try {
       // setLoadingData(true);
       // setServiceLogList([]);
-      const resData: any = await appSyncRequestQuery(cf_list, {});
+      const resData = await appSyncRequestQuery(cf_list, {});
       console.log(resData);
+      console.log("=======");
+      console.log(resData.data.cf_list);
+      const cfList: Cloudfront_info[] = resData.data.cf_list;
+      setCloudFrontList(cfList);
     } catch (error) {
       console.error(error);
     }
@@ -62,9 +66,9 @@ const Version = () => {
           columnDefinitions={[
             {
               width: 250,
-              id: "id",
+              id: "Id",
               header: "ID",
-              cell: (e: CloudFrontType) => {
+              cell: (e: Cloudfront_info) => {
                 return (
                   <Link to={`/config/vesrsion/detail/${e.id}`}>{e.id}</Link>
                 );
@@ -73,19 +77,19 @@ const Version = () => {
             {
               id: "domain",
               header: "Domain",
-              cell: (e: CloudFrontType) => e.domain,
+              cell: (e: Cloudfront_info) => e.domainName,
             },
             {
               id: "versionCount",
               header: "Version count",
-              cell: (e: CloudFrontType) => e.versionCount,
+              cell: (e: Cloudfront_info) => e.versionCount,
             },
             {
               width: 150,
               id: "status",
               header: "Status",
-              cell: (e: CloudFrontType) => {
-                return <Status status={e.status} />;
+              cell: (e: Cloudfront_info) => {
+                return <Status status={e.status || ""} />;
               },
             },
           ]}

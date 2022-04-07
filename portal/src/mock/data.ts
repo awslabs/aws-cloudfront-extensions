@@ -10,7 +10,7 @@ export interface RepositoryType {
 export interface CloudFrontType {
   id: string;
   domain: string;
-  versionCount: number;
+  // versionCount: number;
   status: string;
 }
 
@@ -139,13 +139,13 @@ export const MOCK_CLOUDFRONT_LIST: CloudFrontType[] = [
   {
     id: "XLOWCQQFJJHM80",
     domain: "bbb.cloudfront.net",
-    versionCount: 2,
+    // versionCount: 2,
     status: "Enabled",
   },
   {
     id: "XEWIDSGMPMEK86",
     domain: "abc.cloudfront.net",
-    versionCount: 0,
+    // versionCount: 0,
     status: "Disabled",
   },
 ];

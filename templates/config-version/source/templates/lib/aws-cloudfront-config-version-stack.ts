@@ -252,7 +252,7 @@ export class CloudFrontConfigVersionStack extends Stack {
       schema: appsync.Schema.fromAsset(path.join(__dirname, '../graphql/schema.graphql')),
       authorizationConfig: {
         defaultAuthorization: {
-          authorizationType: appsync.AuthorizationType.IAM,
+          authorizationType: appsync.AuthorizationType.API_KEY,
         },
       },
       xrayEnabled: true,

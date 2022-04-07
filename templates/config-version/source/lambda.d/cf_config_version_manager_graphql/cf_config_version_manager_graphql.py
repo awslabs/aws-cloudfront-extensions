@@ -164,10 +164,10 @@ def manager_version_config_cf_list():
     for dist in response['DistributionList']['Items']:
 
         tmp_dist = {}
-        tmp_dist['Id'] = dist['Id']
-        tmp_dist['DomainName'] = dist['DomainName']
-        tmp_dist['Status'] = dist['Status']
-        tmp_dist['Enabled'] = dist['Enabled']
+        tmp_dist['id'] = dist['Id']
+        tmp_dist['domainName'] = dist['DomainName']
+        tmp_dist['status'] = dist['Status']
+        tmp_dist['enabled'] = dist['Enabled']
 
         logger.info(tmp_dist)
         # get latest version from ddb latest version ddb

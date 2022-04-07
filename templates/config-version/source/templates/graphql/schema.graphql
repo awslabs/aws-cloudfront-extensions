@@ -34,9 +34,10 @@ type Version {
 }
 
 type Cloudfront_info {
-    Id: String
-    DomainName: String
-    Status: String
-    Enabled: String
+    id: String
+    domainName: String
+    status: String
+    enabled: String
+    versionCount: String
 }
 
