@@ -363,43 +363,11 @@ def lambda_handler(event, context):
 
     logger.info("deliver message: %s to sns topic arn: %s", str(snsMsg), snsTopicArn)
 
-    sampleCode = """
-    # Paste <CNAME List> into script below to import all CNAME entry into Route53, 
-    import boto3
+    # make it a code url due to sns raw format, TBD make it a official repo url
+    sampleCode = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
 
-    route53 = boto3.client('route53')
-    def add_cname_record(cnameName, cnameValue, hostedZoneId):
-        response = route53.change_resource_record_sets(
-            ChangeBatch={
-                'Changes': [
-                    {
-                        'Action': 'CREATE',
-                        'ResourceRecordSet': {
-                            'Name': cnameName,
-                            'ResourceRecords': [
-                                {
-                                    'Value': cnameValue,
-                                },
-                            ],
-                            'SetIdentifier': 'SaaS For SSL',
-                            'TTL': 300,
-                            'Type': 'CNAME',
-                            'Weight': 100,
-                        },
-                    }
-                ],
-                'Comment': 'add cname record for certificate',
-            },
-            HostedZoneId=hostedZoneId,
-        )
-
-    if __name__ == '__main__':
-        cnameList = ['<Paste CNAME List Here>']
-        for i, val in enumerate(cnameList):
-            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
-    """
     messageToBePublished = {
-        'CNAME List': str(snsMsg),
+        'CNAME value need to add into DNS hostzone to finish DCV': str(snsMsg),
         'Sample Script (Python)': sampleCode
     }
 

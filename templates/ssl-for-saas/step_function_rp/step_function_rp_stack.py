@@ -84,6 +84,8 @@ class StepFunctionRpStack(Stack):
         email_address = CfnParameter(self, "email-subs")
         sns_topic.add_subscription(subs.EmailSubscription(email_address.value_as_string))
 
+        # create another lambda subscription to handle DCV as provided in sample code, TBD
+
         _fn_appsync_func_role = iam.Role(self, "_fn_appsync_func_role",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
             managed_policies=[
@@ -346,7 +348,7 @@ class StepFunctionRpStack(Stack):
         # Lambda function to integrate with AppSync
         fn_appsync_function = _lambda.DockerImageFunction(self, "appsync_func", code=_lambda.DockerImageCode.from_image_asset("step_function_rp/lambda_code/appsync_func"), environment={'STEP_FUNCTION_ARN': stepFunction.state_machine_arn, 'CALLBACK_TABLE': callback_table.table_name, 'TASK_TYPE': 'placeholder'}, timeout=Duration.seconds(900), role=_fn_appsync_func_role, memory_size=1024)
 
-        api_appsync = _appsync_alpha.GraphqlApi(self, "Api",
+        appsyncApi = _appsync_alpha.GraphqlApi(self, "Api",
             name="SSL for SaaS",
             schema=_appsync_alpha.Schema.from_asset("step_function_rp/appsync_schema/schema.graphql"),
             authorization_config=_appsync_alpha.AuthorizationConfig(
@@ -358,48 +360,28 @@ class StepFunctionRpStack(Stack):
         )
 
         # An AppSync datasource backed by a Lambda function
-        lambda_data_source = _appsync_alpha.LambdaDataSource(
+        appsyncFunc = _appsync_alpha.LambdaDataSource(
             self,
             'LambdaDataSource',
-            api=api_appsync,
+            api=appsyncApi,
             lambda_function=fn_appsync_function,
-            description = 'Lambda Data Source',
-            name = 'certCreate',
+            description = 'Lambda Data Source for cert create/import',
+            name = 'certMutation',
             # service_role=lambda_service_role,
         )
 
-        lambda_data_source.create_resolver(
+        appsyncFunc.create_resolver(
             type_name='Mutation',
             field_name='certCreate',
-            request_mapping_template=_appsync_alpha.MappingTemplate.from_string(
-                """
-                {
-                    "version": "2017-02-28",
-                    "method": "POST",
-                    "resourcePath": "/",
-                    "params":{
-                        "headers": {
-                            "Accept":"application/json",
-                            "Content-Type":"application/json"
-                        },
-                        "queryParams": {},
-                        "path": "/",
-                        "body": $input.json('$')
-                    }
-                }
-                """
-            ),
-            response_mapping_template=_appsync_alpha.MappingTemplate.from_string(
-                """
-                {
-                    "body": $util.toJson($context.result),
-                    "headers": {
-                        "Content-Type": "application/json"
-                    }
-                }
-                """
-            )
+            request_mapping_template=_appsync_alpha.MappingTemplate.lambda_request(),
+            response_mapping_template=_appsync_alpha.MappingTemplate.lambda_result()
         )
 
+        appsyncFunc.create_resolver(
+            type_name='Mutation',
+            field_name='certImport',
+            request_mapping_template=_appsync_alpha.MappingTemplate.lambda_request(),
+            response_mapping_template=_appsync_alpha.MappingTemplate.lambda_result()
+        )
         
 
