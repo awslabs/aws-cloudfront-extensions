@@ -33,9 +33,6 @@ const Version = () => {
       // setLoadingData(true);
       // setServiceLogList([]);
       const resData = await appSyncRequestQuery(cf_list, {});
-      console.log(resData);
-      console.log("=======");
-      console.log(resData.data.cf_list);
       const cfList: Cloudfront_info[] = resData.data.cf_list;
       setCloudFrontList(cfList);
     } catch (error) {
@@ -65,7 +62,7 @@ const Version = () => {
           items={cloudFrontList}
           columnDefinitions={[
             {
-              width: 250,
+              width: 150,
               id: "Id",
               header: "ID",
               cell: (e: Cloudfront_info) => {
@@ -75,11 +72,13 @@ const Version = () => {
               },
             },
             {
+              width: 200,
               id: "domain",
               header: "Domain",
               cell: (e: Cloudfront_info) => e.domainName,
             },
             {
+              width: 150,
               id: "versionCount",
               header: "Version count",
               cell: (e: Cloudfront_info) => e.versionCount,
