@@ -13,6 +13,7 @@ from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.data_classes.appsync import \
     scalar_types_utils
 from boto3.dynamodb.conditions import Key
+from lib.ext_repo import sync_ext
 
 region = os.environ['AWS_REGION']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
@@ -26,8 +27,6 @@ dynamodb_client = boto3.resource('dynamodb', region_name=region)
 ddb_table = dynamodb_client.Table(DDB_TABLE_NAME)
 
 logger = Logger(service="Console")
-tracer = Tracer(service="Console")
-metrics = Metrics(namespace="CloudFrontExtensions", service="Console")
 app = AppSyncResolver()
 
 
@@ -75,33 +74,9 @@ def deploy_ext(name, parameters):
 
 
 @app.resolver(type_name="Mutation", field_name="syncExtensions")
-def sync_ext():
+def sync_extensions():
     '''Get the latest extensions to local Dynamodb table'''
-    with requests.Session() as s:
-        meta_req = s.get(EXT_META_DATA_URL)
-        meta_content = meta_req.content.decode('utf-8-sig')
-        cr = csv.reader(meta_content.splitlines(), delimiter=',')
-
-        for row in cr:
-            table_item = {
-                'name': row[0],
-                'templateUri': row[1],
-                'type': row[2],
-                'desc': row[3],
-                'codeUri': row[4],
-                'stage': row[5],
-                'updateDate': row[6],
-                'author': row[7],
-                'status': row[8],
-                'tag': row[9],
-                'cfnParameter': row[10]
-            }
-            table = dynamodb_client.Table(DDB_TABLE_NAME)
-            ddb_response = table.put_item(Item=table_item)
-            logger.info(json.dumps(table_item))
-            logger.info(str(ddb_response))
-
-    return {"message": "The extensions have been updated"}
+    return sync_ext(EXT_META_DATA_URL, DDB_TABLE_NAME)
 
 
 @app.resolver(type_name="Query", field_name="queryByName")
