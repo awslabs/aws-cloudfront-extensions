@@ -63,3 +63,14 @@ cd "$source_dir"/deployer || exit 1
 cp -r "$source_dir"/lib .
 zip -g -r "$build_dist_dir"/deployer.zip deployer.py lib
 
+
+echo "------------------------------------------------------------------------------"
+echo "[Packing] Extensions repository custom resource"
+echo "------------------------------------------------------------------------------"
+cd "$source_dir"/custom_resource || exit 1
+pip3 install -r requirements.txt --target ./package
+cd "$source_dir"/custom_resource/package || exit 1
+zip -q -r9 "$build_dist_dir"/custom_resource.zip .
+cd "$source_dir"/custom_resource || exit 1
+cp -r "$source_dir"/lib .
+zip -g -r "$build_dist_dir"/custom_resource.zip custom_resource.py lib

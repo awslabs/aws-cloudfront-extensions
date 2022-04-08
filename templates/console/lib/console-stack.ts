@@ -5,6 +5,8 @@ import * as lambda from '@aws-cdk/aws-lambda';
 import * as path from 'path';
 import * as logs from '@aws-cdk/aws-logs';
 import * as iam from '@aws-cdk/aws-iam';
+import * as cr from '@aws-cdk/custom-resources';
+import { CustomResource } from '@aws-cdk/core';
 
 export class ConsoleStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -144,6 +146,34 @@ export class ConsoleStack extends cdk.Stack {
       requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
     });
+
+    // Custom resource to sync extensions once the CloudFormation is completed
+    const customResourceLambda = new lambda.Function(this, "SyncExtensions", {
+      description: "This lambda function sync the latest extensions to your AWS account.",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda-assets/custom_resource.zip')),
+      handler: "custom_resource.lambda_handler",
+      role: extDeployerRole,
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(300),
+      environment: {
+        DDB_TABLE_NAME: cf_extensions_table.tableName,
+        EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
+      }
+    });
+
+    customResourceLambda.node.addDependency(cf_extensions_table)
+
+    const customResourceProvider = new cr.Provider(this, 'customResourceProvider', {
+      onEventHandler: customResourceLambda,
+      logRetention: logs.RetentionDays.ONE_DAY,
+    });
+
+    new CustomResource(this, 'SyncExtensionsCustomResource', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::SyncExtensions",
+    });
+
 
     // Output
     new cdk.CfnOutput(this, "ExtDeployerApiURL", {

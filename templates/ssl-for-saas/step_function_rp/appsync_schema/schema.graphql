@@ -1,8 +1,58 @@
-scalar AWSDate
+type cname {
+	domainName: String!
+	sanList: [String!]
+	originsItemsDomainName: String!
+}
+
+type pem {
+	CertPem: String!
+	PrivateKeyPem: String!
+	ChainPem: String!
+	originsItemsDomainName: String!
+}
+
+type createOutput {
+	statue: String!
+	createdAt: AWSDateTime!
+  	updatedAt: AWSDateTime!
+}
+
+type importOutput {
+	status: String!
+	createdAt: AWSDateTime!
+  	updatedAt: AWSDateTime!
+}
+
+input cnameInput {
+	domainName: String!
+	sanList: [String!]
+	originsItemsDomainName: String!
+}
+
+input pemInput {
+	CertPem: String!
+	PrivateKeyPem: String!
+	ChainPem: String!
+	originsItemsDomainName: String!
+}
+
+input certImportInput {
+	acm_op: String!
+	acm_domain: String!
+	dist_aggregate: String!
+	pem: [pemInput!]!
+}
+
+input certCreateInput {
+	acm_op: String!
+	acm_domain: String!
+	dist_aggregate: String!
+	cnameList: [cnameInput!]!
+}
 
 type Mutation {
-	certCreate(body: String): createParams
-	certImport(body: String): importParams
+	certCreate(input: certCreateInput): createOutput
+	certImport(input: certImportInput!): importOutput
 }
 
 type Notification {
@@ -15,60 +65,3 @@ type Query {
 	Notifications(limit: Int): [Notification]
 }
 
-type cname {
-	domainName: String!
-	sanList: [String!]
-	originsItemsDomainName: String!
-}
-
-# {
-##   "acm_op": "create",
-##   "auto_creation": "true",
-##   "dist_aggregate": "false",
-##   "cnameList": [
-##     {
-##       "domainName": "cdn2.risetron.cn",
-##       "sanList": [
-##         "*.risetron.cn"
-##       ],
-##       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
-##     },
-##     {
-##       "domainName": "cdn4.risetron.cn",
-##       "sanList": [
-##         "cdn5.risetron.cn"
-##       ],
-##       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
-##     }
-##   ],
-##   "pemList": [
-##     {
-##       "CertPem": "\n-----BEGIN CERTIFICATE-----\nxx\n-----END CERTIFICATE-----\n",
-##       "PrivateKeyPem": "\n-----BEGIN PRIVATE KEY-----\nxx\n-----END PRIVATE KEY-----\n",
-##       "ChainPem": "\n-----BEGIN CERTIFICATE-----\nxx\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nxx5\n-----END CERTIFICATE-----\n",
-##       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
-##     }
-##   ]
-## }
-type createParams {
-	acm_op: String!
-	acm_domain: String!
-	dist_aggregate: String!
-	cnameList: [cname]!
-	pemList: [pem]
-}
-
-type importParams {
-	acm_op: String!
-	acm_domain: String!
-	dist_aggregate: String!
-	cnameList: [cname]
-	pemList: [pem]!
-}
-
-type pem {
-	CertPem: String!
-	PrivateKeyPem: String!
-	ChainPem: String!
-	originsItemsDomainName: String!
-}
