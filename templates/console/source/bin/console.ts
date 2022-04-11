@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
 import { ConsoleStack } from '../lib/console-stack';
 import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 
@@ -12,6 +12,15 @@ new ConsoleStack(app, 'ConsoleStack', {
   synthesizer: newSynthesizer(),
 }
 );
+
+// TODO: Add SSL for SaaS stack
+// new SslStack(app, 'SSLforSaaSStack', {});
+
+// TODO: Add Config version stack
+// new ConfigVersionStack(app, 'ConfigVersionStack', {});
+
+// TODO: Add monitoring dashboard stack
+// new monitoringDashboardStack(app, 'MonitoringDashboardStack', {});
 
 app.synth();
 

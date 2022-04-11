@@ -13,7 +13,7 @@ source_dir="$template_dir/../source"
 echo "------------------------------------------------------------------------------"
 echo "[Test] Console testing"
 echo "------------------------------------------------------------------------------"
-echo 'pip3 install -r ../tests/testing_requirements.txt'
-pip3 install -r ../source/tests/testing_requirements.txt
-echo 'pytest -s ../tests'
-pytest -s ../source/tests
+echo 'pip3 install -r ../source/tests/lambda-test/testing_requirements.txt'
+pip3 install -r ../source/tests/lambda-test/testing_requirements.txt
+echo 'pytest -s ../source/tests/lambda-test/'
+pytest -s ../source/tests/lambda-test/

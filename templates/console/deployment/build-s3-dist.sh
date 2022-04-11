@@ -27,8 +27,8 @@ run() {
 
 # Get reference for all important folders
 template_dir="$PWD"
-source_dir="$template_dir/../source"
-lib_dir="$template_dir/../lib"
+source_dir="$template_dir/../source/lambda"
+lib_dir="$template_dir/../source/lambda/common"
 build_dist_dir="$lib_dir/lambda-assets"
 
 
@@ -60,8 +60,8 @@ pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/deployer/package || exit 1
 zip -q -r9 "$build_dist_dir"/deployer.zip .
 cd "$source_dir"/deployer || exit 1
-cp -r "$source_dir"/lib .
-zip -g -r "$build_dist_dir"/deployer.zip deployer.py lib
+cp -r "$source_dir"/common .
+zip -g -r "$build_dist_dir"/deployer.zip deployer.py common
 
 
 echo "------------------------------------------------------------------------------"
@@ -72,5 +72,5 @@ pip3 install -r requirements.txt --target ./package
 cd "$source_dir"/custom_resource/package || exit 1
 zip -q -r9 "$build_dist_dir"/custom_resource.zip .
 cd "$source_dir"/custom_resource || exit 1
-cp -r "$source_dir"/lib .
-zip -g -r "$build_dist_dir"/custom_resource.zip custom_resource.py lib
+cp -r "$source_dir"/common .
+zip -g -r "$build_dist_dir"/custom_resource.zip custom_resource.py common

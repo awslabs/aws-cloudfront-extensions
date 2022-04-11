@@ -1,7 +1,7 @@
 import logging
 import os
 
-from lib.ext_repo import sync_ext
+from common.ext_repo import sync_ext
 
 region = os.environ['AWS_REGION']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']

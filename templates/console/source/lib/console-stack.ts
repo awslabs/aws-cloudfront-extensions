@@ -1,15 +1,16 @@
-import * as cdk from '@aws-cdk/core';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as appsync from '@aws-cdk/aws-appsync';
-import * as lambda from '@aws-cdk/aws-lambda';
+import * as cdk from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as appsync from '@aws-cdk/aws-appsync-alpha';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
-import * as logs from '@aws-cdk/aws-logs';
-import * as iam from '@aws-cdk/aws-iam';
-import * as cr from '@aws-cdk/custom-resources';
-import { CustomResource } from '@aws-cdk/core';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import { CustomResource } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 export class ConsoleStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create Dynamodb table to store extensions
@@ -105,7 +106,7 @@ export class ConsoleStack extends cdk.Stack {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'deployer.lambda_handler',
       timeout: cdk.Duration.seconds(300),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda-assets/deployer.zip')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/deployer.zip')),
       role: extDeployerRole,
       memorySize: 512,
       environment: {
@@ -151,7 +152,7 @@ export class ConsoleStack extends cdk.Stack {
     const customResourceLambda = new lambda.Function(this, "SyncExtensions", {
       description: "This lambda function sync the latest extensions to your AWS account.",
       runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda-assets/custom_resource.zip')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/custom_resource.zip')),
       handler: "custom_resource.lambda_handler",
       role: extDeployerRole,
       memorySize: 512,
@@ -185,6 +186,7 @@ export class ConsoleStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CloudFront Extensions DynamoDB table', {
       value: cf_extensions_table.tableName
     });
+
 
   }
 }
