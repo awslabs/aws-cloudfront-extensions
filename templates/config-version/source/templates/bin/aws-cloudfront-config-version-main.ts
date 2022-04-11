@@ -1,4 +1,4 @@
-import { App } from '@aws-cdk/core';
+import { App } from 'aws-cdk-lib';
 import { CloudFrontConfigVersionStack } from '../lib/aws-cloudfront-config-version-stack';
 import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 

@@ -1,20 +1,20 @@
 import * as path from 'path';
-import * as lambda from '@aws-cdk/aws-lambda';
-import {LayerVersion} from '@aws-cdk/aws-lambda';
-import * as appsync from '@aws-cdk/aws-appsync';
-import * as cdk from '@aws-cdk/core';
-import {Construct, RemovalPolicy, Stack} from '@aws-cdk/core';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as iam from '@aws-cdk/aws-iam';
-import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from '@aws-cdk/aws-iam';
-import * as logs from '@aws-cdk/aws-logs';
-import {AuthorizationType, EndpointType, LambdaRestApi,} from "@aws-cdk/aws-apigateway";
-import {Bucket, BucketEncryption} from "@aws-cdk/aws-s3";
-import {Rule} from '@aws-cdk/aws-events';
-import targets = require('@aws-cdk/aws-events-targets');
+import {aws_lambda as lambda} from 'aws-cdk-lib';
+import {LayerVersion} from 'aws-cdk-lib/aws-lambda';
+import * as appsync from '@aws-cdk/aws-appsync-alpha';
+import * as cdk from 'aws-cdk-lib';
+import { RemovalPolicy, Stack} from 'aws-cdk-lib';
+import {aws_dynamodb as dynamodb} from 'aws-cdk-lib';
+import { aws_iam as iam } from 'aws-cdk-lib';
+import {CompositePrincipal, ManagedPolicy, ServicePrincipal} from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import {AuthorizationType, EndpointType, LambdaRestApi,} from "aws-cdk-lib/aws-apigateway";
+import {Bucket, BucketEncryption} from "aws-cdk-lib/aws-s3";
+import {Rule} from 'aws-cdk-lib/aws-events';
+import targets = require('aws-cdk-lib/aws-events-targets');
 
 export class CloudFrontConfigVersionStack extends Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps ) {
+  constructor(scope: cdk.App, id: string, props?: cdk.StackProps ) {
     super(scope, id, props);
 
     this.templateOptions.description = "(SO8150) - Cloudfront Config Version stack.";
