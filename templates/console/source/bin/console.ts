@@ -3,6 +3,8 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { ConsoleStack } from '../lib/console-stack';
 import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
+import { CloudFrontConfigVersionStack } from '../lib/config-version/aws-cloudfront-config-version-stack';
+import { StepFunctionRpTsStack } from '../lib/ssl-for-saas/step_function_rp_ts-stack';
 
 const app = new cdk.App();
 new ConsoleStack(app, 'ConsoleStack', {
@@ -13,11 +15,31 @@ new ConsoleStack(app, 'ConsoleStack', {
 }
 );
 
-// TODO: Add SSL for SaaS stack
-// new SslStack(app, 'SSLforSaaSStack', {});
+// SSL for SaaS stack
+new StepFunctionRpTsStack(app, 'StepFunctionRpTsStack', {
+    /* If you don't specify 'env', this stack will be environment-agnostic.
+     * Account/Region-dependent features and context lookups will not work,
+     * but a single synthesized template can be deployed anywhere. */
 
-// TODO: Add Config version stack
-// new ConfigVersionStack(app, 'ConfigVersionStack', {});
+    /* Uncomment the next line to specialize this stack for the AWS Account
+     * and Region that are implied by the current CLI configuration. */
+    // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+
+    /* Uncomment the next line if you know exactly what Account and Region you
+     * want to deploy the stack to. */
+    // env: { account: '123456789012', region: 'us-east-1' },
+
+    /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+});
+
+// Config version stack
+new CloudFrontConfigVersionStack(app, 'CloudFrontConfigVersionStack', {
+      tags: {
+        app: 'CloudFrontConfigVersion',
+      },
+      synthesizer: newSynthesizer(),
+    }
+);
 
 // TODO: Add monitoring dashboard stack
 // new monitoringDashboardStack(app, 'MonitoringDashboardStack', {});

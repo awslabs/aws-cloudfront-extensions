@@ -1,0 +1,86 @@
+import logging
+import uuid
+import boto3
+import os
+import json
+
+# certificate need to create in region us-east-1 for cloudfront to use
+acm = boto3.client('acm', region_name='us-east-1')
+
+LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+
+logger = logging.getLogger('boto3')
+logger.setLevel(logging.INFO)
+
+# add execution path
+os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
+
+# get sns topic arn from environment variable
+snsTopicArn = os.environ.get('SNS_TOPIC')
+
+def lambda_handler(event, context):
+    """
+
+    :param event:
+    :param context:
+    """
+    logger.info("Received event: " + json.dumps(event))
+
+    # {
+    #     "input": {
+    #         "xx": "xx"
+    #         "fn_acm_cb": {
+    #             "status": "SUCCEEDED"
+    #         },
+    #         "fn_acm_cb_handler_map": [
+    #             {
+    #                 "domainName": "cdn2.risetron.cn",
+    #                 "sanList": [
+    #                     "*.risetron.cn"
+    #                 ],
+    #                 "originsItemsDomainName": "xx",
+    #                 "fn_acm_cb_handler": {
+    #                     "Payload": {
+    #                         "statusCode": 200,
+    #                         "body": {
+    #                             "distributionId": "xx",
+    #                             "distributionArn": "arn:aws:cloudfront::xx:distribution/xx",
+    #                             "distributionDomainName": "xx.cloudfront.net"
+    #                         }
+    #                     }
+    #                 }
+    #             },
+    #         ]
+    #     }
+    # }
+
+    msg = []
+    # iterate distribution list from event
+    for record in event['input']['fn_acm_cb_handler_map']:
+        msg.append("Distribution domain name {} created, ARN: {}".format(record['fn_acm_cb_handler']['Payload']['body']['distributionDomainName'], record['fn_acm_cb_handler']['Payload']['body']['distributionArn']))
+
+    logger.info("deliver message: %s to sns topic arn: %s", str(msg), snsTopicArn)
+
+    # multiplex same sns notify function for cert creat and import
+    if 'fn_acm_cb' in event['input']:
+        status = event['input']['fn_acm_cb']['status']
+    elif 'fn_acm_import_cb' in event['input']:
+        status = event['input']['fn_acm_import_cb']['status']
+
+    messageToBePublished = {
+        'Deployment Status': status,
+        'Details': str(msg),
+    }
+
+    # notify to sns topic for distribution event
+    sns_client = boto3.client('sns')
+    sns_client.publish(
+        TopicArn=snsTopicArn,
+        Message=str(messageToBePublished),
+        Subject='SSL for SaaS event received'
+    )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('SNS Notification Sent')
+    }
