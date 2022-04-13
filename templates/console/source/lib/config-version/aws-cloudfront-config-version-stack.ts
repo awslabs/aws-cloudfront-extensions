@@ -12,9 +12,10 @@ import {AuthorizationType, EndpointType, LambdaRestApi,} from "aws-cdk-lib/aws-a
 import {Bucket, BucketEncryption} from "aws-cdk-lib/aws-s3";
 import {Rule} from 'aws-cdk-lib/aws-events';
 import targets = require('aws-cdk-lib/aws-events-targets');
+import { CommonProps} from '../cf-common/cf-common-stack'
 
 export class CloudFrontConfigVersionStack extends Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps ) {
+  constructor(scope: cdk.App, id: string, props?: CommonProps ) {
     super(scope, id, props);
 
     this.templateOptions.description = "(SO8150) - Cloudfront Config Version stack.";
@@ -246,65 +247,69 @@ export class CloudFrontConfigVersionStack extends Stack {
     cloudfrontConfigVersionManager_graphql.node.addDependency(cloudfront_config_version_table);
     cloudfrontConfigVersionManager_graphql.node.addDependency(cloudfront_config_latestVersion_table);
     cloudfrontConfigVersionManager_graphql.node.addDependency(cloudfront_config_version_s3_bucket);
+
     // Creates the AppSync API
-    const graphql_api = new appsync.GraphqlApi(this, 'GraphqlApi', {
-      name: 'cdk-graphql-appsync-api',
-      schema: appsync.Schema.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
-      authorizationConfig: {
-        defaultAuthorization: {
-          authorizationType: appsync.AuthorizationType.API_KEY,
-        },
-      },
-      xrayEnabled: true,
-    });
+    // const graphql_api = new appsync.GraphqlApi(this, 'GraphqlApi', {
+    //   name: 'cdk-graphql-appsync-api',
+    //   schema: appsync.Schema.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
+    //   authorizationConfig: {
+    //     defaultAuthorization: {
+    //       authorizationType: appsync.AuthorizationType.API_KEY,
+    //     },
+    //   },
+    //   xrayEnabled: true,
+    // });
+    if (props && props.appsyncApi) {
+      const graphql_api = props?.appsyncApi;
 
-    const lambdaDs = graphql_api.addLambdaDataSource('lambdaDatasource', cloudfrontConfigVersionManager_graphql)
+      const lambdaDs = graphql_api.addLambdaDataSource('lambdaDatasource', cloudfrontConfigVersionManager_graphql)
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "apply_config"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "apply_config"
+      });
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "cf_list"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "cf_list"
+      });
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "config_tag_update"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "config_tag_update"
+      });
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "diff"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "diff"
+      });
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "versions"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "versions"
+      });
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "config_link"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "config_link"
+      });
 
-    lambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "config_content"
-    });
+      lambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "config_content"
+      });
 
 
-    // Prints out the AppSync GraphQL endpoint to the terminal
-    new cdk.CfnOutput(this, "GraphQLAPIURL", {
-      value: graphql_api.graphqlUrl
-    });
-
-    // Prints out the AppSync GraphQL API key to the terminal
-    new cdk.CfnOutput(this, "GraphQLAPIKey", {
-      value: graphql_api.apiKey || ''
-    });
+      // // Prints out the AppSync GraphQL endpoint to the terminal
+      // new cdk.CfnOutput(this, "GraphQLAPIURL", {
+      //   value: graphql_api.graphqlUrl
+      // });
+      //
+      // // Prints out the AppSync GraphQL API key to the terminal
+      // new cdk.CfnOutput(this, "GraphQLAPIKey", {
+      //   value: graphql_api.apiKey || ''
+      // });
+    }
 
     // Prints out the stack region to the terminal
     new cdk.CfnOutput(this, "Stack Region", {

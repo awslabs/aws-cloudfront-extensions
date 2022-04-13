@@ -5,13 +5,22 @@ import { ConsoleStack } from '../lib/console-stack';
 import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 import { CloudFrontConfigVersionStack } from '../lib/config-version/aws-cloudfront-config-version-stack';
 import { StepFunctionRpTsStack } from '../lib/ssl-for-saas/step_function_rp_ts-stack';
+import { CommonStack } from '../lib/cf-common/cf-common-stack'
 
 const app = new cdk.App();
+
+// Main stack with shared components
+const commonStack = new CommonStack(
+    app,
+    `cf-common-stack`
+);
+
 new ConsoleStack(app, 'ConsoleStack', {
   tags: {
     app: 'CloudFrontExtensionsConsole',
   },
   synthesizer: newSynthesizer(),
+
 }
 );
 
@@ -38,6 +47,7 @@ new CloudFrontConfigVersionStack(app, 'CloudFrontConfigVersionStack', {
         app: 'CloudFrontConfigVersion',
       },
       synthesizer: newSynthesizer(),
+      appsyncApi: commonStack.appsyncApi
     }
 );
 
