@@ -17,9 +17,10 @@ import { Duration } from 'aws-cdk-lib';
 import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { AppsyncFunction } from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
+import { CommonProps} from '../cf-common/cf-common-stack'
 
 export class StepFunctionRpTsStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.App, id: string, props?: CommonProps) {
     super(scope, id, props);
 
     // dynadmodb table for acm callback
@@ -328,40 +329,43 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       role:_fn_appsync_func_role, 
       memorySize:1024});
 
-    const appsyncApi = new _appsync_alpha.GraphqlApi(this, 'appsyncApi', {
-      name: 'appsyncApi',
-      schema: _appsync_alpha.Schema.fromAsset(path.join(__dirname,'../../graphql/schema.graphql')),
-      authorizationConfig: {
-        defaultAuthorization: {
-          authorizationType: _appsync_alpha.AuthorizationType.IAM,
-        },
-      },
-      xrayEnabled: false,
-    });
+    // const appsyncApi = new _appsync_alpha.GraphqlApi(this, 'appsyncApi', {
+    //   name: 'appsyncApi',
+    //   schema: _appsync_alpha.Schema.fromAsset(path.join(__dirname,'../../graphql/schema.graphql')),
+    //   authorizationConfig: {
+    //     defaultAuthorization: {
+    //       authorizationType: _appsync_alpha.AuthorizationType.IAM,
+    //     },
+    //   },
+    //   xrayEnabled: false,
+    // });
+    if (props && props.appsyncApi) {
+      const appsyncApi = props?.appsyncApi;
 
-    // An AppSync datasource backed by a Lambda function
-    const appsyncFunc = new _appsync_alpha.LambdaDataSource(this, 'LambdaDataSource', {
-      api: appsyncApi,
-      lambdaFunction: fn_appsync_function,
-      description: 'Lambda Data Source for cert create/import',
-      name: 'certMutation',
-      // serviceRole: _fn_appsync_func_role,
-    });
+      // An AppSync datasource backed by a Lambda function
+      const appsyncFunc = new _appsync_alpha.LambdaDataSource(this, 'LambdaDataSource', {
+        api: appsyncApi,
+        lambdaFunction: fn_appsync_function,
+        description: 'Lambda Data Source for cert create/import',
+        name: 'certMutation',
+        // serviceRole: _fn_appsync_func_role,
+      });
 
-    // An AppSync resolver to resolve the Lambda function
-    appsyncFunc.createResolver({
-      typeName: 'Mutation',
-      fieldName: 'certCreate',
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
+      // An AppSync resolver to resolve the Lambda function
+      appsyncFunc.createResolver({
+        typeName: 'Mutation',
+        fieldName: 'certCreate',
+        requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+      });
 
-    appsyncFunc.createResolver({
-      typeName: 'Mutation',
-      fieldName: 'certImport',
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
+      appsyncFunc.createResolver({
+        typeName: 'Mutation',
+        fieldName: 'certImport',
+        requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+      });
+    }
 
   }
 }

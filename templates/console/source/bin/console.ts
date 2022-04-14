@@ -20,6 +20,7 @@ new ConsoleStack(app, 'ConsoleStack', {
     app: 'CloudFrontExtensionsConsole',
   },
   synthesizer: newSynthesizer(),
+  appsyncApi: commonStack.appsyncApi
 
 }
 );
@@ -39,6 +40,7 @@ new StepFunctionRpTsStack(app, 'StepFunctionRpTsStack', {
     // env: { account: '123456789012', region: 'us-east-1' },
 
     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+    appsyncApi: commonStack.appsyncApi
 });
 
 // Config version stack

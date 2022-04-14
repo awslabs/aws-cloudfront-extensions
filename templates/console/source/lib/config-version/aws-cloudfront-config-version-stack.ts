@@ -262,7 +262,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     if (props && props.appsyncApi) {
       const graphql_api = props?.appsyncApi;
 
-      const lambdaDs = graphql_api.addLambdaDataSource('lambdaDatasource', cloudfrontConfigVersionManager_graphql)
+      const lambdaDs = graphql_api.addLambdaDataSource('lambdaDatasource-config-version', cloudfrontConfigVersionManager_graphql)
 
       lambdaDs.createResolver({
         typeName: "Query",

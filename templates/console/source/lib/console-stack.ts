@@ -8,9 +8,10 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { CustomResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { CommonProps } from './cf-common/cf-common-stack'
 
 export class ConsoleStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: CommonProps) {
     super(scope, id, props);
 
     // Create Dynamodb table to store extensions
@@ -83,70 +84,73 @@ export class ConsoleStack extends cdk.Stack {
     extDeployerRole.attachInlinePolicy(extLambdaPolicy);
 
     // Deployer API in extensions repository
-    const extDeployerApi = new appsync.GraphqlApi(this, 'ExtDeployerApi', {
-      name: 'ext-deploy-api',
-      schema: appsync.Schema.fromAsset(path.join(__dirname, '../graphql/schema.graphql')),
-      authorizationConfig: {
-        defaultAuthorization: {
-          authorizationType: appsync.AuthorizationType.IAM,
+    // const extDeployerApi = new appsync.GraphqlApi(this, 'ExtDeployerApi', {
+    //   name: 'ext-deploy-api',
+    //   schema: appsync.Schema.fromAsset(path.join(__dirname, '../graphql/schema.graphql')),
+    //   authorizationConfig: {
+    //     defaultAuthorization: {
+    //       authorizationType: appsync.AuthorizationType.IAM,
+    //     },
+    //   },
+    //   xrayEnabled: true,
+    // });
+    if (props && props.appsyncApi) {
+      const extDeployerApi = props?.appsyncApi;
+
+      // AWS Lambda Powertools
+      const powertools_layer = lambda.LayerVersion.fromLayerVersionArn(
+          this,
+          `PowertoolLayer`,
+          `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
+      );
+
+      // Deployer lambda in extensions repository
+      const extDeployerLambda = new lambda.Function(this, 'ExtDeployerLambda', {
+        runtime: lambda.Runtime.PYTHON_3_9,
+        handler: 'deployer.lambda_handler',
+        timeout: cdk.Duration.seconds(300),
+        code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/deployer.zip')),
+        role: extDeployerRole,
+        memorySize: 512,
+        environment: {
+          DDB_TABLE_NAME: cf_extensions_table.tableName,
+          EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
         },
-      },
-      xrayEnabled: true,
-    });
+        logRetention: logs.RetentionDays.ONE_WEEK,
+        layers: [powertools_layer]
+      });
 
-    // AWS Lambda Powertools
-    const powertools_layer = lambda.LayerVersion.fromLayerVersionArn(
-      this,
-      `PowertoolLayer`,
-      `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
-    );
+      // Set Deployer Lambda function as a data source for Deployer API
+      const deployerLambdaDs = extDeployerApi.addLambdaDataSource('lambdaDatasource', extDeployerLambda);
 
-    // Deployer lambda in extensions repository
-    const extDeployerLambda = new lambda.Function(this, 'ExtDeployerLambda', {
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'deployer.lambda_handler',
-      timeout: cdk.Duration.seconds(300),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/deployer.zip')),
-      role: extDeployerRole,
-      memorySize: 512,
-      environment: {
-        DDB_TABLE_NAME: cf_extensions_table.tableName,
-        EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [powertools_layer]
-    });
+      deployerLambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "listExtensions",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
 
-    // Set Deployer Lambda function as a data source for Deployer API
-    const deployerLambdaDs = extDeployerApi.addLambdaDataSource('lambdaDatasource', extDeployerLambda);
+      deployerLambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "queryByName",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
 
-    deployerLambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "listExtensions",
-      requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-    });
+      deployerLambdaDs.createResolver({
+        typeName: "Mutation",
+        fieldName: "syncExtensions",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
 
-    deployerLambdaDs.createResolver({
-      typeName: "Query",
-      fieldName: "queryByName",
-      requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-    });
-
-    deployerLambdaDs.createResolver({
-      typeName: "Mutation",
-      fieldName: "syncExtensions",
-      requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-    });
-
-    deployerLambdaDs.createResolver({
-      typeName: "Mutation",
-      fieldName: "deployExtension",
-      requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-    });
+      deployerLambdaDs.createResolver({
+        typeName: "Mutation",
+        fieldName: "deployExtension",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
+    }
 
     // Custom resource to sync extensions once the CloudFormation is completed
     const customResourceLambda = new lambda.Function(this, "SyncExtensions", {
@@ -177,12 +181,6 @@ export class ConsoleStack extends cdk.Stack {
 
 
     // Output
-    new cdk.CfnOutput(this, "ExtDeployerApiURL", {
-      value: extDeployerApi.graphqlUrl
-    });
-    new cdk.CfnOutput(this, "ExtDeployerApiKey", {
-      value: extDeployerApi.apiKey || ''
-    });
     new cdk.CfnOutput(this, 'CloudFront Extensions DynamoDB table', {
       value: cf_extensions_table.tableName
     });
