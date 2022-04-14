@@ -1,4 +1,5 @@
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 /**
  * Construct properties for ServerlessApp
@@ -12,10 +13,10 @@ export interface ServerlessAppProps {
   readonly parameters?: { [key: string]: string };
 }
 
-export class ServerlessApp extends cdk.Construct {
+export class ServerlessApp extends Construct {
   readonly resource: cdk.CfnResource;
   // readonly functionVersionArn: lambda.Version;
-  constructor(scope: cdk.Construct, id: string, props: ServerlessAppProps) {
+  constructor(scope: Construct, id: string, props: ServerlessAppProps) {
     super(scope, id);
     this.resource = new cdk.CfnResource(this, id, {
       type: 'AWS::Serverless::Application',

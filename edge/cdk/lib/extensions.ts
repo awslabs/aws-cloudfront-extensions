@@ -1,7 +1,6 @@
-import * as cf from '@aws-cdk/aws-cloudfront';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as cdk from '@aws-cdk/core';
-import { ServerlessApp } from './';
+import * as cf from 'aws-cdk-lib/aws-cloudfront';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
 
 
 /**
@@ -35,7 +34,7 @@ export interface IExtensions {
  * @param functionArn The lambda function ARN
  * @returns lambda.Version
  */
-export function bumpFunctionVersion(scope: cdk.Construct, id: string, functionArn: string): lambda.Version {
+export function bumpFunctionVersion(scope: Construct, id: string, functionArn: string): lambda.Version {
   return new lambda.Version(scope, `LambdaVersion${id}`, {
     lambda: lambda.Function.fromFunctionArn(scope, `FuncArn${id}`, functionArn),
   });

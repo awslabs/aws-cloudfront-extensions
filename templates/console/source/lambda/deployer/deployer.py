@@ -3,7 +3,6 @@ import json
 import os
 
 import boto3
-from boto3.dynamodb.conditions import Attr
 import requests
 import shortuuid
 from aws_lambda_powertools import Logger, Metrics, Tracer
@@ -12,8 +11,9 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.data_classes.appsync import \
     scalar_types_utils
-from boto3.dynamodb.conditions import Key
-from lib.ext_repo import sync_ext
+from boto3.dynamodb.conditions import Attr, Key
+
+from common.ext_repo import sync_ext
 
 region = os.environ['AWS_REGION']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
@@ -35,29 +35,21 @@ def deploy_ext(name, parameters):
     logger.info(f"Deploy extension: {name}")
     query_item = query_ddb(name)
     template_url = query_item['templateUri']
-    ext_para = query_item['cfnParameter']
+    para_stack = []
 
-    if len(ext_para) > 0:
-        ext_para_json = json.loads(ext_para)
-        para_stack = []
-        for item_key in ext_para_json.keys():
-            '''
-            Parameter key value example in create_stack:
-            {
-                'ParameterKey': 'referAllowList',
-                'ParameterValue': '*.example.com'
-            }
-            '''
+    if len(parameters) > 0:
+        '''
+        Parameter key value example in create_stack:
+        {
+            'ParameterKey': 'referAllowList',
+            'ParameterValue': '*.example.com'
+        }
+        '''
+        for para in parameters:
             kv_pair = {}
-            for para in parameters:
-                if item_key == para['parameterKey']:
-                    kv_pair['ParameterKey'] = item_key
-                    kv_pair['ParameterValue'] = para['parameterValue']
-                    break
-
+            kv_pair['ParameterKey'] = para['parameterKey']
+            kv_pair['ParameterValue'] = para['parameterValue']
             para_stack.append(kv_pair)
-    else:
-        para_stack = []
 
     stack_resp = cfn_client.create_stack(
         StackName='cfe-' + shortuuid.uuid()[:7],
@@ -69,6 +61,7 @@ def deploy_ext(name, parameters):
     logger.info(json.dumps(stack_resp))
 
     return {"stack_id": stack_id}
+
 
 # TODO: pipeline update: once SAR publish github action is triggered, update cfn
 
@@ -88,7 +81,10 @@ def query_ddb(name):
 
     logger.info(response)
 
-    if response['Count'] != 1:
+    if response['Count'] == 0:
+        raise Exception(
+            'No extension is found, please sync the extensions and retry')
+    elif response['Count'] > 1:
         raise Exception(
             'More than one extension is found, the extension should be unique by name')
 
