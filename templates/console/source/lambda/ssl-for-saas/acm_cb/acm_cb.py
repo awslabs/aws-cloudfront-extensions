@@ -226,6 +226,7 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
         task_type (_type_): _description_
         snsMsg (_type_): _description_
     """
+    # TODO: Need to add logic to handle certificate create fail situation
     resp = request_certificate(certificate)
     logger.info('Certificate creation response: %s', resp)
 
@@ -258,6 +259,7 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
 #   "acm_op": "create",
 #   "dist_aggregate": "false",
 #   "auto_creation": "true",
+#   "enable_cname_check": "true",
 #   "cnameList": [
 #     {
 #         "domainName": "cdn2.risetron.cn",
@@ -301,6 +303,7 @@ def lambda_handler(event, context):
     task_token = event['task_token']
     dist_aggregate = event['input']['dist_aggregate']
     domainNameList = event['input']['cnameList']
+    enable_cname_check = event['input']['enable_cname_check']
 
     if not task_token:
         logger.error("Task token not found in event")
@@ -365,10 +368,12 @@ def lambda_handler(event, context):
 
     # make it a code url due to sns raw format, TBD make it a official repo url
     sampleCode = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
+    godaddyCode = 'https://gist.github.com/guming3d/56e2f0517aa47fc87289fd21ff97dcee'
 
     messageToBePublished = {
         'CNAME value need to add into DNS hostzone to finish DCV': str(snsMsg),
-        'Sample Script (Python)': sampleCode
+        'Sample Script (Python)': sampleCode,
+        'Sample Script for Godaddy (Python)': godaddyCode
     }
 
     # notify to sns topic for distribution event

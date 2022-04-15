@@ -166,6 +166,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     //     "acm_op": "create",
     //     "auto_creation": "false",
     //     "dist_aggregation": "false",
+    //     "enable_cname_check": "true",
     //     "cnameList": [
     //         {
     //         "domainName": "cdn2.risetron.cn",
