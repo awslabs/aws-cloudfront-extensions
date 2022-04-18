@@ -23,6 +23,14 @@ export class StepFunctionRpTsStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: CommonProps) {
     super(scope, id, props);
 
+    //check appsync is exist in props
+    if(props == null){
+      throw Error('The props can not be null')
+    }
+    if(props.appsyncApi == null){
+      throw Error('appsync should be included in the props')
+    }
+
     // dynadmodb table for acm callback
     const callback_table = new dynamodb.Table(this, 'acm_metadata', {
       tableName: 'acm_metadata_store',
@@ -133,7 +141,13 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     const fn_acm_cb_handler = new _lambda.DockerImageFunction(this, 'acm_callback_handler', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_cb_handler")),
-      environment:{'PAYLOAD_EVENT_KEY': 'placeholder', 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
+      environment:{
+        'PAYLOAD_EVENT_KEY': 'placeholder',
+        'CALLBACK_TABLE': callback_table.tableName,
+        'TASK_TYPE': 'placeholder',
+        'GRAPHQL_API_URL': props.appsyncApi.graphqlUrl,
+        'GRAPHQL_API_KEY': props.appsyncApi.apiKey || ''
+      },timeout:Duration.seconds(900),
       role:_fn_acm_cb_handler_role, 
       memorySize:1024});
 

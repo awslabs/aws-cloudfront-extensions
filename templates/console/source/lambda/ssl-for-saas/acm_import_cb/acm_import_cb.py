@@ -243,6 +243,7 @@ def _tag_certificate(certArn, taskToken):
 #   "acm_op": "create",
 #   "dist_aggregate": "false",
 #   "auto_creation": "true",
+#   "enable_cname_check": "true",
 #   "cnameList": [
 #     {
 #         "domainName": "cdn2.risetron.cn",
@@ -307,19 +308,23 @@ def lambda_handler(event, context):
         _domainList = get_domain_list_from_cert()
         certificate['SubjectAlternativeNames'] = _domainList
         certificate['DomainName'] = _domainList[0] if _domainList else ''
-        
-        # validation for certificate
-        if event['input']['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-            logger.info("Domain name {} matches certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+
+        if event['input']['enable_cname_check'] == 'true':
+            # validation for certificate
+            if event['input']['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
+                logger.info("Domain name {} matches certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+            else:
+                logger.error("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+                # exit with error
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({
+                        'message': 'Domain name {} does not match certificate domain name {}'.format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName'])
+                    })
+                }
         else:
-            logger.error("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-            # exit with error
-            return {
-                'statusCode': 400,
-                'body': json.dumps({
-                    'message': 'Domain name {} does not match certificate domain name {}'.format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName'])
-                })
-            }
+            logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(event['input']['cnameList'][pem_index]['domainName']))
+
 
         # empty dictionary to store domain metadata
         # cnameListItem = {}

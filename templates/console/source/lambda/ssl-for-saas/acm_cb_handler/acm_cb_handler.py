@@ -4,6 +4,8 @@ import boto3
 import os
 import json
 import time
+import requests
+from requests_aws4auth import AWS4Auth
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
 from requests import exceptions
@@ -14,6 +16,8 @@ dynamo_client = boto3.client('dynamodb')
 cf = boto3.client('cloudfront')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+GRAPHQL_API_URL = os.environ.get('GRAPHQL_API_URL')
+GRAPHQL_API_KEY = os.environ.get('GRAPHQL_API_KEY')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
@@ -171,24 +175,71 @@ def scan_for_cert(callback_table, domain_name):
 
     return response
 
+# call graphql api to get the configuration
+def fetch_cloudfront_config_version(distribution_id,config_version_id):
+    # Use AWS4Auth to sign a requests session
+    session = requests.Session()
+    # session.auth = AWS4Auth(
+    #     # An AWS 'ACCESS KEY' associated with an IAM user.
+    #     'AKxxxxxxxxxxxxxxx2A',
+    #     # The 'secret' that goes with the above access key.
+    #     'kwWxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxgEm',
+    #     # The region you want to access.
+    #     'ap-southeast-2',
+    #     # The service you want to access.
+    #     'appsync'
+    # )
+    # Use AWS4Auth to sign a requests session
+    session = requests.Session()
+    credentials = boto3.session.Session().get_credentials()
+    session.auth = AWS4Auth(
+        credentials.access_key,
+        credentials.secret_key,
+        boto3.session.Session().region_name,
+        'appsync',
+        session_token=credentials.token
+    )
+
+    # As found in AWS Appsync under Settings for your endpoint.
+    APPSYNC_API_ENDPOINT_URL = 'https://nqxxxxxxxxxxxxxxxxxxxke.appsync-api.ap-southeast-2.amazonaws.com/graphql'
+    # Use JSON format string for the query. It does not need reformatting.
+    query = """
+        query foo {
+            GetUserSettings (
+                identity_id: "ap-southeast-2:8xxxxxxb-7xx4-4xx4-8xx0-exxxxxxx2"
+            ){ 
+                user_name, email, whatever 
+        }}
+    """
+    # Now we can simply post the request...
+    response = session.request(
+        url=APPSYNC_API_ENDPOINT_URL,
+        method='POST',
+        json={'query': query}
+    )
+    print(response.text)
+    return response
+
+# INPUT
+# {
+#   "input": {
+#       "domainName": "cdn2.risetron.cn",
+#       "sanList": [
+#           "cdn3.risetron.cn"
+#       ],
+#       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com",
+#       "createFromExistingDist": "true" | "false",
+#       "existingDistId": "E3KV7UG686DNXU",
+#       "existingDistVersionId": 3
+#   }
+# }
+# TODO: Need to adding rainy day handling code
 def lambda_handler(event, context):
     """
-
     :param event:
     :param context:
     """
     logger.info("Received event: " + json.dumps(event))
-
-    # INPUT
-    # {
-    #   "input": {
-    #       "domainName": "cdn2.risetron.cn",
-    #       "sanList": [
-    #           "cdn3.risetron.cn"
-    #       ],
-    #       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
-    #   }
-    # }
 
     # fetch domain name from event
     callback_table = os.getenv('CALLBACK_TABLE')
@@ -208,7 +259,7 @@ def lambda_handler(event, context):
     # fetch taskToken from DynamoDB
     taskToken = response['Items'][0]['taskToken']['S']
 
-    # delete such domain name in DynamoDB
+    # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
     resp = dynamo_client.delete_item(
         TableName=callback_table,
         Key={
@@ -231,7 +282,9 @@ def lambda_handler(event, context):
     CertificateArn = certArn
 
     # customization configuration of CloudFront distribution
+
     config = default_distribution_config
+
     config['CallerReference'] = str(uuid.uuid4())
     config['Aliases']['Items'] = SubDomainNameList
     config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
