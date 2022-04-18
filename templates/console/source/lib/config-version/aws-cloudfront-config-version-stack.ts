@@ -266,37 +266,37 @@ export class CloudFrontConfigVersionStack extends Stack {
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "apply_config"
+        fieldName: "applyConfig"
       });
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "cf_list"
+        fieldName: "listDistribution"
       });
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "config_tag_update"
+        fieldName: "updateConfigTag"
       });
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "diff"
+        fieldName: "diffCloudfrontConfig"
       });
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "versions"
+        fieldName: "listCloudfrontVersions"
       });
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "config_link"
+        fieldName: "getConfigLink"
       });
 
       lambdaDs.createResolver({
         typeName: "Query",
-        fieldName: "config_content"
+        fieldName: "getConfigContent"
       });
 
 
