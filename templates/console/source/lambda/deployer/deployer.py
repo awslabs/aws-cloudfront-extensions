@@ -124,11 +124,88 @@ def list_ext(page=1, count=50):
     logger.info(
         f'Return result from {start} to {end} in total of {total}')
     return {
-        'ext': res_items[start: end],
-        'total': total,
-        'page': page,
-        'count': count
+        'extension': res_items[start: end],
+        'total': total
     }
+
+
+@app.resolver(type_name="Query", field_name="listCloudFrontDistWithId")
+def list_cf_dist_with_id(maxItems=-1, marker=''):
+    '''List CloudFront distribution id in the drop-down list'''
+    if maxItems == -1 and marker == '':
+        response = cloudfront_client.list_distributions()
+    else:
+        response = cloudfront_client.list_distributions(Marker=marker,
+                                                        MaxItems=str(maxItems))
+
+    result = []
+    result_item = {}
+    total = len(response['DistributionList']['Items'])
+    for dist in response['DistributionList']['Items']:
+        result_item['id'] = dist['Id']
+        result.append(result_item)
+
+    return {
+        'dist': result,
+        'total': total
+    }
+
+
+@app.resolver(type_name="Query", field_name="behaviorById")
+def get_behavior_by_id(id):
+    '''Get CloudFront behavior config'''
+    response = cloudfront_client.get_distribution_config(Id=id)
+
+    result = []
+    if 'DefaultCacheBehavior' in response['DistributionConfig']:
+        result.append('Default (*)')
+
+    if 'CacheBehaviors' in response['DistributionConfig']:
+        for item in response['DistributionConfig']['CacheBehaviors']['Items']:
+            result.append(item['PathPattern'])
+
+    return result
+
+
+@app.resolver(type_name="Query", field_name="checkSyncStatus")
+def check_sync_status():
+    '''Check whether it is need to sync extensions'''
+    result = 'False'
+    date_array = {}
+
+    with requests.Session() as s:
+        meta_req = s.get(EXT_META_DATA_URL)
+        meta_content = meta_req.content.decode('utf-8-sig')
+        cr = csv.reader(meta_content.splitlines(), delimiter=',')
+
+        for row in cr:
+            date_array[row[0]] = row[6]
+
+    if len(date_array) == 0:
+        raise Exception(
+            'No extension is found from origin, please contact solution builder to get support')
+
+    scan_kwargs = {
+        'ProjectionExpression': '#name, updateDate',
+        'ExpressionAttributeNames': {
+            '#name': 'name'
+        }
+    }
+
+    response = ddb_table.scan(**scan_kwargs)
+    res_items = response['Items']
+
+    while "LastEvaluatedKey" in response:
+        response = ddb_table.scan(
+            ExclusiveStartKey=response['LastEvaluatedKey'])
+        res_items.extend(response["Items"])
+
+    for ddb_item in res_items:
+        if date_array[ddb_item['name']] != ddb_item['updateDate']:
+            result = 'True'
+            break
+
+    return {'needToSync': result}
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
