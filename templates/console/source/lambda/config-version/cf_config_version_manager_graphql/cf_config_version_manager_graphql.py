@@ -21,7 +21,7 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 
-@app.resolver(type_name="Query", field_name="diff")
+@app.resolver(type_name="Query", field_name="diffCloudfrontConfig")
 def manager_version_diff(distribution_id: str = "", version1: str = "", version2: str = ""):
     dist_id = distribution_id
     version_1 = version1
@@ -73,7 +73,7 @@ def manager_version_diff(distribution_id: str = "", version1: str = "", version2
     return diff_content
 
 
-@app.resolver(type_name="Query", field_name="apply_config")
+@app.resolver(type_name="Query", field_name="applyConfig")
 def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [],version: str = ""):
     source_dist_id = src_distribution_id
     src_version = version
@@ -121,7 +121,7 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
     return 'target distributions been updated'
 
 
-@app.resolver(type_name="Query", field_name="config_tag_update")
+@app.resolver(type_name="Query", field_name="updateConfigTag")
 def manager_version_config_tag_update(distribution_id: str="", note: str = "", version: str = ""):
     dist_id = distribution_id
     version_id = version
@@ -151,7 +151,7 @@ def manager_version_config_tag_update(distribution_id: str="", note: str = "", v
     return response
 
 
-@app.resolver(type_name="Query", field_name="cf_list")
+@app.resolver(type_name="Query", field_name="listDistribution")
 def manager_version_config_cf_list():
     # first get distribution List from current account
     cf_client = boto3.client('cloudfront')
@@ -185,7 +185,7 @@ def manager_version_config_cf_list():
     return result
 
 
-@app.resolver(type_name="Query", field_name="config_link")
+@app.resolver(type_name="Query", field_name="getConfigLink")
 def manager_version_get_link(distribution_id: str = "", versionId: str = ""):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
@@ -206,7 +206,7 @@ def manager_version_get_link(distribution_id: str = "", versionId: str = ""):
     }
 
 
-@app.resolver(type_name="Query", field_name="config_content")
+@app.resolver(type_name="Query", field_name="getConfigContent")
 def manager_version_get_content(distribution_id: str = "", versionId: str = ""):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
@@ -230,7 +230,7 @@ def manager_version_get_content(distribution_id: str = "", versionId: str = ""):
     return result
 
 
-@app.resolver(type_name="Query", field_name="versions")
+@app.resolver(type_name="Query", field_name="listCloudfrontVersions")
 def manager_version_get_all(distribution_id: str = ""):
     dist_id = distribution_id
 

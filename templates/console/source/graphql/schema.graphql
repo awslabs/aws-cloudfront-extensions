@@ -24,6 +24,20 @@ type Extension {
     cfnParameter: String
 }
 
+type ExtensionResponse {
+    extension: [Extension],
+    total: Int
+}
+
+type CloudFrontDist {
+    id: String!
+}
+
+type ListCloudFrontDistResponse {
+    dist: [CloudFrontDist],
+    total: Int
+}
+
 input ExtensionParameter {
     parameterKey: String
     parameterValue: String
@@ -111,10 +125,19 @@ type Notification {
 
 type Query {
     # List CloudFront extensions in extension repo
-    listExtensions(page: Int, count: Int): String
+    listExtensions(page: Int, count: Int): ExtensionResponse
+
+    # List CloudFront distributions with id in drop-down list
+    listCloudFrontDistWithId(maxItems: Int, marker: String): ListCloudFrontDistResponse
 
     # Get the extension details
     queryByName(name: String!): Extension
+
+    # Check whether it is need to sync extensions
+    checkSyncStatus: String
+
+    # Get CloudFront behavior config
+    behaviorById(id: String!): [String]
 
     # query for config-version part
     applyConfig(src_distribution_id: String, version: String, target_distribution_ids: [String]): String

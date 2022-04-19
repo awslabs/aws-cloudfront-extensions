@@ -32,17 +32,12 @@ export class ConsoleStack extends cdk.Stack {
 
     // Extensions repository policy to access DynamoDB
     const extDDBPolicy = new iam.Policy(this, 'ExtDDBPolicy', {
-      policyName: 'ExtDDBPolicy',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           resources: [cf_extensions_table.tableArn],
           actions: [
-            "dynamodb:*",
-            "iam:CreateServiceLinkedRole",
-            "iam:PassRole",
-            "iam:GetRole",
-            "iam:ListRoles"
+            "dynamodb:*"
           ]
         })
       ]
@@ -50,7 +45,6 @@ export class ConsoleStack extends cdk.Stack {
 
     // Extensions repository policy to access Lambda
     const extLambdaPolicy = new iam.Policy(this, 'ExtLambdaPolicy', {
-      policyName: 'ExtLambdaPolicy',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -80,8 +74,49 @@ export class ConsoleStack extends cdk.Stack {
       ]
     });
 
+    const extIAMPolicy = new iam.Policy(this, 'ExtIAMPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "iam:GetRole",
+            "iam:ListRoles",
+            "iam:CreateRole",
+            "iam:DeleteRole",
+            "iam:PassRole",
+            "iam:AttachRolePolicy",
+            "iam:DetachRolePolicy",
+            "iam:CreateServiceLinkedRole",
+            "iam:PutRolePolicy",
+            "iam:DeleteRolePolicy",
+          ]
+        })
+      ]
+    });
+
+    // Policy to deploy a SAR application
+    const extDeploymentPolicy = new iam.Policy(this, 'extDeploymentPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "cloudformation:*",
+            "ssm:GetParameters",
+            "serverlessrepo:CreateCloudFormationTemplate",
+            "serverlessrepo:GetCloudFormationTemplate",
+            "serverlessrepo:CreateCloudFormationChangeSet",
+            "s3:GetObject"
+          ]
+        })
+      ]
+    });
+
     extDeployerRole.attachInlinePolicy(extDDBPolicy);
     extDeployerRole.attachInlinePolicy(extLambdaPolicy);
+    extDeployerRole.attachInlinePolicy(extIAMPolicy);
+    extDeployerRole.attachInlinePolicy(extDeploymentPolicy);
 
     // Deployer API in extensions repository
     // const extDeployerApi = new appsync.GraphqlApi(this, 'ExtDeployerApi', {
@@ -99,9 +134,9 @@ export class ConsoleStack extends cdk.Stack {
 
       // AWS Lambda Powertools
       const powertools_layer = lambda.LayerVersion.fromLayerVersionArn(
-          this,
-          `PowertoolLayer`,
-          `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
+        this,
+        `PowertoolLayer`,
+        `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
       );
 
       // Deployer lambda in extensions repository
@@ -147,6 +182,27 @@ export class ConsoleStack extends cdk.Stack {
       deployerLambdaDs.createResolver({
         typeName: "Mutation",
         fieldName: "deployExtension",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
+
+      deployerLambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "listCloudFrontDistWithId",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
+
+      deployerLambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "checkSyncStatus",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
+
+      deployerLambdaDs.createResolver({
+        typeName: "Query",
+        fieldName: "behaviorById",
         requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
         responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
       });
