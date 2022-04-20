@@ -5,6 +5,6 @@ Before deploying the stack by AWS CDK, you need to run the following:
 
 ```bash
 cd deployment
-sh sh build-s3-dist.sh
+sh build-s3-dist.sh
 ```
 

@@ -1,106 +1,217 @@
 import * as cdk from 'aws-cdk-lib';
 import { EndpointType, LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
-import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
-import { bumpFunctionVersion, IExtensions, ServerlessApp } from '../../lib';
+import * as path from 'path';
 
 
-/**
- * Construct properties for AntiHotlinking extension
- */
-export interface PrewarmProps {
-  readonly bucketName: string;
-  readonly fileName: string;
-  readonly popList: string;
-  readonly cfMapping: string;
-}
-
-export class Prewarm extends ServerlessApp implements IExtensions {
-  readonly functionArn: string;
-  readonly functionVersion: lambda.Version;
-  readonly eventType: cdk.aws_cloudfront.LambdaEdgeEventType;
-  constructor(scope: Construct, id: string, props: PrewarmProps) {
-    super(scope, id, {
-      applicationId: 'arn:aws:serverlessrepo:us-east-1:418289889111:applications/prewarm',
-      semanticVersion: '1.0.5',
-      parameters: {
-        S3BucketName: props.bucketName,
-        S3FileKey: props.fileName,
-        PoPList: props.popList,
-        CFMapping: props.cfMapping,
-      },
-    });
-    const stack = cdk.Stack.of(scope);
-    this.functionArn = this.resource.getAtt('Outputs.PrewarmFunction').toString();
-    this.functionVersion = bumpFunctionVersion(stack, id, this.functionArn);
-  }
-}
 
 export class PrewarmStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.templateOptions.description = "(SO8138) - Prewarm";
 
-    const s3BucketName = new cdk.CfnParameter(this, 'S3BucketName', {
-      description: 'S3 bucket name to store the file which contains urls to pre-warm. eg. pre-warm-bucket. It will create a new S3 bucket by default',
-      type: 'String',
+    const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      partitionKey: { name: 'url', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'reqId', type: dynamodb.AttributeType.STRING },
+      pointInTimeRecovery: true,
     });
 
-    const s3FileKey = new cdk.CfnParameter(this, 'S3FileKey', {
-      description: 'The S3 key of the file which contains urls to pre-warm, eg. Prewarm/urls.txt. The urls in the files should be divided by \n, the file should be stored in an S3 bucket. It will create an empty file by default',
-      type: 'String',
+    const dlq = new sqs.Queue(this, 'PrewarmDLQ', {
+      encryption: sqs.QueueEncryption.KMS_MANAGED,
+      retentionPeriod: cdk.Duration.days(14),
+      visibilityTimeout: cdk.Duration.minutes(60),
     });
 
-    const popList = new cdk.CfnParameter(this, 'PoPList', {
-      description: 'The pop which you want to prewarm, it supports multiple value with comma as separator, eg. ATL56-C1, DFW55-C3, SEA19-C3. You can get the pop node id by x-amz-cf-pop header in the request',
-      type: 'String',
+    const messageQueue = new sqs.Queue(this, 'PrewarmMessageQueue', {
+      encryption: sqs.QueueEncryption.KMS_MANAGED,
+      visibilityTimeout: cdk.Duration.minutes(60),
+      deadLetterQueue: {
+        queue: dlq,
+        maxReceiveCount: 20,
+      },
     });
 
-    const cfMapping = new cdk.CfnParameter(this, 'CFMapping', {
-      description: 'If your website has CName, you need to specify the relationship between CName and CloudFront domain name. For example, the CName of d123456789012.cloudfront.net is www.example.com, you need to add this JSON line {"www.example.com":"d123456789012.cloudfront.net"}. Use {} if your website does not use CName.',
-      type: 'String',
+    const prewarmRole = new iam.Role(this, 'PrewarmRole', {
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+      ),
     });
 
-    const PrewarmBucket = s3.Bucket.fromBucketAttributes(this, 'PrewarmBucket', {
-      bucketName: s3BucketName.valueAsString
-    })
-
-    const prewarmApp = new Prewarm(this, 'PrewarmFunction', {
-      bucketName: s3BucketName.valueAsString,
-      fileName: s3FileKey.valueAsString,
-      popList: popList.valueAsString,
-      cfMapping: cfMapping.valueAsString,
+    const ddbPolicy = new iam.Policy(this, 'PrewarmDDBPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [prewarmStatusTable.tableArn],
+          actions: [
+            "dynamodb:*"
+          ]
+        })
+      ]
     });
 
-    const importedLambdaFromArn = lambda.Function.fromFunctionArn(
-      this,
-      'ImportedLambdaFunction',
-      prewarmApp.functionArn,
-    );
-
-    
-    
-    new cdk.CfnOutput(this, "Prewarm Lambda function", {
-      value: prewarmApp.functionArn
+    const lambdaPolicy = new iam.Policy(this, 'PrewarmLambdaPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`
+          ],
+          actions: [
+            "lambda:*"
+          ],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*`,
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*:log-stream:*`
+          ],
+          actions: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+        }),
+      ]
     });
 
-    new cdk.CfnOutput(this, "S3Bucket", {
-      value: PrewarmBucket.bucketArn
+    const sqsPolicy = new iam.Policy(this, 'PrewarmSQSPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [messageQueue.queueArn],
+          actions: [
+            "sqs:DeleteMessage",
+            "sqs:GetQueueUrl",
+            "sqs:ChangeMessageVisibility",
+            "sqs:PurgeQueue",
+            "sqs:ReceiveMessage",
+            "sqs:SendMessage",
+            "sqs:GetQueueAttributes",
+            "sqs:SetQueueAttributes"
+          ]
+        })
+      ]
     });
 
-    new cdk.CfnOutput(this, "File contains urls in S3 bucket", {
-      value: s3FileKey.valueAsString
+    prewarmRole.attachInlinePolicy(ddbPolicy);
+    prewarmRole.attachInlinePolicy(lambdaPolicy);
+    prewarmRole.attachInlinePolicy(sqsPolicy);
+
+    const agentLambda = new lambda.Function(this, 'PrewarmAgent', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'agent.lambda_handler',
+      timeout: cdk.Duration.seconds(300),
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/agent.zip')),
+      role: prewarmRole,
+      memorySize: 1024,
+      environment: {
+        DDB_TABLE_NAME: prewarmStatusTable.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK
     });
 
-    new cdk.CfnOutput(this, "PoP to prewarm", {
-      value: popList.valueAsString
+    const eventSource = new SqsEventSource(messageQueue);
+    agentLambda.addEventSource(eventSource);
+
+    const schedulerLambda = new lambda.Function(this, 'PrewarmScheduler', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'scheduler.lambda_handler',
+      timeout: cdk.Duration.seconds(300),
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/scheduler.zip')),
+      role: prewarmRole,
+      memorySize: 1024,
+      environment: {
+        DDB_TABLE_NAME: prewarmStatusTable.tableName,
+        SQS_QUEUE_URL: messageQueue.queueUrl
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK
     });
 
+    const statusFetcherLambda = new lambda.Function(this, 'PrewarmStatusFetcher', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'status_fetcher.lambda_handler',
+      timeout: cdk.Duration.seconds(300),
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/status_fetcher')),
+      role: prewarmRole,
+      memorySize: 1024,
+      environment: {
+        DDB_TABLE_NAME: prewarmStatusTable.tableName,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK
+    });
+
+    const schedulerApi = new LambdaRestApi(this, 'PrewarmApi', {
+      handler: schedulerLambda,
+      description: "Restful API to prewarm resources",
+      proxy: false,
+      endpointConfiguration: {
+        types: [EndpointType.EDGE]
+      }
+    });
+
+    const statusApi = new LambdaRestApi(this, 'PrewarmStatusApi', {
+      handler: statusFetcherLambda,
+      description: "Restful API to get prewarm status",
+      proxy: false,
+      endpointConfiguration: {
+        types: [EndpointType.EDGE]
+      }
+    });
+
+    const schedulerProxy = schedulerApi.root.addResource('prewarm');
+    schedulerProxy.addMethod('POST', undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    // const plan = api.addUsagePlan('UsagePlan', {
+    //   name: 'Easy',
+    //   throttle: {
+    //     rateLimit: 10,
+    //     burstLimit: 2
+    //   }
+    // });
+
+    // const key = api.addApiKey('ApiKey');
+    // plan.addApiKey(key);
+
+    // plan.addApiStage({
+    //   stage: api.deploymentStage,
+    //   throttle: [
+    //     {
+    //       method: echoMethod,
+    //       throttle: {
+    //         rateLimit: 10,
+    //         burstLimit: 2
+    //       }
+    //     }
+    //   ]
+    // });
+
+    const statusProxy = statusApi.root.addResource('status');
+    statusProxy.addMethod('GET', undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    // Output
+    new cdk.CfnOutput(this, "Prewarm API", {
+      value: schedulerApi.url
+    });
 
   }
-
-
 
 }

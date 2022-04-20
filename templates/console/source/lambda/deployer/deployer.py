@@ -58,9 +58,8 @@ def deploy_ext(name, parameters):
         Capabilities=['CAPABILITY_AUTO_EXPAND', 'CAPABILITY_NAMED_IAM'])
 
     stack_id = stack_resp['StackId']
-    logger.info(json.dumps(stack_resp))
 
-    return {"stack_id": stack_id}
+    return stack_id
 
 
 # TODO: pipeline update: once SAR publish github action is triggered, update cfn
@@ -160,7 +159,7 @@ def get_behavior_by_id(id):
     if 'DefaultCacheBehavior' in response['DistributionConfig']:
         result.append('Default (*)')
 
-    if 'CacheBehaviors' in response['DistributionConfig']:
+    if 'CacheBehaviors' in response['DistributionConfig'] and 'Items' in response['DistributionConfig']['CacheBehaviors']:
         for item in response['DistributionConfig']['CacheBehaviors']['Items']:
             result.append(item['PathPattern'])
 
@@ -170,7 +169,7 @@ def get_behavior_by_id(id):
 @app.resolver(type_name="Query", field_name="checkSyncStatus")
 def check_sync_status():
     '''Check whether it is need to sync extensions'''
-    result = 'False'
+    result = 'false'
     date_array = {}
 
     with requests.Session() as s:
@@ -202,10 +201,10 @@ def check_sync_status():
 
     for ddb_item in res_items:
         if date_array[ddb_item['name']] != ddb_item['updateDate']:
-            result = 'True'
+            result = 'true'
             break
 
-    return {'needToSync': result}
+    return result
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
