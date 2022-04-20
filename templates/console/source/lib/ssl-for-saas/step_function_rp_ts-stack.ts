@@ -158,7 +158,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       memorySize:1024});
 
     const fn_sns_notify = new _lambda.DockerImageFunction(this, 'sns_notify', {
-      code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_cron")),
+      code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/sns_notify")),
       environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900),
       role:_fn_sns_notify_role, 
       memorySize:1024});
