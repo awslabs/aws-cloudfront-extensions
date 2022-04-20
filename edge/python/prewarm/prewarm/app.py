@@ -40,7 +40,7 @@ def get_cf_dist_id(parsed_url):
 
 def pre_warm(url, pop, cf_dist_id):
     try:
-        requests.get(url=url, headers={'Host': url})
+        requests.get(url=url, headers={'Host': cf_dist_id + URL_SUFFIX})
     except Exception as e:
         print(f'Failed: PoP => {pop}, Url => {url} with exception => {e}')
         failed_list.append({
