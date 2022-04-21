@@ -155,7 +155,8 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         'CALLBACK_TABLE': callback_table.tableName,
         'TASK_TYPE': 'placeholder',
         'GRAPHQL_API_URL': props.appsyncApi.graphqlUrl,
-        'GRAPHQL_API_KEY': props.appsyncApi.apiKey || ''
+        'GRAPHQL_API_KEY': props.appsyncApi.apiKey || '',
+        'CONFIG_VERSION_DDB_TABLE_NAME': cdk.Fn.importValue('configVersionDDBTableName')
       },timeout:Duration.seconds(900),
       role:_fn_acm_cb_handler_role, 
       memorySize:1024});
@@ -301,8 +302,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     const wait_10s_for_cert_import = new _step.Wait(this, 'Wait 10s for ACM Cert Import', {
       time: _step.WaitTime.duration(Duration.seconds(10))
     })
-
-
 
     // entry point for step function with cert create/import process
     const stepFunctionEntry = new _step.Choice(this, 'Initial entry point')

@@ -266,7 +266,12 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
 #         "sanList": [
 #             "cdn3.risetron.cn"
 #         ],
-#         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com",
+#         "existing_cf_info":
+#         {
+#           "distribution_id": "E2SQNNA26WHYGD",
+#           "config_version_id": "5"
+#         }
 #     },
 #     {
 #         "domainName": "cdn3.risetron.cn",
@@ -274,6 +279,11 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
 #             "cdn4.risetron.cn"
 #         ],
 #         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#         "existing_cf_info":
+#         {
+#           "distribution_id": "E2SQNNA26WHYGD",
+#           "config_version_id": "5"
+#         }
 #     }
 #   ],
 #   "pemList": [

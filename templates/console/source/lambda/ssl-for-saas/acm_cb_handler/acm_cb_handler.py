@@ -228,9 +228,11 @@ def fetch_cloudfront_config_version(distribution_id,config_version_id):
 #           "cdn3.risetron.cn"
 #       ],
 #       "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com",
-#       "createFromExistingDist": "true" | "false",
-#       "existingDistId": "E3KV7UG686DNXU",
-#       "existingDistVersionId": 3
+#       "existing_cf_info":
+#       {
+#         "distribution_id": "E2SQNNA26WHYGD",
+#         "config_version_id": "5"
+#       }
 #   }
 # }
 # TODO: Need to adding rainy day handling code
