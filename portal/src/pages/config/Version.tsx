@@ -8,7 +8,7 @@ import Status from "components/Status/Status";
 import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
-import { cf_list } from "graphql/queries";
+import { listDistribution } from "graphql/queries";
 import { Cloudfront_info } from "../../API";
 
 const BreadCrunbList = [
@@ -23,19 +23,24 @@ const BreadCrunbList = [
 ];
 
 const Version = () => {
+  const [loadingData, setLoadingData] = useState(false);
   const [cloudFrontList, setCloudFrontList] = useState<Cloudfront_info[]>([]);
   const [searchParams, setSearchParams] = useState("");
 
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
-    setCloudFrontList([]);
     try {
-      // setLoadingData(true);
-      // setServiceLogList([]);
-      const resData = await appSyncRequestQuery(cf_list, {});
-      const cfList: Cloudfront_info[] = resData.data.cf_list;
+      setLoadingData(true);
+      setCloudFrontList([]);
+      const resData = await appSyncRequestQuery(listDistribution, {
+        page: 1,
+        count: 10,
+      });
+      const cfList: Cloudfront_info[] = resData.data.listDistribution;
+      setLoadingData(false);
       setCloudFrontList(cfList);
     } catch (error) {
+      setLoadingData(false);
       console.error(error);
     }
   };
@@ -49,11 +54,17 @@ const Version = () => {
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
         <TablePanel
+          loading={loadingData}
           title="Distributions"
           selectType={SelectType.RADIO}
           actions={
             <div>
-              <Button>
+              <Button
+                disabled={loadingData}
+                onClick={() => {
+                  getCloudfrontDistributionList();
+                }}
+              >
                 <RefreshIcon fontSize="small" />
               </Button>
             </div>
@@ -62,7 +73,6 @@ const Version = () => {
           items={cloudFrontList}
           columnDefinitions={[
             {
-              width: 150,
               id: "Id",
               header: "ID",
               cell: (e: Cloudfront_info) => {
@@ -72,13 +82,11 @@ const Version = () => {
               },
             },
             {
-              width: 200,
               id: "domain",
               header: "Domain",
               cell: (e: Cloudfront_info) => e.domainName,
             },
             {
-              width: 150,
               id: "versionCount",
               header: "Version count",
               cell: (e: Cloudfront_info) => e.versionCount,

@@ -2,22 +2,79 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const apply_config = /* GraphQL */ `
-  query Apply_config(
+export const listExtensions = /* GraphQL */ `
+  query ListExtensions($page: Int, $count: Int) {
+    listExtensions(page: $page, count: $count) {
+      extension {
+        name
+        templateUri
+        type
+        desc
+        codeUri
+        stage
+        updateDate
+        author
+        status
+        tag
+        cfnParameter
+      }
+      total
+    }
+  }
+`;
+export const listCloudFrontDistWithId = /* GraphQL */ `
+  query ListCloudFrontDistWithId($maxItems: Int, $marker: String) {
+    listCloudFrontDistWithId(maxItems: $maxItems, marker: $marker) {
+      dist {
+        id
+      }
+      total
+    }
+  }
+`;
+export const queryByName = /* GraphQL */ `
+  query QueryByName($name: String!) {
+    queryByName(name: $name) {
+      name
+      templateUri
+      type
+      desc
+      codeUri
+      stage
+      updateDate
+      author
+      status
+      tag
+      cfnParameter
+    }
+  }
+`;
+export const checkSyncStatus = /* GraphQL */ `
+  query CheckSyncStatus {
+    checkSyncStatus
+  }
+`;
+export const behaviorById = /* GraphQL */ `
+  query BehaviorById($id: String!) {
+    behaviorById(id: $id)
+  }
+`;
+export const applyConfig = /* GraphQL */ `
+  query ApplyConfig(
     $src_distribution_id: String
     $version: String
     $target_distribution_ids: [String]
   ) {
-    apply_config(
+    applyConfig(
       src_distribution_id: $src_distribution_id
       version: $version
       target_distribution_ids: $target_distribution_ids
     )
   }
 `;
-export const cf_list = /* GraphQL */ `
-  query Cf_list {
-    cf_list {
+export const listDistribution = /* GraphQL */ `
+  query ListDistribution {
+    listDistribution {
       id
       domainName
       status
@@ -26,31 +83,35 @@ export const cf_list = /* GraphQL */ `
     }
   }
 `;
-export const config_tag_update = /* GraphQL */ `
-  query Config_tag_update(
+export const updateConfigTag = /* GraphQL */ `
+  query UpdateConfigTag(
     $distribution_id: String
     $version: String
     $note: String
   ) {
-    config_tag_update(
+    updateConfigTag(
       distribution_id: $distribution_id
       version: $version
       note: $note
     )
   }
 `;
-export const diff = /* GraphQL */ `
-  query Diff($distribution_id: String, $version1: String, $version2: String) {
-    diff(
+export const diffCloudfrontConfig = /* GraphQL */ `
+  query DiffCloudfrontConfig(
+    $distribution_id: String
+    $version1: String
+    $version2: String
+  ) {
+    diffCloudfrontConfig(
       distribution_id: $distribution_id
       version1: $version1
       version2: $version2
     )
   }
 `;
-export const versions = /* GraphQL */ `
-  query Versions($distribution_id: String) {
-    versions(distribution_id: $distribution_id) {
+export const listCloudfrontVersions = /* GraphQL */ `
+  query ListCloudfrontVersions($distribution_id: String) {
+    listCloudfrontVersions(distribution_id: $distribution_id) {
       distribution_id
       versionId
       config_link
@@ -61,15 +122,24 @@ export const versions = /* GraphQL */ `
     }
   }
 `;
-export const config_link = /* GraphQL */ `
-  query Config_link($distribution_id: String, $versionId: String) {
-    config_link(distribution_id: $distribution_id, versionId: $versionId) {
+export const getConfigLink = /* GraphQL */ `
+  query GetConfigLink($distribution_id: String, $versionId: String) {
+    getConfigLink(distribution_id: $distribution_id, versionId: $versionId) {
       config_link
     }
   }
 `;
-export const config_content = /* GraphQL */ `
-  query Config_content($distribution_id: String, $versionId: String) {
-    config_content(distribution_id: $distribution_id, versionId: $versionId)
+export const getConfigContent = /* GraphQL */ `
+  query GetConfigContent($distribution_id: String, $versionId: String) {
+    getConfigContent(distribution_id: $distribution_id, versionId: $versionId)
+  }
+`;
+export const notifications = /* GraphQL */ `
+  query Notifications($limit: Int) {
+    Notifications(limit: $limit) {
+      id
+      date
+      type
+    }
   }
 `;

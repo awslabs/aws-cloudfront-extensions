@@ -11,6 +11,7 @@ import { ApolloLink } from "apollo-link";
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import gql from "graphql-tag";
 import { Auth } from "aws-amplify";
+import { AMPLIFY_CONFIG_JSON } from "./const";
 export enum AppSyncAuthType {
   OPEN_ID = AUTH_TYPE.OPENID_CONNECT,
   AMAZON_COGNITO_USER_POOLS = AUTH_TYPE.AMAZON_COGNITO_USER_POOLS,
@@ -30,18 +31,11 @@ interface AmplifyConfigType {
 }
 
 const buildAppsyncLink = () => {
-  const configJSONObj: AmplifyConfigType = {
-    aws_api_key: "da2-adxs4vpsxzgrpfrnuroiz7fime",
-    aws_project_region: "us-east-1",
-    aws_appsync_graphqlEndpoint:
-      "https://jdm77ubkn5ef7b2o4zhnxj5aa4.appsync-api.us-east-1.amazonaws.com/graphql",
-    aws_appsync_region: "us-east-1",
-    aws_appsync_authenticationType: AppSyncAuthType.API_KEY,
-    aws_cognito_region: "us-east-1",
-    aws_user_pools_id: "",
-    aws_user_pools_web_client_id: "",
-    aws_cloudfront_url: "",
-  };
+  const configJSONObj: AmplifyConfigType = localStorage.getItem(
+    AMPLIFY_CONFIG_JSON
+  )
+    ? JSON.parse(localStorage.getItem(AMPLIFY_CONFIG_JSON) || "")
+    : {};
 
   function getOIDCUser() {
     const oidcStorage = "";

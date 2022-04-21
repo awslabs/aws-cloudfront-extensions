@@ -2,28 +2,34 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import { SelectType, TablePanel } from "components/TablePanel";
-import { CF_LIST, MOCK_VERSION_LIST, VersionType } from "mock/data";
+// import { CF_LIST, MOCK_VERSION_LIST, VersionType } from "mock/data";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TextInput from "components/TextInput";
 import Modal from "components/Modal";
 import FormItem from "components/FormItem";
 import MultiSelect from "components/MultiSelect";
+import { Version } from "API";
+import { appSyncRequestQuery } from "assets/js/request";
+import { listCloudfrontVersions } from "graphql/queries";
+import { CF_LIST } from "mock/data";
 
 const VersionDetail: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState("");
-  const [versionList, setVersionList] = useState<VersionType[]>([]);
-  const [selectedItem, setSelectedItem] = useState<VersionType[]>([]);
+  const [versionList, setVersionList] = useState<Version[]>([]);
+  const [selectedItem, setSelectedItem] = useState<Version[]>([]);
   const [applyDisabled, setApplyDisabled] = useState(false);
   const [saveDisabled, setSaveDisabled] = useState(false);
   const [detailDisabled, setDetailDisabled] = useState(false);
   const [compareDisabled, setCompareDisabled] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [distributionList, setDistributionList] = useState<any>([]);
+  // const [distributionList, setDistributionList] = useState<any>([]);
   const [selectDestribution, setSelectDestribution] = useState<any>([]);
   const [confirm, setConfirm] = useState("");
+  const [loadingData, setLoadingData] = useState(false);
+  const { id } = useParams();
   const BreadCrunbList = [
     {
       name: "CloudFront Extensions",
@@ -34,16 +40,29 @@ const VersionDetail: React.FC = () => {
       link: "/config/version",
     },
     {
-      name: "XLOWCQQFJJHM80",
+      name: id || "",
     },
   ];
 
-  useEffect(() => {
-    setVersionList(MOCK_VERSION_LIST);
-  }, []);
+  // Get Version List By Distribution
+  const getVersionListByDistribution = async () => {
+    try {
+      setLoadingData(true);
+      setVersionList([]);
+      const resData = await appSyncRequestQuery(listCloudfrontVersions, {
+        distribution_id: id,
+      });
+      const versionList: Version[] = resData.data.listCloudfrontVersions;
+      setLoadingData(false);
+      setVersionList(versionList);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    setDistributionList(CF_LIST);
+    getVersionListByDistribution();
   }, []);
 
   useEffect(() => {
@@ -78,7 +97,8 @@ const VersionDetail: React.FC = () => {
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
         <TablePanel
-          title="XLOWCQQFJJHM80"
+          loading={loadingData}
+          title={id || ""}
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
@@ -124,10 +144,10 @@ const VersionDetail: React.FC = () => {
           items={versionList}
           columnDefinitions={[
             {
-              width: 250,
+              width: 150,
               id: "id",
               header: "Version Id",
-              cell: (e: VersionType) => {
+              cell: (e: Version) => {
                 return <a href="/404">{e.versionId}</a>;
               },
             },
@@ -135,17 +155,18 @@ const VersionDetail: React.FC = () => {
               width: 180,
               id: "date",
               header: "Date",
-              cell: (e: VersionType) => e.time,
+              cell: (e: Version) => e.dateTime,
             },
             {
-              id: "desc",
-              header: "Description",
-              cell: (e: VersionType) => e.desc,
+              id: "s3key",
+              header: "S3 Key",
+              cell: (e: Version) => e.s3_key,
             },
             {
+              width: 200,
               id: "tags",
               header: "Tags",
-              cell: (e: VersionType) => e.tags,
+              cell: (e: Version) => e.note,
             },
           ]}
           filter={
@@ -203,7 +224,7 @@ const VersionDetail: React.FC = () => {
             <div className="flex">
               <div style={{ width: 500 }}>
                 <MultiSelect
-                  optionList={distributionList}
+                  optionList={CF_LIST}
                   value={selectDestribution}
                   placeholder="Select distribution"
                   onChange={(items) => {

@@ -8,7 +8,7 @@ import Review from "./steps/Review";
 import AddCName from "./steps/AddCName";
 
 const BreadCrumbList = [
-  { name: "CloudFront Extensions", link: "/" },
+  { name: "CloudFront Extensions", link: "/extentions-repository" },
   { name: "Certification settings" },
 ];
 

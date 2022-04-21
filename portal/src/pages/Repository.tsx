@@ -2,14 +2,19 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import { SelectType, TablePanel } from "components/TablePanel";
-import { MOCK_REPOSITORY_LIST, RepositoryType } from "mock/data";
 import { Pagination } from "@material-ui/lab";
 import { useNavigate } from "react-router-dom";
 import TextInput from "components/TextInput";
+import { Extension } from "API";
+import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
+import { checkSyncStatus, listExtensions } from "graphql/queries";
+import { syncExtensions } from "graphql/mutations";
+import Swal from "sweetalert2";
+import Modal from "components/Modal";
 
 const BreadCrunbList = [
   {
-    name: "CloudFront Extensions",
+    name: "Home",
     link: "/",
   },
   {
@@ -18,67 +23,165 @@ const BreadCrunbList = [
   },
 ];
 
+const PAGE_SIZE = 10;
+
 const Repository: React.FC = () => {
   const navigate = useNavigate();
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingSync, setLoadingSync] = useState(false);
+  const [loadingCheck, setLoadingCheck] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [searchParams, setSearchParams] = useState("");
-  const [extentionList, setExtentionList] = useState<RepositoryType[]>([]);
+  const [extentionList, setExtentionList] = useState<Extension[]>([]);
+  const [curPage, setCurPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [selectedExtension, setSelectedExtension] = useState<Extension>();
+  const [deployDisabled, setDeployDisabled] = useState(true);
+  // const [cur, setcur] = useState(second)
+
+  // Get Extension List
+  const getExtensionList = async () => {
+    setExtentionList([]);
+    try {
+      setLoadingData(true);
+      setExtentionList([]);
+      const resData = await appSyncRequestQuery(listExtensions, {
+        page: curPage,
+        count: PAGE_SIZE,
+      });
+      if (resData.data.listExtensions) {
+        const extList: Extension[] = resData.data.listExtensions.extension;
+        setTotalCount(resData.data.listExtensions.total);
+        setExtentionList(extList);
+      }
+      setLoadingData(false);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
+
+  // Check Update Extenstion
+  const checkExtensionUpdate = async () => {
+    try {
+      setLoadingCheck(true);
+      const resData = await appSyncRequestMutation(checkSyncStatus, {});
+      if (resData.data.checkSyncStatus === "true") {
+        console.info("need update");
+        setOpenModal(true);
+      } else {
+        Swal.fire(
+          "Up to date",
+          "All your extenstions are up to date",
+          "success"
+        );
+      }
+      setLoadingCheck(false);
+    } catch (error) {
+      setLoadingCheck(false);
+      console.error(error);
+    }
+  };
+
+  // Sync Extensions
+  const syncLatestExtension = async () => {
+    try {
+      setLoadingSync(true);
+      setExtentionList([]);
+      const resData = await appSyncRequestMutation(syncExtensions, {});
+      if (resData) {
+        setLoadingSync(false);
+        getExtensionList();
+        setOpenModal(false);
+      }
+    } catch (error) {
+      setLoadingSync(false);
+      console.error(error);
+    }
+  };
+
+  const handlePageChange = (event: any, value: number) => {
+    console.info("event:", event);
+    console.info("value:", value);
+    setCurPage(value);
+  };
 
   useEffect(() => {
-    setExtentionList(MOCK_REPOSITORY_LIST);
-  }, []);
+    getExtensionList();
+  }, [curPage]);
+
+  useEffect(() => {
+    console.info("selectedExtension:", selectedExtension);
+    if (selectedExtension) {
+      setDeployDisabled(false);
+    } else {
+      setDeployDisabled(true);
+    }
+  }, [selectedExtension]);
 
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
         <TablePanel
+          loading={loadingData}
           title="Extensions"
           selectType={SelectType.RADIO}
           actions={
             <div>
-              <Button>Check updates</Button>
               <Button
+                disabled={loadingData}
+                loading={loadingCheck}
+                loadingColor="#888"
+                onClick={() => {
+                  checkExtensionUpdate();
+                }}
+              >
+                Check Updates
+              </Button>
+              <Button
+                disabled={deployDisabled}
                 btnType="primary"
                 onClick={() => {
-                  navigate("/extentions/deploy");
+                  navigate(`/extentions/deploy/${selectedExtension?.name}`);
                 }}
               >
                 Deploy
               </Button>
             </div>
           }
-          pagination={<Pagination />}
+          pagination={
+            <Pagination
+              disabled={loadingData}
+              count={Math.ceil(totalCount / PAGE_SIZE)}
+              page={curPage}
+              onChange={handlePageChange}
+            />
+          }
           items={extentionList}
           columnDefinitions={[
             {
               width: 250,
               id: "name",
               header: "Name",
-              cell: (e: RepositoryType) => e.name,
-              // sortingField: "alt",
+              cell: (e: Extension) => e.name,
             },
             {
               id: "desc",
               header: "Description",
-              cell: (e: RepositoryType) => e.desc,
-            },
-            {
-              width: 120,
-              id: "version",
-              header: "Version",
-              cell: (e: RepositoryType) => e.version,
+              cell: (e: Extension) => e.desc,
             },
             {
               width: 160,
               id: "stage",
               header: "CloudFront Stage",
-              cell: (e: RepositoryType) => e.stage,
+              cell: (e: Extension) => e.stage,
             },
             {
-              width: 150,
-              id: "tags",
-              header: "Tags",
-              cell: (e: RepositoryType) => e.tags,
+              width: 200,
+              id: "updated",
+              header: "Updated",
+              cell: (e: Extension) => e.updateDate,
             },
           ]}
           filter={
@@ -95,12 +198,45 @@ const Repository: React.FC = () => {
             </div>
           }
           changeSelected={(item) => {
-            console.info("select item:", item);
-            // setSelectedItems(item);
-            // setExtentionList(MOCK_REPOSITORY_LIST);
+            if (item.length > 0) {
+              setSelectedExtension(item[0]);
+            }
           }}
         />
       </div>
+      <Modal
+        title="Update Extenstions"
+        isOpen={openModal}
+        fullWidth={false}
+        closeModal={() => {
+          setOpenModal(false);
+        }}
+        actions={
+          <div className="button-action no-pb text-right">
+            <Button
+              onClick={() => {
+                setOpenModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              loading={loadingSync}
+              btnType="primary"
+              onClick={() => {
+                syncLatestExtension();
+              }}
+            >
+              Update
+            </Button>
+          </div>
+        }
+      >
+        <div className="gsui-modal-content">
+          A newer version of the extensions were detected, are you sure you need
+          to update all extenstions?
+        </div>
+      </Modal>
     </div>
   );
 };

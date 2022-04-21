@@ -18,12 +18,12 @@ const SIDE_MENU_LIST = [
     subMenu: [],
     open: true,
   },
-  {
-    name: "Deployment status",
-    link: "/deployment-status",
-    subMenu: [],
-    open: true,
-  },
+  // {
+  //   name: "Deployment status",
+  //   link: "/deployment-status",
+  //   subMenu: [],
+  //   open: true,
+  // },
   {
     name: "Configuration",
     link: "/config",

@@ -1,56 +1,72 @@
+import { ExtensionType } from "API";
 import HeaderPanel from "components/HeaderPanel";
 import React from "react";
+import { DeployExtensionObj } from "../Deploy";
 
-const ParametersList = [{ key: "View request", value: "anti-hotlinking" }];
+interface ReviewProps {
+  deployExtensionObj: DeployExtensionObj;
+}
 
-const AntiHotList = [
-  { key: "Allow list", value: "*.example.com; *.example.org" },
-];
-
-const Review: React.FC = () => {
+const Review: React.FC<ReviewProps> = (props: ReviewProps) => {
+  const { deployExtensionObj } = props;
   return (
     <div>
-      <HeaderPanel title="Parameters" contentNoPadding>
-        <div>
-          <div className="flex gsui-show-tag-list">
-            <div className="tag-key">
-              <b>Key</b>
+      {deployExtensionObj.type !== ExtensionType.Lambda && (
+        <HeaderPanel title="Parameters" contentNoPadding>
+          <div>
+            <div className="flex gsui-show-tag-list">
+              <div className="tag-key">
+                <b>Key</b>
+              </div>
+              <div className="tag-value flex-1">
+                <b>Value</b>
+              </div>
             </div>
-            <div className="tag-value flex-1">
-              <b>Value</b>
+            <div className="flex gsui-show-tag-list">
+              <div className="tag-key">Distribution Id</div>
+              <div className="tag-value flex-1">
+                {deployExtensionObj.distributionObj?.value}
+              </div>
+            </div>
+            <div className="flex gsui-show-tag-list">
+              <div className="tag-key">Behaviors</div>
+              <div className="tag-value flex-1">
+                {deployExtensionObj.behaviorArr.join(", ")}
+              </div>
+            </div>
+            <div className="flex gsui-show-tag-list">
+              <div className="tag-key">CloudFront Stage</div>
+              <div className="tag-value flex-1">{deployExtensionObj.stage}</div>
             </div>
           </div>
-          {ParametersList.map((tag, index) => {
-            return (
-              <div key={index} className="flex gsui-show-tag-list">
-                <div className="tag-key">{tag?.key}</div>
-                <div className="tag-value flex-1">{tag?.value}</div>
-              </div>
-            );
-          })}
-        </div>
-      </HeaderPanel>
+        </HeaderPanel>
+      )}
 
-      <HeaderPanel title="Parameters - anti-hotlinking" contentNoPadding>
-        <div>
-          <div className="flex gsui-show-tag-list">
-            <div className="tag-key">
-              <b>Key</b>
-            </div>
-            <div className="tag-value flex-1">
-              <b>Value</b>
-            </div>
-          </div>
-          {AntiHotList.map((tag, index) => {
-            return (
-              <div key={index} className="flex gsui-show-tag-list">
-                <div className="tag-key">{tag?.key}</div>
-                <div className="tag-value flex-1">{tag?.value}</div>
+      {deployExtensionObj.paramList.length > 0 && (
+        <HeaderPanel
+          title={`Parameters - ${deployExtensionObj.name}`}
+          contentNoPadding
+        >
+          <div>
+            <div className="flex gsui-show-tag-list">
+              <div className="tag-key">
+                <b>Key</b>
               </div>
-            );
-          })}
-        </div>
-      </HeaderPanel>
+              <div className="tag-value flex-1">
+                <b>Value</b>
+              </div>
+            </div>
+            {deployExtensionObj.paramList.map((element, index) => {
+              return (
+                <div key={index} className="flex gsui-show-tag-list">
+                  <div className="tag-key">{element.key}</div>
+                  <div className="tag-value flex-1">{element.value}</div>
+                </div>
+              );
+            })}
+          </div>
+        </HeaderPanel>
+      )}
     </div>
   );
 };

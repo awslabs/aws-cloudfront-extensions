@@ -3,40 +3,50 @@ import PagePanel from "components/PagePanel";
 import Alert from "components/Alert";
 import { AlertType } from "components/Alert/alert";
 import Button from "components/Button";
-import Breadcrumb from "components/Breadcrumb";
+import { DeployExtensionObj } from "./Deploy";
+import { useSelector } from "react-redux";
+import { AmplifyConfigType } from "assets/js/type";
+import { AppStateProps } from "reducer/appReducer";
 
-const BreadCrumbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Deployment Status",
-    link: "/deployment-status",
-  },
-  {
-    name: "Task-01",
-  },
-];
+interface DeployResultProps {
+  stackLink: string;
+  deployExtensionObj: DeployExtensionObj;
+}
 
-const DeployResult: React.FC = () => {
+const DeployResult: React.FC<DeployResultProps> = (
+  props: DeployResultProps
+) => {
+  const { stackLink, deployExtensionObj } = props;
+  const amplifyConfig: AmplifyConfigType = useSelector(
+    (state: AppStateProps) => state.amplifyConfig
+  );
   return (
     <div>
-      <Breadcrumb list={BreadCrumbList} />
+      {/* <Breadcrumb list={BreadCrumbList} /> */}
       <PagePanel title="Deploy status">
         <Alert
           actions={
             <div>
-              <Button>View deployment status</Button>
+              <a
+                href={`https://${amplifyConfig.aws_project_region}.console.aws.amazon.com/cloudformation/home?region=${amplifyConfig.aws_project_region}#/stacks/stackinfo?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${stackLink}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button>View deployment status</Button>
+              </a>
             </div>
           }
           type={AlertType.Success}
           title="Your extension are now being deployed"
-          content="The extension are being deployed to CloudFront distribution 
-          XLOWCQQFJJHM80"
+          content={
+            deployExtensionObj.distributionObj
+              ? `The extension are being deployed to CloudFront distribution 
+          ${deployExtensionObj.distributionObj?.value}`
+              : ""
+          }
         />
       </PagePanel>
-      <PagePanel title="How to use extensions" desc="Form header description">
+      <PagePanel title="How to use extensions" desc={deployExtensionObj.desc}>
         <div className="d-status-content ptb-20">Form sections come here.</div>
       </PagePanel>
       <PagePanel title="Here are some helpful resources to get started">
@@ -60,7 +70,9 @@ const DeployResult: React.FC = () => {
         </div>
       </PagePanel>
       <div className="mt-20 button-action text-right">
-        <Button>View Repository</Button>
+        <a href={deployExtensionObj.codeUri} target="_blank" rel="noreferrer">
+          <Button>View Repository</Button>
+        </a>
       </div>
     </div>
   );

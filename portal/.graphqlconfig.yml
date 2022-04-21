@@ -1,0 +1,18 @@
+projects:
+  cloudfront-extension-appsync-api:
+    schemaPath: src/graphql/schema.json
+    includes:
+      - src/graphql/**/*.ts
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        codeGenTarget: typescript
+        generatedFileName: src/API.ts
+        docsFilePath: src/graphql
+        region: us-east-1
+        apiId: 2ogirl5qknbzjeharsuvk5ibga
+        maxDepth: 5
+extensions:
+  amplify:
+    version: 3

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Container from "./components/layouts/PageContainer";
 import Footer from "./components/layouts/PageFooter";
@@ -9,6 +9,7 @@ import Demo from "pages/Demo";
 import Repository from "pages/Repository";
 import DeploymentStatus from "pages/DeploymentStatus";
 import Deploy from "pages/deploy/Deploy";
+import Axios from "axios";
 
 import "./App.scss";
 import Version from "pages/config/Version";
@@ -16,33 +17,24 @@ import Version from "pages/config/Version";
 import VersionDetail from "pages/config/detail/VersionDetail";
 import SaveVersion from "pages/config/detail/SaveVersion";
 import CompareVersion from "pages/config/detail/CompareVersion";
-import DeployResult from "pages/deploy/DeployResult";
 import Button from "components/Button";
 import Certification from "pages/config/Certification";
 import Create from "pages/config/certificate/Create";
 import CNameList from "pages/config/CNameList";
 import CloudFront from "pages/monitor/CloudFront";
 import WAF from "pages/monitor/WAF";
+import { AmplifyConfigType } from "assets/js/type";
+import { AMPLIFY_CONFIG_JSON } from "assets/js/const";
+import LoadingText from "components/LoadingText";
+import { ActionType } from "reducer/appReducer";
+import { useDispatch } from "react-redux";
 
-const App: React.FC = () => {
+const SignInRouter: React.FC = () => {
   return (
-    <div className="App">
+    <>
       <Header />
       <BrowserRouter>
         <Routes>
-          <Route
-            path="*"
-            element={
-              <Container>
-                <div className="not-found">
-                  <h1>404 Page Not Found</h1>
-                  <Link to="/">
-                    <Button>Home</Button>
-                  </Link>
-                </div>
-              </Container>
-            }
-          />
           <Route
             path="/"
             element={
@@ -60,18 +52,10 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/extentions/deploy"
+            path="/extentions/deploy/:extName"
             element={
               <Container>
                 <Deploy />
-              </Container>
-            }
-          />
-          <Route
-            path="/extentions/deploy-result"
-            element={
-              <Container>
-                <DeployResult />
               </Container>
             }
           />
@@ -81,14 +65,6 @@ const App: React.FC = () => {
             element={
               <Container>
                 <DeploymentStatus />
-              </Container>
-            }
-          />
-          <Route
-            path="/deployment-status/detail/:id"
-            element={
-              <Container>
-                <DeployResult />
               </Container>
             }
           />
@@ -182,9 +158,46 @@ const App: React.FC = () => {
               </Container>
             }
           />
+
+          <Route
+            path="*"
+            element={
+              <Container>
+                <div className="not-found">
+                  <h1>404 Page Not Found</h1>
+                  <Link to="/">
+                    <Button>Home</Button>
+                  </Link>
+                </div>
+              </Container>
+            }
+          />
         </Routes>
       </BrowserRouter>
       <Footer />
+    </>
+  );
+};
+
+const App: React.FC = () => {
+  const [loadingConfig, setLoadingConfig] = useState(false);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const timeStamp = new Date().getTime();
+    Axios.get(`/aws-exports.json?timestamp=${timeStamp}`).then((res) => {
+      const configData: AmplifyConfigType = res.data;
+      dispatch({
+        type: ActionType.UPDATE_AMPLIFY_CONFIG,
+        amplifyConfig: configData,
+      });
+      localStorage.setItem(AMPLIFY_CONFIG_JSON, JSON.stringify(res.data));
+      setLoadingConfig(false);
+    });
+  }, []);
+
+  return (
+    <div className="App">
+      {loadingConfig ? <LoadingText /> : <SignInRouter />}
     </div>
   );
 };

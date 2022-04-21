@@ -19,6 +19,7 @@
     "aws-amplify": "^4.3.19",
     "aws-appsync-auth-link": "^3.0.7",
     "aws-appsync-subscription-link": "^3.0.10",
+    "axios": "^0.26.1",
     "classnames": "^2.3.1",
     "node-sass": "^7.0.1",
     "oidc-client-ts": "^2.0.2",
