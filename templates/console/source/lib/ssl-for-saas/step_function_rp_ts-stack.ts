@@ -67,7 +67,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       ]
     });
 
-    const _fn_acm_direct_op_role = new iam.Role(this, '_fn_acm_direct_op_role', {
+    const _fn_ssl_api_handler_role = new iam.Role(this, '_fn_ssl_api_handler_role', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
@@ -88,6 +88,15 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     });
 
     const _fn_acm_import_cb_role = new iam.Role(this, '_fn_acm_import_cb_role', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AWSCertificateManagerFullAccess"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess")
+      ]
+    });
+
+    const _fn_failure_handling_lambda_role = new iam.Role(this, '_fn_failure_handling_lambda_role', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
@@ -163,6 +172,21 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       role:_fn_sns_notify_role, 
       memorySize:1024});
 
+    const fn_failure_handling = new _lambda.DockerImageFunction(this, 'function_to_handle_ssl_for_sass_failure', {
+      code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../../lambda/ssl-for-saas/failure_handling")),
+      environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900),
+      role:_fn_failure_handling_lambda_role,
+      memorySize:1024});
+
+    const failure_handling_job = new _task.LambdaInvoke(this, 'Failure Handling Job', {
+      lambdaFunction: fn_failure_handling,
+      payload: _step.TaskInput.fromObject({
+        "input": _step.JsonPath.entirePayload,
+      }),
+      resultSelector: {"Payload": _step.JsonPath.stringAt("$.Payload")},
+      resultPath: "$.fn_failure_handling"
+    });
+
     // {
     //   "Error": "{\"status\": \"FAILED\"}",
     //   "Cause": null
@@ -175,6 +199,8 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       }),
       resultPath: "$.snsFailure"
     });
+
+    failure_handling_job.next(snsFailureNotify)
 
     // {
     //     "acm_op": "create",
@@ -211,7 +237,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         "callback": "true"
       }),
       resultPath: "$.fn_acm_cb"
-    }).addCatch(snsFailureNotify);
+    }).addCatch(failure_handling_job);
 
     const acm_import_callback_job = new _task.LambdaInvoke(this, 'ACM Import Callback Job', {
       lambdaFunction: fn_acm_import_cb,
@@ -222,7 +248,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         // _step.JsonPath.stringAt("$.someField"),
       }),
       resultPath: "$.fn_acm_import_cb"
-    }).addCatch(snsFailureNotify);
+    }).addCatch(failure_handling_job);
 
     // {
     //   "domainName": "cdn2.risetron.cn",
@@ -255,6 +281,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       resultPath: "$.fn_acm_cb_handler_map",
     })
     acm_callback_handler_map.iterator(acm_callback_handler_job)
+    acm_callback_handler_map.addCatch(failure_handling_job)
 
     const sns_notify_job = new _task.LambdaInvoke(this, 'Success Notification Job', {
       lambdaFunction: fn_sns_notify,
@@ -275,6 +302,8 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       time: _step.WaitTime.duration(Duration.seconds(10))
     })
 
+
+
     // entry point for step function with cert create/import process
     const stepFunctionEntry = new _step.Choice(this, 'Initial entry point')
     stepFunctionEntry.when(_step.Condition.and(_step.Condition.stringEquals("$.acm_op", "create"), _step.Condition.stringEquals("$.auto_creation", "true")), acm_callback_job.next(wait_10s_for_cert_create).next(acm_callback_handler_map))
@@ -290,20 +319,20 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     })
 
     // lambda in step function & cron job
-    const fn_acm_direct_op = new _lambda.DockerImageFunction(this, 'acm_direct_op', {
-      code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_direct_op")),
+    const fn_ssl_api_handler = new _lambda.DockerImageFunction(this, 'fn_ssl_api_handler', {
+      code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/ssl_api_handler")),
       environment:{'STEP_FUNCTION_ARN': stepFunction.stateMachineArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},
       timeout:Duration.seconds(900), 
-      role:_fn_acm_direct_op_role, 
+      role:_fn_ssl_api_handler_role,
       memorySize:1024});
 
     // API Gateway with Lambda proxy integration
-    const api_acm_direct_op = new _apigw.LambdaRestApi(this, 'api_acm_direct_op', {
-      handler: fn_acm_direct_op,
+    const ssl_api_handler = new _apigw.LambdaRestApi(this, 'ssl_api_handler', {
+      handler: fn_ssl_api_handler,
       proxy: false
     });
 
-    api_acm_direct_op.root.addResource('ssl_for_saas').addMethod('POST');
+    ssl_api_handler.root.addResource('ssl_for_saas').addMethod('POST');
 
     // cloudwatch event crob job for 5 minutes
     new events.Rule(this, 'ACM status check', {

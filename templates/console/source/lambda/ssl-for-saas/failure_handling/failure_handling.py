@@ -306,6 +306,7 @@ def lambda_handler(event, context):
 
         convert_string_to_file(pem_value['CertPem'], PEM_FILE)
         _domainList = get_domain_list_from_cert()
+        logger.debug("debug>>domain list from cert is {}".format(_domainList))
         certificate['SubjectAlternativeNames'] = _domainList
         certificate['DomainName'] = _domainList[0] if _domainList else ''
 

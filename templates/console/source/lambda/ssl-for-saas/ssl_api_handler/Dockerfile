@@ -7,4 +7,4 @@ COPY *.py ${LAMBDA_TASK_ROOT}
 # RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 #
 
-CMD ["acm_direct_op.lambda_handler"]
+CMD ["ssl_api_handler.lambda_handler"]
