@@ -25,6 +25,16 @@ new ConsoleStack(app, 'ConsoleStack', {
 }
 );
 
+// Config version stack
+const configVersionStack = new CloudFrontConfigVersionStack(app, 'CloudFrontConfigVersionStack', {
+        tags: {
+            app: 'CloudFrontConfigVersion',
+        },
+        synthesizer: newSynthesizer(),
+        appsyncApi: commonStack.appsyncApi
+    }
+);
+
 // SSL for SaaS stack
 new StepFunctionRpTsStack(app, 'StepFunctionRpTsStack', {
     /* If you don't specify 'env', this stack will be environment-agnostic.
@@ -41,17 +51,11 @@ new StepFunctionRpTsStack(app, 'StepFunctionRpTsStack', {
 
     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
     appsyncApi: commonStack.appsyncApi
+    // configVersion_ddb_table_name: cdk.Fn.importValue('configVersionDDBTableName')
+
 });
 
-// Config version stack
-new CloudFrontConfigVersionStack(app, 'CloudFrontConfigVersionStack', {
-      tags: {
-        app: 'CloudFrontConfigVersion',
-      },
-      synthesizer: newSynthesizer(),
-      appsyncApi: commonStack.appsyncApi
-    }
-);
+
 
 // TODO: Add monitoring dashboard stack
 // new monitoringDashboardStack(app, 'MonitoringDashboardStack', {});

@@ -299,16 +299,6 @@ export class CloudFrontConfigVersionStack extends Stack {
         fieldName: "getConfigContent"
       });
 
-
-      // // Prints out the AppSync GraphQL endpoint to the terminal
-      // new cdk.CfnOutput(this, "GraphQLAPIURL", {
-      //   value: graphql_api.graphqlUrl
-      // });
-      //
-      // // Prints out the AppSync GraphQL API key to the terminal
-      // new cdk.CfnOutput(this, "GraphQLAPIKey", {
-      //   value: graphql_api.apiKey || ''
-      // });
     }
 
     // Prints out the stack region to the terminal
@@ -317,7 +307,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     });
 
     new cdk.CfnOutput(this, 'cloudfront_config_version_s3_bucket', { value: cloudfront_config_version_s3_bucket.bucketName });
-    new cdk.CfnOutput(this, 'cloudfront_config_version_dynamodb', { value: cloudfront_config_version_table.tableName });
+    new cdk.CfnOutput(this, 'cloudfront_config_version_dynamodb', { value: cloudfront_config_version_table.tableName, exportName: 'configVersionDDBTableName'});
     new cdk.CfnOutput(this, 'cloudfront_config_latest_version_dynamodb', { value: cloudfront_config_latestVersion_table.tableName });
     new cdk.CfnOutput(this, 'cloudfront_config_exporter',{value: cloudfrontConfigVersionExporter.functionName});
     new cdk.CfnOutput(this, 'cloudfront_config_diff',{value: cloudfrontConfigVersionManager.functionName});
