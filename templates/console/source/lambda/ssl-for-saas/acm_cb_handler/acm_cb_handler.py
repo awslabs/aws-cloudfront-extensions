@@ -175,50 +175,29 @@ def scan_for_cert(callback_table, domain_name):
 
     return response
 
-# call graphql api to get the configuration
-def fetch_cloudfront_config_version(distribution_id,config_version_id):
-    # Use AWS4Auth to sign a requests session
-    session = requests.Session()
-    # session.auth = AWS4Auth(
-    #     # An AWS 'ACCESS KEY' associated with an IAM user.
-    #     'AKxxxxxxxxxxxxxxx2A',
-    #     # The 'secret' that goes with the above access key.
-    #     'kwWxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxgEm',
-    #     # The region you want to access.
-    #     'ap-southeast-2',
-    #     # The service you want to access.
-    #     'appsync'
-    # )
-    # Use AWS4Auth to sign a requests session
-    session = requests.Session()
-    credentials = boto3.session.Session().get_credentials()
-    session.auth = AWS4Auth(
-        credentials.access_key,
-        credentials.secret_key,
-        boto3.session.Session().region_name,
-        'appsync',
-        session_token=credentials.token
-    )
+# get the cloudfront config from ddb and s3
+def fetch_cloudfront_config_version(distribution_id,config_version_id, ddb_table_name):
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
 
-    # As found in AWS Appsync under Settings for your endpoint.
-    APPSYNC_API_ENDPOINT_URL = 'https://nqxxxxxxxxxxxxxxxxxxxke.appsync-api.ap-southeast-2.amazonaws.com/graphql'
-    # Use JSON format string for the query. It does not need reformatting.
-    query = """
-        query foo {
-            GetUserSettings (
-                identity_id: "ap-southeast-2:8xxxxxxb-7xx4-4xx4-8xx0-exxxxxxx2"
-            ){ 
-                user_name, email, whatever 
-        }}
-    """
-    # Now we can simply post the request...
-    response = session.request(
-        url=APPSYNC_API_ENDPOINT_URL,
-        method='POST',
-        json={'query': query}
-    )
-    print(response.text)
-    return response
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "versionId": int(config_version_id)
+        })
+    data = response['Item']
+
+    config_link = data['config_link']
+    logger.info("target s3 link is " + config_link)
+
+    s3_client = boto3.client('s3')
+    data = s3_client.get_object(Bucket=data['s3_bucket'], Key=data['s3_key'])
+    content = json.load(data['Body'])
+    # result = str(json.dumps(content, indent=4))
+    # result = data['Body']
+
+    return content
 
 # INPUT
 # {
@@ -245,7 +224,10 @@ def lambda_handler(event, context):
 
     # fetch domain name from event
     callback_table = os.getenv('CALLBACK_TABLE')
+    # callback_table = 'acm_metadata_store'
     domain_name = event['input']['domainName']
+
+    logger.info("Domain name : " + domain_name)
 
     # scan domain name in DynamoDB and filter status is CERT_ISSUED, TBD retry here
     response = scan_for_cert(callback_table, domain_name)
@@ -285,7 +267,11 @@ def lambda_handler(event, context):
 
     # customization configuration of CloudFront distribution
 
-    config = default_distribution_config
+    original_cf_distribution_id = event['input']['existing_cf_info']['distribution_id']
+    original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
+    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+    # ddb_table_name = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
+    config = fetch_cloudfront_config_version(original_cf_distribution_id, original_cf_distribution_version, ddb_table_name)
 
     config['CallerReference'] = str(uuid.uuid4())
     config['Aliases']['Items'] = SubDomainNameList
@@ -313,8 +299,8 @@ def lambda_handler(event, context):
     config['DefaultCacheBehavior']['TargetOriginId'] = DefaultCacheBehaviorTargetOriginId
     config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     # TBD, should search mapping certficate by tag
+    config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
     config['ViewerCertificate']['ACMCertificateArn'] = CertificateArn
-    config['ViewerCertificate']['MinimumProtocolVersion'] = "TLSv1.2_2019"
     config['ViewerCertificate']['Certificate'] = CertificateArn
 
     resp = create_distribution(config)
