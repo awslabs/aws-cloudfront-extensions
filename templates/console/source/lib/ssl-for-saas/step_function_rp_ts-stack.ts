@@ -122,7 +122,8 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         iam.ManagedPolicy.fromAwsManagedPolicyName("AWSCertificateManagerFullAccess"),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess"),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AWSStepFunctionsFullAccess"),
-        iam.ManagedPolicy.fromAwsManagedPolicyName("CloudFrontFullAccess")
+        iam.ManagedPolicy.fromAwsManagedPolicyName("CloudFrontFullAccess"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
       ]
     });
 
