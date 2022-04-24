@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { EndpointType, LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
+import { EndpointType, LambdaRestApi, RequestValidator } from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -19,8 +19,8 @@ export class PrewarmStack extends cdk.Stack {
     const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      partitionKey: { name: 'url', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'reqId', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'reqId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'url', type: dynamodb.AttributeType.STRING },
       pointInTimeRecovery: true,
     });
 
@@ -153,6 +153,7 @@ export class PrewarmStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_WEEK
     });
 
+    // Restful API to prewarm resources, prod stage has been created by default
     const schedulerApi = new LambdaRestApi(this, 'PrewarmApi', {
       handler: schedulerLambda,
       description: "Restful API to prewarm resources",
@@ -177,39 +178,37 @@ export class PrewarmStack extends cdk.Stack {
       apiKeyRequired: true,
     });
 
-    // const plan = api.addUsagePlan('UsagePlan', {
-    //   name: 'Easy',
-    //   throttle: {
-    //     rateLimit: 10,
-    //     burstLimit: 2
-    //   }
-    // });
-
-    // const key = api.addApiKey('ApiKey');
-    // plan.addApiKey(key);
-
-    // plan.addApiStage({
-    //   stage: api.deploymentStage,
-    //   throttle: [
-    //     {
-    //       method: echoMethod,
-    //       throttle: {
-    //         rateLimit: 10,
-    //         burstLimit: 2
-    //       }
-    //     }
-    //   ]
-    // });
-
     const statusProxy = statusApi.root.addResource('status');
     statusProxy.addMethod('GET', undefined, {
       // authorizationType: AuthorizationType.IAM,
+      requestParameters: {
+        'method.request.querystring.requestID': true,
+      },
       apiKeyRequired: true,
+      requestValidator: new RequestValidator(this, "PrewarmStatusApiValidator", {
+        validateRequestBody: false,
+        validateRequestParameters: true,
+        requestValidatorName: 'defaultValidator',
+        restApi: statusApi
+      }),
+    });
+
+    const usagePlan = schedulerApi.addUsagePlan('PrewarmUsagePlan', {
+      description: 'Prewarm API usage plan',
+    });
+    const apiKey = schedulerApi.addApiKey('PrewarmApiKey');
+    usagePlan.addApiKey(apiKey);
+    usagePlan.addApiStage({
+      stage: schedulerApi.deploymentStage,
+    });
+
+    usagePlan.addApiStage({
+      stage: statusApi.deploymentStage,
     });
 
     // Output
-    new cdk.CfnOutput(this, "Prewarm API", {
-      value: schedulerApi.url
+    new cdk.CfnOutput(this, "Prewarm API key", {
+      value: apiKey.keyArn
     });
 
   }
