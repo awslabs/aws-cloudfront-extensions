@@ -31,56 +31,58 @@ def get_cf_domain_prefix(parsed_url):
     return parsed_url.netloc.replace(URL_SUFFIX, '')
 
 
-def pre_warm(url, pop, req_id, origin_url, cf_domain, create_time):
+def pre_warm(url, pop, cf_domain):
     try:
         resp = requests.get(url=url, headers={'Host': cf_domain})
-        if resp.status_code == 200:
-            table_item = {
-                "createTime": create_time,
-                "status": "SUCCESS",
-                "statusCode": resp.status_code,
-                "reqId": req_id,
-                "url": origin_url
-            }
-        else:
-            table_item = {
-                "createTime": create_time,
-                "status": "FAIL",
-                "statusCode": resp.status_code,
-                "reqId": req_id,
-                "url": origin_url
-            }
+        log.info(f'Prewarm started, PoP: {pop}, Url: {url}, response: {resp}')
+
+        return resp.status_code
     except Exception as e:
         log.info(f'Failed: PoP => {pop}, Url => {url} with exception => {e}')
-        table_item = {
-            "createTime": create_time,
-            "status": "FAIL",
-            "statusCode": -1,
-            "reqId": req_id,
-            "url": origin_url
-        }
-    finally:
-        ddb_response = table.put_item(Item=table_item)
-        log.info(ddb_response)
+
+        return -1
 
 
 def lambda_handler(event, context):
-    event_body = json.loads(event['Records'][0]['body'])
-    url = event_body['url']
-    cf_domain = event_body['domain']
-    pop_list = event_body['pop']
-    req_id = event_body['reqId']
-    create_time = event_body['create_time']
+    log.info(str(event))
 
-    parsed_url = parse.urlsplit(url)
-    # replace url according to cf_domain
-    parsed_url = replace_url(parsed_url, cf_domain)
-    cf_domain_prefix = get_cf_domain_prefix(parsed_url)
+    for record in event['Records']:
+        event_body = json.loads(record['body'])
+        url = event_body['url']
+        cf_domain = event_body['domain']
+        pop_list = event_body['pop']
+        req_id = event_body['reqId']
+        create_time = event_body['create_time']
+        success_list = []
+        failure_list = []
 
-    for pop in pop_list:
-        pop = pop.strip()
-        target_url = gen_pop_url(parsed_url, pop, cf_domain_prefix)
-        pre_warm(target_url, pop, req_id, url, cf_domain, create_time)
+        parsed_url = parse.urlsplit(url)
+        # replace url according to cf_domain
+        parsed_url = replace_url(parsed_url, cf_domain)
+        cf_domain_prefix = get_cf_domain_prefix(parsed_url)
+
+        for pop in pop_list:
+            pop = pop.strip()
+            target_url = gen_pop_url(parsed_url, pop, cf_domain_prefix)
+            prewarm_status_code = pre_warm(target_url, pop, cf_domain)
+            if prewarm_status_code == 200:
+                success_list.append(pop)
+            else:
+                failure_list.append(pop)
+
+        if len(success_list) == len(pop_list):
+            url_status = 'SUCCESS'
+        else:
+            url_status = 'FAIL'
+
+        table_item = {
+            "createTime": create_time,
+            "status": url_status,
+            "failure": failure_list,
+            "reqId": req_id,
+            "url": url
+        }
+        table.put_item(Item=table_item)
 
     return {
         "statusCode": 200,

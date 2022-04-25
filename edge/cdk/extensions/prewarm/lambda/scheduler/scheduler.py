@@ -34,12 +34,11 @@ def send_msg(queue_url, url, domain, pop, req_id, create_time):
     return response
 
 
-def write_in_ddb(url, req_id, current_time):
+def write_in_ddb(req_id, url_list):
     table_item = {
-        'url': url,
-        'reqId': req_id,
-        'status': 'IN_PROGRESS',
-        'createTime': current_time
+        "urlList": url_list,
+        "reqId": req_id,
+        "url": 'metadata'
     }
     ddb_response = table.put_item(Item=table_item)
     log.info(table_item)
@@ -58,7 +57,10 @@ def return_error_response(message):
 def lambda_handler(event, context):
     req_id = context.aws_request_id
     event_body = json.loads(event['body'])
-    if 'body' not in event_body or 'url_list' not in event_body or 'cf_domain_mapping' not in event_body or 'region' not in event_body:
+    if 'body' not in event_body or \
+        'url_list' not in event_body or \
+        'cf_domain_mapping' not in event_body or \
+            'region' not in event_body:
         return_error_response(
             'Please specify body, url_list, cf_domain_mapping and region in the request body')
 
@@ -77,8 +79,8 @@ def lambda_handler(event, context):
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
     for url in url_list:
+        write_in_ddb(req_id, url_list)
         send_msg(QUEUE_URL, url, cf_domain, pop_region, req_id, current_time)
-        write_in_ddb(url, req_id, current_time)
 
     return {
         "statusCode": 200,
