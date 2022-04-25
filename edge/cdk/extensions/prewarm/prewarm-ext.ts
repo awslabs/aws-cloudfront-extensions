@@ -10,11 +10,10 @@ import { Construct } from 'constructs';
 import * as path from 'path';
 
 
-
 export class PrewarmStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    this.templateOptions.description = "(SO8138) - Prewarm";
+    this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop";
 
     const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -32,7 +31,8 @@ export class PrewarmStack extends cdk.Stack {
 
     const messageQueue = new sqs.Queue(this, 'PrewarmMessageQueue', {
       encryption: sqs.QueueEncryption.KMS_MANAGED,
-      visibilityTimeout: cdk.Duration.minutes(60),
+      receiveMessageWaitTime: cdk.Duration.seconds(5),
+      visibilityTimeout: cdk.Duration.minutes(15),
       deadLetterQueue: {
         queue: dlq,
         maxReceiveCount: 20,
@@ -113,8 +113,9 @@ export class PrewarmStack extends cdk.Stack {
     const agentLambda = new lambda.Function(this, 'PrewarmAgent', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'agent.lambda_handler',
-      timeout: cdk.Duration.seconds(300),
+      timeout: cdk.Duration.minutes(15),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/agent.zip')),
+      architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 1024,
       environment: {
@@ -123,14 +124,17 @@ export class PrewarmStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_WEEK
     });
 
-    const eventSource = new SqsEventSource(messageQueue);
-    agentLambda.addEventSource(eventSource);
+    agentLambda.addEventSource(new SqsEventSource(messageQueue, {
+      batchSize: 1,
+      maxBatchingWindow: cdk.Duration.minutes(1),
+    }));
 
     const schedulerLambda = new lambda.Function(this, 'PrewarmScheduler', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'scheduler.lambda_handler',
-      timeout: cdk.Duration.seconds(300),
+      timeout: cdk.Duration.minutes(15),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/scheduler.zip')),
+      architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 1024,
       environment: {
@@ -143,8 +147,9 @@ export class PrewarmStack extends cdk.Stack {
     const statusFetcherLambda = new lambda.Function(this, 'PrewarmStatusFetcher', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'status_fetcher.lambda_handler',
-      timeout: cdk.Duration.seconds(300),
+      timeout: cdk.Duration.seconds(60),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/status_fetcher')),
+      architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 1024,
       environment: {
@@ -163,6 +168,7 @@ export class PrewarmStack extends cdk.Stack {
       }
     });
 
+    // Restful API to get prewarm status from Dynamodb table
     const statusApi = new LambdaRestApi(this, 'PrewarmStatusApi', {
       handler: statusFetcherLambda,
       description: "Restful API to get prewarm status",
@@ -174,13 +180,11 @@ export class PrewarmStack extends cdk.Stack {
 
     const schedulerProxy = schedulerApi.root.addResource('prewarm');
     schedulerProxy.addMethod('POST', undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
     });
 
     const statusProxy = statusApi.root.addResource('status');
     statusProxy.addMethod('GET', undefined, {
-      // authorizationType: AuthorizationType.IAM,
       requestParameters: {
         'method.request.querystring.requestID': true,
       },
