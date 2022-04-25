@@ -23,7 +23,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: CommonProps) {
     super(scope, id, props);
 
-    //check appsync is exist in props
+    //check appsync is existed in props
     if(props == null){
       throw Error('The props can not be null')
     }
@@ -31,7 +31,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       throw Error('appsync should be included in the props')
     }
 
-    // dynadmodb table for acm callback
+    // dynamodb table for acm callback
     const callback_table = new dynamodb.Table(this, 'acm_metadata', {
       tableName: 'acm_metadata_store',
       partitionKey: {
@@ -136,19 +136,21 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       ]
     });
 
-    // create lambda function
+    // lambda function to handle acm import operation
     const fn_acm_import_cb = new _lambda.DockerImageFunction(this, 'acm_import_callback', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../../lambda/ssl-for-saas/acm_import_cb")),
       environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
       role:_fn_acm_import_cb_role, 
       memorySize:1024});
 
+    // lambda function to handle acm create operation
     const fn_acm_cb = new _lambda.DockerImageFunction(this, 'acm_callback', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_cb")),
       environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
       role:_fn_acm_cb_role, 
       memorySize:512});
 
+    // lambda function to create cloudfront distribution after certification been verified and issued
     const fn_acm_cb_handler = new _lambda.DockerImageFunction(this, 'acm_callback_handler', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_cb_handler")),
       environment:{
@@ -162,24 +164,28 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       role:_fn_acm_cb_handler_role, 
       memorySize:1024});
 
+    // background lambda running regularly to scan the acm certification and notify acm_callback_handler when cert been issued
     const fn_acm_cron = new _lambda.DockerImageFunction(this, 'acm_cron_job', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../../lambda/ssl-for-saas/acm_cron")),
       environment:{'PAYLOAD_EVENT_KEY': 'placeholder', 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
       role:_fn_acm_cron_role, 
       memorySize:1024});
 
+    // send out sns notification
     const fn_sns_notify = new _lambda.DockerImageFunction(this, 'sns_notify', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/sns_notify")),
       environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900),
       role:_fn_sns_notify_role, 
       memorySize:1024});
 
+    // function to clean up garbage resources when error occurred during acm create or import
     const fn_failure_handling = new _lambda.DockerImageFunction(this, 'function_to_handle_ssl_for_sass_failure', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../../lambda/ssl-for-saas/failure_handling")),
       environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900),
       role:_fn_failure_handling_lambda_role,
       memorySize:1024});
 
+    //step function task to handle error
     const failure_handling_job = new _task.LambdaInvoke(this, 'Failure Handling Job', {
       lambdaFunction: fn_failure_handling,
       payload: _step.TaskInput.fromObject({
@@ -235,7 +241,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       payload: _step.TaskInput.fromObject({
         "task_token": _step.JsonPath.taskToken,
         "input": _step.JsonPath.entirePayload,
-        // _step.JsonPath.stringAt("$.someField"),
         "callback": "true"
       }),
       resultPath: "$.fn_acm_cb"
@@ -247,7 +252,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       payload: _step.TaskInput.fromObject({
         "task_token": _step.JsonPath.taskToken,
         "input": _step.JsonPath.entirePayload,
-        // _step.JsonPath.stringAt("$.someField"),
       }),
       resultPath: "$.fn_acm_import_cb"
     }).addCatch(failure_handling_job);
@@ -270,7 +274,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       lambdaFunction: fn_acm_cb_handler,
       payload: _step.TaskInput.fromObject({
         "input": _step.JsonPath.entirePayload,
-        // _step.JsonPath.stringAt("$.someField"),
       }),
       resultSelector: {"Payload": _step.JsonPath.stringAt("$.Payload")},
       resultPath: "$.fn_acm_cb_handler"
@@ -289,11 +292,9 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       lambdaFunction: fn_sns_notify,
       payload: _step.TaskInput.fromObject({
         "input": _step.JsonPath.entirePayload,
-        // _step.JsonPath.stringAt("$.someField"),
       }),
       // Lambda's result is in the attribute `Payload`
       resultSelector: {"Payload": _step.JsonPath.stringAt("$.Payload")},
-      // outputPath: "$.Payload",
       resultPath: "$.fn_sns_notify"
     })
 
@@ -306,9 +307,24 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     // entry point for step function with cert create/import process
     const stepFunctionEntry = new _step.Choice(this, 'Initial entry point')
-    stepFunctionEntry.when(_step.Condition.and(_step.Condition.stringEquals("$.acm_op", "create"), _step.Condition.stringEquals("$.auto_creation", "true")), acm_callback_job.next(wait_10s_for_cert_create).next(acm_callback_handler_map))
+    stepFunctionEntry.when(
+        _step.Condition.and(
+            _step.Condition.stringEquals("$.acm_op", "create"),
+            _step.Condition.stringEquals("$.auto_creation", "true")
+        ),
+        acm_callback_job.next(wait_10s_for_cert_create)
+                        .next(acm_callback_handler_map)
+    )
 
-    stepFunctionEntry.when(_step.Condition.and(_step.Condition.stringEquals("$.acm_op", "import"), _step.Condition.stringEquals("$.auto_creation", "true")), acm_import_callback_job.next(wait_10s_for_cert_import).next(acm_callback_handler_map).next(sns_notify_job))
+    stepFunctionEntry.when(
+        _step.Condition.and(
+            _step.Condition.stringEquals("$.acm_op", "import"),
+            _step.Condition.stringEquals("$.auto_creation", "true")
+        ),
+        acm_import_callback_job.next(wait_10s_for_cert_import)
+                               .next(acm_callback_handler_map)
+                               .next(sns_notify_job)
+    )
 
     const stepFunction = new _step.StateMachine(this, 'SSL for SaaS', {
       definition: stepFunctionEntry,
@@ -334,7 +350,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     ssl_api_handler.root.addResource('ssl_for_saas').addMethod('POST');
 
-    // cloudwatch event crob job for 5 minutes
+    // cloudwatch event cron job for 5 minutes
     new events.Rule(this, 'ACM status check', {
       schedule: events.Schedule.expression("cron(0/1 * * * ? *)"),
       targets: [new targets.LambdaFunction(fn_acm_cron)]
@@ -373,17 +389,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       role:_fn_appsync_func_role, 
       memorySize:1024});
 
-    // const appsyncApi = new _appsync_alpha.GraphqlApi(this, 'appsyncApi', {
-    //   name: 'appsyncApi',
-    //   schema: _appsync_alpha.Schema.fromAsset(path.join(__dirname,'../../graphql/schema.graphql')),
-    //   authorizationConfig: {
-    //     defaultAuthorization: {
-    //       authorizationType: _appsync_alpha.AuthorizationType.IAM,
-    //     },
-    //   },
-    //   xrayEnabled: false,
-    // });
-    if (props && props.appsyncApi) {
+      //appsyncApi is imported from common stack
       const appsyncApi = props?.appsyncApi;
 
       // An AppSync datasource backed by a Lambda function
@@ -392,7 +398,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         lambdaFunction: fn_appsync_function,
         description: 'Lambda Data Source for cert create/import',
         name: 'certMutation',
-        // serviceRole: _fn_appsync_func_role,
       });
 
       // An AppSync resolver to resolve the Lambda function
@@ -411,5 +416,4 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       });
     }
 
-  }
 }
