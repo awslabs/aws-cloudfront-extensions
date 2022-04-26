@@ -288,65 +288,8 @@ def lambda_handler(event, context):
     # get task_token from event to create callback task
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
-    task_token = event['task_token']
-
-    if not task_token:
-        logger.error("Task token not found in event")
-    else:
-        logger.info("Task token {}".format(task_token))
-
-    # result_cnameList = []
-
-    # iterate pemList array from event
-    for pem_index, pem_value in enumerate(event['input']['pemList']):
-        cert_UUid = str(uuid.uuid4())
-        certificate['CertPem'] = str.encode(pem_value['CertPem'])
-        certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
-        certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
-
-        convert_string_to_file(pem_value['CertPem'], PEM_FILE)
-        _domainList = get_domain_list_from_cert()
-        logger.debug("debug>>domain list from cert is {}".format(_domainList))
-        certificate['SubjectAlternativeNames'] = _domainList
-        certificate['DomainName'] = _domainList[0] if _domainList else ''
-
-        if event['input']['enable_cname_check'] == 'true':
-            # validation for certificate
-            if event['input']['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                logger.info("Domain name {} matches certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-            else:
-                logger.error("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                # exit with error
-                raise Exception("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-        else:
-            logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(event['input']['cnameList'][pem_index]['domainName']))
-
-        # empty dictionary to store domain metadata
-        # cnameListItem = {}
-        # cnameListItem["domainName"] = certificate['DomainName']
-        # cnameListItem["sanList"] = certificate['SubjectAlternativeNames']
-        # # assume all originsItemsDomainName are same
-        # cnameListItem["originsItemsDomainName"] = event['input']['cnameList'][0]['originsItemsDomainName']
-        # result_cnameList.append(cnameListItem)
-
-        sanListDynamoDB = [dict(zip(['S'],[x])) for x in _domainList]
-        logger.info('index %s: sanList for DynamoDB: %s', pem_index, sanListDynamoDB)
-
-        resp = import_certificate(certificate)
-
-        _create_acm_metadata(callback_table,
-                                certificate['DomainName'], 
-                                sanListDynamoDB,
-                                cert_UUid,
-                                task_token,
-                                task_type,
-                                'TASK_TOKEN_TAGGED',
-                                resp['CertificateArn'])
-
-        # tag acm certificate with task_token, slice task token to fit length of 128
-        _tag_certificate(resp['CertificateArn'], task_token[:128])
 
     return {
-        'statusCode': 200,
-        'body': json.dumps('step to acm callback complete')
+        'statusCode': 400,
+        'body': json.dumps('step to clean up the resources completed')
     }

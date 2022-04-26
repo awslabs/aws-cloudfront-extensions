@@ -111,7 +111,7 @@ def _update_acm_metadata_task_status(callbackTable, taskToken, domainName, taskS
     )
 
 # fetch acm list that waiting for dcv
-def fetch_waiting_list(table_name, task_type, task_status):
+def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
     """_summary_
 
     Args:
@@ -135,7 +135,9 @@ def fetch_waiting_list(table_name, task_type, task_status):
         }
     )
     if response['Count'] == 0:
-        raise Exception('No task found')
+        logger.info('No Task found with taskStatus: %s', task_status)
+        return
+
     # filter item into acm_dcv_dict with {taskToken1: [certUUid1, certUUid2, ...], ...}
     logger.info('dynamodb scan result with status TASK_TOKEN_TAGGED: %s', json.dumps(response))
 
@@ -183,4 +185,4 @@ def lambda_handler(event, context):
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
 
-    fetch_waiting_list(callback_table, task_type, task_status='TASK_TOKEN_TAGGED')
+    fetch_acm_status_from_waiting_list(callback_table, task_type, task_status='TASK_TOKEN_TAGGED')
