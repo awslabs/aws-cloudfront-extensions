@@ -171,6 +171,13 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       role:_fn_acm_cron_role, 
       memorySize:1024});
 
+    // send out sns failure notification
+    const fn_sns_failure_notify = new _lambda.DockerImageFunction(this, 'sns_failure_notify', {
+      code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/sns_failure_notify")),
+      environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900),
+      role:_fn_sns_notify_role,
+      memorySize:1024});
+
     // send out sns notification
     const fn_sns_notify = new _lambda.DockerImageFunction(this, 'sns_notify', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/sns_notify")),
@@ -191,7 +198,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       payload: _step.TaskInput.fromObject({
         "input": _step.JsonPath.entirePayload,
       }),
-      resultSelector: {"Payload": _step.JsonPath.stringAt("$.Payload")},
       resultPath: "$.fn_failure_handling"
     });
 
@@ -199,14 +205,15 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     //   "Error": "{\"status\": \"FAILED\"}",
     //   "Cause": null
     // }
-    const snsFailureNotify = new _task.SnsPublish(this, 'Failure Notification', {
-      topic: sns_topic,
-      integrationPattern: _step.IntegrationPattern.REQUEST_RESPONSE,
-      message: _step.TaskInput.fromObject({
-        "error": _step.JsonPath.stringAt("$.Error")
+    const snsFailureNotify = new _task.LambdaInvoke(this, 'Failure Notification Job', {
+      lambdaFunction: fn_sns_failure_notify,
+      payload: _step.TaskInput.fromObject({
+        "input": _step.JsonPath.entirePayload,
       }),
-      resultPath: "$.snsFailure"
-    });
+      // Lambda's result is in the attribute `Payload`
+      resultSelector: {"Payload": _step.JsonPath.stringAt("$.Payload")},
+      resultPath: "$.fn_sns_notify"
+    })
 
     failure_handling_job.next(snsFailureNotify)
 
@@ -244,7 +251,9 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         "callback": "true"
       }),
       resultPath: "$.fn_acm_cb"
-    }).addCatch(failure_handling_job);
+    }).addCatch(failure_handling_job,{
+      "resultPath": "$.error",
+    });
 
     const acm_import_callback_job = new _task.LambdaInvoke(this, 'ACM Import Callback Job', {
       lambdaFunction: fn_acm_import_cb,
@@ -254,7 +263,10 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         "input": _step.JsonPath.entirePayload,
       }),
       resultPath: "$.fn_acm_import_cb"
-    }).addCatch(failure_handling_job);
+    }).addCatch(failure_handling_job,{
+        // "errors": ["$.errorMessage"],
+        "resultPath": "$.error",
+  });
 
     // {
     //   "domainName": "cdn2.risetron.cn",
@@ -286,7 +298,9 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       resultPath: "$.fn_acm_cb_handler_map",
     })
     acm_callback_handler_map.iterator(acm_callback_handler_job)
-    acm_callback_handler_map.addCatch(failure_handling_job)
+    acm_callback_handler_map.addCatch(failure_handling_job,{
+        "resultPath": "$.error",
+  })
 
     const sns_notify_job = new _task.LambdaInvoke(this, 'Success Notification Job', {
       lambdaFunction: fn_sns_notify,
@@ -352,7 +366,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, 'ACM status check', {
-      schedule: events.Schedule.expression("cron(0/1 * * * ? *)"),
+      schedule: events.Schedule.expression("cron(*/5 * * * ? *)"),
       targets: [new targets.LambdaFunction(fn_acm_cron)]
     });
 

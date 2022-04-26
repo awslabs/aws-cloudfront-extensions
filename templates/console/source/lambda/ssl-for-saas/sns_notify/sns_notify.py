@@ -18,6 +18,7 @@ os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
 # get sns topic arn from environment variable
 snsTopicArn = os.environ.get('SNS_TOPIC')
 
+
 def lambda_handler(event, context):
     """
 
@@ -57,7 +58,11 @@ def lambda_handler(event, context):
     msg = []
     # iterate distribution list from event
     for record in event['input']['fn_acm_cb_handler_map']:
-        msg.append("Distribution domain name {} created, ARN: {}".format(record['fn_acm_cb_handler']['Payload']['body']['distributionDomainName'], record['fn_acm_cb_handler']['Payload']['body']['distributionArn']))
+        msg.append("Distribution domain name {} created, ARN: {}"
+                   .format(record['fn_acm_cb_handler']['Payload']['body']['distributionDomainName'],
+                           record['fn_acm_cb_handler']['Payload']['body']['distributionArn']
+                           )
+                   )
 
     logger.info("deliver message: %s to sns topic arn: %s", str(msg), snsTopicArn)
 
@@ -67,7 +72,7 @@ def lambda_handler(event, context):
     elif 'fn_acm_import_cb' in event['input']:
         status = event['input']['fn_acm_import_cb']['status']
 
-    messageToBePublished = {
+    message_to_be_published = {
         'Deployment Status': status,
         'Details': str(msg),
     }
@@ -76,7 +81,7 @@ def lambda_handler(event, context):
     sns_client = boto3.client('sns')
     sns_client.publish(
         TopicArn=snsTopicArn,
-        Message=str(messageToBePublished),
+        Message=str(message_to_be_published),
         Subject='SSL for SaaS event received'
     )
 
