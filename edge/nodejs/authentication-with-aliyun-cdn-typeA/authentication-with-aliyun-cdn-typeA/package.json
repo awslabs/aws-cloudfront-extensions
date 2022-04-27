@@ -7,7 +7,7 @@
   "author": "AWS",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.26.0",
+    "axios": "^0.27.1",
     "console-log-level": "^1.4.1",
     "crypto": "^1.0.1",
     "querystring": "^0.2.0"
