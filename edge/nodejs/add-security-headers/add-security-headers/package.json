@@ -7,7 +7,7 @@
   "author": "SAM CLI",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.26.0"
+    "axios": "^0.27.1"
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
