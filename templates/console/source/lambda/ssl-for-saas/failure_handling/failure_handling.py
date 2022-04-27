@@ -289,7 +289,8 @@ def lambda_handler(event, context):
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
 
+
     return {
-        'statusCode': 400,
+        'statusCode': 200,
         'body': json.dumps('step to clean up the resources completed')
     }

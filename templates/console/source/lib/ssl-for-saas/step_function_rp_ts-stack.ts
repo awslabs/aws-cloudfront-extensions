@@ -139,14 +139,25 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     // lambda function to handle acm import operation
     const fn_acm_import_cb = new _lambda.DockerImageFunction(this, 'acm_import_callback', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../../lambda/ssl-for-saas/acm_import_cb")),
-      environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
+      environment:{
+        'SNS_TOPIC': sns_topic.topicArn,
+        'CALLBACK_TABLE': callback_table.tableName,
+        'TASK_TYPE': 'placeholder',
+        'CONFIG_VERSION_DDB_TABLE_NAME': cdk.Fn.importValue('configVersionDDBTableName')
+      },
+      timeout:Duration.seconds(900),
       role:_fn_acm_import_cb_role, 
       memorySize:1024});
 
     // lambda function to handle acm create operation
     const fn_acm_cb = new _lambda.DockerImageFunction(this, 'acm_callback', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_cb")),
-      environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
+      environment:{
+        'SNS_TOPIC': sns_topic.topicArn,
+        'CALLBACK_TABLE': callback_table.tableName,
+        'TASK_TYPE': 'placeholder',
+        'CONFIG_VERSION_DDB_TABLE_NAME': cdk.Fn.importValue('configVersionDDBTableName')
+      },timeout:Duration.seconds(900),
       role:_fn_acm_cb_role, 
       memorySize:512});
 

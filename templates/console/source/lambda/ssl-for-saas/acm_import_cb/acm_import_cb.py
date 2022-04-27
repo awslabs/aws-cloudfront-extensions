@@ -299,11 +299,34 @@ def lambda_handler(event, context):
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
     task_token = event['task_token']
+    domainNameList = event['input']['cnameList']
 
     if not task_token:
         logger.error("Task token not found in event")
     else:
         logger.info("Task token {}".format(task_token))
+
+
+    # validate the source cloudfront distribution/version is existed
+    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
+    for cname_index, cname_value in enumerate(domainNameList):
+        source_cf_info = cname_value['existing_cf_info']
+        dist_id = source_cf_info['distribution_id']
+        version_id = source_cf_info['config_version_id']
+
+        # get specific cloudfront distributions version info
+        response = ddb_table.get_item(
+            Key={
+                "distributionId": dist_id,
+                "versionId": int(version_id)
+            })
+        if 'Item' in response:
+            continue
+        else:
+            logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
+            raise Exception("Failed to find existing config with name: %s, version: %s does not exist", dist_id, version_id)
 
     # result_cnameList = []
 
