@@ -7,7 +7,7 @@
   "author": "Ning Lv",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.26.0",
+    "axios": "^0.27.1",
     "follow-redirects": "^1.13.1"
   },
   "scripts": {
