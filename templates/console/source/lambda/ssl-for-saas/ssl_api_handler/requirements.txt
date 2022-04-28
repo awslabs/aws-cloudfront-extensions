@@ -1,0 +1,1 @@
+aws_lambda_powertools==1.25.9
