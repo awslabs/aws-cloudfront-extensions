@@ -17,6 +17,7 @@ logger.setLevel(logging.INFO)
 # add execution path
 os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
 
+
 # query acm status for specific taskToken
 def query_certificate_status(task_token):
     """_summary_
@@ -26,12 +27,12 @@ def query_certificate_status(task_token):
 
     Returns:
         _type_: _description_
-    """    
+    """
     # list all certificates, TBD take list_certificates out of such function
     resp = acm.list_certificates()
     logger.info('certificates summary: %s', json.dumps(resp))
     # True if all certificates with specified tag(token_id) are Issued
-    certStatus = 'notIssued'
+    cert_status = 'notIssued'
 
     # status union
     status_union = set()
@@ -51,24 +52,30 @@ def query_certificate_status(task_token):
                 resp = acm.describe_certificate(
                     CertificateArn=certificate['CertificateArn']
                 )
-                # check if status is ISSUED, 'PENDING_VALIDATION'|'ISSUED'|'INACTIVE'|'EXPIRED'|'VALIDATION_TIMED_OUT'|'REVOKED'|'FAILED',
+                # check if status is ISSUED,
+                # 'PENDING_VALIDATION'|'ISSUED'|'INACTIVE'|'EXPIRED'|'VALIDATION_TIMED_OUT'|'REVOKED'|'FAILED',
                 if resp['Certificate']['Status'] == 'ISSUED':
-                    certStatus = 'certIssued'
+                    cert_status = 'certIssued'
                     logger.info('certificate issued: %s', certificate['CertificateArn'])
                     break
                 elif resp['Certificate']['Status'] == 'PENDING_VALIDATION':
-                    certStatus = 'certNotIssued'
-                    logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'] , resp['Certificate']['Status'])
-                elif resp['Certificate']['Status'] == 'VALIDATION_TIMED_OUT' or resp['Certificate']['Status'] == 'FAILED':
-                    certStatus = 'certFailed'
-                    logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'] , resp['Certificate']['Status'])
-    return certStatus
+                    cert_status = 'certNotIssued'
+                    logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'],
+                                resp['Certificate']['Status'])
+                elif resp['Certificate']['Status'] == 'VALIDATION_TIMED_OUT' or \
+                        resp['Certificate']['Status'] == 'FAILED':
+                    cert_status = 'certFailed'
+                    logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'],
+                                resp['Certificate']['Status'])
+    return cert_status
+
 
 def _set_task_success(token, output):
     sf_client.send_task_success(
         taskToken=token,
         output=json.dumps(output)
     )
+
 
 def _set_task_failure(token, error):
     sf_client = boto3.client('stepfunctions')
@@ -78,10 +85,12 @@ def _set_task_failure(token, error):
         error=json.dumps(error)
     )
 
+
 def _set_task_heartbeat(token):
     sf_client.send_task_heartbeat(
         taskToken=token
     )
+
 
 def _update_acm_metadata_task_status(callbackTable, taskToken, domainName, taskStatus):
     """_summary_
@@ -110,6 +119,7 @@ def _update_acm_metadata_task_status(callbackTable, taskToken, domainName, taskS
         }
     )
 
+
 # fetch acm list that waiting for dcv
 def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
     """_summary_
@@ -121,7 +131,7 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
 
     Raises:
         Exception: _description_
-    """    
+    """
     response = dynamo_client.scan(
         TableName=table_name,
         FilterExpression="taskStatus = :ts",
@@ -134,12 +144,13 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
             }
         }
     )
-    if response['Count'] == 0:
-        logger.info('No Task found with taskStatus: %s', task_status)
-        return
 
     # filter item into acm_dcv_dict with {taskToken1: [certUUid1, certUUid2, ...], ...}
     logger.info('dynamodb scan result with status TASK_TOKEN_TAGGED: %s', json.dumps(response))
+
+    if response['Count'] == 0:
+        logger.info('No Task found with taskStatus: %s', task_status)
+        return
 
     # an empty key value pair
     acm_dcv_dict = {}
@@ -171,6 +182,7 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
             for domainName in acm_dcv_dict[task_token]:
                 _update_acm_metadata_task_status(table_name, task_token, domainName, 'CERT_FAILED')
             _set_task_failure(item['taskToken']['S'], {'status': 'FAILED'})
+
 
 def lambda_handler(event, context):
     """_summary_

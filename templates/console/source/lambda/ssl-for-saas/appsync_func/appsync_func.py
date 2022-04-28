@@ -14,6 +14,7 @@ logger.setLevel(logging.INFO)
 # add execution path
 os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
 
+
 def lambda_handler(event, context):
     """
 
@@ -46,7 +47,7 @@ def lambda_handler(event, context):
     # }
     logger.info("Received event: " + json.dumps(event))
 
-    # exact same code as acm_direct_op.py, TBD
+    # exact same code as acm_direct_op.py, TBD TODO: need to add
 
     return {
         'statusCode': 200,

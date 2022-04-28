@@ -140,6 +140,7 @@ def create_distribution(config):
     logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s', resp['Distribution']['Id'], resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
 
     return resp
+    # TODO: Do we need to wait distribution status to be deployed?
     # wait for distribution to be enabled, move to Step Function in future
     # while True:
     #     distribution = cf.get_distribution(
@@ -239,16 +240,16 @@ def lambda_handler(event, context):
 
     logger.info('scan result of DynamoDB %s', json.dumps(response))
     # fetch certArn from DynamoDB, assume such reverse search only had one result
-    certArn = response['Items'][0]['certArn']['S']
+    cert_arn = response['Items'][0]['certArn']['S']
     # fetch taskToken from DynamoDB
-    taskToken = response['Items'][0]['taskToken']['S']
+    task_token = response['Items'][0]['taskToken']['S']
 
     # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
     resp = dynamo_client.delete_item(
         TableName=callback_table,
         Key={
             'taskToken': {
-                'S': taskToken
+                'S': task_token
             },
             'domainName': {
                 'S': domain_name
@@ -256,34 +257,35 @@ def lambda_handler(event, context):
         }
     )
 
-    SubDomainNameList = event['input']['sanList'] if event['input']['sanList'] else None
-    OriginsItemsDomainName = '%s' % event['input']['originsItemsDomainName'] if event['input']['originsItemsDomainName'] else None
-    # cancatenate from OriginsItemsDomainName and random string
-    OriginsItemsId = '%s-%s' % (str(uuid.uuid4())[:8], OriginsItemsDomainName)
-    DefaultRootObject = ''
-    OriginsItemsOriginPath = ''
-    DefaultCacheBehaviorTargetOriginId = OriginsItemsId
-    CertificateArn = certArn
+    sub_domain_name_list = event['input']['sanList'] if event['input']['sanList'] else None
+    origins_items_domain_name = '%s' % event['input']['originsItemsDomainName'] if event['input']['originsItemsDomainName'] else None
+    # concatenate from OriginsItemsDomainName and random string
+    origins_items_id = '%s-%s' % (str(uuid.uuid4())[:8], origins_items_domain_name)
+    default_root_object = ''
+    origins_items_origin_path = ''
+    default_cache_behavior_target_origin_id = origins_items_id
+    certificate_arn = cert_arn
 
     # customization configuration of CloudFront distribution
-
     original_cf_distribution_id = event['input']['existing_cf_info']['distribution_id']
     original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
     ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
-    # ddb_table_name = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
-    config = fetch_cloudfront_config_version(original_cf_distribution_id, original_cf_distribution_version, ddb_table_name)
+
+    config = fetch_cloudfront_config_version(original_cf_distribution_id,
+                                             original_cf_distribution_version,
+                                             ddb_table_name)
 
     config['CallerReference'] = str(uuid.uuid4())
-    config['Aliases']['Items'] = SubDomainNameList
+    config['Aliases']['Items'] = sub_domain_name_list
     config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
-    config['DefaultRootObject'] = DefaultRootObject
+    config['DefaultRootObject'] = default_root_object
 
     # support single origin for now, will support multiple origin in future TBD
     config['Origins']['Items'] = [
     {
-        "Id": OriginsItemsId,
-        "DomainName": OriginsItemsDomainName,
-        "OriginPath": OriginsItemsOriginPath,
+        "Id": origins_items_id,
+        "DomainName": origins_items_domain_name,
+        "OriginPath": origins_items_origin_path,
         "CustomHeaders": {
             "Quantity": 0
         },
@@ -296,12 +298,12 @@ def lambda_handler(event, context):
             "Enabled": False
         }
     }]
-    config['DefaultCacheBehavior']['TargetOriginId'] = DefaultCacheBehaviorTargetOriginId
+    config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
     config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-    # TBD, should search mapping certficate by tag
+
     config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
-    config['ViewerCertificate']['ACMCertificateArn'] = CertificateArn
-    config['ViewerCertificate']['Certificate'] = CertificateArn
+    config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
+    config['ViewerCertificate']['Certificate'] = certificate_arn
 
     resp = create_distribution(config)
 

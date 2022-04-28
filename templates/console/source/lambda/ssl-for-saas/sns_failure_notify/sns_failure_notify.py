@@ -110,7 +110,6 @@ def lambda_handler(event, context):
     #     }
     # }
 
-
     message_to_be_published = {
         'Deployment Status': 'Failure',
         'Details': str(event['input']),
