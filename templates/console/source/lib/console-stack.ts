@@ -15,7 +15,7 @@ export class ConsoleStack extends cdk.Stack {
     super(scope, id, props);
 
     // Create Dynamodb table to store extensions
-    const cf_extensions_table = new dynamodb.Table(this, 'CloudFrontExtensions', {
+    const cfExtensionsTable = new dynamodb.Table(this, 'CloudFrontExtensions', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       partitionKey: { name: 'name', type: dynamodb.AttributeType.STRING },
@@ -35,7 +35,7 @@ export class ConsoleStack extends cdk.Stack {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [cf_extensions_table.tableArn],
+          resources: [cfExtensionsTable.tableArn],
           actions: [
             "dynamodb:*"
           ]
@@ -148,7 +148,7 @@ export class ConsoleStack extends cdk.Stack {
         role: extDeployerRole,
         memorySize: 512,
         environment: {
-          DDB_TABLE_NAME: cf_extensions_table.tableName,
+          DDB_TABLE_NAME: cfExtensionsTable.tableName,
           EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
         },
         logRetention: logs.RetentionDays.ONE_WEEK,
@@ -218,12 +218,12 @@ export class ConsoleStack extends cdk.Stack {
       memorySize: 512,
       timeout: cdk.Duration.seconds(300),
       environment: {
-        DDB_TABLE_NAME: cf_extensions_table.tableName,
+        DDB_TABLE_NAME: cfExtensionsTable.tableName,
         EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
       }
     });
 
-    customResourceLambda.node.addDependency(cf_extensions_table)
+    customResourceLambda.node.addDependency(cfExtensionsTable)
 
     const customResourceProvider = new cr.Provider(this, 'customResourceProvider', {
       onEventHandler: customResourceLambda,
@@ -238,7 +238,7 @@ export class ConsoleStack extends cdk.Stack {
 
     // Output
     new cdk.CfnOutput(this, 'CloudFront Extensions DynamoDB table', {
-      value: cf_extensions_table.tableName
+      value: cfExtensionsTable.tableName
     });
 
 

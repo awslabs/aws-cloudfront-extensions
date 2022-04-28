@@ -62,9 +62,6 @@ def deploy_ext(name, parameters):
     return stack_id
 
 
-# TODO: pipeline update: once SAR publish github action is triggered, update cfn
-
-
 @app.resolver(type_name="Mutation", field_name="syncExtensions")
 def sync_extensions():
     '''Get the latest extensions to local Dynamodb table'''
@@ -83,15 +80,13 @@ def query_ddb(name):
     if response['Count'] == 0:
         raise Exception(
             'No extension is found, please sync the extensions and retry')
-    elif response['Count'] > 1:
+    if response['Count'] > 1:
         raise Exception(
             'More than one extension is found, the extension should be unique by name')
 
     for query_item in response['Items']:
         logger.info(query_item)
         return query_item
-
-    return
 
 
 @app.resolver(type_name="Query", field_name="listExtensions")
@@ -169,7 +164,6 @@ def get_behavior_by_id(id):
 @app.resolver(type_name="Query", field_name="checkSyncStatus")
 def check_sync_status():
     '''Check whether it is need to sync extensions'''
-    result = 'false'
     date_array = {}
 
     with requests.Session() as s:
@@ -199,12 +193,14 @@ def check_sync_status():
             ExclusiveStartKey=response['LastEvaluatedKey'])
         res_items.extend(response["Items"])
 
+    if len(res_items) != len(date_array):
+        return 'true'
+
     for ddb_item in res_items:
         if date_array[ddb_item['name']] != ddb_item['updateDate']:
-            result = 'true'
-            break
+            return 'true'
 
-    return result
+    return 'false'
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)

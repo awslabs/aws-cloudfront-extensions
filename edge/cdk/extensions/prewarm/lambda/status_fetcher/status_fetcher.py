@@ -12,31 +12,58 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 
+def pop_prefix(pop_list):
+    pop_prefix = []
+    for pop in pop_list:
+        if pop[0:3] not in pop_prefix:
+            pop_prefix.append(pop[0:3])
+
+    return pop_prefix
+
+
 def prewarm_status_from_ddb(req_id):
     """Query from Prewarm status Dynamodb table"""
-    detailed_data = []
     overall_status = 'IN_PROGRESS'
     has_failure = False
     url_list = []
     success_list = []
     fail_list = []
+    fail_map = {}
+    pop_region = []
 
     table = dynamodb.Table(TABLE_NAME)
 
     response = table.query(
         KeyConditionExpression=Key('reqId').eq(req_id))
 
+    if len(response['Items']) == 0:
+        return {
+            'message': 'No result is found, please check the requestId'
+        }
+
     for query_item in response['Items']:
         if 'urlList' in query_item:
             # metadata info
             url_list = query_item['urlList']
+            pop_region = pop_prefix(query_item['pop'])
             continue
 
         if query_item['status'] == 'SUCCESS':
             success_list.append(query_item['url'])
         else:
             fail_list.append(query_item['url'])
+            fail_map[query_item['url']] = query_item['failure']
             has_failure = True
+
+    for url_key in fail_map.keys():
+        is_match = True
+        for fail_pop in fail_map[url_key]:
+            if fail_pop[0:3] not in pop_region:
+                is_match = False
+                break
+        if is_match:
+            success_list.append(url_key)
+            fail_list.remove(url_key)
 
     success_count = len(success_list)
     fail_count = len(fail_list)
