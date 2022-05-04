@@ -7,17 +7,19 @@ import boto3
 
 QUEUE_URL = os.environ['SQS_QUEUE_URL']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
-APAC_NODE = ['BOM-1A', 'BOM-1B', 'BOM-1C', 'ICN-2A', 'ICN-2B',
-             'ICN-2C', 'NRT-1D', 'SIN-1A', 'SIN-1B', 'SIN-1C']
-AU_NODE = ['SYD-2A', 'SYD-2B', 'SYD-2C']
-CA_NODE = ['YUL-1A', 'YUL-1B']
-EU_NODE = ['ARN-1A', 'ARN-1B', 'ARN-1C', 'CDG-3A', 'CDG-3B', 'CDG-3C', 'DUB-1A',
-           'DUB-1B', 'DUB-1C', 'FRA-1A', 'FRA-1B', 'FRA-1C', 'LHR-2A', 'LHR-2B', 'LHR-2C']
-JP_NODE = ['NRT-1A', 'NRT-1C']
-SA_NODE = ['GRU-1A', 'GRU-1B', 'GRU-1C']
-US_NODE = ['CMH-2A', 'CMH-2B', 'CMH-2C', 'IAD-1A', 'IAD-1B', 'IAD-1C', 'IAD-1D', 'IAD-1E',
-           'M-PDX-2A', 'PDX-2A', 'PDX-2B', 'PDX-2C', 'SFO-1A', 'SFO-1B', 'SFO-1C', 'T-IAD-1C', 'T-IAD-1E']
-ALL_POP = APAC_NODE + AU_NODE + CA_NODE + EU_NODE + JP_NODE + SA_NODE + US_NODE
+APAC_NODE = ['BOM51-C1', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
+             'NRT12-C2', 'NRT20-C3', 'SIN2-C1', 'SIN52-C2']
+AU_NODE = ['SYD1-C1', 'SYD62-P1']
+CA_NODE = ['YUL62-C2', 'YUL62-C1']
+EU_NODE = ['ARN1-C1', 'ARN54-C1', 'CDG3-C2', 'CDG50-C2', 'DUB2-C1',
+           'DUB56-P1', 'FRA2-C2', 'FRA6-C1', 'LHR3-C2', 'LHR50-P2']
+JP_NODE = ['NRT12-C2', 'NRT20-C3']
+SA_NODE = ['GRU1-C2', 'GRU3-C2']
+# US_NODE = ['CMH50-P1', 'CMH50-P2', 'IAD50-C2',
+#            'IAD66-C1', 'SFO5-C1', 'SFO20-C1']
+US_NODE = ['IAD50-C2', 'IAD66-C1', 'SFO5-C1', 'SFO20-C1']
+ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
+               EU_NODE + JP_NODE + SA_NODE + US_NODE))
 pop_map = {
     'all': ALL_POP,
     'apac': APAC_NODE,

@@ -24,12 +24,11 @@ def pop_prefix(pop_list):
 def prewarm_status_from_ddb(req_id):
     """Query from Prewarm status Dynamodb table"""
     overall_status = 'IN_PROGRESS'
-    has_failure = False
     url_list = []
     success_list = []
     fail_list = []
     fail_map = {}
-    pop_region = []
+    suc_pop_map = {}
 
     table = dynamodb.Table(TABLE_NAME)
 
@@ -45,7 +44,6 @@ def prewarm_status_from_ddb(req_id):
         if 'urlList' in query_item:
             # metadata info
             url_list = query_item['urlList']
-            pop_region = pop_prefix(query_item['pop'])
             continue
 
         if query_item['status'] == 'SUCCESS':
@@ -53,12 +51,12 @@ def prewarm_status_from_ddb(req_id):
         else:
             fail_list.append(query_item['url'])
             fail_map[query_item['url']] = query_item['failure']
-            has_failure = True
+            suc_pop_map[query_item['url']] = pop_prefix(query_item['success'])
 
     for url_key in fail_map.keys():
         is_match = True
         for fail_pop in fail_map[url_key]:
-            if fail_pop[0:3] not in pop_region:
+            if fail_pop[0:3] not in suc_pop_map[url_key]:
                 is_match = False
                 break
         if is_match:
@@ -71,10 +69,10 @@ def prewarm_status_from_ddb(req_id):
     in_progress_count = total_count - success_count - fail_count
 
     if in_progress_count == 0:
-        if has_failure:
-            overall_status = 'FAIL'
-        else:
+        if success_count == total_count:
             overall_status = 'SUCCESS'
+        else:
+            overall_status = 'FAIL'
 
     return {
         'status': overall_status,

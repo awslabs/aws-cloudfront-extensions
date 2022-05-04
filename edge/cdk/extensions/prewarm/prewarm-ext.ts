@@ -117,9 +117,10 @@ export class PrewarmStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/agent.zip')),
       architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
-      memorySize: 1024,
+      memorySize: 7168,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
+        THREAD_CONCURRENCY: '6'
       },
       logRetention: logs.RetentionDays.ONE_WEEK
     });
@@ -136,7 +137,7 @@ export class PrewarmStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/scheduler.zip')),
       architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
-      memorySize: 1024,
+      memorySize: 512,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
         SQS_QUEUE_URL: messageQueue.queueUrl
@@ -151,7 +152,7 @@ export class PrewarmStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/status_fetcher')),
       architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
-      memorySize: 1024,
+      memorySize: 512,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
       },
