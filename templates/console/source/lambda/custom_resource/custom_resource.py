@@ -12,7 +12,6 @@ log.setLevel('INFO')
 
 
 def lambda_handler(event, context):
-    log.info(event)
     request_type = event['RequestType'].upper() if (
         'RequestType' in event) else ""
     log.info(request_type)

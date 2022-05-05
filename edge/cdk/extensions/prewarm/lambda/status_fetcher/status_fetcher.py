@@ -12,19 +12,33 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 
+def pop_prefix(pop_list):
+    pop_prefix = []
+    for pop in pop_list:
+        if pop[0:3] not in pop_prefix:
+            pop_prefix.append(pop[0:3])
+
+    return pop_prefix
+
+
 def prewarm_status_from_ddb(req_id):
     """Query from Prewarm status Dynamodb table"""
-    detailed_data = []
     overall_status = 'IN_PROGRESS'
-    has_failure = False
     url_list = []
     success_list = []
     fail_list = []
+    fail_map = {}
+    suc_pop_map = {}
 
     table = dynamodb.Table(TABLE_NAME)
 
     response = table.query(
         KeyConditionExpression=Key('reqId').eq(req_id))
+
+    if len(response['Items']) == 0:
+        return {
+            'message': 'No result is found, please check the requestId'
+        }
 
     for query_item in response['Items']:
         if 'urlList' in query_item:
@@ -36,7 +50,18 @@ def prewarm_status_from_ddb(req_id):
             success_list.append(query_item['url'])
         else:
             fail_list.append(query_item['url'])
-            has_failure = True
+            fail_map[query_item['url']] = query_item['failure']
+            suc_pop_map[query_item['url']] = pop_prefix(query_item['success'])
+
+    for url_key in fail_map.keys():
+        is_match = True
+        for fail_pop in fail_map[url_key]:
+            if fail_pop[0:3] not in suc_pop_map[url_key]:
+                is_match = False
+                break
+        if is_match:
+            success_list.append(url_key)
+            fail_list.remove(url_key)
 
     success_count = len(success_list)
     fail_count = len(fail_list)
@@ -44,10 +69,10 @@ def prewarm_status_from_ddb(req_id):
     in_progress_count = total_count - success_count - fail_count
 
     if in_progress_count == 0:
-        if has_failure:
-            overall_status = 'FAIL'
-        else:
+        if success_count == total_count:
             overall_status = 'SUCCESS'
+        else:
+            overall_status = 'FAIL'
 
     return {
         'status': overall_status,

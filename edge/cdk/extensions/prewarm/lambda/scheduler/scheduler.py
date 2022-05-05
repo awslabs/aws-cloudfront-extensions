@@ -7,7 +7,30 @@ import boto3
 
 QUEUE_URL = os.environ['SQS_QUEUE_URL']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
-ALL_POP = ['ATL56-C1', 'DFW55-C3', 'SEA19-C3']
+APAC_NODE = ['BOM51-C1', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
+             'NRT12-C2', 'NRT20-C3', 'SIN2-C1', 'SIN52-C2']
+AU_NODE = ['SYD1-C1', 'SYD62-P1']
+CA_NODE = ['YUL62-C2', 'YUL62-C1']
+EU_NODE = ['ARN1-C1', 'ARN54-C1', 'CDG3-C2', 'CDG50-C2', 'DUB2-C1',
+           'DUB56-P1', 'FRA2-C2', 'FRA6-C1', 'LHR3-C2', 'LHR50-P2']
+JP_NODE = ['NRT12-C2', 'NRT20-C3']
+SA_NODE = ['GRU1-C2', 'GRU3-C2']
+# US_NODE = ['CMH50-P1', 'CMH50-P2', 'IAD50-C2',
+#            'IAD66-C1', 'SFO5-C1', 'SFO20-C1']
+US_NODE = ['IAD50-C2', 'IAD66-C1', 'SFO5-C1', 'SFO20-C1']
+ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
+               EU_NODE + JP_NODE + SA_NODE + US_NODE))
+pop_map = {
+    'all': ALL_POP,
+    'apac': APAC_NODE,
+    'au': AU_NODE,
+    'ca': CA_NODE,
+    'eu': EU_NODE,
+    'jp': JP_NODE,
+    'sa': SA_NODE,
+    'us': US_NODE
+}
+
 aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
 dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
@@ -34,8 +57,9 @@ def send_msg(queue_url, url, domain, pop, req_id, create_time):
     return response
 
 
-def write_in_ddb(req_id, url_list):
+def write_in_ddb(req_id, url_list, pop):
     table_item = {
+        "pop": pop,
         "urlList": url_list,
         "reqId": req_id,
         "url": 'metadata'
@@ -45,7 +69,7 @@ def write_in_ddb(req_id, url_list):
     log.info(ddb_response)
 
 
-def return_error_response(message):
+def compose_error_response(message):
     return {
         "statusCode": 400,
         "body": json.dumps({
@@ -57,34 +81,33 @@ def return_error_response(message):
 def lambda_handler(event, context):
     req_id = context.aws_request_id
     event_body = json.loads(event['body'])
-    if 'body' not in event_body or \
-        'url_list' not in event_body or \
-        'cf_domain_mapping' not in event_body or \
-            'region' not in event_body:
-        return_error_response(
-            'Please specify body, url_list, cf_domain_mapping and region in the request body')
+    if 'url_list' not in event_body or 'cf_domain' not in event_body or 'region' not in event_body:
+        return compose_error_response(
+            'Please specify url_list, cf_domain and region in the request body')
 
     url_list = event_body['url_list']
     if len(url_list) == 0:
-        return_error_response('Please specify at least 1 url in url_list')
+        return compose_error_response('Please specify at least 1 url in url_list')
 
     cf_domain = event_body['cf_domain']
     pop_region = event_body['region']
     current_time = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
-    if type(pop_region) == str and pop_region.lower() == 'all':
-        pop_region = ALL_POP
+    if type(pop_region) == str:
+        if pop_region.lower() not in pop_map.keys():
+            return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
+        pop_region = pop_map[pop_region.lower()]
     elif len(pop_region) == 0:
-        return_error_response(
+        return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
     for url in url_list:
-        write_in_ddb(req_id, url_list)
+        write_in_ddb(req_id, url_list, pop_region)
         send_msg(QUEUE_URL, url, cf_domain, pop_region, req_id, current_time)
 
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "reqId": req_id
+            "requestID": req_id
         })
     }
