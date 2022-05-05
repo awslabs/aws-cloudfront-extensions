@@ -24,7 +24,7 @@ const SaveVersion: React.FC = () => {
     },
     {
       name: "XLOWCQQFJJHM80",
-      link: "/config/vesrsion/detail/XLOWCQQFJJHM80",
+      link: "/config/version/detail/XLOWCQQFJJHM80",
     },
     {
       name: "Save",
@@ -79,7 +79,7 @@ const SaveVersion: React.FC = () => {
           <div className="button-action text-right">
             <Button
               onClick={() => {
-                navigate("/config/vesrsion/detail/XLOWCQQFJJHM80");
+                navigate("/config/version/detail/XLOWCQQFJJHM80");
               }}
             >
               Cancel
@@ -87,7 +87,7 @@ const SaveVersion: React.FC = () => {
             <Button
               btnType="primary"
               onClick={() => {
-                navigate("/config/vesrsion/detail/XLOWCQQFJJHM80");
+                navigate("/config/version/detail/XLOWCQQFJJHM80");
               }}
             >
               Save

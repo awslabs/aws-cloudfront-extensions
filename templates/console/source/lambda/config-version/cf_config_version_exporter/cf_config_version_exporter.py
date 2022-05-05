@@ -72,7 +72,8 @@ def lambda_handler(event, context):
         ddb_table.put_item(
             Item={
                 'distributionId': distribution_id,
-                'versionId': 0
+                'versionId': 0,
+                'id': 0
             })
         resp = ddb_table.query(
             KeyConditionExpression=Key('distributionId').eq(distribution_id)
@@ -95,6 +96,7 @@ def lambda_handler(event, context):
         Item={
             'distributionId': str(distribution_id),
             'versionId': new_version,
+            'id': new_version,
             'dateTime': current_time,
             'note': 'auto_save',
             'config_link': s3_path,

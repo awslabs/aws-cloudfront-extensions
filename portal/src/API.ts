@@ -98,6 +98,7 @@ export type Cloudfront_info = {
 
 export type Version = {
   __typename: "Version",
+  id: string,
   distribution_id?: string | null,
   versionId?: string | null,
   config_link?: string | null,
@@ -290,6 +291,7 @@ export type ListCloudfrontVersionsQueryVariables = {
 export type ListCloudfrontVersionsQuery = {
   listCloudfrontVersions?:  Array< {
     __typename: "Version",
+    id: string,
     distribution_id?: string | null,
     versionId?: string | null,
     config_link?: string | null,

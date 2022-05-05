@@ -38,7 +38,7 @@ const CompareVersion: React.FC = () => {
     },
     {
       name: "XLOWCQQFJJHM80",
-      link: "/config/vesrsion/detail/XLOWCQQFJJHM80",
+      link: "/config/version/detail/XLOWCQQFJJHM80",
     },
     {
       name: "Compare",

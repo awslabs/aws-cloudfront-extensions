@@ -26,7 +26,7 @@ const VersionDetail: React.FC = () => {
   const [compareDisabled, setCompareDisabled] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   // const [distributionList, setDistributionList] = useState<any>([]);
-  const [selectDestribution, setSelectDestribution] = useState<any>([]);
+  const [selectDistribution, setSelectDistribution] = useState<any>([]);
   const [confirm, setConfirm] = useState("");
   const [loadingData, setLoadingData] = useState(false);
   const { id } = useParams();
@@ -116,7 +116,7 @@ const VersionDetail: React.FC = () => {
               <Button
                 disabled={saveDisabled}
                 onClick={() => {
-                  navigate("/config/vesrsion/detail/XLOWCQQFJJHM80/save");
+                  navigate("/config/version/detail/XLOWCQQFJJHM80/save");
                 }}
               >
                 Save
@@ -133,7 +133,7 @@ const VersionDetail: React.FC = () => {
                 disabled={compareDisabled}
                 btnType="primary"
                 onClick={() => {
-                  navigate("/config/vesrsion/detail/XLOWCQQFJJHM80/compare");
+                  navigate("/config/version/detail/XLOWCQQFJJHM80/compare");
                 }}
               >
                 Compare
@@ -144,7 +144,7 @@ const VersionDetail: React.FC = () => {
           items={versionList}
           columnDefinitions={[
             {
-              width: 150,
+              // width: 150,
               id: "id",
               header: "Version Id",
               cell: (e: Version) => {
@@ -152,7 +152,7 @@ const VersionDetail: React.FC = () => {
               },
             },
             {
-              width: 180,
+              // width: 180,
               id: "date",
               header: "Date",
               cell: (e: Version) => e.dateTime,
@@ -163,7 +163,7 @@ const VersionDetail: React.FC = () => {
               cell: (e: Version) => e.s3_key,
             },
             {
-              width: 200,
+              // width: 200,
               id: "tags",
               header: "Tags",
               cell: (e: Version) => e.note,
@@ -225,10 +225,10 @@ const VersionDetail: React.FC = () => {
               <div style={{ width: 500 }}>
                 <MultiSelect
                   optionList={CF_LIST}
-                  value={selectDestribution}
+                  value={selectDistribution}
                   placeholder="Select distribution"
                   onChange={(items) => {
-                    setSelectDestribution(items);
+                    setSelectDistribution(items);
                   }}
                 />
               </div>

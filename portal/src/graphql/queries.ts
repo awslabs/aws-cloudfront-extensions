@@ -112,6 +112,7 @@ export const diffCloudfrontConfig = /* GraphQL */ `
 export const listCloudfrontVersions = /* GraphQL */ `
   query ListCloudfrontVersions($distribution_id: String) {
     listCloudfrontVersions(distribution_id: $distribution_id) {
+      id
       distribution_id
       versionId
       config_link
