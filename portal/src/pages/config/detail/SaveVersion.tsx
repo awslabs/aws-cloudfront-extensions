@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import FormItem from "components/FormItem";
 import HeaderPanel from "components/HeaderPanel";
@@ -7,11 +7,15 @@ import TextInput from "components/TextInput";
 import TextArea from "components/TextArea";
 import TagList from "components/TagList";
 import Button from "components/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { appSyncRequestQuery } from "assets/js/request";
+import { updateConfigTag } from "graphql/queries";
 
 const SaveVersion: React.FC = () => {
-  const [distribution, setDistribution] = useState("XLOWCQQFJJHM80");
+  const [distribution, setDistribution] = useState<any>("");
   const [versionDesc, setVersionDesc] = useState("");
+  const { id } = useParams<string>();
+  const { version } = useParams<string>();
   const navigate = useNavigate();
   const BreadCrunbList = [
     {
@@ -23,13 +27,40 @@ const SaveVersion: React.FC = () => {
       link: "/config/version",
     },
     {
-      name: "XLOWCQQFJJHM80",
-      link: "/config/version/detail/XLOWCQQFJJHM80",
+      name: distribution,
+      link: "/config/version/detail/" + distribution,
     },
     {
       name: "Save",
     },
   ];
+
+  const myLog = () => {
+    console.info("guming debug>> id is ", id);
+    setDistribution(id);
+  };
+
+  useEffect(() => {
+    myLog();
+  }, []);
+
+  // Get Version List By Distribution
+  const updateDistConfigTag = async (
+    distId: string,
+    ver: string,
+    note: string
+  ) => {
+    try {
+      await appSyncRequestQuery(updateConfigTag, {
+        distribution_id: distId,
+        version: ver,
+        note: note,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -46,10 +77,10 @@ const SaveVersion: React.FC = () => {
                   }}
                 />
               </FormItem>
-              <FormItem optionTitle="Distribution" optionDesc="">
+              <FormItem optionTitle="Note" optionDesc="">
                 <TextArea
                   placeholder="beta testing"
-                  rows={3}
+                  rows={2}
                   value={versionDesc}
                   onChange={(event) => {
                     setVersionDesc(event.target.value);
@@ -59,7 +90,7 @@ const SaveVersion: React.FC = () => {
             </div>
           </HeaderPanel>
 
-          <HeaderPanel
+          {/* <HeaderPanel
             title="Tags"
             desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."
           >
@@ -75,11 +106,11 @@ const SaveVersion: React.FC = () => {
                 console.info(e);
               }}
             />
-          </HeaderPanel>
+          </HeaderPanel> */}
           <div className="button-action text-right">
             <Button
               onClick={() => {
-                navigate("/config/version/detail/XLOWCQQFJJHM80");
+                navigate("/config/version/detail/" + id);
               }}
             >
               Cancel
@@ -87,7 +118,12 @@ const SaveVersion: React.FC = () => {
             <Button
               btnType="primary"
               onClick={() => {
-                navigate("/config/version/detail/XLOWCQQFJJHM80");
+                const dist_id: any = id;
+                const ver: any = version;
+                console.info("guming debug>>", dist_id);
+                console.info("guming debug>>", ver);
+                updateDistConfigTag(dist_id, ver, versionDesc);
+                navigate("/config/version/detail/" + id);
               }}
             >
               Save

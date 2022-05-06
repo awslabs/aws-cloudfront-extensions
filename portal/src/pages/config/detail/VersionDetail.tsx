@@ -10,25 +10,32 @@ import TextInput from "components/TextInput";
 import Modal from "components/Modal";
 import FormItem from "components/FormItem";
 import MultiSelect from "components/MultiSelect";
-import { Version } from "API";
+import { Cloudfront_info, Version } from "API";
 import { appSyncRequestQuery } from "assets/js/request";
-import { listCloudfrontVersions } from "graphql/queries";
+import {
+  applyConfig,
+  listCloudfrontVersions,
+  listDistribution,
+} from "graphql/queries";
 import { CF_LIST } from "mock/data";
+import LoadingText from "../../../components/LoadingText";
 
 const VersionDetail: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState("");
   const [versionList, setVersionList] = useState<Version[]>([]);
+  const [distributionList, setDistributionList] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<Version[]>([]);
   const [applyDisabled, setApplyDisabled] = useState(false);
   const [saveDisabled, setSaveDisabled] = useState(false);
   const [detailDisabled, setDetailDisabled] = useState(false);
   const [compareDisabled, setCompareDisabled] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  // const [distributionList, setDistributionList] = useState<any>([]);
+  const [CF_DIST_LIST, setCF_DIST_LIST] = useState<any>([]);
   const [selectDistribution, setSelectDistribution] = useState<any>([]);
   const [confirm, setConfirm] = useState("");
   const [loadingData, setLoadingData] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
   const { id } = useParams();
   const BreadCrunbList = [
     {
@@ -64,6 +71,54 @@ const VersionDetail: React.FC = () => {
   useEffect(() => {
     getVersionListByDistribution();
   }, []);
+
+  // Get Version List By Distribution
+  const getDistributionList = async () => {
+    try {
+      setDistributionList([]);
+      const resData = await appSyncRequestQuery(listDistribution);
+      const Cloudfront_info_list: any[] = resData.data.listDistribution;
+      // setDistributionList(Cloudfront_info_list);
+      const tmpList = [];
+      for (const cfdistlistKey in Cloudfront_info_list) {
+        tmpList.push({
+          name: Cloudfront_info_list[cfdistlistKey].id,
+          value: Cloudfront_info_list[cfdistlistKey].id,
+          optTitle: Cloudfront_info_list[cfdistlistKey].status,
+        });
+      }
+      setDistributionList(tmpList);
+      console.info("guming debug>>", Cloudfront_info_list);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Get Version List By Distribution
+  const applyCloudFrontConfig = async () => {
+    try {
+      //convert the selected dist list
+      const targetDistList: string[] = [];
+      for (const index in selectDistribution) {
+        targetDistList.push(selectDistribution[index]);
+      }
+
+      const versionId = selectedItem[0].versionId;
+
+      setLoadingApply(true);
+      const resData = await appSyncRequestQuery(applyConfig, {
+        src_distribution_id: id,
+        version: versionId,
+        target_distribution_ids: targetDistList,
+      });
+      setLoadingApply(false);
+      setOpenModal(false);
+      console.info("guming debug>> apply response is " + resData);
+    } catch (error) {
+      setLoadingApply(false);
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     console.info("selectedItem:", selectedItem);
@@ -102,13 +157,22 @@ const VersionDetail: React.FC = () => {
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
-              <Button>
-                <RefreshIcon fontSize="small" />
+              <Button
+                onClick={() => {
+                  getVersionListByDistribution();
+                }}
+              >
+                {loadingData ? (
+                  <LoadingText />
+                ) : (
+                  <RefreshIcon fontSize="small" />
+                )}
               </Button>
               <Button
                 disabled={applyDisabled}
                 onClick={() => {
                   setOpenModal(true);
+                  getDistributionList();
                 }}
               >
                 Apply
@@ -116,7 +180,13 @@ const VersionDetail: React.FC = () => {
               <Button
                 disabled={saveDisabled}
                 onClick={() => {
-                  navigate("/config/version/detail/XLOWCQQFJJHM80/save");
+                  const path =
+                    "/config/version/detail/" +
+                    id +
+                    "/" +
+                    selectedItem[0].versionId +
+                    "/save";
+                  navigate(path);
                 }}
               >
                 Save
@@ -133,7 +203,8 @@ const VersionDetail: React.FC = () => {
                 disabled={compareDisabled}
                 btnType="primary"
                 onClick={() => {
-                  navigate("/config/version/detail/XLOWCQQFJJHM80/compare");
+                  const path = "/config/version/detail/" + id + "/compare";
+                  navigate(path);
                 }}
               >
                 Compare
@@ -207,8 +278,10 @@ const VersionDetail: React.FC = () => {
             <Button
               disabled={confirm !== "Confirm"}
               btnType="primary"
+              loading={loadingApply}
               onClick={() => {
-                setOpenModal(false);
+                applyCloudFrontConfig();
+                // setOpenModal(false);
               }}
             >
               Apply
@@ -224,7 +297,7 @@ const VersionDetail: React.FC = () => {
             <div className="flex">
               <div style={{ width: 500 }}>
                 <MultiSelect
-                  optionList={CF_LIST}
+                  optionList={distributionList}
                   value={selectDistribution}
                   placeholder="Select distribution"
                   onChange={(items) => {

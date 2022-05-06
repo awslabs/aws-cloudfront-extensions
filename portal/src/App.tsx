@@ -88,7 +88,7 @@ const SignInRouter: React.FC = () => {
           />
 
           <Route
-            path="/config/version/detail/:id/save"
+            path="/config/version/detail/:id/:version/save"
             element={
               <Container>
                 <SaveVersion />
