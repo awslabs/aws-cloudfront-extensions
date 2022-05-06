@@ -69,18 +69,13 @@ def prewarm_status_from_ddb(req_id):
     in_progress_count = total_count - success_count - fail_count
 
     if in_progress_count == 0:
-        if success_count == total_count:
-            overall_status = 'SUCCESS'
-        else:
-            overall_status = 'FAIL'
+        overall_status = 'COMPLETED'
 
     return {
         'status': overall_status,
         'total': total_count,
-        'success': success_count,
-        'fail': fail_count,
-        'inProgress': in_progress_count,
-        'failedUrl': fail_list
+        'completed': success_count + fail_count,
+        'inProgress': in_progress_count
     }
 
 
