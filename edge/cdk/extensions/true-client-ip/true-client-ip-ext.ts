@@ -122,25 +122,6 @@ export class TrueClientIpStack extends cdk.Stack {
       resourceType: "Custom::TrueClientIp",
     });
 
-    // const dist = cloudfront.Distribution.fromDistributionAttributes(this, 'CFDist', {
-    //   domainName: 'd3fk175h2jdan1.cloudfront.net',
-    //   distributionId: 'E2DS6YAJNP22N3',
-    // });
-
-    // dist.addBehavior('/images/*.jpg', new origins.S3Origin(myBucket), {
-    //   viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    // });
-
-    // new cloudfront.Distribution(this, 'distro', {
-    //   defaultBehavior: {
-    //     origin: new origins.S3Origin(s3Bucket),
-    //     functionAssociations: [{
-    //       function: cfFunction,
-    //       eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-    //     }],
-    //   },
-    // });
-
     // Output
     new cdk.CfnOutput(this, "FunctionARN", {
       value: cfFunction.functionArn

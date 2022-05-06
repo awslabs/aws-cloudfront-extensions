@@ -1,4 +1,5 @@
 import concurrent.futures
+import datetime
 import json
 import logging
 import os
@@ -6,6 +7,8 @@ from urllib import parse
 
 import boto3
 import requests
+import shortuuid
+from botocore.exceptions import WaiterError
 
 URL_SUFFIX = '.cloudfront.net'
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
@@ -13,6 +16,7 @@ THREAD_CONCURRENCY = int(os.environ['THREAD_CONCURRENCY'])
 aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
 dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
+cf_client = boto3.client('cloudfront')
 table = dynamodb_client.Table(DDB_TABLE_NAME)
 
 log = logging.getLogger()
@@ -20,7 +24,7 @@ log.setLevel('INFO')
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
-    return 'http://' + cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query
+    return 'http://' + cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query + parsed_url.fragment
 
 
 def replace_url(parsed_url, cf_domain):
@@ -31,6 +35,45 @@ def replace_url(parsed_url, cf_domain):
 
 def get_cf_domain_prefix(parsed_url):
     return parsed_url.netloc.replace(URL_SUFFIX, '')
+
+
+def invalidate_cf_cache(dist_id, url):
+    parsed_url_list = []
+    parsed_url = parse.urlsplit(url)
+    parsed_url_list.append(
+        parsed_url.path + parsed_url.query + parsed_url.fragment)
+
+    log.info(parsed_url_list)
+    response = cf_client.create_invalidation(
+        DistributionId=dist_id,
+        InvalidationBatch={
+            'Paths': {
+                'Quantity': len(parsed_url_list),
+                'Items': parsed_url_list
+            },
+            'CallerReference': str(int(datetime.datetime.utcnow().timestamp())) + shortuuid.uuid()[:5]
+        }
+    )
+
+    log.info(str(response))
+    return response
+
+
+def cf_invalidation_status(dist_id, inv_id):
+    try:
+        waiter = cf_client.get_waiter('invalidation_completed')
+        waiter.wait(
+            DistributionId=dist_id,
+            Id=inv_id,
+            WaiterConfig={
+                'Delay': 4,
+                'MaxAttempts': 120
+            }
+        )
+    except WaiterError as e:
+        log.error('Invalidation fail: ' + str(e))
+
+    log.info('CloudFront invalidation completed')
 
 
 def pre_warm(url, pop, cf_domain):
@@ -61,6 +104,7 @@ def lambda_handler(event, context):
         cf_domain = event_body['domain']
         pop_list = event_body['pop']
         req_id = event_body['reqId']
+        dist_id = event_body['distId']
         create_time = event_body['create_time']
         success_list = []
         failure_list = []
@@ -69,6 +113,10 @@ def lambda_handler(event, context):
         # replace url according to cf_domain
         parsed_url = replace_url(parsed_url, cf_domain)
         cf_domain_prefix = get_cf_domain_prefix(parsed_url)
+
+        if len(dist_id) > 0:
+            inv_resp = invalidate_cf_cache(dist_id, url)
+            cf_invalidation_status(dist_id, inv_resp['Invalidation']['Id'])
 
         with concurrent.futures.ThreadPoolExecutor(THREAD_CONCURRENCY) as executor:
             futures = []

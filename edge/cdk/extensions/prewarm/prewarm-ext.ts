@@ -100,7 +100,21 @@ export class PrewarmStack extends cdk.Stack {
             "sqs:ReceiveMessage",
             "sqs:SendMessage",
             "sqs:GetQueueAttributes",
-            "sqs:SetQueueAttributes"
+            "sqs:SetQueueAttributes",
+          ]
+        })
+      ]
+    });
+
+    const cfPolicy = new iam.Policy(this, 'PrewarmCFPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "cloudfront:Get*",
+            "cloudfront:List*",
+            "cloudfront:CreateInvalidation",
           ]
         })
       ]
@@ -109,6 +123,7 @@ export class PrewarmStack extends cdk.Stack {
     prewarmRole.attachInlinePolicy(ddbPolicy);
     prewarmRole.attachInlinePolicy(lambdaPolicy);
     prewarmRole.attachInlinePolicy(sqsPolicy);
+    prewarmRole.attachInlinePolicy(cfPolicy);
 
     const agentLambda = new lambda.Function(this, 'PrewarmAgent', {
       runtime: lambda.Runtime.PYTHON_3_9,

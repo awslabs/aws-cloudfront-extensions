@@ -7,17 +7,17 @@ import boto3
 
 QUEUE_URL = os.environ['SQS_QUEUE_URL']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
-APAC_NODE = ['BOM51-C1', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
-             'NRT12-C2', 'NRT20-C3', 'SIN2-C1', 'SIN52-C2']
+APAC_NODE = ['BOM78-P4', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
+             'NRT51-P2', 'NRT57-P3', 'SIN2-P1', 'SIN52-C2']
 AU_NODE = ['SYD1-C1', 'SYD62-P1']
 CA_NODE = ['YUL62-C2', 'YUL62-C1']
-EU_NODE = ['ARN1-C1', 'ARN54-C1', 'CDG3-C2', 'CDG50-C2', 'DUB2-C1',
-           'DUB56-P1', 'FRA2-C2', 'FRA6-C1', 'LHR3-C2', 'LHR50-P2']
-JP_NODE = ['NRT12-C2', 'NRT20-C3']
-SA_NODE = ['GRU1-C2', 'GRU3-C2']
-# US_NODE = ['CMH50-P1', 'CMH50-P2', 'IAD50-C2',
-#            'IAD66-C1', 'SFO5-C1', 'SFO20-C1']
-US_NODE = ['IAD50-C2', 'IAD66-C1', 'SFO5-C1', 'SFO20-C1']
+EU_NODE = ['ARN56-P1', 'ARN54-C1', 'CDG50-P1', 'CDG52-P2', 'DUB2-C1',
+           'DUB56-P1', 'FRA56-P4', 'FRA60-P1', 'LHR61-P3', 'LHR50-P2']
+JP_NODE = ['NRT51-P2', 'NRT57-P3']
+SA_NODE = ['GRU1-C2', 'GRU3-P1']
+US_NODE = ['IAD89-P1', 'IAD89-P2', 'SFO5-P2',
+           'SFO5-P1', 'DFW56-P1', 'DFW56-P2']
+
 ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
                EU_NODE + JP_NODE + SA_NODE + US_NODE))
 pop_map = {
@@ -34,13 +34,14 @@ pop_map = {
 aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
 dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
+cf_client = boto3.client('cloudfront')
 table = dynamodb_client.Table(DDB_TABLE_NAME)
 
 log = logging.getLogger()
 log.setLevel('INFO')
 
 
-def send_msg(queue_url, url, domain, pop, req_id, create_time):
+def send_msg(queue_url, url, domain, pop, req_id, create_time, dist_id):
     response = sqs.send_message(
         QueueUrl=queue_url,
         MessageBody=json.dumps(
@@ -49,7 +50,8 @@ def send_msg(queue_url, url, domain, pop, req_id, create_time):
                 'url': url,
                 'domain': domain,
                 'pop': pop,
-                'reqId': req_id
+                'reqId': req_id,
+                'distId': dist_id
             }
         )
     )
@@ -78,6 +80,20 @@ def compose_error_response(message):
     }
 
 
+def find_dist_id(cf_domain):
+    distributions = cf_client.list_distributions()
+    try:
+        distribution_id = list(filter(
+            lambda d: cf_domain == d['DomainName'], distributions['DistributionList']['Items']))[0]['Id']
+        log.info('Distribution id: ' + distribution_id)
+    except IndexError as e:
+        log.error('Fail to find distribution with domain name: ' +
+                  cf_domain + ', error details: ' + str(e))
+        return ''
+
+    return distribution_id
+
+
 def lambda_handler(event, context):
     req_id = context.aws_request_id
     event_body = json.loads(event['body'])
@@ -101,9 +117,11 @@ def lambda_handler(event, context):
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
+    dist_id = find_dist_id(cf_domain)
     for url in url_list:
         write_in_ddb(req_id, url_list, pop_region)
-        send_msg(QUEUE_URL, url, cf_domain, pop_region, req_id, current_time)
+        send_msg(QUEUE_URL, url, cf_domain, pop_region,
+                 req_id, current_time, dist_id)
 
     return {
         "statusCode": 200,
