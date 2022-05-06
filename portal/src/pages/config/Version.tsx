@@ -77,7 +77,7 @@ const Version = () => {
               header: "ID",
               cell: (e: Cloudfront_info) => {
                 return (
-                  <Link to={`/config/vesrsion/detail/${e.id}`}>{e.id}</Link>
+                  <Link to={`/config/version/detail/${e.id}`}>{e.id}</Link>
                 );
               },
             },

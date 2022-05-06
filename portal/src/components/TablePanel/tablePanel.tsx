@@ -93,6 +93,9 @@ const TablePanel: React.FC<TablePanelProps> = (props: TablePanelProps) => {
 
   const handleClick = (e: any) => {
     const { id, checked } = e.target;
+    console.info("e.target.id:", e.target.id);
+    console.info("e.target.checked:", e.target.checked);
+    console.info(e);
     setSelectItemsIds([...selectItemsIds, id]);
     if (!checked) {
       setSelectItemsIds(selectItemsIds.filter((item) => item !== id));

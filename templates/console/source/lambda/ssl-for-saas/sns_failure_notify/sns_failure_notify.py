@@ -110,7 +110,6 @@ def lambda_handler(event, context):
     #     }
     # }
 
-
     message_to_be_published = {
         'Deployment Status': 'Failure',
         'Details': str(event['input']),
@@ -121,7 +120,7 @@ def lambda_handler(event, context):
     sns_client.publish(
         TopicArn=snsTopicArn,
         Message=str(message_to_be_published),
-        Subject='SSL for SaaS generation failure occurred'
+        Subject='SSL for SaaS Failure event received :('
     )
 
     return {

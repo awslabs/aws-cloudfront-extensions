@@ -5,6 +5,8 @@ import os
 import json
 import subprocess
 import re
+import random
+import string
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -44,6 +46,7 @@ def transform_json_to_bytes(json_data):
     """
     return json.dumps(json_data).encode('utf-8')
 
+
 # import existing certificate into ACM
 def import_certificate(certificate):
     """[summary]
@@ -59,27 +62,23 @@ def import_certificate(certificate):
     Returns:
         [type]: [description]
     """
-    logger.info('start to importing existing cerfification %s', certificate)
-    try:
-        resp = acm.import_certificate(
-            Certificate=certificate['CertPem'],
-            PrivateKey=certificate['PrivateKeyPem'],
-            CertificateChain=certificate['ChainPem'],
-            # CertificateArn=certificate['CertificateArn'],
-            Tags=[
+    logger.info('start to importing existing certification %s', certificate)
+    resp = acm.import_certificate(
+               Certificate=certificate['CertPem'],
+               PrivateKey=certificate['PrivateKeyPem'],
+               CertificateChain=certificate['ChainPem'],
+               Tags=[
                 {
                     'Key': 'issuer',
                     # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
                     'Value': certificate['DomainName'].replace('*.', '')
                 }
-            ]
+                ]
         )
-    except Exception as e:
-        logger.info('error importing certificate: %s', e)
-        return None
-    
+
     logger.info('certificate imported: %s', json.dumps(resp))
     return resp
+
 
 # domain name validation
 def isValidDomain(str):
@@ -299,13 +298,35 @@ def lambda_handler(event, context):
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
     task_token = event['task_token']
+    domain_name_list = event['input']['cnameList']
 
     if not task_token:
-        logger.error("Task token not found in event")
+        logger.error("Task token not found in event, generate a random token")
+        # generate a random string as task_token
+        task_token = ''.join(random.choices(string.ascii_lowercase, k=128))
     else:
         logger.info("Task token {}".format(task_token))
 
-    # result_cnameList = []
+    # validate the source cloudfront distribution/version is existed
+    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
+    for cname_index, cname_value in enumerate(domain_name_list):
+        source_cf_info = cname_value['existing_cf_info']
+        dist_id = source_cf_info['distribution_id']
+        version_id = source_cf_info['config_version_id']
+
+        # get specific cloudfront distributions version info
+        response = ddb_table.get_item(
+            Key={
+                "distributionId": dist_id,
+                "versionId": int(version_id)
+            })
+        if 'Item' in response:
+            continue
+        else:
+            logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
+            raise Exception("Failed to find existing config with name: %s, version: %s does not exist", dist_id, version_id)
 
     # iterate pemList array from event
     for pem_index, pem_value in enumerate(event['input']['pemList']):
@@ -325,32 +346,23 @@ def lambda_handler(event, context):
                 logger.info("Domain name {} matches certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
             else:
                 logger.error("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                # exit with error
                 raise Exception("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
         else:
             logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(event['input']['cnameList'][pem_index]['domainName']))
 
-        # empty dictionary to store domain metadata
-        # cnameListItem = {}
-        # cnameListItem["domainName"] = certificate['DomainName']
-        # cnameListItem["sanList"] = certificate['SubjectAlternativeNames']
-        # # assume all originsItemsDomainName are same
-        # cnameListItem["originsItemsDomainName"] = event['input']['cnameList'][0]['originsItemsDomainName']
-        # result_cnameList.append(cnameListItem)
-
-        sanListDynamoDB = [dict(zip(['S'],[x])) for x in _domainList]
-        logger.info('index %s: sanList for DynamoDB: %s', pem_index, sanListDynamoDB)
+        san_list_dynamo_db = [dict(zip(['S'], [x])) for x in _domainList]
+        logger.info('index %s: sanList for DynamoDB: %s', pem_index, san_list_dynamo_db)
 
         resp = import_certificate(certificate)
 
         _create_acm_metadata(callback_table,
-                                certificate['DomainName'], 
-                                sanListDynamoDB,
-                                cert_UUid,
-                                task_token,
-                                task_type,
-                                'TASK_TOKEN_TAGGED',
-                                resp['CertificateArn'])
+                             certificate['DomainName'],
+                             san_list_dynamo_db,
+                             cert_UUid,
+                             task_token,
+                             task_type,
+                             'TASK_TOKEN_TAGGED',
+                             resp['CertificateArn'])
 
         # tag acm certificate with task_token, slice task token to fit length of 128
         _tag_certificate(resp['CertificateArn'], task_token[:128])

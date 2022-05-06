@@ -7,6 +7,10 @@ import subprocess
 import urllib
 import re
 
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+
+app = APIGatewayRestResolver()
+
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
 dynamo_client = boto3.client('dynamodb')
@@ -35,6 +39,7 @@ FILE_FOLDER = '/tmp'
 PEM_FILE = FILE_FOLDER + "/cert.pem"
 _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
 
+
 def _tag_certificate(certArn, taskToken):
     """[summary]
 
@@ -52,6 +57,7 @@ def _tag_certificate(certArn, taskToken):
             }
         ]
     )
+
 
 def request_certificate(certificate):
     """[summary]
@@ -107,11 +113,12 @@ def isValidDomain(str):
     # http://only.domains.com
     regex = r"^(\*\.)*(((?!-))(xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$"
     p = re.compile(regex)
- 
-    if(re.search(p, str)):
+
+    if (re.search(p, str)):
         return True
     else:
         return False
+
 
 # check if valid ssl certificate
 def isValidCertificate(certificate):
@@ -129,6 +136,7 @@ def isValidCertificate(certificate):
     logger.info('Certificate validation response: %s', resp)
     return resp
 
+
 # convert string into binary file
 def convert_string_to_file(string, file_name):
     """[summary]
@@ -143,6 +151,7 @@ def convert_string_to_file(string, file_name):
     with open(file_name, 'wb') as f:
         f.write(string.encode('utf-8'))
 
+
 # get domain name from certificate
 def get_domain_list_from_cert():
     """[summary]
@@ -156,7 +165,8 @@ def get_domain_list_from_cert():
     domainList = []
     # decrypt pem info using 1) https://cryptography.io/en/latest/; 2) openssl (https://chromium.googlesource.com/chromium/src/+/refs/heads/main/net/tools/logger.info_certificates.py); 3) openssl (https://www.sslshopper.com/article-most-common-openssl-commands.html)
     try:
-        resp = subprocess.check_output(['openssl', 'x509', '-text', '-noout', '-in', str(PEM_FILE)], stderr=subprocess.PIPE, encoding='utf-8')
+        resp = subprocess.check_output(['openssl', 'x509', '-text', '-noout', '-in', str(PEM_FILE)],
+                                       stderr=subprocess.PIPE, encoding='utf-8')
         logger.info('openssl x509 -text -noout -in %s: %s', PEM_FILE, resp)
         # filter strings like 'DNS:*.ssl2.keyi.solutions.aws.a2z.org.cn, DNS:ssl3.keyi.solutions.aws.a2z.org.cn' in response
         resp = resp.split('\n')
@@ -195,26 +205,23 @@ def import_certificate(certificate):
         [type]: [description]
     """
     logger.info('start to importing existing cerfification %s', certificate)
-    try:
-        resp = acm.import_certificate(
-            Certificate=certificate['CertPem'],
-            PrivateKey=certificate['PrivateKeyPem'],
-            CertificateChain=certificate['ChainPem'],
-            # CertificateArn=certificate['CertificateArn'],
-            Tags=[
-                {
-                    'Key': 'issuer',
-                    # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
-                    'Value': certificate['DomainName'].replace('*.', '')
-                }
-            ]
-        )
-    except Exception as e:
-        logger.info('error importing certificate: %s', e)
-        return None
-    
+    resp = acm.import_certificate(
+         Certificate=certificate['CertPem'],
+         PrivateKey=certificate['PrivateKeyPem'],
+         CertificateChain=certificate['ChainPem'],
+         # CertificateArn=certificate['CertificateArn'],
+         Tags=[
+             {
+                 'Key': 'issuer',
+                 # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
+                 'Value': certificate['DomainName'].replace('*.', '')
+             }
+         ]
+     )
+
     logger.info('certificate imported: %s', json.dumps(resp))
     return resp
+
 
 # invoke step function with input
 def invoke_step_function(arn, input):
@@ -226,16 +233,15 @@ def invoke_step_function(arn, input):
         [type]: [description]
     """
     logger.info('start to invoke step function with input %s', input)
-    try:
-        resp = step_function.start_execution(
-            stateMachineArn=arn,
-            input=json.dumps(input)
-        )
-    except Exception as e:
-        logger.info('error invoking step function: %s', e)
-        return None
-    
+    resp = step_function.start_execution(
+        stateMachineArn=arn,
+        input=json.dumps(input)
+    )
+
     logger.info('step function invoked: %s', resp)
+
+    return resp
+
 
 # check if san list provided is subset of existing san list
 def is_subset(sanList, wildcardSanDict):
@@ -250,7 +256,7 @@ def is_subset(sanList, wildcardSanDict):
     # iterate wildcard san dict
     logger.info('start to check if san list %s is subset of wildcard san dict %s', sanList, wildcardSanDict)
     for key, value in wildcardSanDict.items():
-    # wildcard search in string with regular expression
+        # wildcard search in string with regular expression
         # regex = re.compile(r'.*\.risetron.cn') key is *.risetron.cn
         regex = re.compile(r'.*\.{}'.format(key.replace('*.', '')))
         matches = [san for san in sanList if re.match(regex, san)]
@@ -260,6 +266,7 @@ def is_subset(sanList, wildcardSanDict):
         else:
             continue
     return None
+
 
 # check if wildcard string in san list
 def is_wildcard(sanList):
@@ -278,6 +285,7 @@ def is_wildcard(sanList):
         else:
             continue
     return None
+
 
 # {
 #   "acm_op": "create",
@@ -312,27 +320,28 @@ def is_wildcard(sanList):
 #     }
 #   ]
 # }
-def lambda_handler(event, context):
-    """
 
-    :param event:
-    :param context:
-    """
-    logger.info("Received event: " + json.dumps(event))
+@app.post("/ssl_for_saas")
+def trigger_step_function():
+
+    internal_event = app.current_event
+
+    logger.info("Received event: " + json.dumps(internal_event))
 
     # Get the parameters from the event
-    body = json.loads(event['body'])
+    body = json.loads(internal_event['body'])
     acm_op = body['acm_op']
     dist_aggregate = body['dist_aggregate']
     auto_creation = body['auto_creation']
-    domainNameList = body['cnameList']
+    domain_name_list = body['cnameList']
 
+    # TODO: Do we need to keep the logic of auto_creation == "false" part?
     if auto_creation == "false":
         if acm_op == "create":
             # aggregate certificate if dist_aggregate is true
             if dist_aggregate == "true":
                 wildcard_cert_dict = {}
-                for cname_index, cname_value in enumerate(domainNameList):
+                for cname_index, cname_value in enumerate(domain_name_list):
                     certificate['DomainName'] = cname_value['domainName']
                     certificate['SubjectAlternativeNames'] = cname_value['sanList']
 
@@ -355,16 +364,16 @@ def lambda_handler(event, context):
 
             # otherwise, create certificate for each cname
             else:
-                for cname_index, cname_value in enumerate(domainNameList):
+                for cname_index, cname_value in enumerate(domain_name_list):
                     certificate['DomainName'] = cname_value['domainName']
                     certificate['SubjectAlternativeNames'] = cname_value['sanList']
 
                     resp = request_certificate(certificate)
                     logger.info('Certificate creation response: %s', resp)
-        
+
         # note dist_aggregate is ingore here, we don't aggregate imported certificate
         elif acm_op == "import":
-                # iterate pemList array from event
+            # iterate pemList array from event
             for pem_index, pem_value in enumerate(body['pemList']):
 
                 certificate['CertPem'] = str.encode(pem_value['CertPem'])
@@ -375,24 +384,41 @@ def lambda_handler(event, context):
                 _domainList = get_domain_list_from_cert()
                 certificate['SubjectAlternativeNames'] = _domainList
                 certificate['DomainName'] = _domainList[0] if _domainList else ''
-                
+
                 # validation for certificate
                 if body['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                    logger.info("Domain name {} matches certificate domain name {}".format(body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+                    logger.info("Domain name {} matches certificate domain name {}".format(
+                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
                 else:
-                    logger.error("Domain name {} does not match certificate domain name {}".format(body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+                    logger.error("Domain name {} does not match certificate domain name {}".format(
+                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
                     continue
                 resp = import_certificate(certificate)
+
+        return {
+             'statusCode': 200,
+             'body': json.dumps('auto_creation is false, just created or imported the certs')
+        }
 
     # invoke step function to implement streamlined process of cert create/import and distribution create
     elif auto_creation == "true":
         # invoke existing step function
-        logger.info('auto_creation is true, invoke step function')
-        invoke_step_function(stepFunctionArn, body)
+        logger.info('auto_creation is true, invoke step function with body %s', str(body))
+        resp = invoke_step_function(stepFunctionArn, body)
+
+        return {
+            'statusCode': 200,
+            'body': 'step function triggered with :' + str(resp['executionArn'])
+        }
     else:
         logger.info('auto_creation is not true or false')
-    
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Certificate Create/Import Successfully')
-    }
+
+        return {
+            'statusCode': 400,
+            'body': json.dumps('auto_creation is not true or false')
+        }
+
+
+def lambda_handler(event, context):
+    return app.resolve(event, context)
+

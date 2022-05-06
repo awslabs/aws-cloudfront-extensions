@@ -79,7 +79,7 @@ const SignInRouter: React.FC = () => {
           />
 
           <Route
-            path="/config/vesrsion/detail/:id"
+            path="/config/version/detail/:id"
             element={
               <Container>
                 <VersionDetail />
@@ -88,7 +88,7 @@ const SignInRouter: React.FC = () => {
           />
 
           <Route
-            path="/config/vesrsion/detail/:id/save"
+            path="/config/version/detail/:id/:version/save"
             element={
               <Container>
                 <SaveVersion />
@@ -97,7 +97,7 @@ const SignInRouter: React.FC = () => {
           />
 
           <Route
-            path="/config/vesrsion/detail/:id/compare"
+            path="/config/version/detail/:id/compare"
             element={
               <Container>
                 <CompareVersion />

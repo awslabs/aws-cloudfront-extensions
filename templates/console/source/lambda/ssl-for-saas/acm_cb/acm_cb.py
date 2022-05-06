@@ -5,6 +5,8 @@ import boto3
 import os
 import json
 import re
+import random
+import string
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
 from requests import exceptions
@@ -210,7 +212,7 @@ def fetch_dcv_value(certArn):
         logger.info('ResourceRecord is None, retry')
         raise exceptions.Timeout
 
-    logger.info("ResourceRecord fullfilled, return for further processing")
+    logger.info("ResourceRecord fulfilled, return for further processing")
     return resp
 
 # common cert operations
@@ -226,32 +228,30 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
         task_type (_type_): _description_
         snsMsg (_type_): _description_
     """
-    # TODO: Need to add logic to handle certificate create fail situation
+
     resp = request_certificate(certificate)
     logger.info('Certificate creation response: %s', resp)
 
     _create_acm_metadata(callback_table,
-                            certificate['DomainName'], 
-                            sanListDynamoDB,
-                            cert_UUid,
-                            task_token,
-                            task_type,
-                            'TASK_TOKEN_TAGGED',
-                            resp['CertificateArn'])
+                         certificate['DomainName'],
+                         sanListDynamoDB,
+                         cert_UUid,
+                         task_token,
+                         task_type,
+                         'TASK_TOKEN_TAGGED',
+                         resp['CertificateArn'])
+
     # tag acm certificate with task_token, slice task token to fit length of 128
     _tag_certificate(resp['CertificateArn'], task_token[:128])
 
-    # eventual consistency issue, wait before certs info can be fetched
-    # sleep(10)
-
-    respDetail = fetch_dcv_value(resp['CertificateArn'])
+    resp_detail = fetch_dcv_value(resp['CertificateArn'])
 
     # iterate DomainValidationOptions array to get DNS validation record
-    for dns_index, dns_value in enumerate(respDetail['Certificate']['DomainValidationOptions']):
+    for dns_index, dns_value in enumerate(resp_detail['Certificate']['DomainValidationOptions']):
         if dns_value['ValidationMethod'] == 'DNS':
-            dnsValidationRecord = dns_value['ResourceRecord']
-            logger.info('index %s: DNS validation record: %s', dns_index, dnsValidationRecord)
-            snsMsg.append(dnsValidationRecord)
+            dns_validation_record = dns_value['ResourceRecord']
+            logger.info('index %s: DNS validation record: %s', dns_index, dns_validation_record)
+            snsMsg.append(dns_validation_record)
 
     return resp
 
@@ -301,7 +301,6 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
 # }
 def lambda_handler(event, context):
     """
-
     :param event:
     :param context:
     """
@@ -312,32 +311,56 @@ def lambda_handler(event, context):
     task_type = os.getenv('TASK_TYPE')
     task_token = event['task_token']
     dist_aggregate = event['input']['dist_aggregate']
-    domainNameList = event['input']['cnameList']
-    enable_cname_check = event['input']['enable_cname_check']
+    domain_name_list = event['input']['cnameList']
 
     if not task_token:
         logger.error("Task token not found in event")
+        # generate a random string as task_token
+        task_token = ''.join(random.choices(string.ascii_lowercase, k=128))
     else:
         logger.info("Task token {}".format(task_token))
 
-    snsMsg = []
+    sns_msg = []
+
+    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
+
+    # validate all the source cloudfront distribution/version is existed
+    for cname_index, cname_value in enumerate(domain_name_list):
+        source_cf_info = cname_value['existing_cf_info']
+        dist_id = source_cf_info['distribution_id']
+        version_id = source_cf_info['config_version_id']
+
+        # get specific cloudfront distributions version info
+        response = ddb_table.get_item(
+            Key={
+                "distributionId": dist_id,
+                "versionId": int(version_id)
+            })
+        if 'Item' in response:
+            continue
+        else:
+            logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
+            raise Exception("Failed to find existing config with name: %s, version: %s in cname_value: %s, index: %s",
+                            dist_id, version_id, cname_value, cname_index)
 
     # aggregate certificate if dist_aggregate is true
     if dist_aggregate == "true":
         wildcard_cert_dict = {}
-        for cname_index, cname_value in enumerate(domainNameList):
+        for cname_index, cname_value in enumerate(domain_name_list):
             cert_UUid = str(uuid.uuid4())
             certificate['DomainName'] = cname_value['domainName']
             certificate['SubjectAlternativeNames'] = cname_value['sanList']
-            sanListDynamoDB = [dict(zip(['S'],[x])) for x in cname_value['sanList']]
-            logger.info('index %s: sanList for DynamoDB: %s', cname_index, sanListDynamoDB)
+            san_list_dynamo_db = [dict(zip(['S'],[x])) for x in cname_value['sanList']]
+            logger.info('index %s: sanList for DynamoDB: %s', cname_index, san_list_dynamo_db)
 
             # TBD, add cname_value['domainName'] to wildcard_cert_dict
             wildcardSan = is_wildcard(cname_value['sanList'])
             logger.info('wildcardSan: %s', wildcardSan)
             if wildcardSan:
                 ############### TBD, wrapper needed
-                resp = _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_UUid, task_token, task_type, snsMsg)
+                resp = _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token, task_type, sns_msg)
                 ###############
 
                 # update wildcard certificate dict
@@ -350,7 +373,7 @@ def lambda_handler(event, context):
                     # don't create certificate if parent certificate exists
                     _create_acm_metadata(callback_table,
                                             certificate['DomainName'], 
-                                            sanListDynamoDB,
+                                            san_list_dynamo_db,
                                             cert_UUid,
                                             task_token,
                                             task_type,
@@ -360,36 +383,36 @@ def lambda_handler(event, context):
                     continue
                 else:
                     ############### TBD, wrapper needed
-                    _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_UUid, task_token, task_type, snsMsg)
+                    _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token, task_type, sns_msg)
                     ###############
 
     # otherwise, create certificate for each cname
     else:
-        for cname_index, cname_value in enumerate(domainNameList):
+        for cname_index, cname_value in enumerate(domain_name_list):
             cert_UUid = str(uuid.uuid4())
             certificate['DomainName'] = cname_value['domainName']
             certificate['SubjectAlternativeNames'] = cname_value['sanList']
-            sanListDynamoDB = [dict(zip(['S'],[x])) for x in cname_value['sanList']]
-            logger.info('index %s: sanList for DynamoDB: %s', cname_index, sanListDynamoDB)
+            san_list_dynamo_db = [dict(zip(['S'],[x])) for x in cname_value['sanList']]
+            logger.info('index %s: sanList for DynamoDB: %s', cname_index, san_list_dynamo_db)
 
-            _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_UUid, task_token, task_type, snsMsg)
+            _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token, task_type, sns_msg)
 
-    logger.info("deliver message: %s to sns topic arn: %s", str(snsMsg), snsTopicArn)
+    logger.info("deliver message: %s to sns topic arn: %s", str(sns_msg), snsTopicArn)
 
     # make it a code url due to sns raw format, TBD make it a official repo url
-    sampleCode = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
-    godaddyCode = 'https://gist.github.com/guming3d/56e2f0517aa47fc87289fd21ff97dcee'
+    sample_route53_code = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
+    sample_godaddy_code = 'https://gist.github.com/guming3d/56e2f0517aa47fc87289fd21ff97dcee'
 
-    messageToBePublished = {
-        'CNAME value need to add into DNS hostzone to finish DCV': str(snsMsg),
-        'Sample Script (Python)': sampleCode,
-        'Sample Script for Godaddy (Python)': godaddyCode
+    message_to_be_published = {
+        'CNAME value need to add into DNS hostzone to finish DCV': str(sns_msg),
+        'Sample Script (Python)': sample_route53_code,
+        'Sample Script for Godaddy (Python)': sample_godaddy_code
     }
 
     # notify to sns topic for distribution event
     sns_client.publish(
         TopicArn=snsTopicArn,
-        Message=str(messageToBePublished),
+        Message=str(message_to_be_published),
         Subject='Domain Name Need to Do DCV (Domain Control Validation)'
     )
 

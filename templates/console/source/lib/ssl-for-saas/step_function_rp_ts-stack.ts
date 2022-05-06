@@ -18,6 +18,7 @@ import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { AppsyncFunction } from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
 import { CommonProps} from '../cf-common/cf-common-stack'
+import {AuthorizationType, EndpointType} from "aws-cdk-lib/aws-apigateway";
 
 export class StepFunctionRpTsStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: CommonProps) {
@@ -139,14 +140,25 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     // lambda function to handle acm import operation
     const fn_acm_import_cb = new _lambda.DockerImageFunction(this, 'acm_import_callback', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../../lambda/ssl-for-saas/acm_import_cb")),
-      environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
+      environment:{
+        'SNS_TOPIC': sns_topic.topicArn,
+        'CALLBACK_TABLE': callback_table.tableName,
+        'TASK_TYPE': 'placeholder',
+        'CONFIG_VERSION_DDB_TABLE_NAME': cdk.Fn.importValue('configVersionDDBTableName')
+      },
+      timeout:Duration.seconds(900),
       role:_fn_acm_import_cb_role, 
       memorySize:1024});
 
     // lambda function to handle acm create operation
     const fn_acm_cb = new _lambda.DockerImageFunction(this, 'acm_callback', {
       code:_lambda.DockerImageCode.fromImageAsset(path.join(__dirname,"../../lambda/ssl-for-saas/acm_cb")),
-      environment:{'SNS_TOPIC': sns_topic.topicArn, 'CALLBACK_TABLE': callback_table.tableName, 'TASK_TYPE': 'placeholder'},timeout:Duration.seconds(900), 
+      environment:{
+        'SNS_TOPIC': sns_topic.topicArn,
+        'CALLBACK_TABLE': callback_table.tableName,
+        'TASK_TYPE': 'placeholder',
+        'CONFIG_VERSION_DDB_TABLE_NAME': cdk.Fn.importValue('configVersionDDBTableName')
+      },timeout:Duration.seconds(900),
       role:_fn_acm_cb_role, 
       memorySize:512});
 
@@ -359,10 +371,17 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     // API Gateway with Lambda proxy integration
     const ssl_api_handler = new _apigw.LambdaRestApi(this, 'ssl_api_handler', {
       handler: fn_ssl_api_handler,
-      proxy: false
+      description: "restful api to trigger the ssl for saas workflow",
+      proxy: false,
+      restApiName: 'ssl_for_saas_manager',
+      endpointConfiguration: {
+        types: [EndpointType.EDGE]
+      }
     });
 
-    ssl_api_handler.root.addResource('ssl_for_saas').addMethod('POST');
+    ssl_api_handler.root.addResource('ssl_for_saas').addMethod('POST', undefined, {
+      authorizationType: AuthorizationType.IAM
+    });
 
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, 'ACM status check', {
