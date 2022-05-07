@@ -175,7 +175,7 @@ const VersionDetail: React.FC = () => {
                   getDistributionList();
                 }}
               >
-                Apply
+                Apply Config
               </Button>
               <Button
                 disabled={saveDisabled}
@@ -185,11 +185,13 @@ const VersionDetail: React.FC = () => {
                     id +
                     "/" +
                     selectedItem[0].versionId +
+                    "/" +
+                    selectedItem[0].note +
                     "/save";
                   navigate(path);
                 }}
               >
-                Save
+                Update Tags
               </Button>
               <Button
                 disabled={detailDisabled}
