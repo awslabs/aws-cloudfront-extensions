@@ -105,7 +105,7 @@ const SignInRouter: React.FC = () => {
           />
 
           <Route
-            path="/config/version/detail/:id/compare"
+            path="/config/version/detail/:id/compare/:ver1/:ver2"
             element={
               <Container>
                 <CompareVersion />

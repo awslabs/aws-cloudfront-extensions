@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDiffViewer from "react-diff-viewer";
 import Breadcrumb from "components/Breadcrumb";
 import HeaderPanel from "components/HeaderPanel";
 import Button from "components/Button";
 import Select from "components/Select";
 import { CF_VERSION_LIST } from "mock/data";
+import { useParams } from "react-router-dom";
+import { appSyncRequestQuery } from "../../../assets/js/request";
+import {
+  getConfigContent,
+  listCloudfrontVersions,
+} from "../../../graphql/queries";
+import { Version } from "../../../API";
 
 const oldCode = `
 const a = 10
@@ -27,6 +34,16 @@ if(a === 10) {
 `;
 
 const CompareVersion: React.FC = () => {
+  const { id } = useParams();
+  const { ver1 } = useParams();
+  const { ver2 } = useParams();
+  const [leftVersion, setLeftVersion] = useState<any>(ver1);
+  const [rightVersion, setRightVersion] = useState<any>(ver2);
+  const [leftContent, setLeftContent] = useState<any>(oldCode);
+  const [rightContent, setRightContent] = useState<any>(newCode);
+  const [distribution, setDistribution] = useState<any>(id);
+  const [versionList, setVersionList] = useState<any[]>([]);
+
   const BreadCrunbList = [
     {
       name: "CloudFront Extensions",
@@ -37,31 +54,103 @@ const CompareVersion: React.FC = () => {
       link: "/config/version",
     },
     {
-      name: "XLOWCQQFJJHM80",
-      link: "/config/version/detail/XLOWCQQFJJHM80",
+      name: distribution,
+      link: "/config/version/detail/" + distribution,
     },
     {
       name: "Compare",
     },
   ];
 
-  const [leftVersion, setLeftVersion] = useState("v1");
-  const [rightVersion, setRightVersion] = useState("v3");
+  const myInit = () => {
+    getLeftVersionContent();
+    getRightVersionContent();
+    getVersionListByDistribution();
+  };
+
+  useEffect(() => {
+    myInit();
+  }, []);
+
+  // Get Left Version By Distribution
+  const getLeftVersionContent = async () => {
+    try {
+      const resData = await appSyncRequestQuery(getConfigContent, {
+        distribution_id: id,
+        versionId: leftVersion,
+      });
+      setLeftContent(resData.data.getConfigContent);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Get Right Version By Distribution
+  const getRightVersionContent = async () => {
+    try {
+      const resData = await appSyncRequestQuery(getConfigContent, {
+        distribution_id: id,
+        versionId: rightVersion,
+      });
+      setRightContent(resData.data.getConfigContent);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getLeftVersionContent();
+  }, [leftVersion]);
+
+  useEffect(() => {
+    getRightVersionContent();
+  }, [rightVersion]);
+
+  // Get Version List By Distribution
+  const getVersionListByDistribution = async () => {
+    try {
+      setVersionList([]);
+      const resData = await appSyncRequestQuery(listCloudfrontVersions, {
+        distribution_id: id,
+      });
+      const versionList: Version[] = resData.data.listCloudfrontVersions;
+      const tmpList = [];
+      for (const versionKey in versionList) {
+        tmpList.push({
+          name:
+            versionList[versionKey].versionId +
+            " : " +
+            versionList[versionKey].note,
+          value: versionList[versionKey].versionId,
+        });
+      }
+      setVersionList(tmpList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // useEffect(() => {
+  //   getVersionListByDistribution();
+  // }, []);
+
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel title="XLOWCQQFJJHM80">
+        <HeaderPanel title={distribution}>
           <div>
             <div className="flex">
               <div className="flex-1">
                 <Select
                   className="m-w-320"
                   value={leftVersion}
-                  optionList={CF_VERSION_LIST}
+                  optionList={versionList}
                   placeholder="Select version"
                   onChange={(event) => {
+                    console.info("left value is ", event.target.value);
                     setLeftVersion(event.target.value);
+                    getLeftVersionContent();
                   }}
                 />
               </div>
@@ -70,10 +159,12 @@ const CompareVersion: React.FC = () => {
                   <Select
                     className="m-w-320"
                     value={rightVersion}
-                    optionList={CF_VERSION_LIST}
+                    optionList={versionList}
                     placeholder="Select version"
                     onChange={(event) => {
+                      console.info("right value is ", event.target.value);
                       setRightVersion(event.target.value);
+                      getRightVersionContent();
                     }}
                   />
                 </div>
@@ -82,8 +173,8 @@ const CompareVersion: React.FC = () => {
             </div>
             <div className="mt-10">
               <ReactDiffViewer
-                oldValue={oldCode}
-                newValue={newCode}
+                oldValue={leftContent}
+                newValue={rightContent}
                 splitView={true}
               />
             </div>

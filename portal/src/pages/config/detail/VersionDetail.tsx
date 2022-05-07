@@ -205,7 +205,13 @@ const VersionDetail: React.FC = () => {
                 disabled={compareDisabled}
                 btnType="primary"
                 onClick={() => {
-                  const path = "/config/version/detail/" + id + "/compare";
+                  const path =
+                    "/config/version/detail/" +
+                    id +
+                    "/compare/" +
+                    selectedItem[0].versionId +
+                    "/" +
+                    selectedItem[1].versionId;
                   navigate(path);
                 }}
               >

@@ -67,7 +67,7 @@ const SaveVersion: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Save version">
+        <PagePanel title="Save note for specific config version">
           <HeaderPanel title="Version settings">
             <div className="m-w-75p">
               <FormItem optionTitle="Distribution" optionDesc="">
