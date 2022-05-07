@@ -13,9 +13,10 @@ import { updateConfigTag } from "graphql/queries";
 
 const SaveVersion: React.FC = () => {
   const [distribution, setDistribution] = useState<any>("");
-  const [versionDesc, setVersionDesc] = useState("");
+  const [versionDesc, setVersionDesc] = useState<any>("");
   const { id } = useParams<string>();
   const { version } = useParams<string>();
+  const { note } = useParams<string>();
   const navigate = useNavigate();
   const BreadCrunbList = [
     {
@@ -38,6 +39,7 @@ const SaveVersion: React.FC = () => {
   const myLog = () => {
     console.info("guming debug>> id is ", id);
     setDistribution(id);
+    setVersionDesc(note);
   };
 
   useEffect(() => {
