@@ -59,6 +59,14 @@ const SignInRouter: React.FC = () => {
               </Container>
             }
           />
+          <Route
+            path="/extentions/deploy/:extName/:status"
+            element={
+              <Container>
+                <Deploy />
+              </Container>
+            }
+          />
 
           <Route
             path="/deployment-status"

@@ -5,10 +5,10 @@ import { SelectType, TablePanel } from "components/TablePanel";
 import { Pagination } from "@material-ui/lab";
 import { useNavigate } from "react-router-dom";
 import TextInput from "components/TextInput";
-import { Extension } from "API";
+import { Extension, ExtensionType } from "API";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
-import { checkSyncStatus, listExtensions } from "graphql/queries";
-import { syncExtensions } from "graphql/mutations";
+import { checkSyncStatus, listExtensions, queryByName } from "graphql/queries";
+import { deployExtension, syncExtensions } from "graphql/mutations";
 import Swal from "sweetalert2";
 import Modal from "components/Modal";
 
@@ -30,7 +30,10 @@ const Repository: React.FC = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [loadingSync, setLoadingSync] = useState(false);
   const [loadingCheck, setLoadingCheck] = useState(false);
+  const [loadingQuery, setLoadingQuery] = useState(false);
+  const [loadingDeploy, setLoadingDeploy] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [openDeployModal, setOpenDeployModal] = useState(false);
   const [searchParams, setSearchParams] = useState("");
   const [extentionList, setExtentionList] = useState<Extension[]>([]);
   const [curPage, setCurPage] = useState(1);
@@ -106,6 +109,50 @@ const Repository: React.FC = () => {
     setCurPage(value);
   };
 
+  const beforeToDeploy = async () => {
+    setLoadingQuery(true);
+    const resData = await appSyncRequestQuery(queryByName, {
+      name: selectedExtension?.name,
+    });
+    console.info("resData:", resData);
+
+    setLoadingQuery(false);
+    if (
+      !resData.data.queryByName.cfnParameter &&
+      resData.data.queryByName.type === ExtensionType.Lambda
+    ) {
+      console.info("show deploy modal");
+      setOpenDeployModal(true);
+    } else {
+      navigate(`/extentions/deploy/${selectedExtension?.name}`);
+    }
+  };
+
+  const startToDeployExtentsion = async () => {
+    const deployParams = {
+      name: selectedExtension?.name,
+      parameters: [],
+    };
+    try {
+      setLoadingDeploy(true);
+      const resData = await appSyncRequestMutation(
+        deployExtension,
+        deployParams
+      );
+      setLoadingDeploy(false);
+      setOpenDeployModal(false);
+      if (resData.data.deployExtension) {
+        navigate(
+          `/extentions/deploy/${selectedExtension?.name}/success?stackLink=${resData.data.deployExtension}`
+        );
+      }
+    } catch (error) {
+      setOpenDeployModal(false);
+      setLoadingDeploy(false);
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     getExtensionList();
   }, [curPage]);
@@ -140,10 +187,11 @@ const Repository: React.FC = () => {
                 Check Updates
               </Button>
               <Button
+                loading={loadingQuery}
                 disabled={deployDisabled}
                 btnType="primary"
                 onClick={() => {
-                  navigate(`/extentions/deploy/${selectedExtension?.name}`);
+                  beforeToDeploy();
                 }}
               >
                 Deploy
@@ -235,6 +283,40 @@ const Repository: React.FC = () => {
         <div className="gsui-modal-content">
           A newer version of the extensions were detected, are you sure you need
           to update all extenstions?
+        </div>
+      </Modal>
+
+      <Modal
+        title="Deploy Extenstions"
+        isOpen={openDeployModal}
+        fullWidth={false}
+        closeModal={() => {
+          setOpenModal(false);
+        }}
+        actions={
+          <div className="button-action no-pb text-right">
+            <Button
+              onClick={() => {
+                setOpenDeployModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              loading={loadingDeploy}
+              btnType="primary"
+              onClick={() => {
+                startToDeployExtentsion();
+              }}
+            >
+              Deploy
+            </Button>
+          </div>
+        }
+      >
+        <div className="gsui-modal-content">
+          Are you sure you want to deploy the extention{" "}
+          <b>{selectedExtension?.name}</b> ?
         </div>
       </Modal>
     </div>

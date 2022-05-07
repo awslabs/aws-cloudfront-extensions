@@ -16,10 +16,15 @@ interface DeployResultProps {
 const DeployResult: React.FC<DeployResultProps> = (
   props: DeployResultProps
 ) => {
+  const queryParams = new URLSearchParams(window.location.search);
+  const urlStackLink = queryParams.get("stackLink");
   const { stackLink, deployExtensionObj } = props;
+  // const [searchParams, setSearchParams] = useSearchParams();
+
   const amplifyConfig: AmplifyConfigType = useSelector(
     (state: AppStateProps) => state.amplifyConfig
   );
+
   return (
     <div>
       {/* <Breadcrumb list={BreadCrumbList} /> */}
@@ -28,7 +33,13 @@ const DeployResult: React.FC<DeployResultProps> = (
           actions={
             <div>
               <a
-                href={`https://${amplifyConfig.aws_project_region}.console.aws.amazon.com/cloudformation/home?region=${amplifyConfig.aws_project_region}#/stacks/stackinfo?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${stackLink}`}
+                href={`https://${
+                  amplifyConfig.aws_project_region
+                }.console.aws.amazon.com/cloudformation/home?region=${
+                  amplifyConfig.aws_project_region
+                }#/stacks/stackinfo?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${
+                  urlStackLink || stackLink
+                }`}
                 target="_blank"
                 rel="noreferrer"
               >

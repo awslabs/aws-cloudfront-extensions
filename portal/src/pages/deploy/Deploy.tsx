@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import CreateStep from "components/CreateStep";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ChooseCloudFront from "./steps/ChooseCloudFront";
 import FunctionAssociations from "./steps/FunctionAssociations";
 import Review from "./steps/Review";
@@ -44,8 +44,11 @@ export interface DeployExtensionObj {
 }
 
 const Deploy: React.FC = () => {
-  const { extName } = useParams();
-  const [isDeployed, setIsDeployed] = useState(false);
+  const { extName, status } = useParams();
+  const navigate = useNavigate();
+  const [isDeployed, setIsDeployed] = useState(
+    status === "success" ? true : false
+  );
   const [loadingData, setLoadingData] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [loadingDeploy, setLoadingDeploy] = useState(false);
@@ -245,7 +248,13 @@ const Deploy: React.FC = () => {
               <Review deployExtensionObj={deployExtensionObj} />
             )}
             <div className="button-action text-right">
-              <Button>Cancel</Button>
+              <Button
+                onClick={() => {
+                  navigate(`/extentions-repository`);
+                }}
+              >
+                Cancel
+              </Button>
               {activeStep > 0 && (
                 <Button
                   onClick={() => {
