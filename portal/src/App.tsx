@@ -28,6 +28,7 @@ import { AMPLIFY_CONFIG_JSON } from "assets/js/const";
 import LoadingText from "components/LoadingText";
 import { ActionType } from "reducer/appReducer";
 import { useDispatch } from "react-redux";
+import VersionDetailDisplay from "./pages/config/detail/VersionDetailDisplay";
 
 const SignInRouter: React.FC = () => {
   return (
@@ -100,6 +101,15 @@ const SignInRouter: React.FC = () => {
             element={
               <Container>
                 <SaveVersion />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/version/detail/display/:id/:version"
+            element={
+              <Container>
+                <VersionDetailDisplay />
               </Container>
             }
           />

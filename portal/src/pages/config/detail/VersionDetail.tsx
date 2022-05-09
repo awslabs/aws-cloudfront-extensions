@@ -227,7 +227,9 @@ const VersionDetail: React.FC = () => {
               id: "id",
               header: "Version Id",
               cell: (e: Version) => {
-                return <a href="/404">{e.versionId}</a>;
+                const path =
+                  "/config/version/detail/display/" + id + "/" + e.versionId;
+                return <a href={path}>{e.versionId}</a>;
               },
             },
             {

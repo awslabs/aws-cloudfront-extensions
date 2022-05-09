@@ -4,7 +4,6 @@ import Breadcrumb from "components/Breadcrumb";
 import HeaderPanel from "components/HeaderPanel";
 import Button from "components/Button";
 import Select from "components/Select";
-import { CF_VERSION_LIST } from "mock/data";
 import { useParams } from "react-router-dom";
 import { appSyncRequestQuery } from "../../../assets/js/request";
 import {
@@ -13,14 +12,11 @@ import {
 } from "../../../graphql/queries";
 import { Version } from "../../../API";
 
-const CompareVersion: React.FC = () => {
+const VersionDetailDisplay: React.FC = () => {
   const { id } = useParams();
-  const { ver1 } = useParams();
-  const { ver2 } = useParams();
-  const [leftVersion, setLeftVersion] = useState<any>(ver1);
-  const [rightVersion, setRightVersion] = useState<any>(ver2);
-  const [leftContent, setLeftContent] = useState<any>("");
-  const [rightContent, setRightContent] = useState<any>("");
+  const { version } = useParams();
+  const [currentVersion, setCurrentVersion] = useState<any>(version);
+  const [versionContent, setVersionContent] = useState<any>("");
   const [distribution, setDistribution] = useState<any>(id);
   const [versionList, setVersionList] = useState<any[]>([]);
 
@@ -38,13 +34,12 @@ const CompareVersion: React.FC = () => {
       link: "/config/version/detail/" + distribution,
     },
     {
-      name: "Compare",
+      name: "",
     },
   ];
 
   const myInit = () => {
-    getLeftVersionContent();
-    getRightVersionContent();
+    getVersionContent();
     getVersionListByDistribution();
   };
 
@@ -53,38 +48,21 @@ const CompareVersion: React.FC = () => {
   }, []);
 
   // Get Left Version By Distribution
-  const getLeftVersionContent = async () => {
+  const getVersionContent = async () => {
     try {
       const resData = await appSyncRequestQuery(getConfigContent, {
         distribution_id: id,
-        versionId: leftVersion,
+        versionId: currentVersion,
       });
-      setLeftContent(resData.data.getConfigContent);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Get Right Version By Distribution
-  const getRightVersionContent = async () => {
-    try {
-      const resData = await appSyncRequestQuery(getConfigContent, {
-        distribution_id: id,
-        versionId: rightVersion,
-      });
-      setRightContent(resData.data.getConfigContent);
+      setVersionContent(resData.data.getConfigContent);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    getLeftVersionContent();
-  }, [leftVersion]);
-
-  useEffect(() => {
-    getRightVersionContent();
-  }, [rightVersion]);
+    getVersionContent();
+  }, [currentVersion]);
 
   // Get Version List By Distribution
   const getVersionListByDistribution = async () => {
@@ -119,40 +97,19 @@ const CompareVersion: React.FC = () => {
             <div className="flex">
               <div className="flex-1">
                 <Select
-                  className="m-w-320"
-                  value={leftVersion}
+                  // className="m-w-320"
+                  value={currentVersion}
                   optionList={versionList}
                   placeholder="Select version"
                   onChange={(event) => {
-                    console.info("left value is ", event.target.value);
-                    setLeftVersion(event.target.value);
-                    getLeftVersionContent();
+                    setCurrentVersion(event.target.value);
+                    getVersionContent();
                   }}
                 />
               </div>
-              <div className="flex-1 flex justify-between">
-                <div className="flex-1">
-                  <Select
-                    className="m-w-320"
-                    value={rightVersion}
-                    optionList={versionList}
-                    placeholder="Select version"
-                    onChange={(event) => {
-                      console.info("right value is ", event.target.value);
-                      setRightVersion(event.target.value);
-                      getRightVersionContent();
-                    }}
-                  />
-                </div>
-                <Button btnType="primary">Compare</Button>
-              </div>
             </div>
             <div className="mt-10">
-              <ReactDiffViewer
-                oldValue={leftContent}
-                newValue={rightContent}
-                splitView={true}
-              />
+              <ReactDiffViewer oldValue={versionContent} splitView={false} />
             </div>
           </div>
         </HeaderPanel>
@@ -161,4 +118,4 @@ const CompareVersion: React.FC = () => {
   );
 };
 
-export default CompareVersion;
+export default VersionDetailDisplay;
