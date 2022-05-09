@@ -99,7 +99,9 @@ const CompareVersion: React.FC = () => {
         tmpList.push({
           name:
             versionList[versionKey].versionId +
-            " : " +
+            "\t|\t" +
+            versionList[versionKey].dateTime +
+            "\t|\t" +
             versionList[versionKey].note,
           value: versionList[versionKey].versionId,
         });
