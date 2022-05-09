@@ -7,7 +7,7 @@ import boto3
 
 QUEUE_URL = os.environ['SQS_QUEUE_URL']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
-APAC_NODE = ['BOM78-P4', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
+APAC_NODE = ['BOM51-C1', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
              'NRT51-P2', 'NRT57-P3', 'SIN2-P1', 'SIN52-C2']
 AU_NODE = ['SYD1-C1', 'SYD62-P1']
 CA_NODE = ['YUL62-C2', 'YUL62-C1']
@@ -17,6 +17,7 @@ JP_NODE = ['NRT51-P2', 'NRT57-P3']
 SA_NODE = ['GRU1-C2', 'GRU3-P1']
 US_NODE = ['IAD89-P1', 'IAD89-P2', 'SFO5-P2',
            'SFO5-P1', 'DFW56-P1', 'DFW56-P2']
+CN_NODE = ['PVG52-E1', 'SZX51-E1', 'BJS9-E1', 'ZHY50-E1']
 
 ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
                EU_NODE + JP_NODE + SA_NODE + US_NODE))

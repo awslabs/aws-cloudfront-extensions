@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -15,9 +16,36 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 
+def update_forwarded_header(new_header):
+    response = cloudfront_client.create_origin_request_policy(
+        OriginRequestPolicyConfig={
+            'Comment': 'Forward true-client-ip header',
+            'Name': 'TrueClientIp' + str(int(datetime.datetime.utcnow().timestamp())),
+            'HeadersConfig': {
+                'HeaderBehavior': 'whitelist',
+                'Headers': {
+                    'Quantity': 1,
+                    'Items': [
+                        new_header
+                    ]
+                }
+            },
+            'CookiesConfig': {
+                'CookieBehavior': 'none'
+            },
+            'QueryStringsConfig': {
+                'QueryStringBehavior': 'none'
+            }
+        }
+    )
+
+    log.info(response['OriginRequestPolicy']['Id'])
+    return response['OriginRequestPolicy']['Id']
+
+
 def update_lambda_config(lambda_association, stage):
-    # Remove the lambda if the lambda is deployed on the same stage with CFF
-    if lambda_association['Quantity'] != 0: 
+    # Remove the lambda if the lambda is deployed on the same stage with the function
+    if lambda_association['Quantity'] != 0:
         for lambda_item in lambda_association['Items']:
             if lambda_item['EventType'] == stage:
                 lambda_association['Quantity'] = lambda_association['Quantity'] - 1
@@ -55,7 +83,7 @@ def update_cf_config(dist_id, stage, behavior, func_arn):
                 {
                     'FunctionARN': func_arn,
                     'EventType': stage
-                },
+                }
             ]
         }
     }
@@ -63,14 +91,23 @@ def update_cf_config(dist_id, stage, behavior, func_arn):
     config_resp = cloudfront_client.get_distribution_config(Id=dist_id)
     cf_config = config_resp['DistributionConfig']
     e_tag = config_resp['ETag']
+    origin_request_policy_id = ''
     log.info(cf_config)
 
-    # Add CFF config into distribution config
+    # Add function config into distribution config
     if para['CacheBehavior'] == 'Default (*)':
         cf_config['DefaultCacheBehavior']['LambdaFunctionAssociations'] = update_lambda_config(
             cf_config['DefaultCacheBehavior']['LambdaFunctionAssociations'], stage)
         cf_config['DefaultCacheBehavior']['FunctionAssociations'] = update_cff_config(
             cf_config['DefaultCacheBehavior']['FunctionAssociations'], para, stage, func_arn)
+
+        if 'OriginRequestPolicyId' not in cf_config['DefaultCacheBehavior'] and 'ForwardedValues' not in cf_config['DefaultCacheBehavior']:
+            # Add this header to origin request header if no origin request header existed
+            # The user needs to add the header manually if the distribution has an origin request header
+            if len(origin_request_policy_id) == 0:
+                origin_request_policy_id = update_forwarded_header(
+                    'true-client-ip')
+            cf_config['DefaultCacheBehavior']['OriginRequestPolicyId'] = origin_request_policy_id
     else:
         for i in range(len(cf_config['CacheBehaviors']['Items'])):
             if cf_config['CacheBehaviors']['Items'][i]['PathPattern'] == para[
@@ -79,6 +116,11 @@ def update_cf_config(dist_id, stage, behavior, func_arn):
                     cf_config['CacheBehaviors']['Items'][i]['LambdaFunctionAssociations'], stage)
                 cf_config['CacheBehaviors']['Items'][i]['FunctionAssociations'] = update_cff_config(
                     cf_config['CacheBehaviors']['Items'][i]['FunctionAssociations'], para, stage, func_arn)
+                if 'OriginRequestPolicyId' not in cf_config['CacheBehaviors']['Items'][i] and 'ForwardedValues' not in cf_config['CacheBehaviors']['Items'][i]:
+                    if len(origin_request_policy_id) == 0:
+                        origin_request_policy_id = update_forwarded_header(
+                            'true-client-ip')
+                    cf_config['CacheBehaviors']['Items'][i]['OriginRequestPolicyId'] = origin_request_policy_id
                 break
     log.info(cf_config)
 
@@ -95,7 +137,8 @@ def lambda_handler(event, context):
 
     if event['ResourceType'] == "Custom::TrueClientIp":
         if 'CREATE' in request_type or 'UPDATE' in request_type:
-            behavior_list = CF_BEHAVIOR.replace('[', '').replace(']', '').split(',')
+            behavior_list = CF_BEHAVIOR.replace(
+                '[', '').replace(']', '').split(',')
             for behavior in behavior_list:
                 behavior = behavior.strip()
                 update_cf_config(CF_DIST_ID, CF_STAGE, behavior, CFF_ARN)

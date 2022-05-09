@@ -123,7 +123,7 @@ export class ResizeImageStack extends cdk.Stack {
     lambdaRole.attachInlinePolicy(lambdaPolicy);
     lambdaRole.attachInlinePolicy(cloudfrontPolicy);
 
-    // Custom resource to deploy CFF
+    // Custom resource to deploy Lambda@Edge 
     const crLambda = new lambda.Function(this, "LEDeployer", {
       description: "This lambda function deploy Lambda@Edge onto CloudFront distribution",
       runtime: lambda.Runtime.PYTHON_3_9,

@@ -127,6 +127,10 @@ export class TrueClientIpStack extends cdk.Stack {
       value: cfFunction.functionArn
     });
 
+    new cdk.CfnOutput(this, "AddOriginRequestHeader", {
+      value: "You need to add true-client-ip in the origin request policy. Otherwise, CloudFront removes this header before making the request to the origin. The solution will add the header automatically if your CloudFront distribution doesn't have an origin request policy"
+    });
+
   }
 
 }

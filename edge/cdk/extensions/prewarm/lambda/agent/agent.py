@@ -114,6 +114,7 @@ def lambda_handler(event, context):
         parsed_url = replace_url(parsed_url, cf_domain)
         cf_domain_prefix = get_cf_domain_prefix(parsed_url)
 
+        # invalidate CloudFront cache
         if len(dist_id) > 0:
             inv_resp = invalidate_cf_cache(dist_id, url)
             cf_invalidation_status(dist_id, inv_resp['Invalidation']['Id'])
