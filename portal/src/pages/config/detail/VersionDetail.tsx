@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import { SelectType, TablePanel } from "components/TablePanel";
-// import { CF_LIST, MOCK_VERSION_LIST, VersionType } from "mock/data";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,7 +16,6 @@ import {
   listCloudfrontVersions,
   listDistribution,
 } from "graphql/queries";
-import { CF_LIST } from "mock/data";
 import LoadingText from "../../../components/LoadingText";
 
 const VersionDetail: React.FC = () => {
@@ -31,7 +29,6 @@ const VersionDetail: React.FC = () => {
   const [detailDisabled, setDetailDisabled] = useState(false);
   const [compareDisabled, setCompareDisabled] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [CF_DIST_LIST, setCF_DIST_LIST] = useState<any>([]);
   const [selectDistribution, setSelectDistribution] = useState<any>([]);
   const [confirm, setConfirm] = useState("");
   const [loadingData, setLoadingData] = useState(false);
@@ -78,7 +75,6 @@ const VersionDetail: React.FC = () => {
       setDistributionList([]);
       const resData = await appSyncRequestQuery(listDistribution);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
-      // setDistributionList(Cloudfront_info_list);
       const tmpList = [];
       for (const cfdistlistKey in Cloudfront_info_list) {
         tmpList.push({
@@ -88,7 +84,6 @@ const VersionDetail: React.FC = () => {
         });
       }
       setDistributionList(tmpList);
-      console.info("guming debug>>", Cloudfront_info_list);
     } catch (error) {
       console.error(error);
     }
@@ -113,7 +108,6 @@ const VersionDetail: React.FC = () => {
       });
       setLoadingApply(false);
       setOpenModal(false);
-      console.info("guming debug>> apply response is " + resData);
     } catch (error) {
       setLoadingApply(false);
       console.error(error);
@@ -291,7 +285,6 @@ const VersionDetail: React.FC = () => {
               loading={loadingApply}
               onClick={() => {
                 applyCloudFrontConfig();
-                // setOpenModal(false);
               }}
             >
               Apply

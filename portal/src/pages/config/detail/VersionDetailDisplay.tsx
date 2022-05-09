@@ -92,7 +92,14 @@ const VersionDetailDisplay: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel title={distribution}>
+        <HeaderPanel
+          title={
+            "Detail Configuration of distribution: " +
+            distribution +
+            " with version: " +
+            currentVersion
+          }
+        >
           <div>
             <div className="flex">
               <div className="flex-1">

@@ -114,12 +114,12 @@ const CompareVersion: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel title={distribution}>
+        <HeaderPanel title="Please select the version to compare">
           <div>
             <div className="flex">
               <div className="flex-1">
                 <Select
-                  className="m-w-320"
+                  // className="m-w-320"
                   value={leftVersion}
                   optionList={versionList}
                   placeholder="Select version"
@@ -133,7 +133,7 @@ const CompareVersion: React.FC = () => {
               <div className="flex-1 flex justify-between">
                 <div className="flex-1">
                   <Select
-                    className="m-w-320"
+                    // className="m-w-320"
                     value={rightVersion}
                     optionList={versionList}
                     placeholder="Select version"
@@ -144,7 +144,7 @@ const CompareVersion: React.FC = () => {
                     }}
                   />
                 </div>
-                <Button btnType="primary">Compare</Button>
+                {/*<Button btnType="primary">Compare</Button>*/}
               </div>
             </div>
             <div className="mt-10">
