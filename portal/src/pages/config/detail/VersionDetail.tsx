@@ -114,6 +114,20 @@ const VersionDetail: React.FC = () => {
     }
   };
 
+  const selectAllDistributions = async () => {
+    setSelectDistribution([]);
+    const selectList = [];
+    for (const index in distributionList) {
+      selectList.push(distributionList[index].name);
+    }
+    console.info(selectList);
+    setSelectDistribution(selectList);
+  };
+
+  const selectNoneDistributions = async () => {
+    setSelectDistribution([]);
+  };
+
   useEffect(() => {
     console.info("selectedItem:", selectedItem);
     if (selectedItem.length > 0) {
@@ -190,7 +204,12 @@ const VersionDetail: React.FC = () => {
               <Button
                 disabled={detailDisabled}
                 onClick={() => {
-                  navigate("/404");
+                  const path =
+                    "/config/version/detail/display/" +
+                    id +
+                    "/" +
+                    selectedItem[0].versionId;
+                  navigate(path);
                 }}
               >
                 Details
@@ -265,7 +284,7 @@ const VersionDetail: React.FC = () => {
       <Modal
         title="Apply Settings?"
         isOpen={openModal}
-        fullWidth={false}
+        fullWidth={true}
         closeModal={() => {
           setOpenModal(false);
         }}
@@ -298,7 +317,7 @@ const VersionDetail: React.FC = () => {
             optionDesc="Distribution to apply configurations"
           >
             <div className="flex">
-              <div style={{ width: 500 }}>
+              <div style={{ width: 800 }}>
                 <MultiSelect
                   optionList={distributionList}
                   value={selectDistribution}
@@ -308,8 +327,23 @@ const VersionDetail: React.FC = () => {
                   }}
                 />
               </div>
-              <div className="ml-10">
-                <Button>Select all</Button>
+              <div className="ml-5">
+                <Button
+                  onClick={() => {
+                    selectAllDistributions();
+                  }}
+                >
+                  Select all
+                </Button>
+              </div>
+              <div className="ml-5">
+                <Button
+                  onClick={() => {
+                    selectNoneDistributions();
+                  }}
+                >
+                  Select None
+                </Button>
               </div>
             </div>
           </FormItem>

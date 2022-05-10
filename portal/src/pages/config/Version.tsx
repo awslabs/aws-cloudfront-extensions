@@ -17,7 +17,7 @@ const BreadCrunbList = [
     link: "/",
   },
   {
-    name: "Deployment Status",
+    name: "Distribution List",
     link: "",
   },
 ];
