@@ -118,7 +118,7 @@ const VersionDetailDisplay: React.FC = () => {
               </div>
             </div>
             <div className="mt-10">
-              <ReactDiffViewer oldValue={versionContent} splitView={false} />
+              <ReactDiffViewer newValue={versionContent} splitView={false} />
             </div>
           </div>
         </HeaderPanel>

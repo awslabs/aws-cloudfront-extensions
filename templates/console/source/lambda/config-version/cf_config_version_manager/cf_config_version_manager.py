@@ -1,6 +1,7 @@
 import json
 import logging
 import subprocess
+import os
 
 import boto3
 from aws_lambda_powertools import Logger, Tracer
@@ -12,9 +13,14 @@ logger = Logger(service="config_version_resolver")
 
 app = APIGatewayRestResolver()
 
-S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
-DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
-DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-1OS79LINC6BHC'
+# TODO: for local debug, will remove before release
+# S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
+# DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
+# DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-1OS79LINC6BHC'
+
+S3_BUCKET = os.environ['S3_BUCKET']
+DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
+DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')

@@ -1,6 +1,7 @@
 import json
 import logging
 import subprocess
+import os
 
 import boto3
 from aws_lambda_powertools import Logger, Tracer
@@ -13,9 +14,14 @@ logger = Logger(service="config_version_resolver")
 
 app = AppSyncResolver()
 
-S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
-DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
-DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-1OS79LINC6BHC'
+# TODO: for local debug, will remove before release
+# S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
+# DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-1K696OOFD0GK6'
+# DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-1OS79LINC6BHC'
+
+S3_BUCKET = os.environ['S3_BUCKET']
+DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
+DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -100,25 +106,30 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
     # call boto to apply the config to target distribution
     cf_client = boto3.client('cloudfront')
 
-    for distribution_id in target_dist_ids:
-        # first get the current ETAG for target distribution
-        response = cf_client.get_distribution_config(
-            Id=distribution_id
-        )
-        etag = response['ETag']
-        target_dist_caller_reference = response['DistributionConfig']['CallerReference']
+    with open(local_config_file_name_version) as config_file:
+        dictData = json.load(config_file)
+        for distribution_id in target_dist_ids:
+            # first get the current ETAG for target distribution
+            prev_config = cf_client.get_distribution_config(
+                Id=distribution_id
+            )
+            etag = prev_config['ETag']
+            target_dist_caller_reference = prev_config['DistributionConfig']['CallerReference']
 
-        with open(local_config_file_name_version) as config_file:
-            dictData = json.load(config_file)
             dictData['CallerReference'] = target_dist_caller_reference
 
-            response = cf_client.update_distribution(
-                DistributionConfig=dictData,
-                Id=distribution_id,
-                IfMatch=etag
-            )
-
-    return 'target distributions been updated'
+            if dictData == prev_config['DistributionConfig']:
+                logger.info("the two configuration is same, no need to create a new version")
+                return "the config is not changed"
+            else:
+                logger.info("the two configuration is different")
+                logger.info("prev config is "+str(prev_config) + ", current config is " + str(dictData))
+                response = cf_client.update_distribution(
+                    DistributionConfig=dictData,
+                    Id=distribution_id,
+                    IfMatch=etag
+                )
+                return 'target distributions been updated'
 
 
 @app.resolver(type_name="Query", field_name="updateConfigTag")

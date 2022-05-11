@@ -11,6 +11,7 @@ S3_BUCKET = os.environ['S3_BUCKET']
 DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
 DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
 
+# TODO: for local debug purpose, will remove before release
 # S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
 # DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-D8I07GGNBYFJ'
 # DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-7LF5V48RKDK0'
@@ -98,7 +99,7 @@ def lambda_handler(event, context):
             'versionId': new_version,
             'id': new_version,
             'dateTime': current_time,
-            'note': 'auto_save',
+            'note': '',
             'config_link': s3_path,
             's3_bucket': S3_BUCKET,
             's3_key': s3_key

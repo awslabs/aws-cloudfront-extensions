@@ -80,7 +80,6 @@ const VersionDetail: React.FC = () => {
         tmpList.push({
           name: Cloudfront_info_list[cfdistlistKey].id,
           value: Cloudfront_info_list[cfdistlistKey].id,
-          optTitle: Cloudfront_info_list[cfdistlistKey].status,
         });
       }
       setDistributionList(tmpList);
@@ -199,7 +198,7 @@ const VersionDetail: React.FC = () => {
                   navigate(path);
                 }}
               >
-                Update Tags
+                Update Version Notes
               </Button>
               <Button
                 disabled={detailDisabled}
@@ -259,7 +258,7 @@ const VersionDetail: React.FC = () => {
             {
               // width: 200,
               id: "tags",
-              header: "Tags",
+              header: "Version Notes",
               cell: (e: Version) => e.note,
             },
           ]}
