@@ -1,33 +1,35 @@
+import * as cdk from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as cdk from '@aws-cdk/core';
-import {CfnParameter, Construct, Duration, RemovalPolicy, Stack} from '@aws-cdk/core';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as iam from '@aws-cdk/aws-iam';
-import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from '@aws-cdk/aws-iam';
-import * as logs from '@aws-cdk/aws-logs';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { CfnTable } from 'aws-cdk-lib/aws-glue';
+import { Construct } from 'constructs';
+import {CfnParameter, Duration, RemovalPolicy, Stack} from 'aws-cdk-lib';
+import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
   EndpointType,
   LambdaRestApi,
   RequestValidator
-} from "@aws-cdk/aws-apigateway";
-import * as cognito from '@aws-cdk/aws-cognito';
-import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
-import * as kinesis from "@aws-cdk/aws-kinesis";
-import { CfnDeliveryStream } from "@aws-cdk/aws-kinesisfirehose";
-import { CfnTable, Database, Table } from "@aws-cdk/aws-glue"
-import { StreamEncryption } from "@aws-cdk/aws-kinesis";
-import { Rule, Schedule } from "@aws-cdk/aws-events";
-import * as kms from "@aws-cdk/aws-kms";
-import { LambdaFunction } from '@aws-cdk/aws-events-targets';
+} from "aws-cdk-lib/aws-apigateway";
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import * as kinesis from "aws-cdk-lib/aws-kinesis";
+import { CfnDeliveryStream } from "aws-cdk-lib/aws-kinesisfirehose";
+import * as glue from "@aws-cdk/aws-glue-alpha"
+import { StreamEncryption } from "aws-cdk-lib/aws-kinesis";
+import { Rule, Schedule } from "aws-cdk-lib/aws-events";
+import * as kms from "aws-cdk-lib/aws-kms";
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import {
   OAuthScope,
   ResourceServerScope,
   UserPoolClientIdentityProvider,
   UserPoolResourceServer
-} from "@aws-cdk/aws-cognito";
+} from "aws-cdk-lib/aws-cognito";
 
 export class CloudFrontMonitoringStack extends Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps ) {
@@ -120,7 +122,7 @@ export class CloudFrontMonitoringStack extends Stack {
 
     });
 
-    const glueDatabase = new Database(this, "cf_realtime_log_glue_database", {
+    const glueDatabase = new glue.Database(this, "cf_realtime_log_glue_database", {
       databaseName: "glue_cf_realtime_log_database"
     });
 
@@ -353,7 +355,7 @@ export class CloudFrontMonitoringStack extends Stack {
       }
     });
 
-    const glueTable = Table.fromTableArn(this, 'glue_table', glueTableCFN.ref)
+    const glueTable = glue.Table.fromTableArn(this, 'glue_table', glueTableCFN.ref)
 
     const lambdaRole = new iam.Role(this, 'LambdaRole', {
       assumedBy: new CompositePrincipal(

@@ -1,22 +1,18 @@
 import * as cdk from 'aws-cdk-lib';
-import { CustomResource } from 'aws-cdk-lib';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
+import { CustomResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
 
-export class TrueClientIpStack extends cdk.Stack {
+export class CountryRedirectStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    this.templateOptions.description = "(SO8144) - Adds a True-Client-IP header to include the \
-    IP address of a client connecting to CloudFront. Without this header, \
-    connections from CloudFront to your origin contain the IP address of \
-    the CloudFront server making the request to your origin, \
-    not the IP address of the client connected to CloudFront.";
+    this.templateOptions.description = "(SO8145) - Redirects to a country-specific version of a site based on the country of the user";
 
     const cfDistId = new cdk.CfnParameter(this, 'cfDistId', {
       description: 'CloudFront distribution id on which the function is deployed',
@@ -33,19 +29,17 @@ export class TrueClientIpStack extends cdk.Stack {
       type: 'String',
     });
 
-    const lambdaRole = new iam.Role(this, 'TrueClientIpLambdaRole', {
+    const lambdaRole = new iam.Role(this, 'CountryRedirectLambdaRole', {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
       ),
     });
 
-    const lambdaPolicy = new iam.Policy(this, 'TrueClientIpLambdaPolicy', {
+    const lambdaPolicy = new iam.Policy(this, 'CountryRedirectLambdaPolicy', {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           resources: [
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*`,
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*:*`,
             `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*`,
             `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`
           ],
@@ -68,7 +62,7 @@ export class TrueClientIpStack extends cdk.Stack {
       ]
     });
 
-    const cloudfrontPolicy = new iam.Policy(this, 'TrueClientIpCloudFrontPolicy', {
+    const cloudfrontPolicy = new iam.Policy(this, 'CountryRedirectCFPolicy', {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -93,12 +87,11 @@ export class TrueClientIpStack extends cdk.Stack {
     lambdaRole.attachInlinePolicy(cloudfrontPolicy);
 
     // Add a cloudfront Function and deploy it to the live stage
-    const cfFunction = new cloudfront.Function(this, 'TrueClientIpCFF', {
+    const cfFunction = new cloudfront.Function(this, 'RedirectByCountry', {
       code: cloudfront.FunctionCode.fromFile({
-        filePath: path.join(__dirname, './true-client-ip-function.js'),
+        filePath: path.join(__dirname, './redirect-by-country-function.js'),
       }),
     });
-
 
     // Custom resource to deploy CFF
     const crLambda = new lambda.Function(this, "CFFDeployer", {
@@ -107,7 +100,7 @@ export class TrueClientIpStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lib/lambda/custom_resource')),
       handler: "custom_resource.lambda_handler",
       role: lambdaRole,
-      memorySize: 512,
+      memorySize: 256,
       timeout: cdk.Duration.minutes(15),
       environment: {
         CFF_ARN: cfFunction.functionArn,
@@ -119,23 +112,23 @@ export class TrueClientIpStack extends cdk.Stack {
 
     crLambda.node.addDependency(cfFunction)
 
-    const trueClientIpProvider = new cr.Provider(this, 'TrueClientIpProvider', {
+    const redirectProvider = new cr.Provider(this, 'RedirectProvider', {
       onEventHandler: crLambda,
       logRetention: logs.RetentionDays.ONE_DAY,
     });
 
-    new CustomResource(this, 'TrueClientIpCustomResource', {
-      serviceToken: trueClientIpProvider.serviceToken,
-      resourceType: "Custom::TrueClientIp",
+    new CustomResource(this, 'RedirectCustomResource', {
+      serviceToken: redirectProvider.serviceToken,
+      resourceType: "Custom::RedirectByCountry",
     });
-
+    
     // Output
     new cdk.CfnOutput(this, "FunctionARN", {
       value: cfFunction.functionArn
     });
 
-    new cdk.CfnOutput(this, "AddOriginRequestHeader", {
-      value: "You need to add true-client-ip in the origin request policy. Otherwise, CloudFront removes this header before making the request to the origin. The solution will add the header automatically if your CloudFront distribution doesn't have an origin request policy"
+    new cdk.CfnOutput(this, "AddCloudFrontViewerCountryHeader", {
+      value: "You need to add cloudfront-viewer-country in the origin request policy. The solution will add the header automatically if your CloudFront distribution doesn't have an origin request policy"
     });
 
   }

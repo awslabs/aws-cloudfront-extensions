@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import os
 
@@ -11,16 +10,20 @@ CF_DIST_ID = os.environ['CF_DIST_ID']
 CF_BEHAVIOR = os.environ['CF_BEHAVIOR']
 CF_STAGE = os.environ['CF_STAGE']
 cloudfront_client = boto3.client('cloudfront')
+ORIGIN_HEADER = {
+    'Custom::TrueClientIp': 'true-client-ip',
+    'Custom::RedirectByCountry': 'cloudfront-viewer-country'
+}
 
 log = logging.getLogger()
 log.setLevel('INFO')
 
 
-def update_forwarded_header(new_header):
+def update_origin_req_policy(new_header):
     response = cloudfront_client.create_origin_request_policy(
         OriginRequestPolicyConfig={
-            'Comment': 'Forward true-client-ip header',
-            'Name': 'TrueClientIp' + str(int(datetime.datetime.utcnow().timestamp())),
+            'Comment': 'Forward ' + new_header + ' header',
+            'Name': new_header + str(int(datetime.datetime.utcnow().timestamp())),
             'HeadersConfig': {
                 'HeaderBehavior': 'whitelist',
                 'Headers': {
@@ -40,6 +43,7 @@ def update_forwarded_header(new_header):
     )
 
     log.info(response['OriginRequestPolicy']['Id'])
+
     return response['OriginRequestPolicy']['Id']
 
 
@@ -73,7 +77,16 @@ def update_cff_config(cff_association, para, stage, func_arn):
     return cff_association
 
 
-def update_cf_config(dist_id, stage, behavior, func_arn):
+def update_func_config(cache_behavior_config, para, stage, func_arn):
+    cache_behavior_config['LambdaFunctionAssociations'] = update_lambda_config(
+        cache_behavior_config['LambdaFunctionAssociations'], stage)
+    cache_behavior_config['FunctionAssociations'] = update_cff_config(
+        cache_behavior_config['FunctionAssociations'], para, stage, func_arn)
+
+    return cache_behavior_config
+
+
+def update_cf_config(dist_id, stage, behavior, func_arn, res_type):
     '''Associate extensions with the distribution'''
     para = {
         'CacheBehavior': behavior,
@@ -96,49 +109,47 @@ def update_cf_config(dist_id, stage, behavior, func_arn):
 
     # Add function config into distribution config
     if para['CacheBehavior'] == 'Default (*)':
-        cf_config['DefaultCacheBehavior']['LambdaFunctionAssociations'] = update_lambda_config(
-            cf_config['DefaultCacheBehavior']['LambdaFunctionAssociations'], stage)
-        cf_config['DefaultCacheBehavior']['FunctionAssociations'] = update_cff_config(
-            cf_config['DefaultCacheBehavior']['FunctionAssociations'], para, stage, func_arn)
+        cf_config['DefaultCacheBehavior'] = update_func_config(
+            cf_config['DefaultCacheBehavior'], para, stage, func_arn)
 
         if 'OriginRequestPolicyId' not in cf_config['DefaultCacheBehavior'] and 'ForwardedValues' not in cf_config['DefaultCacheBehavior']:
-            # Add this header to origin request header if no origin request header existed
-            # The user needs to add the header manually if the distribution has an origin request header
-            if len(origin_request_policy_id) == 0:
-                origin_request_policy_id = update_forwarded_header(
-                    'true-client-ip')
-            cf_config['DefaultCacheBehavior']['OriginRequestPolicyId'] = origin_request_policy_id
+            if res_type == 'Custom::TrueClientIp' or res_type == 'Custom::RedirectByCountry':
+                # Add this header to origin request header if no origin request header existed
+                # The user needs to add the header manually if the distribution has an origin request header
+                if len(origin_request_policy_id) == 0:
+                    origin_request_policy_id = update_origin_req_policy(
+                        ORIGIN_HEADER[res_type])
+                cf_config['DefaultCacheBehavior']['OriginRequestPolicyId'] = origin_request_policy_id
     else:
         for i in range(len(cf_config['CacheBehaviors']['Items'])):
-            if cf_config['CacheBehaviors']['Items'][i]['PathPattern'] == para[
-                    'CacheBehavior']:
-                cf_config['CacheBehaviors']['Items'][i]['LambdaFunctionAssociations'] = update_lambda_config(
-                    cf_config['CacheBehaviors']['Items'][i]['LambdaFunctionAssociations'], stage)
-                cf_config['CacheBehaviors']['Items'][i]['FunctionAssociations'] = update_cff_config(
-                    cf_config['CacheBehaviors']['Items'][i]['FunctionAssociations'], para, stage, func_arn)
+            if cf_config['CacheBehaviors']['Items'][i]['PathPattern'] == para['CacheBehavior']:
+                cf_config['CacheBehaviors']['Items'][i] = update_func_config(
+                    cf_config['CacheBehaviors']['Items'][i], para, stage, func_arn)
+
                 if 'OriginRequestPolicyId' not in cf_config['CacheBehaviors']['Items'][i] and 'ForwardedValues' not in cf_config['CacheBehaviors']['Items'][i]:
-                    if len(origin_request_policy_id) == 0:
-                        origin_request_policy_id = update_forwarded_header(
-                            'true-client-ip')
-                    cf_config['CacheBehaviors']['Items'][i]['OriginRequestPolicyId'] = origin_request_policy_id
+                    if res_type == 'Custom::TrueClientIp' or res_type == 'Custom::RedirectByCountry':
+                        if len(origin_request_policy_id) == 0:
+                            origin_request_policy_id = update_origin_req_policy(
+                                ORIGIN_HEADER[res_type])
+                        cf_config['CacheBehaviors']['Items'][i]['OriginRequestPolicyId'] = origin_request_policy_id
                 break
     log.info(cf_config)
 
-    update_resp = cloudfront_client.update_distribution(
+    cloudfront_client.update_distribution(
         DistributionConfig=cf_config, Id=dist_id, IfMatch=e_tag)
-    log.info(update_resp)
 
 
 def lambda_handler(event, context):
     log.info(event)
     request_type = event['RequestType'].upper() if (
         'RequestType' in event) else ""
-    log.info(request_type)
 
-    if event['ResourceType'] == "Custom::TrueClientIp":
+    if event['ResourceType'] == 'Custom::TrueClientIp' or \
+            event['ResourceType'] == 'Custom::RedirectByCountry':
         if 'CREATE' in request_type or 'UPDATE' in request_type:
             behavior_list = CF_BEHAVIOR.replace(
                 '[', '').replace(']', '').split(',')
             for behavior in behavior_list:
                 behavior = behavior.strip()
-                update_cf_config(CF_DIST_ID, CF_STAGE, behavior, CFF_ARN)
+                update_cf_config(CF_DIST_ID, CF_STAGE, behavior,
+                                 CFF_ARN, event['ResourceType'])
