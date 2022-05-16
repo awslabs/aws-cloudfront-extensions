@@ -1,4 +1,5 @@
 import json
+import datetime
 import logging
 import os
 
@@ -7,6 +8,7 @@ from boto3.dynamodb.conditions import Key
 
 TABLE_NAME = os.environ['DDB_TABLE_NAME']
 aws_region = os.environ['AWS_REGION']
+API_TIME_OUT = 20
 dynamodb = boto3.resource('dynamodb', region_name=aws_region)
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -24,6 +26,8 @@ def pop_prefix(pop_list):
 def prewarm_status_from_ddb(req_id):
     """Query from Prewarm status Dynamodb table"""
     overall_status = 'IN_PROGRESS'
+    create_time = ''
+    current_time = datetime.datetime.utcnow()
     url_list = []
     success_list = []
     fail_list = []
@@ -44,6 +48,7 @@ def prewarm_status_from_ddb(req_id):
         if 'urlList' in query_item:
             # metadata info
             url_list = query_item['urlList']
+            create_time = query_item['create_time']
             continue
 
         if query_item['status'] == 'SUCCESS':
@@ -59,7 +64,7 @@ def prewarm_status_from_ddb(req_id):
             if fail_pop[0:3] not in suc_pop_map[url_key]:
                 is_match = False
                 break
-        if is_match:
+        if is_match and not (len(fail_map[url_key]) == 0 and len(suc_pop_map[url_key]) == 0):
             success_list.append(url_key)
             fail_list.remove(url_key)
 
@@ -69,13 +74,22 @@ def prewarm_status_from_ddb(req_id):
     in_progress_count = total_count - success_count - fail_count
 
     if in_progress_count == 0:
-        overall_status = 'COMPLETED'
+        if fail_count == 0:
+            overall_status = 'COMPLETED'
+        else:
+            overall_status = 'FAILED'
+    else:
+        create_datetime = datetime.datetime.strptime(create_time, "%Y%m%dT%H%M%SZ")
+        duration = ((current_time - create_datetime).total_seconds())/60
+        if duration > API_TIME_OUT:
+            overall_status = 'TIMEOUT'
 
     return {
         'status': overall_status,
         'total': total_count,
         'completed': success_count + fail_count,
-        'inProgress': in_progress_count
+        'inProgress': in_progress_count,
+        'failedUrl': fail_list
     }
 
 

@@ -115,6 +115,8 @@ export class PrewarmStack extends cdk.Stack {
             "cloudfront:Get*",
             "cloudfront:List*",
             "cloudfront:CreateInvalidation",
+            "ec2:Start*",
+            "ec2:Stop*",
           ]
         })
       ]
@@ -145,17 +147,32 @@ export class PrewarmStack extends cdk.Stack {
       maxBatchingWindow: cdk.Duration.minutes(1),
     }));
 
+    const invLambda = new lambda.Function(this, 'CacheInvalidator', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'cache_invalidator.lambda_handler',
+      timeout: cdk.Duration.minutes(15),
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/cache_invalidator.zip')),
+      architecture: lambda.Architecture.ARM_64,
+      role: prewarmRole,
+      memorySize: 256,
+      environment: {
+        DDB_TABLE_NAME: prewarmStatusTable.tableName,
+        SQS_QUEUE_URL: messageQueue.queueUrl
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK
+    });
+
     const schedulerLambda = new lambda.Function(this, 'PrewarmScheduler', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'scheduler.lambda_handler',
       timeout: cdk.Duration.minutes(15),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/scheduler.zip')),
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/scheduler')),
       architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 512,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
-        SQS_QUEUE_URL: messageQueue.queueUrl
+        INVALIDATOR_ARN: invLambda.functionArn 
       },
       logRetention: logs.RetentionDays.ONE_WEEK
     });

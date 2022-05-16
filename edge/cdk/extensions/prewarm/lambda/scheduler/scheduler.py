@@ -4,9 +4,10 @@ import logging
 import os
 
 import boto3
+from botocore.exceptions import ClientError
 
-QUEUE_URL = os.environ['SQS_QUEUE_URL']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
+INVALIDATOR_ARN = os.environ['INVALIDATOR_ARN']
 APAC_NODE = ['BOM51-C1', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
              'NRT51-P2', 'NRT57-P3', 'SIN2-P1', 'SIN52-C2']
 AU_NODE = ['SYD1-C1', 'SYD62-P1']
@@ -36,35 +37,19 @@ aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
 dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
 cf_client = boto3.client('cloudfront')
+lambda_client = boto3.client('lambda')
 table = dynamodb_client.Table(DDB_TABLE_NAME)
 
 log = logging.getLogger()
 log.setLevel('INFO')
 
 
-def send_msg(queue_url, url, domain, pop, req_id, create_time, dist_id):
-    response = sqs.send_message(
-        QueueUrl=queue_url,
-        MessageBody=json.dumps(
-            {
-                'create_time': create_time,
-                'url': url,
-                'domain': domain,
-                'pop': pop,
-                'reqId': req_id,
-                'distId': dist_id
-            }
-        )
-    )
-
-    return response
-
-
-def write_in_ddb(req_id, url_list, pop):
+def write_in_ddb(req_id, url_list, pop, create_time):
     table_item = {
         "pop": pop,
         "urlList": url_list,
         "reqId": req_id,
+        "create_time": create_time,
         "url": 'metadata'
     }
     ddb_response = table.put_item(Item=table_item)
@@ -79,6 +64,30 @@ def compose_error_response(message):
             "message": message
         })
     }
+
+
+def start_invalidation(url_list, cf_domain, pop_region,
+                       req_id, current_time, dist_id):
+    lambda_payload = {
+        'url_list': url_list,
+        'cf_domain': cf_domain,
+        'pop_region': pop_region,
+        'req_id': req_id,
+        'create_time': current_time,
+        'dist_id': dist_id
+    }
+    try:
+        response = lambda_client.invoke(
+            FunctionName=INVALIDATOR_ARN,
+            InvocationType='Event',
+            Payload=json.dumps(lambda_payload).encode('UTF-8')
+        )
+
+        return response
+    except ClientError as e:
+        logging.error(e)
+
+        return None
 
 
 def find_dist_id(cf_domain):
@@ -119,10 +128,14 @@ def lambda_handler(event, context):
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
     dist_id = find_dist_id(cf_domain)
-    for url in url_list:
-        write_in_ddb(req_id, url_list, pop_region)
-        send_msg(QUEUE_URL, url, cf_domain, pop_region,
-                 req_id, current_time, dist_id)
+    write_in_ddb(req_id, url_list, pop_region, current_time)
+    inv_resp = start_invalidation(url_list, cf_domain, pop_region,
+                                  req_id, current_time, dist_id)
+    if inv_resp is None:
+        return {
+            "statusCode": 500,
+            "body": "Fail to invoke invalidation Lambda, check the CloudWatch logs of prewarm scheduler"
+        }
 
     return {
         "statusCode": 200,

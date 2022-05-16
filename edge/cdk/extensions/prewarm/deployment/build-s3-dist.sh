@@ -52,16 +52,27 @@ echo "find $source_dir -iname \"package\" -type d -exec rm -r \"{}\" \; 2> /dev/
 find "$source_dir" -iname "package" -type d -exec rm -r "{}" \; 2> /dev/null
 
 
+# echo "------------------------------------------------------------------------------"
+# echo "[Packing] Scheduler"
+# echo "------------------------------------------------------------------------------"
+# cd "$source_dir"/scheduler || exit 1
+# pip3 install -r requirements.txt --target ./package
+# cd "$source_dir"/scheduler/package || exit 1
+# zip -q -r9 "$build_dist_dir"/scheduler.zip .
+# cd "$source_dir"/scheduler || exit 1
+# cp -r "$source_dir"/lib .
+# zip -g -r "$build_dist_dir"/scheduler.zip scheduler.py lib
+
 echo "------------------------------------------------------------------------------"
-echo "[Packing] Scheduler"
+echo "[Packing] Cache Invalidator"
 echo "------------------------------------------------------------------------------"
-cd "$source_dir"/scheduler || exit 1
+cd "$source_dir"/cache_invalidator || exit 1
 pip3 install -r requirements.txt --target ./package
-cd "$source_dir"/scheduler/package || exit 1
-zip -q -r9 "$build_dist_dir"/scheduler.zip .
-cd "$source_dir"/scheduler || exit 1
+cd "$source_dir"/cache_invalidator/package || exit 1
+zip -q -r9 "$build_dist_dir"/cache_invalidator.zip .
+cd "$source_dir"/cache_invalidator || exit 1
 cp -r "$source_dir"/lib .
-zip -g -r "$build_dist_dir"/scheduler.zip scheduler.py lib
+zip -g -r "$build_dist_dir"/cache_invalidator.zip cache_invalidator.py lib
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Agent"
@@ -73,4 +84,3 @@ zip -q -r9 "$build_dist_dir"/agent.zip .
 cd "$source_dir"/agent || exit 1
 cp -r "$source_dir"/lib .
 zip -g -r "$build_dist_dir"/agent.zip agent.py lib
-
