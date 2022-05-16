@@ -82,8 +82,9 @@ def lambda_handler(event, context):
 
     if 'Items' in resp:
         ddb_record = resp['Items'][0]
-        current_version = ddb_record['versionId']
-        new_version = current_version + 1
+        prev_version = ddb_record['versionId']
+        new_version = prev_version + 1
+
     else:
         logging.error("failed to get the versionId")
         return {

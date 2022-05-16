@@ -21,7 +21,13 @@ import LoadingText from "../../../components/LoadingText";
 const VersionDetail: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState("");
+  const [versionFilterList, setVersionFilterList] = useState<Version[]>([]);
   const [versionList, setVersionList] = useState<Version[]>([]);
+  const [versionWithNotesList, setVersionWithNotesList] = useState<Version[]>(
+    []
+  );
+  const [withNote, setWithNote] = useState(true);
+  const [withNoteText, setWithNoteText] = useState("Version with note");
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<Version[]>([]);
   const [applyDisabled, setApplyDisabled] = useState(false);
@@ -57,8 +63,13 @@ const VersionDetail: React.FC = () => {
         distribution_id: id,
       });
       const versionList: Version[] = resData.data.listCloudfrontVersions;
+      const versionWithNoteList: Version[] = versionList.filter(
+        (version) => version.note != ""
+      );
       setLoadingData(false);
       setVersionList(versionList);
+      setVersionFilterList(versionList);
+      setVersionWithNotesList(versionWithNoteList);
     } catch (error) {
       setLoadingData(false);
       console.error(error);
@@ -214,6 +225,21 @@ const VersionDetail: React.FC = () => {
                 Details
               </Button>
               <Button
+                onClick={() => {
+                  if (withNote) {
+                    setVersionFilterList(versionWithNotesList);
+                    setWithNoteText("All versions");
+                    setWithNote(false);
+                  } else {
+                    setVersionFilterList(versionList);
+                    setWithNoteText("Versions with note");
+                    setWithNote(true);
+                  }
+                }}
+              >
+                {withNoteText}
+              </Button>
+              <Button
                 disabled={compareDisabled}
                 btnType="primary"
                 onClick={() => {
@@ -232,7 +258,7 @@ const VersionDetail: React.FC = () => {
             </div>
           }
           pagination={<Pagination />}
-          items={versionList}
+          items={versionFilterList}
           columnDefinitions={[
             {
               // width: 150,
