@@ -7,10 +7,6 @@ import subprocess
 import urllib
 import re
 
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-
-app = APIGatewayRestResolver()
-
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
 dynamo_client = boto3.client('dynamodb')
@@ -205,19 +201,23 @@ def import_certificate(certificate):
         [type]: [description]
     """
     logger.info('start to importing existing cerfification %s', certificate)
-    resp = acm.import_certificate(
-         Certificate=certificate['CertPem'],
-         PrivateKey=certificate['PrivateKeyPem'],
-         CertificateChain=certificate['ChainPem'],
-         # CertificateArn=certificate['CertificateArn'],
-         Tags=[
-             {
-                 'Key': 'issuer',
-                 # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
-                 'Value': certificate['DomainName'].replace('*.', '')
-             }
-         ]
-     )
+    try:
+        resp = acm.import_certificate(
+            Certificate=certificate['CertPem'],
+            PrivateKey=certificate['PrivateKeyPem'],
+            CertificateChain=certificate['ChainPem'],
+            # CertificateArn=certificate['CertificateArn'],
+            Tags=[
+                {
+                    'Key': 'issuer',
+                    # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
+                    'Value': certificate['DomainName'].replace('*.', '')
+                }
+            ]
+        )
+    except Exception as e:
+        logger.info('error importing certificate: %s', e)
+        return None
 
     logger.info('certificate imported: %s', json.dumps(resp))
     return resp
@@ -233,14 +233,16 @@ def invoke_step_function(arn, input):
         [type]: [description]
     """
     logger.info('start to invoke step function with input %s', input)
-    resp = step_function.start_execution(
-        stateMachineArn=arn,
-        input=json.dumps(input)
-    )
+    try:
+        resp = step_function.start_execution(
+            stateMachineArn=arn,
+            input=json.dumps(input)
+        )
+    except Exception as e:
+        logger.info('error invoking step function: %s', e)
+        return None
 
     logger.info('step function invoked: %s', resp)
-
-    return resp
 
 
 # check if san list provided is subset of existing san list
@@ -320,22 +322,21 @@ def is_wildcard(sanList):
 #     }
 #   ]
 # }
+def lambda_handler(event, context):
+    """
 
-@app.post("/ssl_for_saas")
-def trigger_step_function():
-
-    internal_event = app.current_event
-
-    logger.info("Received event: " + json.dumps(internal_event))
+    :param event:
+    :param context:
+    """
+    logger.info("Received event: " + json.dumps(event))
 
     # Get the parameters from the event
-    body = json.loads(internal_event['body'])
+    body = json.loads(event['body'])
     acm_op = body['acm_op']
     dist_aggregate = body['dist_aggregate']
     auto_creation = body['auto_creation']
     domain_name_list = body['cnameList']
 
-    # TODO: Do we need to keep the logic of auto_creation == "false" part?
     if auto_creation == "false":
         if acm_op == "create":
             # aggregate certificate if dist_aggregate is true
@@ -395,30 +396,15 @@ def trigger_step_function():
                     continue
                 resp = import_certificate(certificate)
 
-        return {
-             'statusCode': 200,
-             'body': json.dumps('auto_creation is false, just created or imported the certs')
-        }
-
     # invoke step function to implement streamlined process of cert create/import and distribution create
     elif auto_creation == "true":
         # invoke existing step function
-        logger.info('auto_creation is true, invoke step function with body %s', str(body))
-        resp = invoke_step_function(stepFunctionArn, body)
-
-        return {
-            'statusCode': 200,
-            'body': 'step function triggered with :' + str(resp['executionArn'])
-        }
+        logger.info('auto_creation is true, invoke step function')
+        invoke_step_function(stepFunctionArn, body)
     else:
         logger.info('auto_creation is not true or false')
 
-        return {
-            'statusCode': 400,
-            'body': json.dumps('auto_creation is not true or false')
-        }
-
-
-def lambda_handler(event, context):
-    return app.resolve(event, context)
-
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Certificate Create/Import Successfully')
+    }

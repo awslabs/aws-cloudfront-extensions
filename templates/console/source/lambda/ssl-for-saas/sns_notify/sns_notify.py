@@ -82,7 +82,7 @@ def lambda_handler(event, context):
     sns_client.publish(
         TopicArn=snsTopicArn,
         Message=str(message_to_be_published),
-        Subject='SSL for SaaS Success event received :)'
+        Subject='SSL for SaaS event received'
     )
 
     return {

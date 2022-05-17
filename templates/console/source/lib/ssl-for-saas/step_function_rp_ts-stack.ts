@@ -18,7 +18,6 @@ import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { AppsyncFunction } from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
 import { CommonProps} from '../cf-common/cf-common-stack'
-import {AuthorizationType, EndpointType} from "aws-cdk-lib/aws-apigateway";
 
 export class StepFunctionRpTsStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: CommonProps) {
@@ -371,17 +370,10 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     // API Gateway with Lambda proxy integration
     const ssl_api_handler = new _apigw.LambdaRestApi(this, 'ssl_api_handler', {
       handler: fn_ssl_api_handler,
-      description: "restful api to trigger the ssl for saas workflow",
-      proxy: false,
-      restApiName: 'ssl_for_saas_manager',
-      endpointConfiguration: {
-        types: [EndpointType.EDGE]
-      }
+      proxy: false
     });
 
-    ssl_api_handler.root.addResource('ssl_for_saas').addMethod('POST', undefined, {
-      authorizationType: AuthorizationType.IAM
-    });
+    ssl_api_handler.root.addResource('ssl_for_saas').addMethod('POST');
 
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, 'ACM status check', {
