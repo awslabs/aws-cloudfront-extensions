@@ -80,7 +80,7 @@ type pem {
 }
 
 type createOutput {
-    statue: String!
+    status: String!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
 }
