@@ -238,6 +238,7 @@ def invoke_step_function(arn, input):
             stateMachineArn=arn,
             input=json.dumps(input)
         )
+        return resp
     except Exception as e:
         logger.info('error invoking step function: %s', e)
         return None
@@ -372,7 +373,7 @@ def lambda_handler(event, context):
                     resp = request_certificate(certificate)
                     logger.info('Certificate creation response: %s', resp)
 
-        # note dist_aggregate is ingore here, we don't aggregate imported certificate
+        # note dist_aggregate is ignored here, we don't aggregate imported certificate
         elif acm_op == "import":
             # iterate pemList array from event
             for pem_index, pem_value in enumerate(body['pemList']):
@@ -397,14 +398,24 @@ def lambda_handler(event, context):
                 resp = import_certificate(certificate)
 
     # invoke step function to implement streamlined process of cert create/import and distribution create
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Certificate Create/Import Successfully without invoke step function')
+        }
     elif auto_creation == "true":
         # invoke existing step function
         logger.info('auto_creation is true, invoke step function')
-        invoke_step_function(stepFunctionArn, body)
+        resp = invoke_step_function(stepFunctionArn, body)
+        logger.info(resp)
+        return {
+            'statusCode': 200,
+            'body': json.dumps(resp['executionArn'])
+        }
     else:
         logger.info('auto_creation is not true or false')
+        return {
+            'statusCode': 400,
+            'body': 'auto_creation is not true or false'
+        }
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Certificate Create/Import Successfully')
-    }
+
