@@ -13,7 +13,6 @@ app = APIGatewayRestResolver()
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
-dynamo_client = boto3.client('dynamodb')
 step_function = boto3.client('stepfunctions')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
@@ -335,7 +334,6 @@ def trigger_step_function():
     auto_creation = body['auto_creation']
     domain_name_list = body['cnameList']
 
-    # TODO: Do we need to keep the logic of auto_creation == "false" part?
     if auto_creation == "false":
         if acm_op == "create":
             # aggregate certificate if dist_aggregate is true

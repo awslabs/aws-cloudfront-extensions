@@ -79,17 +79,12 @@ type pem {
     originsItemsDomainName: String!
 }
 
-type createOutput {
+type certOutput {
     status: String!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
 }
 
-type importOutput {
-    status: String!
-    createdAt: AWSDateTime!
-    updatedAt: AWSDateTime!
-}
 
 input cnameInput {
     domainName: String!
@@ -109,7 +104,7 @@ input pemInput {
     originsItemsDomainName: String!
 }
 
-input certImportInput {
+input certInput {
     acm_op: String!
     auto_creation: String!
     dist_aggregate: String!
@@ -118,13 +113,6 @@ input certImportInput {
     pemList: [pemInput!]!
 }
 
-input certCreateInput {
-    acm_op: String!
-    auto_creation: String!
-    dist_aggregate: String!
-    enable_cname_check: String!
-    cnameList: [cnameInput]!
-}
 
 type Notification {
     id: ID
@@ -175,7 +163,6 @@ type Mutation {
     syncExtensions: String
 
     # SSL for SAAS
-    certCreate(input: certCreateInput): createOutput
-    certImport(input: certImportInput!): importOutput
+    certCreateOrImport(input: certInput): certOutput
 }
 
