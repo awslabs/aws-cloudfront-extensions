@@ -95,8 +95,13 @@ input cnameInput {
     domainName: String!
     sanList: [String!]
     originsItemsDomainName: String!
+    existing_cf_info: existingCFInfo!
 }
 
+input existingCFInfo {
+    distribution_id: String!
+    config_version_id: String!
+}
 input pemInput {
     CertPem: String!
     PrivateKeyPem: String!
@@ -106,16 +111,19 @@ input pemInput {
 
 input certImportInput {
     acm_op: String!
-    acm_domain: String!
+    auto_creation: String!
     dist_aggregate: String!
-    pem: [pemInput!]!
+    enable_cname_check: String!
+    cnameList: [cnameInput]!
+    pemList: [pemInput!]!
 }
 
 input certCreateInput {
     acm_op: String!
-    acm_domain: String!
+    auto_creation: String!
     dist_aggregate: String!
-    cnameList: [cnameInput!]!
+    enable_cname_check: String!
+    cnameList: [cnameInput]!
 }
 
 type Notification {
