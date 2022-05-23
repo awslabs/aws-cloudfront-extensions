@@ -6,11 +6,40 @@ import Button from "components/Button";
 import ConfigCertificate from "./steps/ConfigCertificate";
 import Review from "./steps/Review";
 import AddCName from "./steps/AddCName";
+import { OptionType } from "../../../components/AutoComplete/autoComplete";
+import { ParamsType } from "../../deploy/Deploy";
 
 const BreadCrumbList = [
   { name: "CloudFront Extensions", link: "/extentions-repository" },
   { name: "Certification settings" },
 ];
+
+export interface ExistingCfInfo {
+  distribution_id: string;
+  config_version_id: string;
+}
+export interface CNameInfo {
+  domainName: string;
+  sanList: string[];
+  originsItemsDomainName: string;
+  existing_cf_info: ExistingCfInfo;
+}
+
+export interface PemInfo {
+  CertPem: string;
+  PrivateKeyPem: string;
+  ChainPem: string;
+  originsItemsDomainName: string;
+}
+
+export interface CertImportCreateObj {
+  acm_op: string;
+  auto_creation: string;
+  dist_aggregate: string;
+  enable_cname_check: string;
+  cnameList: CNameInfo[];
+  pemList: PemInfo[];
+}
 
 const CreateCertificate: React.FC = () => {
   const navigate = useNavigate();
