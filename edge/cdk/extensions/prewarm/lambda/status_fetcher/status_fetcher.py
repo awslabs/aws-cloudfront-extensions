@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Key
 
 TABLE_NAME = os.environ['DDB_TABLE_NAME']
 aws_region = os.environ['AWS_REGION']
-API_TIME_OUT = 20
+API_TIME_OUT = 600
 dynamodb = boto3.resource('dynamodb', region_name=aws_region)
 log = logging.getLogger()
 log.setLevel('INFO')

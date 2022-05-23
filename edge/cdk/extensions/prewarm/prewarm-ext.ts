@@ -6,8 +6,17 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as as from 'aws-cdk-lib/aws-autoscaling';
+import * as eb from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cwa from 'aws-cdk-lib/aws-cloudwatch-actions';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import { RemovalPolicy } from 'aws-cdk-lib';
+import { ComparisonOperator, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch';
+import { BlockDeviceVolume } from 'aws-cdk-lib/aws-autoscaling';
 
 
 export class PrewarmStack extends cdk.Stack {
@@ -26,13 +35,13 @@ export class PrewarmStack extends cdk.Stack {
     const dlq = new sqs.Queue(this, 'PrewarmDLQ', {
       encryption: sqs.QueueEncryption.KMS_MANAGED,
       retentionPeriod: cdk.Duration.days(14),
-      visibilityTimeout: cdk.Duration.minutes(60),
+      visibilityTimeout: cdk.Duration.hours(10),
     });
 
     const messageQueue = new sqs.Queue(this, 'PrewarmMessageQueue', {
       encryption: sqs.QueueEncryption.KMS_MANAGED,
-      receiveMessageWaitTime: cdk.Duration.seconds(5),
-      visibilityTimeout: cdk.Duration.hours(1),
+      // receiveMessageWaitTime: cdk.Duration.seconds(5),
+      visibilityTimeout: cdk.Duration.hours(10),
       deadLetterQueue: {
         queue: dlq,
         maxReceiveCount: 50,
@@ -42,6 +51,7 @@ export class PrewarmStack extends cdk.Stack {
     const prewarmRole = new iam.Role(this, 'PrewarmRole', {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
+        new iam.ServicePrincipal('ec2.amazonaws.com'),
       ),
     });
 
@@ -122,30 +132,157 @@ export class PrewarmStack extends cdk.Stack {
       ]
     });
 
+    const asgRole = new iam.Role(this, 'PrewarmASGRole', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
+    });
+
     prewarmRole.attachInlinePolicy(ddbPolicy);
     prewarmRole.attachInlinePolicy(lambdaPolicy);
     prewarmRole.attachInlinePolicy(sqsPolicy);
     prewarmRole.attachInlinePolicy(cfPolicy);
+    asgRole.attachInlinePolicy(ddbPolicy);
+    asgRole.attachInlinePolicy(sqsPolicy);
+    asgRole.attachInlinePolicy(cfPolicy);
 
-    const agentLambda = new lambda.Function(this, 'PrewarmAgent', {
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'agent.lambda_handler',
-      timeout: cdk.Duration.minutes(15),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/agent.zip')),
-      architecture: lambda.Architecture.ARM_64,
-      role: prewarmRole,
-      memorySize: 7168,
-      environment: {
-        DDB_TABLE_NAME: prewarmStatusTable.tableName,
-        THREAD_CONCURRENCY: '6'
+    const metric = new cloudwatch.MathExpression({
+      expression: "visible + hidden",
+      usingMetrics: {
+        visible: messageQueue.metricApproximateNumberOfMessagesVisible({period: cdk.Duration.seconds(60)}),
+        hidden: messageQueue.metricApproximateNumberOfMessagesNotVisible({period: cdk.Duration.seconds(60)}),
       },
-      logRetention: logs.RetentionDays.ONE_WEEK
+      period: cdk.Duration.seconds(60), 
     });
+    // const metric = messageQueue.metricApproximateNumberOfMessagesVisible({
+    //   period: cdk.Duration.seconds(60),
+    // });
+    const messageAlarm = metric.createAlarm(this, 'PrewarmMessage',
+      {
+        alarmDescription: 'The SQS has messages need to be pre-warmed',
+        evaluationPeriods: 1,
+        threshold: 0,
+        comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+        // INSUFFICIENT DATA state in CloudWatch alarm will be ignored
+        treatMissingData: TreatMissingData.NOT_BREACHING,
+      }
+    );
 
-    agentLambda.addEventSource(new SqsEventSource(messageQueue, {
-      batchSize: 1,
-      maxBatchingWindow: cdk.Duration.minutes(1),
-    }));
+    const vpc = new ec2.Vpc(this, 'PrewarmVpc', {
+      maxAzs: 2,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'ingress',
+          subnetType: ec2.SubnetType.PUBLIC,
+        }
+      ]
+    });
+    const securityGroup = new ec2.SecurityGroup(this, 'PrewarmSG', { vpc });
+    const prewarmAsg = new as.AutoScalingGroup(this, 'PrewarmASG',
+      {
+        instanceType: new ec2.InstanceType("m5dn.xlarge"),
+        machineImage: new ec2.AmazonLinuxImage({ generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2 }),
+        vpc: vpc,
+        role: asgRole,
+        securityGroup: securityGroup,
+        allowAllOutbound: true,
+        maxCapacity: 50,
+        minCapacity: 0,
+        desiredCapacity: 0,
+        spotPrice: "0.15",
+        blockDevices: [{
+          deviceName: '/dev/xvda',
+          volume: BlockDeviceVolume.ebs(150)
+        }],
+        signals: as.Signals.waitForMinCapacity(),
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PUBLIC,
+        }
+      }
+    );
+    prewarmAsg.applyCloudFormationInit(ec2.CloudFormationInit.fromElements(
+      ec2.InitFile.fromFileInline('/etc/agent/agent.py', path.join(__dirname, './lambda/agent/agent.py')),
+      ec2.InitFile.fromFileInline('/etc/agent/requirements.txt', path.join(__dirname, './lambda/agent/requirements.txt')),
+    ));
+    prewarmAsg.addUserData(
+      'exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1',
+      'pip3 install -r /etc/agent/requirements.txt',
+      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} 4`
+    );
+
+    const agentScaleOut = new as.StepScalingAction(this, 'PrewarmScaleOut', {
+      autoScalingGroup: prewarmAsg,
+      adjustmentType: as.AdjustmentType.EXACT_CAPACITY,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 0,
+      lowerBound: 0,
+      upperBound: 1,
+    }); 
+    agentScaleOut.addAdjustment({
+      adjustment: 1,
+      lowerBound: 1,
+      upperBound: 2,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 2,
+      lowerBound: 2,
+      upperBound: 5,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 4,
+      lowerBound: 5,
+      upperBound: 10,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 10,
+      lowerBound: 10,
+      upperBound: 25,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 15,
+      lowerBound: 25,
+      upperBound: 40,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 20,
+      lowerBound: 40,
+      upperBound: 55,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 25,
+      lowerBound: 55,
+      upperBound: 65,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 30,
+      lowerBound: 65,
+      upperBound: 80,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 35,
+      lowerBound: 80,
+      upperBound: 100,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 50,
+      lowerBound: 100,
+    });
+    messageAlarm.addAlarmAction(new cwa.AutoScalingAction(agentScaleOut));
+
+    const agentScaleIn = new as.StepScalingAction(this, 'PrewarmScaleIn', {
+      autoScalingGroup: prewarmAsg,
+      adjustmentType: as.AdjustmentType.EXACT_CAPACITY,
+    });
+    agentScaleIn.addAdjustment({
+      adjustment: 0,
+      lowerBound: 0,
+      upperBound: 1,
+    });
+    agentScaleIn.addAdjustment({
+      adjustment: 0,
+      lowerBound: 1,
+    });
+    messageAlarm.addOkAction(new cwa.AutoScalingAction(agentScaleIn));
 
     const invLambda = new lambda.Function(this, 'CacheInvalidator', {
       runtime: lambda.Runtime.PYTHON_3_9,
@@ -157,7 +294,8 @@ export class PrewarmStack extends cdk.Stack {
       memorySize: 256,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
-        SQS_QUEUE_URL: messageQueue.queueUrl
+        SQS_QUEUE_URL: messageQueue.queueUrl,
+        INV_WAIT_TIME: '1',
       },
       logRetention: logs.RetentionDays.ONE_WEEK
     });
@@ -169,10 +307,10 @@ export class PrewarmStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/scheduler')),
       architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
-      memorySize: 512,
+      memorySize: 256,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
-        INVALIDATOR_ARN: invLambda.functionArn 
+        INVALIDATOR_ARN: invLambda.functionArn
       },
       logRetention: logs.RetentionDays.ONE_WEEK
     });
@@ -184,7 +322,7 @@ export class PrewarmStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/status_fetcher')),
       architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
-      memorySize: 512,
+      memorySize: 256,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
       },
@@ -247,6 +385,10 @@ export class PrewarmStack extends cdk.Stack {
     new cdk.CfnOutput(this, "Prewarm API key", {
       value: apiKey.keyArn
     });
+
+    // new cdk.CfnOutput(this, "User data", {
+    //   value: ud.
+    // });
 
   }
 

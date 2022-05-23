@@ -12,7 +12,7 @@ from botocore.exceptions import ClientError
 QUEUE_URL = os.environ['SQS_QUEUE_URL']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 aws_region = os.environ['AWS_REGION']
-INV_WAIT_TIME = 2
+INV_WAIT_TIME = int(os.environ['INV_WAIT_TIME'])
 sqs = boto3.client('sqs', region_name=aws_region)
 dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
 cf_client = boto3.client('cloudfront')
