@@ -11,6 +11,9 @@ import { CertificateType, CERT_IN_ACCOUNT_LIST } from "mock/data";
 import { SelectType, TablePanel } from "components/TablePanel";
 import AddCName from "./AddCName";
 import { CNameInfo } from "../Create";
+import { appSyncRequestMutation } from "../../../../assets/js/request";
+import { certCreateOrImport } from "../../../../graphql/mutations";
+import Button from "../../../../components/Button";
 
 const enum ImportMethod {
   CREATE = "Create",
@@ -69,6 +72,30 @@ const ConfigCertificate: React.FC = () => {
   // useEffect(() => {
   //   setCertInAccountList(CERT_IN_ACCOUNT_LIST);
   // }, []);
+
+  const generateCertCreateImportParam = (): any => {
+    const sslForSaasRequest = {
+      acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
+      auto_creation: createAuto == true ? "true" : "false",
+      dist_aggregate: aggregation,
+      enable_cname_check: checkCName,
+      cnameList: cnameInfo,
+      pemList: [],
+    };
+    return sslForSaasRequest;
+  };
+
+  // Get Version List By Distribution
+  const startCertRequest = async (certCreateOrImportInput: any) => {
+    try {
+      const resData = await appSyncRequestMutation(
+        certCreateOrImport,
+        certCreateOrImportInput
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -177,7 +204,7 @@ const ConfigCertificate: React.FC = () => {
                     value={cnameInfo.domainName}
                     onChange={(event) => {
                       setCnameInfo((prev) => {
-                        return { ...prev, name: event.target.value };
+                        return { ...prev, domainName: event.target.value };
                       });
                     }}
                   />
@@ -192,7 +219,10 @@ const ConfigCertificate: React.FC = () => {
                     value={cnameInfo.originsItemsDomainName}
                     onChange={(event) => {
                       setCnameInfo((prev) => {
-                        return { ...prev, name: event.target.value };
+                        return {
+                          ...prev,
+                          originsItemsDomainName: event.target.value,
+                        };
                       });
                     }}
                   />
@@ -204,10 +234,10 @@ const ConfigCertificate: React.FC = () => {
                   <TextArea
                     rows={3}
                     placeholder={`www.example1.com\nwww.example2.com`}
-                    value={cnameInfo.sanList.join("\n")}
+                    value={cnameInfo.sanList.toString()}
                     onChange={(event) => {
                       setCnameInfo((prev) => {
-                        return { ...prev, name: event.target.value };
+                        return { ...prev, sanList: event.target.value };
                       });
                     }}
                   />
@@ -222,7 +252,14 @@ const ConfigCertificate: React.FC = () => {
                     value={cnameInfo.existing_cf_info.distribution_id}
                     onChange={(event) => {
                       setCnameInfo((prev) => {
-                        return { ...prev, chain: event.target.value };
+                        return {
+                          ...prev,
+                          existing_cf_info: {
+                            distribution_id: event.target.value,
+                            config_version_id:
+                              prev.existing_cf_info.config_version_id,
+                          },
+                        };
                       });
                     }}
                   />
@@ -232,7 +269,14 @@ const ConfigCertificate: React.FC = () => {
                     value={cnameInfo.existing_cf_info.config_version_id}
                     onChange={(event) => {
                       setCnameInfo((prev) => {
-                        return { ...prev, chain: event.target.value };
+                        return {
+                          ...prev,
+                          existing_cf_info: {
+                            distribution_id:
+                              prev.existing_cf_info.distribution_id,
+                            config_version_id: event.target.value,
+                          },
+                        };
                       });
                     }}
                   />
@@ -427,6 +471,17 @@ const ConfigCertificate: React.FC = () => {
         {/*    }}*/}
         {/*  />*/}
         {/*</HeaderPanel>*/}
+
+        <Button
+          btnType="primary"
+          onClick={() => {
+            const requestParam = generateCertCreateImportParam();
+            console.info(requestParam);
+            startCertRequest(requestParam);
+          }}
+        >
+          Start Workflow
+        </Button>
       </PagePanel>
     </div>
   );

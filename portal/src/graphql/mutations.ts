@@ -12,18 +12,9 @@ export const syncExtensions = /* GraphQL */ `
     syncExtensions
   }
 `;
-export const certCreate = /* GraphQL */ `
-  mutation CertCreate($input: certCreateInput) {
-    certCreate(input: $input) {
-      statue
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const certImport = /* GraphQL */ `
-  mutation CertImport($input: certImportInput!) {
-    certImport(input: $input) {
+export const certCreateOrImport = /* GraphQL */ `
+  mutation CertCreateOrImport($input: certInput) {
+    certCreateOrImport(input: $input) {
       status
       createdAt
       updatedAt

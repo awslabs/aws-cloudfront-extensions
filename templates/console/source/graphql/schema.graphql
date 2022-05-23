@@ -110,7 +110,7 @@ input certInput {
     dist_aggregate: String!
     enable_cname_check: String!
     cnameList: [cnameInput]!
-    pemList: [pemInput!]!
+    pemList: [pemInput]!
 }
 
 
