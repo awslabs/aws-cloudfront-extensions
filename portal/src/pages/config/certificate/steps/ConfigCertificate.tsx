@@ -80,7 +80,14 @@ const ConfigCertificate: React.FC = () => {
       dist_aggregate: aggregation ? "true" : "false",
       enable_cname_check: checkCName ? "true" : "false",
       cnameList: cnameInfo,
-      pemList: [],
+      pemList: [
+        {
+          CertPem: certInfo.body,
+          PrivateKeyPem: certInfo.privateKey,
+          ChainPem: certInfo.chain,
+          originsItemsDomainName: cnameInfo.originsItemsDomainName,
+        },
+      ],
     };
     return sslForSaasRequest;
   };
@@ -174,8 +181,11 @@ const ConfigCertificate: React.FC = () => {
         </HeaderPanel>
 
         {importMethod === ImportMethod.CREATE ? (
-          <HeaderPanel title="Cname details">
-            <FormItem optionTitle="Create Certification" optionDesc="">
+          <HeaderPanel title="Create Certification Panel">
+            <FormItem
+              optionTitle="Create one or more Certification"
+              optionDesc=""
+            >
               <Tiles
                 name="createCertificate"
                 value={createCert}
@@ -306,8 +316,11 @@ const ConfigCertificate: React.FC = () => {
         )}
 
         {importMethod === ImportMethod.IMPORT ? (
-          <HeaderPanel title="Certification details">
-            <FormItem optionTitle="Import Certification" optionDesc="">
+          <HeaderPanel title="Import Certification Panel">
+            <FormItem
+              optionTitle="Import one or more Certification"
+              optionDesc=""
+            >
               <Tiles
                 name="importCertificate"
                 value={importCert}
@@ -332,6 +345,92 @@ const ConfigCertificate: React.FC = () => {
             {importCert === ImportCertificate.IMPORT_ONE ? (
               <div>
                 <FormItem
+                  optionTitle="Domain Name"
+                  optionDesc="Enter the domain name for target certification"
+                >
+                  <TextInput
+                    placeholder="xxx.mycompany.com"
+                    value={cnameInfo.domainName}
+                    onChange={(event) => {
+                      setCnameInfo((prev) => {
+                        return { ...prev, domainName: event.target.value };
+                      });
+                    }}
+                  />
+                </FormItem>
+
+                <FormItem
+                  optionTitle="Origin Items Domain Name"
+                  optionDesc="Choose an AWS origin, or enter your origin's domain name."
+                >
+                  <TextInput
+                    placeholder="Choose origin domain"
+                    value={cnameInfo.originsItemsDomainName}
+                    onChange={(event) => {
+                      setCnameInfo((prev) => {
+                        return {
+                          ...prev,
+                          originsItemsDomainName: event.target.value,
+                        };
+                      });
+                    }}
+                  />
+                </FormItem>
+                <FormItem
+                  optionTitle="Additional Domain names"
+                  optionDesc="You can add additional names to this certificate. For example, if you're requesting a certificate for 'www.example.com', you might want to add the name 'example.com' so that customers can reach your site by either name."
+                >
+                  <TextArea
+                    rows={3}
+                    placeholder={`www.example1.com\nwww.example2.com`}
+                    value={cnameInfo.sanList.toString()}
+                    onChange={(event) => {
+                      setCnameInfo((prev) => {
+                        return { ...prev, sanList: event.target.value };
+                      });
+                    }}
+                  />
+                </FormItem>
+
+                <FormItem
+                  optionTitle="Existing CloudFront Info"
+                  optionDesc="Select the config version of existing CloudFront distribution"
+                >
+                  <TextInput
+                    placeholder="Distribution Id"
+                    value={cnameInfo.existing_cf_info.distribution_id}
+                    onChange={(event) => {
+                      setCnameInfo((prev) => {
+                        return {
+                          ...prev,
+                          existing_cf_info: {
+                            distribution_id: event.target.value,
+                            config_version_id:
+                              prev.existing_cf_info.config_version_id,
+                          },
+                        };
+                      });
+                    }}
+                  />
+                  <br />
+                  <TextInput
+                    placeholder="Distribution Config Version id"
+                    value={cnameInfo.existing_cf_info.config_version_id}
+                    onChange={(event) => {
+                      setCnameInfo((prev) => {
+                        return {
+                          ...prev,
+                          existing_cf_info: {
+                            distribution_id:
+                              prev.existing_cf_info.distribution_id,
+                            config_version_id: event.target.value,
+                          },
+                        };
+                      });
+                    }}
+                  />
+                </FormItem>
+                <FormItem
                   optionTitle="Certification name"
                   optionDesc="Enter the name of the object that you want CloudFront to return when a viewer request points to your root URL."
                 >
@@ -352,10 +451,10 @@ const ConfigCertificate: React.FC = () => {
                   <TextArea
                     rows={3}
                     placeholder="PEM-encoded certificate"
-                    value={certInfo.name}
+                    value={certInfo.body}
                     onChange={(event) => {
                       setCertInfo((prev) => {
-                        return { ...prev, name: event.target.value };
+                        return { ...prev, body: event.target.value };
                       });
                     }}
                   />
@@ -367,10 +466,10 @@ const ConfigCertificate: React.FC = () => {
                   <TextArea
                     rows={3}
                     placeholder="PEM-encoded certificate"
-                    value={certInfo.name}
+                    value={certInfo.privateKey}
                     onChange={(event) => {
                       setCertInfo((prev) => {
-                        return { ...prev, name: event.target.value };
+                        return { ...prev, privateKey: event.target.value };
                       });
                     }}
                   />

@@ -52,7 +52,7 @@ const CreateCertificate: React.FC = () => {
           <CreateStep
             activeIndex={activeStep}
             list={[
-              { name: "Add CName" },
+              // { name: "Add CName" },
               { name: "Create certification" },
               { name: "Review" },
             ]}
@@ -63,9 +63,9 @@ const CreateCertificate: React.FC = () => {
           />
         </div>
         <div className="create-content m-w-800">
-          {activeStep === 0 && <AddCName />}
-          {activeStep === 1 && <ConfigCertificate />}
-          {activeStep === 2 && <Review />}
+          {/*{activeStep === 0 && <AddCName />}*/}
+          {activeStep === 0 && <ConfigCertificate />}
+          {activeStep === 1 && <Review />}
           <div className="button-action text-right">
             <Button>Cancel</Button>
             {activeStep > 0 && (
@@ -79,7 +79,7 @@ const CreateCertificate: React.FC = () => {
                 Previous
               </Button>
             )}
-            {activeStep < 2 && (
+            {activeStep < 1 && (
               <Button
                 btnType="primary"
                 onClick={() => {
@@ -91,7 +91,7 @@ const CreateCertificate: React.FC = () => {
                 Next
               </Button>
             )}
-            {activeStep === 2 && (
+            {activeStep === 1 && (
               <Button
                 btnType="primary"
                 onClick={() => {
