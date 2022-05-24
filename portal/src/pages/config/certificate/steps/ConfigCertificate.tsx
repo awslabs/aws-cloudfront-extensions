@@ -76,9 +76,9 @@ const ConfigCertificate: React.FC = () => {
   const generateCertCreateImportParam = (): any => {
     const sslForSaasRequest = {
       acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
-      auto_creation: createAuto == true ? "true" : "false",
-      dist_aggregate: aggregation,
-      enable_cname_check: checkCName,
+      auto_creation: createAuto ? "true" : "false",
+      dist_aggregate: aggregation ? "true" : "false",
+      enable_cname_check: checkCName ? "true" : "false",
       cnameList: cnameInfo,
       pemList: [],
     };
@@ -88,10 +88,14 @@ const ConfigCertificate: React.FC = () => {
   // Get Version List By Distribution
   const startCertRequest = async (certCreateOrImportInput: any) => {
     try {
-      const resData = await appSyncRequestMutation(
-        certCreateOrImport,
-        certCreateOrImportInput
-      );
+      const resData = await appSyncRequestMutation(certCreateOrImport, {
+        input: certCreateOrImportInput,
+      });
+      // const resData = await appSyncRequestMutation(
+      //   certCreateOrImport,
+      //     { input:certCreateOrImportInput }
+      // );
+      console.info(resData);
     } catch (error) {
       console.error(error);
     }
