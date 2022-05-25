@@ -3,6 +3,7 @@ import HeaderPanel from "components/HeaderPanel";
 import PagePanel from "components/PagePanel";
 import TagList from "components/TagList";
 import Tiles from "components/Tiles";
+import Modal from "components/Modal";
 import Switch from "components/Switch";
 import FormItem from "components/FormItem";
 import TextInput from "components/TextInput";
@@ -11,9 +12,21 @@ import { CertificateType, CERT_IN_ACCOUNT_LIST } from "mock/data";
 import { SelectType, TablePanel } from "components/TablePanel";
 import AddCName from "./AddCName";
 import { CNameInfo } from "../Create";
-import { appSyncRequestMutation } from "../../../../assets/js/request";
+import {
+  appSyncRequestMutation,
+  appSyncRequestQuery,
+} from "../../../../assets/js/request";
 import { certCreateOrImport } from "../../../../graphql/mutations";
 import Button from "../../../../components/Button";
+import { Version } from "../../../../API";
+import {
+  listCloudfrontVersions,
+  listDistribution,
+} from "../../../../graphql/queries";
+import LoadingText from "components/LoadingText";
+import MultiSelect from "../../../../components/MultiSelect";
+import Select from "../../../../components/Select";
+import { json } from "stream/consumers";
 
 const enum ImportMethod {
   CREATE = "Create",
@@ -42,7 +55,16 @@ const ConfigCertificate: React.FC = () => {
   const [aggregation, setAggregation] = useState(false);
   const [checkCName, setCheckCName] = useState(false);
   const [createAuto, setCreateAuto] = useState(false);
-  // const [originDomain, setOriginDomain] = useState("");
+  const [distributionList, setDistributionList] = useState<any[]>([]);
+  const [versionList, setVersionList] = useState<any[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
+  const [selectDistributionId, setSelectDistributionId] = useState<any>("");
+  const [selectDistributionVersionId, setSelectDistributionVersionId] =
+    useState<any>("1");
+  const [confirm, setConfirm] = useState("");
+
   const [importCert, setImportCert] = useState<string>(
     ImportCertificate.IMPORT_ONE
   );
@@ -65,6 +87,72 @@ const ConfigCertificate: React.FC = () => {
     chain: "",
   });
   const [s3FilePath, setS3FilePath] = useState("");
+
+  // Get Version List By Distribution
+  const getVersionListByDistribution = async () => {
+    // try {
+    //   setLoadingData(true);
+    //   setVersionList([]);
+    //   const resData = await appSyncRequestQuery(listCloudfrontVersions, {
+    //     distribution_id: selectDistributionId,
+    //   });
+    //   const versionList: Version[] = resData.data.listCloudfrontVersions;
+    //   setLoadingData(false);
+    //   setVersionList(versionList);
+    // } catch (error) {
+    //   setLoadingData(false);
+    //   console.error(error);
+    // }
+    try {
+      setVersionList([]);
+      const resData = await appSyncRequestQuery(listCloudfrontVersions, {
+        distribution_id: selectDistributionId,
+      });
+      const versionList: Version[] = resData.data.listCloudfrontVersions;
+      const tmpList = [];
+      for (const versionKey in versionList) {
+        tmpList.push({
+          name:
+            versionList[versionKey].versionId +
+            "\t|\t" +
+            versionList[versionKey].dateTime +
+            "\t|\t" +
+            versionList[versionKey].note,
+          value: versionList[versionKey].versionId,
+        });
+      }
+      setVersionList(tmpList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // useEffect(() => {
+  //   getVersionListByDistribution();
+  // }, [selectDistributionId]);
+
+  // Get Version List By Distribution
+  const getDistributionList = async () => {
+    try {
+      setDistributionList([]);
+      const resData = await appSyncRequestQuery(listDistribution);
+      const Cloudfront_info_list: any[] = resData.data.listDistribution;
+      const tmpList = [];
+      for (const cfdistlistKey in Cloudfront_info_list) {
+        tmpList.push({
+          name: Cloudfront_info_list[cfdistlistKey].id,
+          value: Cloudfront_info_list[cfdistlistKey].id,
+        });
+      }
+      setDistributionList(tmpList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getDistributionList();
+  }, []);
+
   // const [certInAccountList, setCertInAccountList] = useState<CertificateType[]>(
   //   []
   // );
@@ -74,6 +162,8 @@ const ConfigCertificate: React.FC = () => {
   // }, []);
 
   const generateCertCreateImportParam = (): any => {
+    cnameInfo.existing_cf_info.distribution_id = selectDistributionId;
+    cnameInfo.existing_cf_info.config_version_id = selectDistributionVersionId;
     const sslForSaasRequest = {
       acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
       auto_creation: createAuto ? "true" : "false",
@@ -261,39 +351,32 @@ const ConfigCertificate: React.FC = () => {
                   optionTitle="Existing CloudFront Info"
                   optionDesc="Select the config version of existing CloudFront distribution"
                 >
-                  <TextInput
-                    placeholder="Distribution Id"
-                    value={cnameInfo.existing_cf_info.distribution_id}
-                    onChange={(event) => {
-                      setCnameInfo((prev) => {
-                        return {
-                          ...prev,
-                          existing_cf_info: {
-                            distribution_id: event.target.value,
-                            config_version_id:
-                              prev.existing_cf_info.config_version_id,
-                          },
-                        };
-                      });
-                    }}
-                  />
+                  <div className="flex">
+                    <div style={{ width: 800 }}>
+                      <Select
+                        optionList={distributionList}
+                        value={selectDistributionId}
+                        placeholder="Select distribution"
+                        onChange={(event) => {
+                          setSelectDistributionId(event.target.value);
+                          getVersionListByDistribution();
+                        }}
+                      />
+                    </div>
+                  </div>
                   <br />
-                  <TextInput
-                    placeholder="Distribution Config Version id"
-                    value={cnameInfo.existing_cf_info.config_version_id}
-                    onChange={(event) => {
-                      setCnameInfo((prev) => {
-                        return {
-                          ...prev,
-                          existing_cf_info: {
-                            distribution_id:
-                              prev.existing_cf_info.distribution_id,
-                            config_version_id: event.target.value,
-                          },
-                        };
-                      });
-                    }}
-                  />
+                  <div className="flex">
+                    <div style={{ width: 800 }}>
+                      <Select
+                        optionList={versionList}
+                        value={selectDistributionVersionId}
+                        placeholder="Select version "
+                        onChange={(event) => {
+                          setSelectDistributionVersionId(event.target.value);
+                        }}
+                      />
+                    </div>
+                  </div>
                 </FormItem>
               </div>
             ) : (
@@ -396,39 +479,32 @@ const ConfigCertificate: React.FC = () => {
                   optionTitle="Existing CloudFront Info"
                   optionDesc="Select the config version of existing CloudFront distribution"
                 >
-                  <TextInput
-                    placeholder="Distribution Id"
-                    value={cnameInfo.existing_cf_info.distribution_id}
-                    onChange={(event) => {
-                      setCnameInfo((prev) => {
-                        return {
-                          ...prev,
-                          existing_cf_info: {
-                            distribution_id: event.target.value,
-                            config_version_id:
-                              prev.existing_cf_info.config_version_id,
-                          },
-                        };
-                      });
-                    }}
-                  />
+                  <div className="flex">
+                    <div style={{ width: 800 }}>
+                      <Select
+                        optionList={distributionList}
+                        value={selectDistributionId}
+                        placeholder="Select distribution"
+                        onChange={(item) => {
+                          setSelectDistributionId(item);
+                          getVersionListByDistribution();
+                        }}
+                      />
+                    </div>
+                  </div>
                   <br />
-                  <TextInput
-                    placeholder="Distribution Config Version id"
-                    value={cnameInfo.existing_cf_info.config_version_id}
-                    onChange={(event) => {
-                      setCnameInfo((prev) => {
-                        return {
-                          ...prev,
-                          existing_cf_info: {
-                            distribution_id:
-                              prev.existing_cf_info.distribution_id,
-                            config_version_id: event.target.value,
-                          },
-                        };
-                      });
-                    }}
-                  />
+                  <div className="flex">
+                    <div style={{ width: 800 }}>
+                      <Select
+                        optionList={versionList}
+                        value={selectDistributionVersionId}
+                        placeholder="Select version "
+                        onChange={(event) => {
+                          setSelectDistributionVersionId(event.target.value);
+                        }}
+                      />
+                    </div>
+                  </div>
                 </FormItem>
                 <FormItem
                   optionTitle="Certification name"
@@ -580,12 +656,76 @@ const ConfigCertificate: React.FC = () => {
           onClick={() => {
             const requestParam = generateCertCreateImportParam();
             console.info(requestParam);
-            startCertRequest(requestParam);
+            // startCertRequest(requestParam);
+            setOpenModal(true);
           }}
         >
           Start Workflow
         </Button>
       </PagePanel>
+      <Modal
+        title="Confirm Certification Settings?"
+        isOpen={openModal}
+        fullWidth={true}
+        closeModal={() => {
+          setOpenModal(false);
+        }}
+        actions={
+          <div className="button-action no-pb text-right">
+            <Button
+              onClick={() => {
+                setConfirm("");
+                setOpenModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={confirm !== "Confirm"}
+              btnType="primary"
+              loading={loadingApply}
+              onClick={() => {
+                // startWorkflow();
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        }
+      >
+        <div className="gsui-modal-content">
+          <HeaderPanel title="Certification type">
+            <FormItem
+              optionTitle="Distribution"
+              optionDesc="Distribution to apply configurations"
+            >
+              <div>
+                <TextArea
+                  rows={20}
+                  placeholder={`www.example1.com\nwww.example2.com`}
+                  value={JSON.stringify(
+                    generateCertCreateImportParam(),
+                    null,
+                    4
+                  )}
+                  onChange={(event) => {
+                    //do nothing
+                  }}
+                />
+              </div>
+            </FormItem>
+          </HeaderPanel>
+          <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
+            <TextInput
+              value={confirm}
+              placeholder="Confirm"
+              onChange={(event) => {
+                setConfirm(event.target.value);
+              }}
+            />
+          </FormItem>
+        </div>
+      </Modal>
     </div>
   );
 };
