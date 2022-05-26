@@ -66,6 +66,19 @@ type Cloudfront_info {
     versionCount: String
 }
 
+type certification_info {
+    CertificateArn: String!
+    DomainName: String!
+    SubjectAlternativeNames: String
+    Issuer: String!
+    Status: String!
+    CreatedAt: String!
+    IssuedAt: String!
+    NotBefore: String!
+    NotAfter: String!
+    KeyAlgorithm: String!
+}
+
 type cname {
     domainName: String!
     sanList: [String!]
@@ -153,6 +166,9 @@ type Query {
 
     # SSL for SAAS
     Notifications(limit: Int): [Notification]
+
+    # list certifications for
+    listCertifications: [certification_info]
 }
 
 type Mutation {

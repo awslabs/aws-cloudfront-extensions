@@ -423,6 +423,37 @@ def cert_create_or_import(input):
         return data
 
 
+@app.resolver(type_name="Query", field_name="listCertifications")
+def manager_certification_list():
+    # first get distribution List from current account
+    acm_client = boto3.client('acm')
+    response = acm_client.list_certificates()
+
+    result = []
+    for acmItem in response['CertificateSummaryList']:
+
+        resp = acm_client.describe_certificate(
+            CertificateArn=acmItem['CertificateArn']
+        )
+        certInfo = resp['Certificate']
+        tmp_acm = {}
+        tmp_acm['CertificateArn'] = certInfo['CertificateArn']
+        tmp_acm['DomainName'] = certInfo['DomainName']
+        tmp_acm['SubjectAlternativeNames'] = ",".join(certInfo['SubjectAlternativeNames'])
+        tmp_acm['Issuer'] = certInfo['Issuer']
+        tmp_acm['CreatedAt'] = json.dumps(certInfo['CreatedAt'], indent=4, sort_keys=True, default=str)
+        tmp_acm['IssuedAt'] = json.dumps(certInfo['IssuedAt'], indent=4, sort_keys=True, default=str)
+        tmp_acm['Status'] = certInfo['Status']
+        tmp_acm['NotBefore'] = json.dumps(certInfo['NotBefore'], indent=4, sort_keys=True, default=str)
+        tmp_acm['NotAfter'] = json.dumps(certInfo['NotAfter'], indent=4, sort_keys=True, default=str)
+        tmp_acm['KeyAlgorithm'] = certInfo['KeyAlgorithm']
+
+        logger.info(tmp_acm)
+        result.append(tmp_acm)
+
+    return result
+
+
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
 @tracer.capture_lambda_handler
 def lambda_handler(event, context):

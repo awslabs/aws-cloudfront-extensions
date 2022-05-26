@@ -114,6 +114,20 @@ export type Notification = {
   type?: string | null,
 };
 
+export type certification_info = {
+  __typename: "certification_info",
+  CertificateArn: string,
+  DomainName: string,
+  SubjectAlternativeNames?: string | null,
+  Issuer: string,
+  Status: string,
+  CreatedAt: string,
+  IssuedAt: string,
+  NotBefore: string,
+  NotAfter: string,
+  KeyAlgorithm: string,
+};
+
 export type DeployExtensionMutationVariables = {
   name: string,
   parameters?: Array< ExtensionParameter | null > | null,
@@ -315,5 +329,22 @@ export type NotificationsQuery = {
     id?: string | null,
     date?: string | null,
     type?: string | null,
+  } | null > | null,
+};
+
+export type ListCertificationsQuery = {
+  // list certifications for
+  listCertifications?:  Array< {
+    __typename: "certification_info",
+    CertificateArn: string,
+    DomainName: string,
+    SubjectAlternativeNames?: string | null,
+    Issuer: string,
+    Status: string,
+    CreatedAt: string,
+    IssuedAt: string,
+    NotBefore: string,
+    NotAfter: string,
+    KeyAlgorithm: string,
   } | null > | null,
 };

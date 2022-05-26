@@ -144,3 +144,19 @@ export const notifications = /* GraphQL */ `
     }
   }
 `;
+export const listCertifications = /* GraphQL */ `
+  query ListCertifications {
+    listCertifications {
+      CertificateArn
+      DomainName
+      SubjectAlternativeNames
+      Issuer
+      Status
+      CreatedAt
+      IssuedAt
+      NotBefore
+      NotAfter
+      KeyAlgorithm
+    }
+  }
+`;

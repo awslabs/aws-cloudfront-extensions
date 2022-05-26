@@ -27,6 +27,7 @@ import LoadingText from "components/LoadingText";
 import MultiSelect from "../../../../components/MultiSelect";
 import Select from "../../../../components/Select";
 import { json } from "stream/consumers";
+import { useNavigate } from "react-router-dom";
 
 const enum ImportMethod {
   CREATE = "Create",
@@ -51,6 +52,7 @@ interface CertInfo {
 }
 
 const ConfigCertificate: React.FC = () => {
+  const navigate = useNavigate();
   const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
   const [aggregation, setAggregation] = useState(false);
   const [checkCName, setCheckCName] = useState(false);
@@ -90,20 +92,10 @@ const ConfigCertificate: React.FC = () => {
 
   // Get Version List By Distribution
   const getVersionListByDistribution = async () => {
-    // try {
-    //   setLoadingData(true);
-    //   setVersionList([]);
-    //   const resData = await appSyncRequestQuery(listCloudfrontVersions, {
-    //     distribution_id: selectDistributionId,
-    //   });
-    //   const versionList: Version[] = resData.data.listCloudfrontVersions;
-    //   setLoadingData(false);
-    //   setVersionList(versionList);
-    // } catch (error) {
-    //   setLoadingData(false);
-    //   console.error(error);
-    // }
     try {
+      while (selectDistributionId === "") {
+        await new Promise((r) => setTimeout(r, 500));
+      }
       setVersionList([]);
       const resData = await appSyncRequestQuery(listCloudfrontVersions, {
         distribution_id: selectDistributionId,
@@ -127,11 +119,11 @@ const ConfigCertificate: React.FC = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getVersionListByDistribution();
-  // }, [selectDistributionId]);
+  useEffect(() => {
+    getVersionListByDistribution();
+  }, [selectDistributionId]);
 
-  // Get Version List By Distribution
+  // Get Distribution List
   const getDistributionList = async () => {
     try {
       setDistributionList([]);
@@ -359,6 +351,11 @@ const ConfigCertificate: React.FC = () => {
                         placeholder="Select distribution"
                         onChange={(event) => {
                           setSelectDistributionId(event.target.value);
+                          console.info(
+                            "distribution id is :" + selectDistributionId
+                          );
+                          setVersionList([]);
+                          setSelectDistributionVersionId("1");
                           getVersionListByDistribution();
                         }}
                       />
@@ -487,6 +484,9 @@ const ConfigCertificate: React.FC = () => {
                         placeholder="Select distribution"
                         onChange={(item) => {
                           setSelectDistributionId(item);
+                          console.info(
+                            "distribution id is :" + selectDistributionId
+                          );
                           getVersionListByDistribution();
                         }}
                       />
@@ -686,6 +686,10 @@ const ConfigCertificate: React.FC = () => {
               loading={loadingApply}
               onClick={() => {
                 // startWorkflow();
+                const requestParam = generateCertCreateImportParam();
+                console.info(requestParam);
+                startCertRequest(requestParam);
+                navigate("/config/certification/list");
               }}
             >
               Apply
@@ -694,10 +698,10 @@ const ConfigCertificate: React.FC = () => {
         }
       >
         <div className="gsui-modal-content">
-          <HeaderPanel title="Certification type">
+          <HeaderPanel title="Please confirm the SSL request parameters">
             <FormItem
-              optionTitle="Distribution"
-              optionDesc="Distribution to apply configurations"
+              optionTitle="Current SSL for SAAS request parameters"
+              optionDesc=""
             >
               <div>
                 <TextArea

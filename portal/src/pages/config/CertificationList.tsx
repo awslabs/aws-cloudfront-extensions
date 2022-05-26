@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import { CNameType, MOCK_CNAME_LIST } from "mock/data";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "components/Breadcrumb";
 import { SelectType, TablePanel } from "components/TablePanel";
 import Button from "components/Button";
 import { Pagination } from "@material-ui/lab";
 import TextInput from "components/TextInput";
+import { certification_info, Cloudfront_info } from "../../API";
+import { appSyncRequestQuery } from "../../assets/js/request";
+import { listCertifications, listDistribution } from "../../graphql/queries";
 
 const BreadCrunbList = [
   {
@@ -14,18 +16,37 @@ const BreadCrunbList = [
     link: "/",
   },
   {
-    name: "CName Status",
+    name: "Certification List",
     link: "",
   },
 ];
 
-const CNameList: React.FC = () => {
+const CertificationList: React.FC = () => {
   const navigate = useNavigate();
+  const [loadingData, setLoadingData] = useState(false);
   const [searchParams, setSearchParams] = useState("");
-  const [cnameList, setCnameList] = useState<CNameType[]>([]);
+  const [certificationList, setCertificationList] = useState<
+    certification_info[]
+  >([]);
+
+  // Get Distribution List
+  const getCloudfrontDistributionList = async () => {
+    try {
+      setLoadingData(true);
+      setCertificationList([]);
+      const resData = await appSyncRequestQuery(listCertifications, {});
+      const certificationInfos: certification_info[] =
+        resData.data.listCertifications;
+      setLoadingData(false);
+      setCertificationList(certificationInfos);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    setCnameList(MOCK_CNAME_LIST);
+    getCloudfrontDistributionList();
   }, []);
 
   return (
@@ -50,43 +71,43 @@ const CNameList: React.FC = () => {
             </div>
           }
           pagination={<Pagination />}
-          items={cnameList}
+          items={certificationList}
           columnDefinitions={[
             {
               width: 200,
-              id: "hostName",
-              header: "Hostnamne",
-              cell: (e: CNameType) => e.hostName,
+              id: "DomainName",
+              header: "DomainName",
+              cell: (e: certification_info) => e.DomainName,
               // sortingField: "alt",
             },
             {
-              id: "sslStatus",
-              header: "SSL/TLS Status",
-              cell: (e: CNameType) => e.sslStatus,
+              id: "CertificateArn",
+              header: "CertificateArn",
+              cell: (e: certification_info) => e.CertificateArn,
             },
             {
               width: 160,
               id: "certExpireOn",
               header: "Certificate expires on",
-              cell: (e: CNameType) => e.certExpireOn,
+              cell: (e: certification_info) => e.NotAfter,
             },
             {
               width: 160,
-              id: "distribution",
-              header: "CloudFront distribution",
-              cell: (e: CNameType) => e.distribution,
+              id: "Issuer",
+              header: "Issuer",
+              cell: (e: certification_info) => e.Issuer,
             },
             {
               width: 160,
-              id: "expireOn",
-              header: "Expires on",
-              cell: (e: CNameType) => e.expireOn,
+              id: "Status",
+              header: "Status",
+              cell: (e: certification_info) => e.Status,
             },
             {
               width: 150,
-              id: "tags",
-              header: "Tags",
-              cell: (e: CNameType) => e.tags,
+              id: "KeyAlgorithm",
+              header: "KeyAlgorithm",
+              cell: (e: certification_info) => e.KeyAlgorithm,
             },
           ]}
           filter={
@@ -94,7 +115,7 @@ const CNameList: React.FC = () => {
               <TextInput
                 value={searchParams}
                 isSearch={true}
-                placeholder={"Search all distribution"}
+                placeholder={"Search all certifications"}
                 onChange={(event) => {
                   console.info("event:", event);
                   setSearchParams(event.target.value);
@@ -113,4 +134,4 @@ const CNameList: React.FC = () => {
   );
 };
 
-export default CNameList;
+export default CertificationList;

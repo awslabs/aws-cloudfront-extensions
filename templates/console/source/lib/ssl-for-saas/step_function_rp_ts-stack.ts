@@ -641,5 +641,12 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
     });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listCertifications",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
   }
 }

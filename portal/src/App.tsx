@@ -20,7 +20,7 @@ import CompareVersion from "pages/config/detail/CompareVersion";
 import Button from "components/Button";
 import Certification from "pages/config/Certification";
 import Create from "pages/config/certificate/Create";
-import CNameList from "pages/config/CNameList";
+import CertificationList from "pages/config/CertificationList";
 import CloudFront from "pages/monitor/CloudFront";
 import WAF from "pages/monitor/WAF";
 import { AmplifyConfigType } from "assets/js/type";
@@ -145,7 +145,7 @@ const SignInRouter: React.FC = () => {
             path="/config/certification/list"
             element={
               <Container>
-                <CNameList />
+                <CertificationList />
               </Container>
             }
           />
