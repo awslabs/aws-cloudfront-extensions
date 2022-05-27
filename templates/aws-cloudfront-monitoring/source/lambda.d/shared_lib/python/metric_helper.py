@@ -1,10 +1,10 @@
 import json
 import logging
-from datetime import datetime
-import time
-from datetime import timedelta
-import boto3
 import os
+import time
+from datetime import datetime, timedelta
+
+import boto3
 
 cf_client = boto3.client('cloudfront')
 log = logging.getLogger()
@@ -12,19 +12,42 @@ log.setLevel('INFO')
 
 SLEEP_TIME = 1
 RETRY_COUNT = 60
+INTERVAL = 5
 
 
 def get_domain_list():
     domain_list_env = os.getenv('DOMAIN_LIST')
     domain_list = []
     if domain_list_env == "ALL":
-        list_distributions_response = cf_client.list_distributions()
+        list_distributions_response = cf_client.list_distributions(
+            MaxItems='200')
         list_distributions = list_distributions_response['DistributionList']
+
+        while list_distributions['IsTruncated'] is True:
+            if list_distributions['Quantity'] != 0:
+                for distribution in list_distributions['Items']:
+                    dist_domain_name = distribution['DomainName']
+                    dist_aliases = distribution['Aliases']
+                    if dist_aliases['Quantity'] == 0:
+                        domain_list.append(dist_domain_name)
+                    else:
+                        for alias in dist_aliases['Items']:
+                            domain_list.append(alias)
+            next_marker = list_distributions['NextMarker']
+            list_distributions_response = cf_client.list_distributions(
+                Marker=next_marker, MaxItems='200')
+            list_distributions = list_distributions_response[
+                'DistributionList']
 
         if list_distributions['Quantity'] != 0:
             for distribution in list_distributions['Items']:
                 dist_domain_name = distribution['DomainName']
-                domain_list.append(dist_domain_name)
+                dist_aliases = distribution['Aliases']
+                if dist_aliases['Quantity'] == 0:
+                    domain_list.append(dist_domain_name)
+                else:
+                    for alias in dist_aliases['Items']:
+                        domain_list.append(alias)
     else:
         domain_list = os.getenv('DOMAIN_LIST').split(",")
 
@@ -160,14 +183,14 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(start_time)
         ) + ' AND "x-edge-response-result-type"=\'Miss\' GROUP BY "sc-status", "cs-host";'
     elif metric == 'bandwidth':
-        query_string = 'SELECT sum("sc-bytes"), "cs-host" FROM "' + \
+        query_string = 'SELECT sum("sc-bytes")*8/(60*' + str(INTERVAL) + '), "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'bandwidthOrigin':
-        query_string = 'SELECT sum("sc-bytes"), "cs-host" FROM "' + \
+        query_string = 'SELECT sum("sc-bytes")*8/(60*' + str(INTERVAL) + '), "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND timestamp <= ' + str(

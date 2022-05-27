@@ -29,7 +29,7 @@ def query_metric_ddb(start_time, end_time, metric, domain):
     table = dynamodb.Table(TABLE_NAME)
     response = table.query(
         KeyConditionExpression=Key('metricId').eq(metric + '-' + domain)
-                               & Key('timestamp').between(str(int(start_time)), str(int(end_time))))
+                               & Key('timestamp').between(int(start_time), int(end_time)))
 
     log.info("[query_metric_ddb] The query result is")
     log.info(str(response))

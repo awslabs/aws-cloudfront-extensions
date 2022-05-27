@@ -1,4 +1,4 @@
-import { App } from '@aws-cdk/core';
+import { App } from 'aws-cdk-lib';
 import { CloudFrontMonitoringStack } from '../lib/aws-cloudfront-monitoring-stack';
 import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 
