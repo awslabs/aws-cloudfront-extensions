@@ -436,16 +436,26 @@ def manager_certification_list():
             CertificateArn=acmItem['CertificateArn']
         )
         certInfo = resp['Certificate']
+        logger.info(certInfo)
         tmp_acm = {}
         tmp_acm['CertificateArn'] = certInfo['CertificateArn']
         tmp_acm['DomainName'] = certInfo['DomainName']
         tmp_acm['SubjectAlternativeNames'] = ",".join(certInfo['SubjectAlternativeNames'])
         tmp_acm['Issuer'] = certInfo['Issuer']
         tmp_acm['CreatedAt'] = json.dumps(certInfo['CreatedAt'], indent=4, sort_keys=True, default=str)
-        tmp_acm['IssuedAt'] = json.dumps(certInfo['IssuedAt'], indent=4, sort_keys=True, default=str)
+        if 'IssueAt' in certInfo:
+            tmp_acm['IssuedAt'] = json.dumps(certInfo['IssuedAt'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['IssuedAt'] = ""
         tmp_acm['Status'] = certInfo['Status']
-        tmp_acm['NotBefore'] = json.dumps(certInfo['NotBefore'], indent=4, sort_keys=True, default=str)
-        tmp_acm['NotAfter'] = json.dumps(certInfo['NotAfter'], indent=4, sort_keys=True, default=str)
+        if 'NotBefore' in certInfo:
+            tmp_acm['NotBefore'] = json.dumps(certInfo['NotBefore'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['NotBefore'] = ""
+        if 'NotAfter' in certInfo:
+            tmp_acm['NotAfter'] = json.dumps(certInfo['NotAfter'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['NotAfter'] = ""
         tmp_acm['KeyAlgorithm'] = certInfo['KeyAlgorithm']
 
         logger.info(tmp_acm)
