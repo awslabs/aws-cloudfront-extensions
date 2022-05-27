@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - n 18.2.0
+      - n 14.19.3
     runtime-versions:
       python: 3.9
   pre_build:
