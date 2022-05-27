@@ -3,13 +3,15 @@ version: 0.2
 phases:
   install:
     commands:
-      - n 14.19.3
+      - n 17.9.0
     runtime-versions:
       python: 3.9
   pre_build:
     commands:
 #      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
 #      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
+      - npm install -g aws-cdk
+      - cdk --version
       - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
       - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
   build:
