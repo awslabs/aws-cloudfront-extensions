@@ -229,7 +229,7 @@ def lambda_handler(event, context):
                 if has_value is True:
                     table_item = {
                         'metricId': metric + '-' + domain,
-                        'timestamp': data_item["timestamp"],
+                        'timestamp': int(data_item["timestamp"]),
                         'metricData': data_item
                     }
                     table = dynamodb.Table(DDB_TABLE_NAME)

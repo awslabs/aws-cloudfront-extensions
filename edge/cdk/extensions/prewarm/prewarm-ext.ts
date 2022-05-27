@@ -386,10 +386,6 @@ export class PrewarmStack extends cdk.Stack {
       value: apiKey.keyArn
     });
 
-    // new cdk.CfnOutput(this, "User data", {
-    //   value: ud.
-    // });
-
   }
 
 }

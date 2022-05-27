@@ -20,7 +20,7 @@
     "destroy": "cdk destroy"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "2.20.0",
+    "aws-cdk-lib": "2.23.0",
     "constructs": "10.0.110"
   },
   "devDependencies": {
@@ -28,7 +28,7 @@
     "@types/node": "^14.17.33",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
-    "aws-cdk-lib": "2.20.0",
+    "aws-cdk-lib": "2.23.0",
     "constructs": "10.0.110",
     "eslint": "^7.32.0",
     "eslint-import-resolver-node": "^0.3.4",
@@ -43,12 +43,13 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@aws-cdk/aws-apigatewayv2-alpha": "2.20.0-alpha.0",
-    "@aws-cdk/aws-apigatewayv2-authorizers-alpha": "^2.20.0-alpha.0",
-    "@aws-cdk/aws-appsync-alpha": "2.20.0-alpha.0",
-    "aws-cdk-lib": "2.20.0",
-    "constructs": "10.0.110",
-    "cdk-bootstrapless-synthesizer": "2.2.2"
+    "@aws-cdk/aws-apigatewayv2-alpha": "2.23.0-alpha.0",
+    "@aws-cdk/aws-apigatewayv2-authorizers-alpha": "^2.23.0-alpha.0",
+    "@aws-cdk/aws-appsync-alpha": "2.23.0-alpha.0",
+    "@aws-solutions-constructs/aws-cloudfront-s3": "^2.8.0",
+    "aws-cdk-lib": "2.23.0",
+    "cdk-bootstrapless-synthesizer": "2.2.2",
+    "constructs": "10.0.110"
   },
   "bundledDependencies": [],
   "license": "Apache-2.0",
@@ -81,5 +82,6 @@
         "tsconfig": "jest.config.js"
       }
     }
-  }
+  },
+  "bundleDependencies": []
 }

@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     }
     event_time = event["time"]
     event_datetime = datetime.strptime(
-        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=3)
+        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=5)
     start_datetime = event_datetime - timedelta(minutes=5)
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
@@ -71,7 +71,7 @@ def lambda_handler(event, context):
                 for status_code_key in status_code_dict.keys():
                     table_item = {
                         'metricId': metric + '-' + status_code_key,
-                        'timestamp': queryItem['Time'],
+                        'timestamp': int(queryItem['Time']),
                         'metricData': status_code_dict[status_code_key]
                     }
                     table = dynamodb.Table(DDB_TABLE_NAME)

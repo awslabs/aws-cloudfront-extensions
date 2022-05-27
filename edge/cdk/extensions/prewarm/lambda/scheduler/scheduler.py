@@ -91,12 +91,12 @@ def start_invalidation(url_list, cf_domain, pop_region,
 
 
 def find_dist_id(cf_domain):
-    distributions = cf_client.list_distributions()
     try:
+        distributions = cf_client.list_distributions()
         distribution_id = list(filter(
             lambda d: cf_domain == d['DomainName'], distributions['DistributionList']['Items']))[0]['Id']
         log.info('Distribution id: ' + distribution_id)
-    except IndexError as e:
+    except Exception as e:
         log.error('Fail to find distribution with domain name: ' +
                   cf_domain + ', error details: ' + str(e))
         return ''

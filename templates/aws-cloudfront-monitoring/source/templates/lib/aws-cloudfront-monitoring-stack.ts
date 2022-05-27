@@ -1,38 +1,29 @@
+import * as glue from "@aws-cdk/aws-glue-alpha";
 import * as cdk from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as path from 'path';
-import * as logs from 'aws-cdk-lib/aws-logs';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import { CfnTable } from 'aws-cdk-lib/aws-glue';
-import { Construct } from 'constructs';
-import {CfnParameter, Duration, RemovalPolicy, Stack} from 'aws-cdk-lib';
-import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { CfnParameter, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import {
-  AuthorizationType,
-  CognitoUserPoolsAuthorizer,
   EndpointType,
   LambdaRestApi,
   RequestValidator
 } from "aws-cdk-lib/aws-apigateway";
-import * as cognito from 'aws-cdk-lib/aws-cognito';
-import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
-import * as kinesis from "aws-cdk-lib/aws-kinesis";
-import { CfnDeliveryStream } from "aws-cdk-lib/aws-kinesisfirehose";
-import * as glue from "@aws-cdk/aws-glue-alpha"
-import { StreamEncryption } from "aws-cdk-lib/aws-kinesis";
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
-import * as kms from "aws-cdk-lib/aws-kms";
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
-import {
-  OAuthScope,
-  ResourceServerScope,
-  UserPoolClientIdentityProvider,
-  UserPoolResourceServer
-} from "aws-cdk-lib/aws-cognito";
+import { CfnTable } from 'aws-cdk-lib/aws-glue';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { CompositePrincipal, ManagedPolicy, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import * as kinesis from "aws-cdk-lib/aws-kinesis";
+import { StreamEncryption } from "aws-cdk-lib/aws-kinesis";
+import { CfnDeliveryStream } from "aws-cdk-lib/aws-kinesisfirehose";
+import * as kms from "aws-cdk-lib/aws-kms";
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import { Construct } from 'constructs';
+import * as path from 'path';
 
 export class CloudFrontMonitoringStack extends Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps ) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
@@ -102,7 +93,7 @@ export class CloudFrontMonitoringStack extends Stack {
       writeCapacity: 10,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       partitionKey: { name: 'metricId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },
       pointInTimeRecovery: true,
     });
 
@@ -467,14 +458,14 @@ export class CloudFrontMonitoringStack extends Stack {
         })
       ]
     });
-    
+
     const kinesisReadAndWritePolicy = new iam.Policy(this, 'KinesisReadAndWritePolicy', {
       policyName: 'KinesisReadAndWritePolicy',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           resources: [
-            `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:*/*/consumer/*:*`, 
+            `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:*/*/consumer/*:*`,
             `arn:aws:kms:*:${cdk.Aws.ACCOUNT_ID}:key/*`,
             `arn:aws:kinesis:*:${cdk.Aws.ACCOUNT_ID}:stream/*`
           ],
@@ -858,74 +849,17 @@ export class CloudFrontMonitoringStack extends Stack {
     metricsManager.node.addDependency(glueTableCFN);
     metricsManager.node.addDependency(cloudfront_monitoring_s3_bucket);
 
-    const rest_api = new LambdaRestApi(this, 'performance_metrics_restfulApi', {
+    const rest_api = new LambdaRestApi(this, 'CloudfrontPerformanceMetrics', {
       handler: metricsManager,
       description: "restful api to get the cloudfront performance data",
       proxy: false,
-      restApiName: 'CloudfrontPerformanceMetrics',
       endpointConfiguration: {
         types: [EndpointType.EDGE]
       }
-    })
-
-    // create cognito user pool
-    const cloudfront_metrics_userpool = new cognito.UserPool(this, 'CloudFrontMetricsCognitoUserPool', {
-      removalPolicy: RemovalPolicy.DESTROY,
-      selfSignUpEnabled: true,
-      signInAliases: {
-        email: true,
-      },
-      autoVerify: {
-        email: true,
-      },
-      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-    });
-
-    const getMetricScope = new ResourceServerScope({
-      scopeName: "getMetrics",
-      scopeDescription: "get cloudfront metrics",
-    });
-    const userPoolResourceServer = new UserPoolResourceServer(this, "cloudfront-metrics-api-resource-server", {
-      identifier: 'cloudfront-metrics-api',
-      userPool: cloudfront_metrics_userpool,
-      scopes: [getMetricScope]
-    })
-
-    cloudfront_metrics_userpool.addClient('cloudfront-metrics-api-client', {
-      userPoolClientName: 'cloudfront-log-metrics-client',
-      generateSecret: true,
-      oAuth: {
-        flows: { clientCredentials: true },
-        scopes: [OAuthScope.resourceServer(userPoolResourceServer, getMetricScope)],
-
-      },
-      supportedIdentityProviders: [
-        UserPoolClientIdentityProvider.COGNITO,
-      ]
-    });
-
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-
-    let todayString = yyyy + '-' + mm + '-' + dd;
-    cloudfront_metrics_userpool.addDomain("CloudfrontCognitoDomain", {
-      cognitoDomain: {
-        domainPrefix: this.stackName.toLowerCase() + this.account + '-' + this.region + '-' + todayString,
-      },
-    });
-
-    const cognitoAuthorizer = new CognitoUserPoolsAuthorizer(this, `Cloudfront-Metrics-CognitoAuthorizer`, {
-      authorizerName: `Metric-Cognito-Authorizer`,
-      cognitoUserPools: [cloudfront_metrics_userpool],
-      identitySource: "method.request.header.Authorization"
     });
 
     const performance_metric_proxy = rest_api.root.addResource('metric');
     performance_metric_proxy.addMethod('GET', undefined, {
-      authorizationType: AuthorizationType.COGNITO,
-      authorizer: cognitoAuthorizer,
       requestParameters: {
         'method.request.querystring.Action': false,
         'method.request.querystring.Domains': false,
@@ -934,13 +868,22 @@ export class CloudFrontMonitoringStack extends Stack {
         'method.request.querystring.Metric': true,
         'method.request.querystring.Project': false,
       },
-      authorizationScopes: ['cloudfront-metrics-api/getMetrics'],
+      apiKeyRequired: true,
       requestValidator: new RequestValidator(this, "metricsApiValidator", {
         validateRequestBody: false,
         validateRequestParameters: true,
         requestValidatorName: 'defaultValidator',
         restApi: rest_api
       }),
+    });
+
+    const usagePlan = rest_api.addUsagePlan('CFMonitoringUsagePlan', {
+      description: 'CF monitoring usage plan',
+    });
+    const apiKey = rest_api.addApiKey('CFMonitoringApiKey');
+    usagePlan.addApiKey(apiKey);
+    usagePlan.addApiStage({
+      stage: rest_api.deploymentStage,
     });
 
     //Policy to allow client to call this restful api
@@ -972,7 +915,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const deliveryStreamRole = new iam.Role(this, 'Delivery Stream Role', {
       assumedBy: new iam.ServicePrincipal('firehose.amazonaws.com'),
     });
-    
+
     deliveryStreamRole.attachInlinePolicy(kinesisReadAndWritePolicy);
 
     const destinationRole = new iam.Role(this, 'Destination Role', {
@@ -984,7 +927,7 @@ export class CloudFrontMonitoringStack extends Stack {
     destinationRole.attachInlinePolicy(s3ReadAndWritePolicy);
     destinationRole.attachInlinePolicy(lambdaReadAndWritePolicy);
     destinationRole.attachInlinePolicy(kinesisReadAndWritePolicy);
-    
+
     const cloudfront_realtime_log_delivery_stream_cfn = new CfnDeliveryStream(this, 'cloudfrontKinesisFirehoseDeliveryStream', {
       deliveryStreamName: cloudfront_realtime_log_stream.streamName + '_delivery_stream',
       deliveryStreamType: 'KinesisStreamAsSource',
@@ -1111,9 +1054,10 @@ export class CloudFrontMonitoringStack extends Stack {
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
 
-    new cdk.CfnOutput(this, 'cloudfront_monitoring_s3_bucket', { value: cloudfront_monitoring_s3_bucket.bucketName });
-    new cdk.CfnOutput(this, 'cloudfront_metrics_dynamodb', { value: cloudfront_metrics_table.tableName });
-    new cdk.CfnOutput(this, 'api-gateway_policy', { value: api_client_policy.managedPolicyName });
-    new cdk.CfnOutput(this, 'glue_table_name', { value: 'cloudfront_realtime_log' });
+    new cdk.CfnOutput(this, 'S3 Bucket', { value: cloudfront_monitoring_s3_bucket.bucketName });
+    new cdk.CfnOutput(this, 'DynamoDB Table', { value: cloudfront_metrics_table.tableName });
+    new cdk.CfnOutput(this, 'API Gateway Policy', { value: api_client_policy.managedPolicyName });
+    new cdk.CfnOutput(this, 'Glue Table', { value: 'cloudfront_realtime_log' });
+    new cdk.CfnOutput(this, "API Key", { value: apiKey.keyArn });
   }
 }
