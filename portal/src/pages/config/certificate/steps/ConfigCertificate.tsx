@@ -651,17 +651,19 @@ const ConfigCertificate: React.FC = () => {
         {/*  />*/}
         {/*</HeaderPanel>*/}
 
-        <Button
-          btnType="primary"
-          onClick={() => {
-            const requestParam = generateCertCreateImportParam();
-            console.info(requestParam);
-            // startCertRequest(requestParam);
-            setOpenModal(true);
-          }}
-        >
-          Start Workflow
-        </Button>
+        <div className="button-action text-right">
+          <Button
+            btnType="primary"
+            onClick={() => {
+              const requestParam = generateCertCreateImportParam();
+              console.info(requestParam);
+              // startCertRequest(requestParam);
+              setOpenModal(true);
+            }}
+          >
+            Review and Create
+          </Button>
+        </div>
       </PagePanel>
       <Modal
         title="Confirm Certification Settings?"

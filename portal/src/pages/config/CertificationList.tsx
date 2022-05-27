@@ -54,20 +54,25 @@ const CertificationList: React.FC = () => {
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
         <TablePanel
-          title="CName status"
+          title="Certification List"
           selectType={SelectType.RADIO}
           actions={
             <div>
-              <Button>
-                <RefreshIcon fontSize="small" />
-              </Button>
               <Button
+                disabled={loadingData}
                 onClick={() => {
-                  navigate("/404");
+                  getCloudfrontDistributionList();
                 }}
               >
-                View Details
+                <RefreshIcon fontSize="small" />
               </Button>
+              {/*<Button*/}
+              {/*  onClick={() => {*/}
+              {/*    navigate("/404");*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  View Details*/}
+              {/*</Button>*/}
             </div>
           }
           pagination={<Pagination />}

@@ -29,6 +29,7 @@ import LoadingText from "components/LoadingText";
 import { ActionType } from "reducer/appReducer";
 import { useDispatch } from "react-redux";
 import VersionDetailDisplay from "./pages/config/detail/VersionDetailDisplay";
+import ConfigCertificate from "./pages/config/certificate/steps/ConfigCertificate";
 
 const SignInRouter: React.FC = () => {
   return (
@@ -136,7 +137,7 @@ const SignInRouter: React.FC = () => {
             path="/config/certification/create"
             element={
               <Container>
-                <Create />
+                <ConfigCertificate />
               </Container>
             }
           />
