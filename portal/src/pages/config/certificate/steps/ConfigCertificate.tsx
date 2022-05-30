@@ -161,7 +161,7 @@ const ConfigCertificate: React.FC = () => {
       auto_creation: createAuto ? "true" : "false",
       dist_aggregate: aggregation ? "true" : "false",
       enable_cname_check: checkCName ? "true" : "false",
-      cnameList: cnameInfo,
+      cnameList: [cnameInfo],
       pemList: [
         {
           CertPem: certInfo.body,
@@ -192,12 +192,12 @@ const ConfigCertificate: React.FC = () => {
 
   return (
     <div>
-      <PagePanel title="Create certification">
-        <HeaderPanel title="Certification type">
+      <PagePanel title="Create or Import ACM certification">
+        <HeaderPanel title="Options">
           <div>
             <div className="mt-10">
               <Switch
-                label="Aggregation"
+                label="Aggregate custom domain names"
                 desc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
                 isOn={aggregation}
                 handleToggle={() => {
@@ -340,8 +340,8 @@ const ConfigCertificate: React.FC = () => {
                 </FormItem>
 
                 <FormItem
-                  optionTitle="Existing CloudFront Info"
-                  optionDesc="Select the config version of existing CloudFront distribution"
+                  optionTitle="Copy config from existing CloudFront Info"
+                  optionDesc="Select the config version of existing CloudFront distribution, CloudFront Extensions will create CloudFront distribution from selected distribution config"
                 >
                   <div className="flex">
                     <div style={{ width: 800 }}>

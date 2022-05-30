@@ -54,6 +54,7 @@ const CertificationList: React.FC = () => {
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
         <TablePanel
+          loading={loadingData}
           title="Certification List"
           selectType={SelectType.RADIO}
           actions={
@@ -66,38 +67,35 @@ const CertificationList: React.FC = () => {
               >
                 <RefreshIcon fontSize="small" />
               </Button>
-              {/*<Button*/}
-              {/*  onClick={() => {*/}
-              {/*    navigate("/404");*/}
-              {/*  }}*/}
-              {/*>*/}
-              {/*  View Details*/}
-              {/*</Button>*/}
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  navigate("/config/certification/create");
+                }}
+              >
+                Create or Import Certificates
+              </Button>
             </div>
           }
           pagination={<Pagination />}
           items={certificationList}
           columnDefinitions={[
             {
-              width: 200,
+              width: 80,
               id: "DomainName",
               header: "DomainName",
               cell: (e: certification_info) => e.DomainName,
               // sortingField: "alt",
             },
             {
+              width: 200,
               id: "CertificateArn",
               header: "CertificateArn",
               cell: (e: certification_info) => e.CertificateArn,
             },
+
             {
-              width: 160,
-              id: "certExpireOn",
-              header: "Certificate expires on",
-              cell: (e: certification_info) => e.NotAfter,
-            },
-            {
-              width: 160,
+              width: 80,
               id: "Issuer",
               header: "Issuer",
               cell: (e: certification_info) => e.Issuer,
@@ -109,10 +107,16 @@ const CertificationList: React.FC = () => {
               cell: (e: certification_info) => e.Status,
             },
             {
-              width: 150,
+              width: 160,
               id: "KeyAlgorithm",
               header: "KeyAlgorithm",
               cell: (e: certification_info) => e.KeyAlgorithm,
+            },
+            {
+              width: 160,
+              id: "certExpireOn",
+              header: "Certificate expires on",
+              cell: (e: certification_info) => e.NotAfter,
             },
           ]}
           filter={
