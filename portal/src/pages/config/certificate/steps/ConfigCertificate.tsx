@@ -28,6 +28,7 @@ import MultiSelect from "../../../../components/MultiSelect";
 import Select from "../../../../components/Select";
 import { json } from "stream/consumers";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const enum ImportMethod {
   CREATE = "Create",
@@ -688,9 +689,16 @@ const ConfigCertificate: React.FC = () => {
               loading={loadingApply}
               onClick={() => {
                 // startWorkflow();
+                setLoadingApply(true);
                 const requestParam = generateCertCreateImportParam();
                 console.info(requestParam);
                 startCertRequest(requestParam);
+                setLoadingApply(false);
+                Swal.fire(
+                  "Cert create or import Sent",
+                  "Cert creation or import triggered",
+                  "success"
+                );
                 navigate("/config/certification/list");
               }}
             >
