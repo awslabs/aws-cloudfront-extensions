@@ -1,7 +1,8 @@
 import concurrent.futures
 import json
-import sys
 import os
+import sys
+import time
 from urllib import parse
 
 import boto3
@@ -11,6 +12,8 @@ from botocore.exceptions import WaiterError
 
 URL_SUFFIX = '.cloudfront.net'
 cf_client = boto3.client('cloudfront')
+SLEEP_TIME = 6
+RETRY_COUNT = 100
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
@@ -67,8 +70,9 @@ def pre_warm(url, pop, cf_domain):
     try:
         local_file_name = download_file(url, cf_domain)
         if os.path.exists(local_file_name):
-            print(f'Prewarm succeeded, PoP: {pop}, Url: {url}, Downloaded file name: {local_file_name}')
-            os.remove(local_file_name) 
+            print(
+                f'Prewarm succeeded, PoP: {pop}, Url: {url}, Downloaded file name: {local_file_name}')
+            os.remove(local_file_name)
 
             return {
                 'pop': pop,
@@ -183,7 +187,17 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
             ddb_resp = table.put_item(Item=table_item)
             print(ddb_resp)
 
-        queue_messages = get_messages_from_queue(sqs, queue_url)
+        # Keep waiting new messages sent into the queue until retry timeout
+        for i in range(1, 1 + RETRY_COUNT):
+            queue_messages = get_messages_from_queue(sqs, queue_url)
+            if len(queue_messages) > 0:
+                print('Found messages in queue, process the message')
+                break
+
+            print('No message found, wait ' + str(SLEEP_TIME) + ' seconds')
+            time.sleep(SLEEP_TIME)
+
+        print(str(len(queue_messages) + ' message found after retry'))
 
 
 if __name__ == "__main__":

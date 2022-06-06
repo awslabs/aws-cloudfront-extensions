@@ -1,22 +1,18 @@
 import * as cdk from 'aws-cdk-lib';
 import { EndpointType, LambdaRestApi, RequestValidator } from 'aws-cdk-lib/aws-apigateway';
+import * as as from 'aws-cdk-lib/aws-autoscaling';
+import { BlockDeviceVolume } from 'aws-cdk-lib/aws-autoscaling';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import { ComparisonOperator, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch';
+import * as cwa from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as as from 'aws-cdk-lib/aws-autoscaling';
-import * as eb from 'aws-cdk-lib/aws-events';
-import * as targets from 'aws-cdk-lib/aws-events-targets';
-import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
-import * as cwa from 'aws-cdk-lib/aws-cloudwatch-actions';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { RemovalPolicy } from 'aws-cdk-lib';
-import { ComparisonOperator, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch';
-import { BlockDeviceVolume } from 'aws-cdk-lib/aws-autoscaling';
 
 
 export class PrewarmStack extends cdk.Stack {
@@ -147,10 +143,10 @@ export class PrewarmStack extends cdk.Stack {
     const metric = new cloudwatch.MathExpression({
       expression: "visible + hidden",
       usingMetrics: {
-        visible: messageQueue.metricApproximateNumberOfMessagesVisible({period: cdk.Duration.seconds(60)}),
-        hidden: messageQueue.metricApproximateNumberOfMessagesNotVisible({period: cdk.Duration.seconds(60)}),
+        visible: messageQueue.metricApproximateNumberOfMessagesVisible({ period: cdk.Duration.seconds(60) }),
+        hidden: messageQueue.metricApproximateNumberOfMessagesNotVisible({ period: cdk.Duration.seconds(60) }),
       },
-      period: cdk.Duration.seconds(60), 
+      period: cdk.Duration.seconds(60),
     });
     // const metric = messageQueue.metricApproximateNumberOfMessagesVisible({
     //   period: cdk.Duration.seconds(60),
@@ -188,7 +184,7 @@ export class PrewarmStack extends cdk.Stack {
         maxCapacity: 50,
         minCapacity: 0,
         desiredCapacity: 0,
-        spotPrice: "0.15",
+        spotPrice: "0.26",
         blockDevices: [{
           deviceName: '/dev/xvda',
           volume: BlockDeviceVolume.ebs(150)
@@ -217,7 +213,7 @@ export class PrewarmStack extends cdk.Stack {
       adjustment: 0,
       lowerBound: 0,
       upperBound: 1,
-    }); 
+    });
     agentScaleOut.addAdjustment({
       adjustment: 1,
       lowerBound: 1,
