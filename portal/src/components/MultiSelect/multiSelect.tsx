@@ -86,6 +86,8 @@ const MultiSelect: React.FC<SelectProps> = (props: SelectProps) => {
   useEffect(() => {
     if (value?.length <= 0) {
       setSelected([]);
+    } else {
+      setSelected(value);
     }
   }, [value]);
 
