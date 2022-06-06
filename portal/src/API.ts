@@ -7,31 +7,25 @@ export type ExtensionParameter = {
   parameterValue?: string | null,
 };
 
-export type certCreateInput = {
+export type certInput = {
   acm_op: string,
-  acm_domain: string,
+  auto_creation: string,
   dist_aggregate: string,
-  cnameList: Array< cnameInput >,
+  enable_cname_check: string,
+  cnameList: Array< cnameInput | null >,
+  pemList: Array< pemInput | null >,
 };
 
 export type cnameInput = {
   domainName: string,
   sanList?: Array< string > | null,
   originsItemsDomainName: string,
+  existing_cf_info: existingCFInfo,
 };
 
-export type createOutput = {
-  __typename: "createOutput",
-  statue: string,
-  createdAt: string,
-  updatedAt: string,
-};
-
-export type certImportInput = {
-  acm_op: string,
-  acm_domain: string,
-  dist_aggregate: string,
-  pem: Array< pemInput >,
+export type existingCFInfo = {
+  distribution_id: string,
+  config_version_id: string,
 };
 
 export type pemInput = {
@@ -41,8 +35,8 @@ export type pemInput = {
   originsItemsDomainName: string,
 };
 
-export type importOutput = {
-  __typename: "importOutput",
+export type certOutput = {
+  __typename: "certOutput",
   status: string,
   createdAt: string,
   updatedAt: string,
@@ -120,6 +114,20 @@ export type Notification = {
   type?: string | null,
 };
 
+export type certification_info = {
+  __typename: "certification_info",
+  CertificateArn: string,
+  DomainName: string,
+  SubjectAlternativeNames?: string | null,
+  Issuer: string,
+  Status: string,
+  CreatedAt: string,
+  IssuedAt: string,
+  NotBefore: string,
+  NotAfter: string,
+  KeyAlgorithm: string,
+};
+
 export type DeployExtensionMutationVariables = {
   name: string,
   parameters?: Array< ExtensionParameter | null > | null,
@@ -135,27 +143,14 @@ export type SyncExtensionsMutation = {
   syncExtensions?: string | null,
 };
 
-export type CertCreateMutationVariables = {
-  input?: certCreateInput | null,
+export type CertCreateOrImportMutationVariables = {
+  input?: certInput | null,
 };
 
-export type CertCreateMutation = {
+export type CertCreateOrImportMutation = {
   // SSL for SAAS
-  certCreate?:  {
-    __typename: "createOutput",
-    statue: string,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type CertImportMutationVariables = {
-  input: certImportInput,
-};
-
-export type CertImportMutation = {
-  certImport?:  {
-    __typename: "importOutput",
+  certCreateOrImport?:  {
+    __typename: "certOutput",
     status: string,
     createdAt: string,
     updatedAt: string,
@@ -334,5 +329,22 @@ export type NotificationsQuery = {
     id?: string | null,
     date?: string | null,
     type?: string | null,
+  } | null > | null,
+};
+
+export type ListCertificationsQuery = {
+  // list certifications for
+  listCertifications?:  Array< {
+    __typename: "certification_info",
+    CertificateArn: string,
+    DomainName: string,
+    SubjectAlternativeNames?: string | null,
+    Issuer: string,
+    Status: string,
+    CreatedAt: string,
+    IssuedAt: string,
+    NotBefore: string,
+    NotAfter: string,
+    KeyAlgorithm: string,
   } | null > | null,
 };

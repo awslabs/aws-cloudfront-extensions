@@ -20,7 +20,7 @@ import CompareVersion from "pages/config/detail/CompareVersion";
 import Button from "components/Button";
 import Certification from "pages/config/Certification";
 import Create from "pages/config/certificate/Create";
-import CNameList from "pages/config/CNameList";
+import CertificationList from "pages/config/CertificationList";
 import CloudFront from "pages/monitor/CloudFront";
 import WAF from "pages/monitor/WAF";
 import { AmplifyConfigType } from "assets/js/type";
@@ -29,6 +29,7 @@ import LoadingText from "components/LoadingText";
 import { ActionType } from "reducer/appReducer";
 import { useDispatch } from "react-redux";
 import VersionDetailDisplay from "./pages/config/detail/VersionDetailDisplay";
+import ConfigCertificate from "./pages/config/certificate/steps/ConfigCertificate";
 
 const SignInRouter: React.FC = () => {
   return (
@@ -97,7 +98,15 @@ const SignInRouter: React.FC = () => {
           />
 
           <Route
-            path="/config/version/detail/:id/:version/:note/save"
+            path="/config/version/detail/:id/:version/save/:note"
+            element={
+              <Container>
+                <SaveVersion />
+              </Container>
+            }
+          />
+          <Route
+            path="/config/version/detail/:id/:version/save"
             element={
               <Container>
                 <SaveVersion />
@@ -136,7 +145,7 @@ const SignInRouter: React.FC = () => {
             path="/config/certification/create"
             element={
               <Container>
-                <Create />
+                <ConfigCertificate />
               </Container>
             }
           />
@@ -145,7 +154,7 @@ const SignInRouter: React.FC = () => {
             path="/config/certification/list"
             element={
               <Container>
-                <CNameList />
+                <CertificationList />
               </Container>
             }
           />

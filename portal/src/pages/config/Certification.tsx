@@ -71,10 +71,18 @@ const Certification: React.FC = () => {
           <Button
             btnType="primary"
             onClick={() => {
+              navigate("/config/certification/list");
+            }}
+          >
+            List Certification
+          </Button>
+          <Button
+            btnType="primary"
+            onClick={() => {
               navigate("/config/certification/create");
             }}
           >
-            Get started
+            Create or Import Certification
           </Button>
         </div>
       </PagePanel>

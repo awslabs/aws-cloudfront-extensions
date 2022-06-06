@@ -66,6 +66,19 @@ type Cloudfront_info {
     versionCount: String
 }
 
+type certification_info {
+    CertificateArn: String!
+    DomainName: String!
+    SubjectAlternativeNames: String
+    Issuer: String!
+    Status: String!
+    CreatedAt: String!
+    IssuedAt: String!
+    NotBefore: String!
+    NotAfter: String!
+    KeyAlgorithm: String!
+}
+
 type cname {
     domainName: String!
     sanList: [String!]
@@ -79,24 +92,24 @@ type pem {
     originsItemsDomainName: String!
 }
 
-type createOutput {
-    statue: String!
-    createdAt: AWSDateTime!
-    updatedAt: AWSDateTime!
-}
-
-type importOutput {
+type certOutput {
     status: String!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
 }
 
+
 input cnameInput {
     domainName: String!
     sanList: [String!]
     originsItemsDomainName: String!
+    existing_cf_info: existingCFInfo!
 }
 
+input existingCFInfo {
+    distribution_id: String!
+    config_version_id: String!
+}
 input pemInput {
     CertPem: String!
     PrivateKeyPem: String!
@@ -104,19 +117,15 @@ input pemInput {
     originsItemsDomainName: String!
 }
 
-input certImportInput {
+input certInput {
     acm_op: String!
-    acm_domain: String!
+    auto_creation: String!
     dist_aggregate: String!
-    pem: [pemInput!]!
+    enable_cname_check: String!
+    cnameList: [cnameInput]!
+    pemList: [pemInput]!
 }
 
-input certCreateInput {
-    acm_op: String!
-    acm_domain: String!
-    dist_aggregate: String!
-    cnameList: [cnameInput!]!
-}
 
 type Notification {
     id: ID
@@ -157,6 +166,9 @@ type Query {
 
     # SSL for SAAS
     Notifications(limit: Int): [Notification]
+
+    # list certifications for
+    listCertifications: [certification_info]
 }
 
 type Mutation {
@@ -167,7 +179,6 @@ type Mutation {
     syncExtensions: String
 
     # SSL for SAAS
-    certCreate(input: certCreateInput): createOutput
-    certImport(input: certImportInput!): importOutput
+    certCreateOrImport(input: certInput): certOutput
 }
 

@@ -37,9 +37,9 @@ const SaveVersion: React.FC = () => {
   ];
 
   const myLog = () => {
-    console.info("guming debug>> id is ", id);
     setDistribution(id);
-    setVersionDesc(note);
+    console.info("note is " + note);
+    setVersionDesc(note || "");
   };
 
   useEffect(() => {
@@ -122,8 +122,6 @@ const SaveVersion: React.FC = () => {
               onClick={() => {
                 const dist_id: any = id;
                 const ver: any = version;
-                console.info("guming debug>>", dist_id);
-                console.info("guming debug>>", ver);
                 updateDistConfigTag(dist_id, ver, versionDesc);
                 navigate("/config/version/detail/" + id);
               }}

@@ -9,7 +9,6 @@ import re
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
-dynamo_client = boto3.client('dynamodb')
 step_function = boto3.client('stepfunctions')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')

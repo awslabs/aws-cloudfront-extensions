@@ -124,15 +124,20 @@ const VersionDetail: React.FC = () => {
     }
   };
 
-  const selectAllDistributions = async () => {
-    setSelectDistribution([]);
-    const selectList = [];
+  const selectAllDistributions = () => {
+    const selectList: any = [];
     for (const index in distributionList) {
       selectList.push(distributionList[index].name);
     }
     console.info(selectList);
-    setSelectDistribution(selectList);
+    setSelectDistribution(() => {
+      return selectList;
+    });
   };
+
+  useEffect(() => {
+    console.info(selectDistribution);
+  }, [selectDistribution]);
 
   const selectNoneDistributions = async () => {
     setSelectDistribution([]);
@@ -203,9 +208,9 @@ const VersionDetail: React.FC = () => {
                     id +
                     "/" +
                     selectedItem[0].versionId +
+                    "/save" +
                     "/" +
-                    selectedItem[0].note +
-                    "/save";
+                    selectedItem[0].note;
                   navigate(path);
                 }}
               >
