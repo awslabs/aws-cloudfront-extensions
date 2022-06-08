@@ -13,7 +13,7 @@ INTERVAL = 5
 METRIC_DICT = [
     "request", "requestOrigin", "statusCode", "statusCodeOrigin", "chr",
     "chrBandWith", "bandwidth", "bandwidthOrigin", "downloadSpeed",
-    "downloadSpeedOrigin"
+    "downloadSpeedOrigin", "topNUrlRequests", "topNUrlSize", "downstreamTraffic"
 ]
 
 log = logging.getLogger()
