@@ -162,6 +162,10 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
         # append certUUid into list
         acm_dcv_dict[item['taskToken']['S']].append(item['domainName']['S'])
 
+    query_update_metadata(acm_dcv_dict, item, table_name)
+
+
+def query_update_metadata(acm_dcv_dict, item, table_name):
     # iterate all taskToken in acm_dcv_dict
     for task_token in acm_dcv_dict:
         resp = query_certificate_status(task_token[:128])

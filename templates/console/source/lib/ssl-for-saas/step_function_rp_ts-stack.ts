@@ -1,21 +1,21 @@
-import * as cdk from 'aws-cdk-lib';
-import { aws_s3 as s3 } from 'aws-cdk-lib';
-import { aws_iam as iam } from 'aws-cdk-lib';
-import { aws_stepfunctions as _step } from 'aws-cdk-lib';
-import { aws_stepfunctions_tasks as _task } from 'aws-cdk-lib';
-import { aws_lambda as _lambda } from 'aws-cdk-lib';
-import { aws_sns as sns } from 'aws-cdk-lib';
-import { aws_sns_subscriptions as subs } from 'aws-cdk-lib';
-import { aws_dynamodb as dynamodb } from 'aws-cdk-lib';
-import { aws_events as events } from 'aws-cdk-lib';
-import { aws_events_targets as targets } from 'aws-cdk-lib';
-import { aws_apigateway as _apigw } from 'aws-cdk-lib';
-import { aws_appsync as _appsync } from 'aws-cdk-lib';
-import * as _appsync_alpha from '@aws-cdk/aws-appsync-alpha';
-import { CfnParameter } from 'aws-cdk-lib';
-import { Duration } from 'aws-cdk-lib';
-import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
-import { AppsyncFunction } from '@aws-cdk/aws-appsync-alpha';
+import * as cdk from "aws-cdk-lib";
+import { aws_s3 as s3 } from "aws-cdk-lib";
+import { aws_iam as iam } from "aws-cdk-lib";
+import { aws_stepfunctions as _step } from "aws-cdk-lib";
+import { aws_stepfunctions_tasks as _task } from "aws-cdk-lib";
+import { aws_lambda as _lambda } from "aws-cdk-lib";
+import { aws_sns as sns } from "aws-cdk-lib";
+import { aws_sns_subscriptions as subs } from "aws-cdk-lib";
+import { aws_dynamodb as dynamodb } from "aws-cdk-lib";
+import { aws_events as events } from "aws-cdk-lib";
+import { aws_events_targets as targets } from "aws-cdk-lib";
+import { aws_apigateway as _apigw } from "aws-cdk-lib";
+import { aws_appsync as _appsync } from "aws-cdk-lib";
+import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
+import { CfnParameter } from "aws-cdk-lib";
+import { Duration } from "aws-cdk-lib";
+import { StateMachine } from "aws-cdk-lib/aws-stepfunctions";
+import { AppsyncFunction } from "@aws-cdk/aws-appsync-alpha";
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { AuthorizationType, EndpointType } from "aws-cdk-lib/aws-apigateway";
@@ -56,7 +56,10 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     );
 
     // create email subscription
-    const email_address = new CfnParameter(this, "email-subs");
+    const email_address = new CfnParameter(this, "email-subs", {
+      description: "email address to be notified",
+      type: "String",
+    });
     sns_topic.addSubscription(
       new subs.EmailSubscription(email_address.valueAsString)
     );

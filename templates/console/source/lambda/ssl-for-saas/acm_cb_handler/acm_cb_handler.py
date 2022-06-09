@@ -233,11 +233,6 @@ def lambda_handler(event, context):
     # scan domain name in DynamoDB and filter status is CERT_ISSUED, TBD retry here
     response = scan_for_cert(callback_table, domain_name)
 
-    # # iterate all certArn match domain name
-    # for item in response['Items']:
-    #     # fetch certArn from dynamoDB
-    #     certArn = item['certArn']['S']
-
     logger.info('scan result of DynamoDB %s', json.dumps(response))
     # fetch certArn from DynamoDB, assume such reverse search only had one result
     cert_arn = response['Items'][0]['certArn']['S']
@@ -271,39 +266,10 @@ def lambda_handler(event, context):
     original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
     ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
 
-    config = fetch_cloudfront_config_version(original_cf_distribution_id,
-                                             original_cf_distribution_version,
-                                             ddb_table_name)
-
-    config['CallerReference'] = str(uuid.uuid4())
-    config['Aliases']['Items'] = sub_domain_name_list
-    config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
-    config['DefaultRootObject'] = default_root_object
-
-    # support single origin for now, will support multiple origin in future TBD
-    config['Origins']['Items'] = [
-    {
-        "Id": origins_items_id,
-        "DomainName": origins_items_domain_name,
-        "OriginPath": origins_items_origin_path,
-        "CustomHeaders": {
-            "Quantity": 0
-        },
-        "S3OriginConfig": {
-            "OriginAccessIdentity": ""
-        },
-        "ConnectionAttempts": 3,
-        "ConnectionTimeout": 10,
-        "OriginShield": {
-            "Enabled": False
-        }
-    }]
-    config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
-    config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-
-    config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
-    config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
-    config['ViewerCertificate']['Certificate'] = certificate_arn
+    config = construct_cloudfront_config(certificate_arn, ddb_table_name, default_cache_behavior_target_origin_id,
+                                         default_root_object, original_cf_distribution_id,
+                                         original_cf_distribution_version, origins_items_domain_name, origins_items_id,
+                                         origins_items_origin_path, sub_domain_name_list)
 
     resp = create_distribution(config)
 
@@ -316,3 +282,40 @@ def lambda_handler(event, context):
             'distributionDomainName': resp['Distribution']['DomainName']
         }
     }
+
+
+def construct_cloudfront_config(certificate_arn, ddb_table_name, default_cache_behavior_target_origin_id,
+                                default_root_object, original_cf_distribution_id, original_cf_distribution_version,
+                                origins_items_domain_name, origins_items_id, origins_items_origin_path,
+                                sub_domain_name_list):
+    config = fetch_cloudfront_config_version(original_cf_distribution_id,
+                                             original_cf_distribution_version,
+                                             ddb_table_name)
+    config['CallerReference'] = str(uuid.uuid4())
+    config['Aliases']['Items'] = sub_domain_name_list
+    config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
+    config['DefaultRootObject'] = default_root_object
+    # support single origin for now, will support multiple origin in future TBD
+    config['Origins']['Items'] = [
+        {
+            "Id": origins_items_id,
+            "DomainName": origins_items_domain_name,
+            "OriginPath": origins_items_origin_path,
+            "CustomHeaders": {
+                "Quantity": 0
+            },
+            "S3OriginConfig": {
+                "OriginAccessIdentity": ""
+            },
+            "ConnectionAttempts": 3,
+            "ConnectionTimeout": 10,
+            "OriginShield": {
+                "Enabled": False
+            }
+        }]
+    config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
+    config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
+    config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
+    config['ViewerCertificate']['Certificate'] = certificate_arn
+    return config
