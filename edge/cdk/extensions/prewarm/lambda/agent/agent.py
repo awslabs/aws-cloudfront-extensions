@@ -197,7 +197,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
             print('No message found, wait ' + str(SLEEP_TIME) + ' seconds')
             time.sleep(SLEEP_TIME)
 
-        print(str(len(queue_messages) + ' message found after retry'))
+        print(str(len(queue_messages)) + ' message found after retry')
 
 
 if __name__ == "__main__":

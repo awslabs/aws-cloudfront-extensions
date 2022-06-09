@@ -29,7 +29,7 @@ export class CloudFrontMonitoringStack extends Stack {
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
 
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
-      description: 'The cloudfront domain name to be monitored, for example: d1v8v39goa3nap.cloudfront.net, for multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
+      description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
       type: 'String',
     })
 
@@ -810,7 +810,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metrics_collector_traffic.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metrics_collector_traffic')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_traffic')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
