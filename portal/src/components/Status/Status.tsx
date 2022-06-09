@@ -9,6 +9,7 @@ import RemoveCircleOutlineIcon from "@material-ui/icons/RemoveCircleOutline";
 export enum StatusType {
   create_complele = "create_complele",
   Enabled = "Enabled",
+  Deployed = "Deployed",
   Disabled = "Disabled",
   Unknown = "Unknown",
   Active = "Active",
@@ -36,6 +37,12 @@ const Status: React.FC<StatusProps> = (props: StatusProps) => {
       <span className={"status-text " + status.toLocaleLowerCase()}>
         {status.toLocaleUpperCase() ===
           StatusType.Green.toLocaleUpperCase() && (
+          <i>
+            <CheckCircleOutlineIcon fontSize="small" />
+          </i>
+        )}
+        {status.toLocaleUpperCase() ===
+          StatusType.Deployed.toLocaleUpperCase() && (
           <i>
             <CheckCircleOutlineIcon fontSize="small" />
           </i>
