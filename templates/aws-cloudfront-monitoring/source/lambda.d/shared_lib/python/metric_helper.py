@@ -181,7 +181,7 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + 'AND ("x-edge-detailed-result-type" = \'Miss\' OR ("x-edge-detailed-result-type" like \'%Origin%\' AND "x-edge-detailed-result-type" <> \'OriginShieldHit\')) group by "sc-status", "cs-host";'
+        ) + ' AND ("x-edge-detailed-result-type" = \'Miss\' OR ("x-edge-detailed-result-type" like \'%Origin%\' AND "x-edge-detailed-result-type" <> \'OriginShieldHit\')) group by "sc-status", "cs-host";'
     elif metric == 'downstreamTraffic':
         query_string = 'SELECT sum("sc-bytes"), "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
