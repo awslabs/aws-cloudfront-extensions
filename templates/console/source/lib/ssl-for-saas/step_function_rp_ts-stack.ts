@@ -570,11 +570,16 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       },
     });
 
-    ssl_api_handler.root
-      .addResource("ssl_for_saas")
-      .addMethod("POST", undefined, {
-        authorizationType: AuthorizationType.IAM,
-      });
+    const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
+
+    ssl_api.addMethod("POST", undefined, {
+      authorizationType: AuthorizationType.IAM,
+    });
+
+    const cert_list = ssl_api.addResource("cert_list");
+    cert_list.addMethod("GET", undefined, {
+      authorizationType: AuthorizationType.IAM,
+    });
 
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, "ACM status check", {

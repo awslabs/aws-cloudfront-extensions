@@ -6,6 +6,10 @@ import json
 import subprocess
 import urllib
 import re
+from aws_lambda_powertools import Logger, Tracer
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+
+app = APIGatewayRestResolver()
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -289,6 +293,47 @@ def is_wildcard(sanList):
     return None
 
 
+@app.get("/ssl_for_saas/cert_list")
+def cf_ssl_for_saas():
+    # first get distribution List from current account
+    acm_client = boto3.client('acm')
+    response = acm_client.list_certificates()
+
+    result = []
+    for acmItem in response['CertificateSummaryList']:
+
+        resp = acm_client.describe_certificate(
+            CertificateArn=acmItem['CertificateArn']
+        )
+        certInfo = resp['Certificate']
+        logger.info(certInfo)
+        tmp_acm = {}
+        tmp_acm['CertificateArn'] = certInfo['CertificateArn']
+        tmp_acm['DomainName'] = certInfo['DomainName']
+        tmp_acm['SubjectAlternativeNames'] = ",".join(certInfo['SubjectAlternativeNames'])
+        tmp_acm['Issuer'] = certInfo['Issuer']
+        tmp_acm['CreatedAt'] = json.dumps(certInfo['CreatedAt'], indent=4, sort_keys=True, default=str)
+        if 'IssueAt' in certInfo:
+            tmp_acm['IssuedAt'] = json.dumps(certInfo['IssuedAt'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['IssuedAt'] = ""
+        tmp_acm['Status'] = certInfo['Status']
+        if 'NotBefore' in certInfo:
+            tmp_acm['NotBefore'] = json.dumps(certInfo['NotBefore'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['NotBefore'] = ""
+        if 'NotAfter' in certInfo:
+            tmp_acm['NotAfter'] = json.dumps(certInfo['NotAfter'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['NotAfter'] = ""
+        tmp_acm['KeyAlgorithm'] = certInfo['KeyAlgorithm']
+
+        logger.info(tmp_acm)
+        result.append(tmp_acm)
+
+    return result
+
+
 # {
 #   "acm_op": "create",
 #   "dist_aggregate": "false",
@@ -323,15 +368,16 @@ def is_wildcard(sanList):
 #     }
 #   ]
 # }
-def lambda_handler(event, context):
+@app.post("/ssl_for_saas")
+def cf_ssl_for_saas():
     """
     :param event:
     :param context:
     """
-    logger.info("Received event: " + json.dumps(event))
+    body: dict = app.current_event.json_body
+    logger.info("Received event: " + json.dumps(body))
 
     # Get the parameters from the event
-    body = json.loads(event['body'])
     acm_op = body['acm_op']
     dist_aggregate = body['dist_aggregate']
     auto_creation = body['auto_creation']
@@ -344,7 +390,7 @@ def lambda_handler(event, context):
 
         # note dist_aggregate is ignored here, we don't aggregate imported certificate
         elif acm_op == "import":
-            import_acm_cert(body, enable_cname_check, event)
+            import_acm_cert(body, enable_cname_check)
 
         return {
             'statusCode': 200,
@@ -367,6 +413,10 @@ def lambda_handler(event, context):
         }
 
 
+def lambda_handler(event, context):
+    return app.resolve(event, context)
+
+
 def create_acm_cert(dist_aggregate, domain_name_list):
     # aggregate certificate if dist_aggregate is true
     if dist_aggregate == "true":
@@ -382,7 +432,7 @@ def create_acm_cert(dist_aggregate, domain_name_list):
             logger.info('Certificate creation response: %s', resp)
 
 
-def import_acm_cert(body, enable_cname_check, event):
+def import_acm_cert(body, enable_cname_check):
     # iterate pemList array from event
     for pem_index, pem_value in enumerate(body['pemList']):
 
