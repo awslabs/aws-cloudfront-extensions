@@ -15,6 +15,7 @@ from requests import exceptions
 acm = boto3.client('acm', region_name='us-east-1')
 dynamo_client = boto3.client('dynamodb')
 sns_client = boto3.client('sns')
+cf = boto3.client('cloudfront')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 
@@ -33,6 +34,7 @@ certificate = {
     'SubjectAlternativeNames': ['www.example.com', 'www.example.org']
 }
 
+
 def _tag_certificate(certArn, taskToken):
     """[summary]
 
@@ -50,6 +52,7 @@ def _tag_certificate(certArn, taskToken):
             }
         ]
     )
+
 
 def _update_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn):
     """_summary_
@@ -83,6 +86,7 @@ def _update_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken
         }
     )
 
+
 def request_certificate(certificate):
     """[summary]
 
@@ -110,6 +114,7 @@ def request_certificate(certificate):
     logger.info('Certificate creation response: %s', resp)
     return resp
 
+
 def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn):
     """_summary_
 
@@ -126,32 +131,33 @@ def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken
     logger.info('Creating domain metadata with taskToken %s, domainName %s', taskToken, domainName)
 
     resp = dynamo_client.put_item(
-            TableName=callbackTable,
-            Item={
-                'domainName': {
-                    'S': domainName
-                },
-                'sanList': {
-                    'L': sanList
-                },
-                'certUUid': {
-                    'S': certUUid
-                },
-                'taskToken': {
-                    'S': taskToken
-                },
-                'taskType': {
-                    'S': taskType
-                },
-                'taskStatus': {
-                    'S': taskStatus
-                },
-                'certArn': {
-                    'S': certArn
-                }
+        TableName=callbackTable,
+        Item={
+            'domainName': {
+                'S': domainName
+            },
+            'sanList': {
+                'L': sanList
+            },
+            'certUUid': {
+                'S': certUUid
+            },
+            'taskToken': {
+                'S': taskToken
+            },
+            'taskType': {
+                'S': taskType
+            },
+            'taskStatus': {
+                'S': taskStatus
+            },
+            'certArn': {
+                'S': certArn
             }
-        )
+        }
+    )
     logger.info('Domain metadata creation response: %s', resp)
+
 
 # check if san list provided is subset of existing san list
 def is_subset(sanList, wildcardSanDict):
@@ -166,7 +172,7 @@ def is_subset(sanList, wildcardSanDict):
     # iterate wildcard san dict
     logger.info('start to check if san list %s is subset of wildcard san dict %s', sanList, wildcardSanDict)
     for key, value in wildcardSanDict.items():
-    # wildcard search in string with regular expression
+        # wildcard search in string with regular expression
         # regex = re.compile(r'.*\.risetron.cn') key is *.risetron.cn
         regex = re.compile(r'.*\.{}'.format(key.replace('*.', '')))
         matches = [san for san in sanList if re.match(regex, san)]
@@ -176,6 +182,7 @@ def is_subset(sanList, wildcardSanDict):
         else:
             continue
     return None
+
 
 # check if wildcard string in san list
 def is_wildcard(sanList):
@@ -194,6 +201,7 @@ def is_wildcard(sanList):
         else:
             continue
     return None
+
 
 # describe certificate details
 @retry(wait=wait_fixed(3), stop=stop_after_attempt(5), retry=retry_if_exception_type(exceptions.Timeout))
@@ -214,6 +222,7 @@ def fetch_dcv_value(certArn):
 
     logger.info("ResourceRecord fulfilled, return for further processing")
     return resp
+
 
 # common cert operations
 def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_UUid, task_token, task_type, snsMsg):
@@ -254,6 +263,7 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
             snsMsg.append(dns_validation_record)
 
     return resp
+
 
 # {
 #   "acm_op": "create",
@@ -328,7 +338,7 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps('step to acm callback complete')
+        'body': json.dumps('step to acm create callback complete')
     }
 
 
@@ -421,19 +431,36 @@ def validate_source_cloudfront_dist(domain_name_list):
     ddb_table = ddb_client.Table(ddb_table_name)
     # validate all the source cloudfront distribution/version is existed
     for cname_index, cname_value in enumerate(domain_name_list):
-        source_cf_info = cname_value['existing_cf_info']
-        dist_id = source_cf_info['distribution_id']
-        version_id = source_cf_info['config_version_id']
+        if 'existing_cf_info' in cname_value:
+            source_cf_info = cname_value['existing_cf_info']
+            dist_id = source_cf_info['distribution_id']
+            if 'config_version_id' in source_cf_info:
+                # search the config ddb for source cloudfront config version
+                version_id = source_cf_info['config_version_id']
+                # get specific cloudfront distributions version info
+                response = ddb_table.get_item(
+                    Key={
+                        "distributionId": dist_id,
+                        "versionId": int(version_id)
+                    })
+                if 'Item' not in response:
+                    logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
+                    raise Exception(
+                        "Failed to find existing config with name: %s, version: %s in cname_value: %s, index: %s",
+                        dist_id, version_id, cname_value, cname_index)
+            else:
+                # There is no config version info, just check whether cloudfront distribution exist
+                resp = cf.get_distribution(
+                    Id=dist_id,
+                )
+                if 'Distribution' not in resp:
+                    logger.error("Can not found source cloudfront distribution with id: %s", dist_id)
+                    raise Exception("Can not found source cloudfront distribution with id: %s", dist_id)
 
-        # get specific cloudfront distributions version info
-        response = ddb_table.get_item(
-            Key={
-                "distributionId": dist_id,
-                "versionId": int(version_id)
-            })
-        if 'Item' in response:
-            continue
         else:
-            logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
-            raise Exception("Failed to find existing config with name: %s, version: %s in cname_value: %s, index: %s",
-                            dist_id, version_id, cname_value, cname_index)
+            logger.error("Request missing existing_cf_info section which is not optional field"
+                         "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
+                         "\"config_version_id\": \"1\"}})")
+            raise Exception("Request missing existing_cf_info section which is not optional field"
+                            "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
+                            "\"config_version_id\": \"1\"}})")

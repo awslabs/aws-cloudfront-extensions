@@ -11,6 +11,7 @@ import string
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
 dynamo_client = boto3.client('dynamodb')
+cf = boto3.client('cloudfront')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 
@@ -340,7 +341,7 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps('step to acm callback complete')
+        'body': json.dumps('step to acm import callback complete')
     }
 
 
@@ -357,27 +358,44 @@ def check_domain_name(event, pem_index):
 
 
 def validate_source_cloudfront_dist(domain_name_list):
-    # validate the source cloudfront distribution/version is existed
     ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(ddb_table_name)
+    # validate all the source cloudfront distribution/version is existed
     for cname_index, cname_value in enumerate(domain_name_list):
-        source_cf_info = cname_value['existing_cf_info']
-        dist_id = source_cf_info['distribution_id']
-        version_id = source_cf_info['config_version_id']
+        if 'existing_cf_info' in cname_value:
+            source_cf_info = cname_value['existing_cf_info']
+            dist_id = source_cf_info['distribution_id']
+            if 'config_version_id' in source_cf_info:
+                # search the config ddb for source cloudfront config version
+                version_id = source_cf_info['config_version_id']
+                # get specific cloudfront distributions version info
+                response = ddb_table.get_item(
+                    Key={
+                        "distributionId": dist_id,
+                        "versionId": int(version_id)
+                    })
+                if 'Item' not in response:
+                    logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
+                    raise Exception(
+                        "Failed to find existing config with name: %s, version: %s in cname_value: %s, index: %s",
+                        dist_id, version_id, cname_value, cname_index)
+            else:
+                # There is no config version info, just check whether cloudfront distribution exist
+                resp = cf.get_distribution(
+                    Id=dist_id,
+                )
+                if 'Distribution' not in resp:
+                    logger.error("Can not found source cloudfront distribution with id: %s", dist_id)
+                    raise Exception("Can not found source cloudfront distribution with id: %s", dist_id)
 
-        # get specific cloudfront distributions version info
-        response = ddb_table.get_item(
-            Key={
-                "distributionId": dist_id,
-                "versionId": int(version_id)
-            })
-        if 'Item' in response:
-            continue
         else:
-            logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
-            raise Exception("Failed to find existing config with name: %s, version: %s does not exist", dist_id,
-                            version_id)
+            logger.error("Request missing existing_cf_info section which is not optional field"
+                         "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
+                         "\"config_version_id\": \"1\"}})")
+            raise Exception("Request missing existing_cf_info section which is not optional field"
+                            "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
+                            "\"config_version_id\": \"1\"}})")
 
 
 def check_generate_task_token(task_token):

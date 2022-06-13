@@ -180,6 +180,7 @@ def get_domain_list_from_cert():
                 logger.error('invalid domain name %s', x)
     except Exception as e:
         logger.error('error validating certificate: %s', e)
+        raise Exception('error validating certificate: %s', str(e))
     return domainList
 
 
@@ -408,7 +409,7 @@ def import_acm_cert(body, enable_cname_check, event):
                 continue
         else:
             logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(
-                event['input']['cnameList'][pem_index]['domainName']))
+                body['cnameList'][pem_index]['domainName']))
         resp = import_certificate(certificate)
 
 

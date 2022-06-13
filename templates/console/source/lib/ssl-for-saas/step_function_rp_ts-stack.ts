@@ -116,6 +116,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         ),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess"),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSNSFullAccess"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("CloudfrontFullAccess"),
       ],
     });
 
@@ -134,6 +135,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
           iam.ManagedPolicy.fromAwsManagedPolicyName(
             "AmazonDynamoDBFullAccess"
           ),
+          iam.ManagedPolicy.fromAwsManagedPolicyName("CloudfrontFullAccess"),
         ],
       }
     );
@@ -177,7 +179,10 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       this,
       "_fn_acm_cb_handler_role",
       {
-        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+        assumedBy: new iam.CompositePrincipal(
+          new iam.ServicePrincipal("edgelambda.amazonaws.com"),
+          new iam.ServicePrincipal("lambda.amazonaws.com")
+        ),
         managedPolicies: [
           iam.ManagedPolicy.fromAwsManagedPolicyName(
             "service-role/AWSLambdaBasicExecutionRole"
@@ -193,6 +198,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
           ),
           iam.ManagedPolicy.fromAwsManagedPolicyName("CloudFrontFullAccess"),
           iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"),
+          iam.ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
         ],
       }
     );
