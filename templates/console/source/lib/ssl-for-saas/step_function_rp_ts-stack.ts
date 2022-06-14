@@ -662,5 +662,12 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
     });
+
+    new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
+      value: ssl_api.path.substring(1),
+    });
+    new cdk.CfnOutput(this, "list_certs", {
+      value: cert_list.path.substring(1),
+    });
   }
 }
