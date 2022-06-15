@@ -562,7 +562,7 @@ export class CfLogStack extends cdk.Stack {
 
     const metricsCollectorDownstreamTraffic = new lambda.Function(this, 'metricsCollectorDownstreamTraffic', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metrics_collector_traffic.lambda_handler',
+      handler: 'metric_collector_traffic.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_traffic')),
@@ -607,7 +607,6 @@ export class CfLogStack extends cdk.Stack {
     addPartition.node.addDependency(cfLogBucket);
     deletePartition.node.addDependency(glueDatabase);
     deletePartition.node.addDependency(glueTable);
-    partitionS3.node.addDependency(cfLogBucket);
 
     metricsCollectorBandwidthCdn.node.addDependency(cloudfrontMetricsTable);
     metricsCollectorBandwidthCdn.node.addDependency(glueDatabase);

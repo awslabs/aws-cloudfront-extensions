@@ -122,8 +122,7 @@ export class CloudFrontMonitoringStack extends Stack {
       tableInput: {
         tableType: "EXTERNAL_TABLE",
         parameters: {
-          external: "TRUE",
-          'skip.header.line.count': "2"
+          external: "TRUE"
         },
         storageDescriptor: {
           columns: [
@@ -807,7 +806,7 @@ export class CloudFrontMonitoringStack extends Stack {
 
     const metricsCollectorDownstreamTraffic = new lambda.Function(this, 'metricsCollectorDownstreamTraffic', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metrics_collector_traffic.lambda_handler',
+      handler: 'metric_collector_traffic.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_traffic')),
@@ -981,8 +980,7 @@ export class CloudFrontMonitoringStack extends Stack {
     });
 
     //Policy to allow client to call this restful api
-    const api_client_policy = new ManagedPolicy(this, "cloudfront_metrics_api_client_policy", {
-      managedPolicyName: "cloudfront_metric_client_policy_" + deployStage.valueAsString,
+    const api_client_policy = new ManagedPolicy(this, "CFMetricAPIClientPolicy", {
       description: "policy for client to call stage:" + deployStage.valueAsString,
       statements: [
         new iam.PolicyStatement({

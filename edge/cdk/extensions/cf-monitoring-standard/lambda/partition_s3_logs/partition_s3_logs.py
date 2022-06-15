@@ -58,12 +58,12 @@ def lambda_handler(event, context):
                         if row_item.startswith('#Version:'):
                             updated_content += row_item + '\n'
                         elif row_item.startswith('#Fields:'):
-                            updated_content += '#Fields:\ttimestamp\tsc-bytes\tc-ip\tcs(Host)\tsc-status\tcs-bytes\ttime-taken\tx-edge-response-result-type\n'
+                            updated_content += '#Fields:\ttimestamp\tsc-bytes\tc-ip\tcs-host\tcs-uri-stem\tsc-status\tcs-bytes\ttime-taken\tx-edge-response-result-type\tx-edge-detailed-result-type\n'
                         else:
                             fields = row_item.split('\t')
                             if len(fields) > 1:       
                                 timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
-                                updated_content += timestamp + '\t' + fields[3] + '\t' + fields[4] + '\t' + fields[6] + '\t' + fields[7] + '\t' + fields[8] + '\t' + fields[17] + '\t' + fields[18] + '\t' + fields[22] + '\t' + fields[28] + '\n'
+                                updated_content += timestamp + '\t' + fields[3] + '\t' + fields[4] + '\t' + fields[6] + '\t' + fields[7] + '\t' + fields[8] + '\t' + fields[14] + '\t' + fields[17] + '\t' + fields[22] + '\t' + fields[28] + '\n'
                             
                     compressed_content = gzip.compress(updated_content.encode())
                     s3.put_object(Body=compressed_content, Bucket=bucket, Key=dest)

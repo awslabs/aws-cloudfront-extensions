@@ -200,7 +200,7 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(start_time)
         ) + ' AND ("x-edge-detailed-result-type" = \'Miss\' OR ("x-edge-detailed-result-type" like \'%Origin%\' AND "x-edge-detailed-result-type" <> \'OriginShieldHit\')) group by "cs-host";'
     elif metric == 'chr':
-        query_string = 'SELECT cast((sum(case when "x-edge-result-type" like \'%Hit\' then 1 else 0 end) * 100.0 / count(1)) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
+        query_string = 'SELECT cast((sum(case when "x-edge-response-result-type" like \'%Hit\' then 1 else 0 end) * 100.0 / count(1)) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time,
                                       query_string)
@@ -210,7 +210,7 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(start_time)
         ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' group by "cs-host";'
     elif metric == 'chrBandWith':
-        query_string = 'SELECT cast((sum(case when "x-edge-result-type" like \'%Hit\' then "sc-bytes" else 0 end)*100.0/(60*5)*8) / (sum("sc-bytes")/(60*5)*8 ) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
+        query_string = 'SELECT cast((sum(case when "x-edge-response-result-type" like \'%Hit\' then "sc-bytes" else 0 end)*100.0/(60*5)*8) / (sum("sc-bytes")/(60*5)*8 ) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time,
                                       query_string)

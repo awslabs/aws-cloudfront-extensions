@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     event_time = event["time"]
     event_datetime = datetime.strptime(event_time, "%Y-%m-%dT%H:%M:%SZ")
     log.info(str(event_datetime))
-    event_datetime = event_datetime - timedelta(days=1)
+    event_datetime = event_datetime - timedelta(days=2)
     log.info(str(event_datetime))
     
     year = str(event_datetime.year)
