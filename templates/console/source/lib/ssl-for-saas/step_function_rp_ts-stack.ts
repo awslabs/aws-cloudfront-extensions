@@ -573,12 +573,14 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
 
     ssl_api.addMethod("POST", undefined, {
-      authorizationType: AuthorizationType.IAM,
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
     });
 
     const cert_list = ssl_api.addResource("cert_list");
     cert_list.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
     });
 
     // cloudwatch event cron job for 5 minutes
@@ -663,11 +665,23 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
     });
 
+    const usagePlan = ssl_api_handler.addUsagePlan("SSL_for_Saas_UsagePlan", {
+      description: "SSL for SAAS API usage plan",
+    });
+    const apiKey = ssl_api_handler.addApiKey("SSL_for_SAAS_ApiKey");
+    usagePlan.addApiKey(apiKey);
+    usagePlan.addApiStage({
+      stage: ssl_api_handler.deploymentStage,
+    });
+
     new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
       value: ssl_api.path.substring(1),
     });
     new cdk.CfnOutput(this, "list_certs", {
       value: cert_list.path.substring(1),
+    });
+    new cdk.CfnOutput(this, "SSL for SAAS API key", {
+      value: apiKey.keyArn,
     });
   }
 }
