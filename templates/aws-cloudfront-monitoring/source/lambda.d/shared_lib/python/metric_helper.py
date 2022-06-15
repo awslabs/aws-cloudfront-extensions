@@ -1,10 +1,10 @@
 import json
 import logging
-import os
+from datetime import datetime
 import time
-from datetime import datetime, timedelta
-
+from datetime import timedelta
 import boto3
+import os
 
 cf_client = boto3.client('cloudfront')
 log = logging.getLogger()
@@ -18,7 +18,7 @@ INTERVAL = 5
 def get_domain_list():
     domain_list_env = os.getenv('DOMAIN_LIST')
     domain_list = []
-    if domain_list_env == "ALL":
+    if domain_list_env.upper() == "ALL":
         list_distributions_response = cf_client.list_distributions(
             MaxItems='200')
         list_distributions = list_distributions_response['DistributionList']
@@ -165,7 +165,7 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
         query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type"=\'Miss\' group by "cs-host";'
+        ) + ' AND ("x-edge-detailed-result-type" = \'Miss\' OR ("x-edge-detailed-result-type" like \'%Origin%\' AND "x-edge-detailed-result-type" <> \'OriginShieldHit\')) group by "cs-host";'
     elif metric == 'statusCode':
         query_string = 'SELECT "sc-status", count(timestamp), "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
@@ -181,24 +181,31 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type"=\'Miss\' GROUP BY "sc-status", "cs-host";'
+        ) + ' AND ("x-edge-detailed-result-type" = \'Miss\' OR ("x-edge-detailed-result-type" like \'%Origin%\' AND "x-edge-detailed-result-type" <> \'OriginShieldHit\')) group by "sc-status", "cs-host";'
+    elif metric == 'downstreamTraffic':
+        query_string = 'SELECT sum("sc-bytes"), "cs-host" FROM "' + \
+            db_name + '"."' + table_name + '" WHERE '
+        query_string = assemble_query(start_time, end_time, query_string)
+        query_string += ' AND timestamp <= ' + str(
+            format_date_time(end_time)) + ' AND timestamp > ' + str(
+            format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'bandwidth':
-        query_string = 'SELECT sum("sc-bytes")*8/(60*' + str(INTERVAL) + '), "cs-host" FROM "' + \
+        query_string = f'SELECT sum("sc-bytes")/(60*{INTERVAL})*8, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'bandwidthOrigin':
-        query_string = 'SELECT sum("sc-bytes")*8/(60*' + str(INTERVAL) + '), "cs-host" FROM "' + \
+        query_string = f'SELECT sum("sc-bytes")/(60*{INTERVAL})*8, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type"=\'Miss\' group by "cs-host";'
+        ) + ' AND ("x-edge-detailed-result-type" = \'Miss\' OR ("x-edge-detailed-result-type" like \'%Origin%\' AND "x-edge-detailed-result-type" <> \'OriginShieldHit\')) group by "cs-host";'
     elif metric == 'chr':
-        query_string = 'SELECT cast((100.0 - sum(case when "x-edge-response-result-type" = \'Miss\' then 1 else 0 end) * 100.0 / count("timestamp")) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
+        query_string = 'SELECT cast((sum(case when "x-edge-result-type" like \'%Hit\' then 1 else 0 end) * 100.0 / count(1)) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time,
                                       query_string)
@@ -206,9 +213,9 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' AND "x-edge-response-result-type" <> \'Error\' AND "x-edge-response-result-type" <> \'Redirect\' group by "cs-host";'
+        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' group by "cs-host";'
     elif metric == 'chrBandWith':
-        query_string = 'SELECT cast((100.0 - sum(case when "x-edge-response-result-type" = \'Miss\' then "cs-bytes" else 0 end) * 100.0 / sum("cs-bytes")) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
+        query_string = 'SELECT cast((sum(case when "x-edge-result-type" like \'%Hit\' then "sc-bytes" else 0 end)*100.0/(60*5)*8) / (sum("sc-bytes")/(60*5)*8 ) as decimal(38,2)) as ratio, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time,
                                       query_string)
@@ -216,9 +223,32 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(end_time)
         ) + ' AND timestamp > ' + str(
             format_date_time(start_time)
-        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' AND "x-edge-response-result-type" <> \'Error\' AND "x-edge-response-result-type" <> \'Redirect\' group by "cs-host";'
+        ) + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' group by "cs-host";'
+    elif metric == 'topNUrlRequests':
+        query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", cnt, row_number() ' \
+                       f'over (partition by "cs-host", "cs-uri-stem" order by cnt desc) rank ' \
+                       f'from (select "cs-host", "cs-uri-stem", count(1) as cnt from ' \
+                       f'"{db_name}"."{table_name}" where '
+        query_string = assemble_query(start_time, end_time, query_string)
+        query_string = query_string + ' AND timestamp <= ' + str(
+            format_date_time(end_time)) + ' AND timestamp > ' + str(
+            format_date_time(start_time)
+        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=100 order by "cs-host", "cnt" desc'
+    elif metric == 'topNUrlSize':
+        query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() ' \
+                       f'over (partition by "cs-host", "cs-uri-stem" order by sc_size desc) rank ' \
+                       f'from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from ' \
+                       f'"{db_name}"."{table_name}" where '
+        query_string = assemble_query(start_time, end_time, query_string)
+        query_string = query_string + ' AND timestamp <= ' + str(
+            format_date_time(end_time)) + ' AND timestamp > ' + str(
+            format_date_time(start_time)
+        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=100 order by "cs-host", "sc_size" desc'
     else:
         raise Exception('[schedule_athena_query] Invalid metric ' + metric)
+    
+    log.info(query_string)
+    
     return query_string
 
 
