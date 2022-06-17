@@ -34,8 +34,8 @@
 
 ### 部署步骤
 
-1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接下载模板 (https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json)进行部署。
-    * 一键部署：_https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=Prewarm&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json_ (https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=Prewarm&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json)
+1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接[下载模板](https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json)进行部署。
+    * [一键部署](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=Prewarm&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json)
 2. 默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。
 3. 选择*下一步*。
 4. 在*配置堆栈选项*页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择*下一步*。
@@ -52,7 +52,7 @@
 请求方式: POST
 请求参数
 url_list: 需要预热的url
-cf_domain: CloudFront域名，以 cloudfront.net (http://cloudfront.net/)结尾
+cf_domain: CloudFront域名，以cloudfront.net结尾
 region: 需要预热的区域，提供三个选项
 
   * all: 预热所有区域的节点。
@@ -67,7 +67,7 @@ region: 需要预热的区域，提供三个选项
     * us: United States
 
 示例：
-CloudFront的域名为 d1234567890r.cloudfront.net，它的CName为www.example.com (http://www.example.com/)
+CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.com.
 
 ```
 {

@@ -11,6 +11,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as kms from 'aws-cdk-lib/aws-kms';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -36,7 +37,6 @@ export class PrewarmStack extends cdk.Stack {
 
     const messageQueue = new sqs.Queue(this, 'PrewarmMessageQueue', {
       encryption: sqs.QueueEncryption.KMS_MANAGED,
-      // receiveMessageWaitTime: cdk.Duration.seconds(5),
       visibilityTimeout: cdk.Duration.hours(10),
       deadLetterQueue: {
         queue: dlq,
@@ -148,9 +148,6 @@ export class PrewarmStack extends cdk.Stack {
       },
       period: cdk.Duration.seconds(60),
     });
-    // const metric = messageQueue.metricApproximateNumberOfMessagesVisible({
-    //   period: cdk.Duration.seconds(60),
-    // });
     const messageAlarm = metric.createAlarm(this, 'PrewarmMessage',
       {
         alarmDescription: 'The SQS has messages need to be pre-warmed',
@@ -215,53 +212,8 @@ export class PrewarmStack extends cdk.Stack {
       upperBound: 1,
     });
     agentScaleOut.addAdjustment({
-      adjustment: 1,
-      lowerBound: 1,
-      upperBound: 2,
-    });
-    agentScaleOut.addAdjustment({
       adjustment: 2,
-      lowerBound: 2,
-      upperBound: 5,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 4,
-      lowerBound: 5,
-      upperBound: 10,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 10,
-      lowerBound: 10,
-      upperBound: 25,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 15,
-      lowerBound: 25,
-      upperBound: 40,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 20,
-      lowerBound: 40,
-      upperBound: 55,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 25,
-      lowerBound: 55,
-      upperBound: 65,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 30,
-      lowerBound: 65,
-      upperBound: 80,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 35,
-      lowerBound: 80,
-      upperBound: 100,
-    });
-    agentScaleOut.addAdjustment({
-      adjustment: 50,
-      lowerBound: 100,
+      lowerBound: 1,
     });
     messageAlarm.addAlarmAction(new cwa.AutoScalingAction(agentScaleOut));
 
