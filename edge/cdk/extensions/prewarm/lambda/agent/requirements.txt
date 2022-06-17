@@ -1,0 +1,3 @@
+requests
+boto3
+shortuuid>=1.0.0
