@@ -287,7 +287,7 @@ const Repository: React.FC = () => {
       </Modal>
 
       <Modal
-        title="Deploy Extenstions"
+        title="Deploy Extensions"
         isOpen={openDeployModal}
         fullWidth={false}
         closeModal={() => {
