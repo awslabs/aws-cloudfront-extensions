@@ -2,7 +2,6 @@ import {Stack} from "aws-cdk-lib";
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
 import * as cdk from 'aws-cdk-lib';
-import {PortalStack} from "./web_portal_stack";
 
 //This stack is created to holding shared resources between cloudfront submodules like appsync and cognito user pool
 export interface CommonProps extends cdk.StackProps {
@@ -35,17 +34,6 @@ export class CommonStack extends Stack {
         // Prints out the AppSync GraphQL API key to the terminal
         new cdk.CfnOutput(this, "GraphQLAPIKey", {
           value: this.appsyncApi.apiKey || ''
-        });
-
-        new PortalStack(this, "WebConsole", {
-            aws_api_key: this.appsyncApi.apiKey,
-            aws_appsync_authenticationType: appsync.AuthorizationType.API_KEY,
-            aws_appsync_graphqlEndpoint: this.appsyncApi.graphqlUrl,
-            aws_appsync_region: this.region,
-            aws_cognito_region: "",
-            aws_project_region: this.region,
-            aws_user_pools_id: "",
-            aws_user_pools_web_client_id: ""
         });
     }
 }

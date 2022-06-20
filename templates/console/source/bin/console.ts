@@ -6,6 +6,7 @@ import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 import { CloudFrontConfigVersionStack } from '../lib/config-version/aws-cloudfront-config-version-stack';
 import { StepFunctionRpTsStack } from '../lib/ssl-for-saas/step_function_rp_ts-stack';
 import { CommonStack } from '../lib/cf-common/cf-common-stack'
+import {WebPortalStack} from "../lib/web-portal/web_portal_stack";
 
 const app = new cdk.App();
 
@@ -15,15 +16,24 @@ const commonStack = new CommonStack(
     `cf-common-stack`
 );
 
+new WebPortalStack(
+    app,
+    `WebPortalStack`, {
+        tags: {
+            app: 'WebPortal',
+        },
+        synthesizer: newSynthesizer(),
+        appsyncApi: commonStack.appsyncApi,
+    }
+);
+
 new ConsoleStack(app, 'ConsoleStack', {
   tags: {
     app: 'CloudFrontExtensionsConsole',
   },
   synthesizer: newSynthesizer(),
   appsyncApi: commonStack.appsyncApi
-
-}
-);
+});
 
 // Config version stack
 const configVersionStack = new CloudFrontConfigVersionStack(app, 'CloudFrontConfigVersionStack', {
