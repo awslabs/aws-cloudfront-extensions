@@ -1,21 +1,21 @@
-import * as cdk from 'aws-cdk-lib';
-import { aws_s3 as s3 } from 'aws-cdk-lib';
-import { aws_iam as iam } from 'aws-cdk-lib';
-import { aws_stepfunctions as _step } from 'aws-cdk-lib';
-import { aws_stepfunctions_tasks as _task } from 'aws-cdk-lib';
-import { aws_lambda as _lambda } from 'aws-cdk-lib';
-import { aws_sns as sns } from 'aws-cdk-lib';
-import { aws_sns_subscriptions as subs } from 'aws-cdk-lib';
-import { aws_dynamodb as dynamodb } from 'aws-cdk-lib';
-import { aws_events as events } from 'aws-cdk-lib';
-import { aws_events_targets as targets } from 'aws-cdk-lib';
-import { aws_apigateway as _apigw } from 'aws-cdk-lib';
-import { aws_appsync as _appsync } from 'aws-cdk-lib';
-import * as _appsync_alpha from '@aws-cdk/aws-appsync-alpha';
-import { CfnParameter } from 'aws-cdk-lib';
-import { Duration } from 'aws-cdk-lib';
-import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
-import { AppsyncFunction } from '@aws-cdk/aws-appsync-alpha';
+import * as cdk from "aws-cdk-lib";
+import { aws_s3 as s3 } from "aws-cdk-lib";
+import { aws_iam as iam } from "aws-cdk-lib";
+import { aws_stepfunctions as _step } from "aws-cdk-lib";
+import { aws_stepfunctions_tasks as _task } from "aws-cdk-lib";
+import { aws_lambda as _lambda } from "aws-cdk-lib";
+import { aws_sns as sns } from "aws-cdk-lib";
+import { aws_sns_subscriptions as subs } from "aws-cdk-lib";
+import { aws_dynamodb as dynamodb } from "aws-cdk-lib";
+import { aws_events as events } from "aws-cdk-lib";
+import { aws_events_targets as targets } from "aws-cdk-lib";
+import { aws_apigateway as _apigw } from "aws-cdk-lib";
+import { aws_appsync as _appsync } from "aws-cdk-lib";
+import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
+import { CfnParameter } from "aws-cdk-lib";
+import { Duration } from "aws-cdk-lib";
+import { StateMachine } from "aws-cdk-lib/aws-stepfunctions";
+import { AppsyncFunction } from "@aws-cdk/aws-appsync-alpha";
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { AuthorizationType, EndpointType } from "aws-cdk-lib/aws-apigateway";
@@ -56,7 +56,10 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     );
 
     // create email subscription
-    const email_address = new CfnParameter(this, "email-subs");
+    const email_address = new CfnParameter(this, "email-subs", {
+      description: "email address to be notified",
+      type: "String",
+    });
     sns_topic.addSubscription(
       new subs.EmailSubscription(email_address.valueAsString)
     );
@@ -113,6 +116,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         ),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess"),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSNSFullAccess"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("CloudfrontFullAccess"),
       ],
     });
 
@@ -131,6 +135,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
           iam.ManagedPolicy.fromAwsManagedPolicyName(
             "AmazonDynamoDBFullAccess"
           ),
+          iam.ManagedPolicy.fromAwsManagedPolicyName("CloudfrontFullAccess"),
         ],
       }
     );
@@ -174,7 +179,10 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       this,
       "_fn_acm_cb_handler_role",
       {
-        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+        assumedBy: new iam.CompositePrincipal(
+          new iam.ServicePrincipal("edgelambda.amazonaws.com"),
+          new iam.ServicePrincipal("lambda.amazonaws.com")
+        ),
         managedPolicies: [
           iam.ManagedPolicy.fromAwsManagedPolicyName(
             "service-role/AWSLambdaBasicExecutionRole"
@@ -190,6 +198,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
           ),
           iam.ManagedPolicy.fromAwsManagedPolicyName("CloudFrontFullAccess"),
           iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"),
+          iam.ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
         ],
       }
     );
@@ -561,11 +570,18 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       },
     });
 
-    ssl_api_handler.root
-      .addResource("ssl_for_saas")
-      .addMethod("POST", undefined, {
-        authorizationType: AuthorizationType.IAM,
-      });
+    const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
+
+    ssl_api.addMethod("POST", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const cert_list = ssl_api.addResource("cert_list");
+    cert_list.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
 
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, "ACM status check", {
@@ -647,6 +663,25 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       fieldName: "listCertifications",
       requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    const usagePlan = ssl_api_handler.addUsagePlan("SSL_for_Saas_UsagePlan", {
+      description: "SSL for SAAS API usage plan",
+    });
+    const apiKey = ssl_api_handler.addApiKey("SSL_for_SAAS_ApiKey");
+    usagePlan.addApiKey(apiKey);
+    usagePlan.addApiStage({
+      stage: ssl_api_handler.deploymentStage,
+    });
+
+    new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
+      value: ssl_api.path.substring(1),
+    });
+    new cdk.CfnOutput(this, "list_certs", {
+      value: cert_list.path.substring(1),
+    });
+    new cdk.CfnOutput(this, "SSL for SAAS API key", {
+      value: apiKey.keyArn,
     });
   }
 }

@@ -57,6 +57,8 @@ def lambda_handler(event, context):
                         'Data'][0]['VarCharValue']
                     domain = item_query_result['ResultSet']['Rows'][i][
                         'Data'][1]['VarCharValue']
+                    if float(item_query_value) > 100:
+                        item_query_value = '100.00'
 
                     table_item = {
                         'metricId': metric + '-' + domain,

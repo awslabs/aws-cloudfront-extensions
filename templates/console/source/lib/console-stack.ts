@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cr from 'aws-cdk-lib/custom-resources';
+import { CloudFrontToS3 } from '@aws-solutions-constructs/aws-cloudfront-s3';
 import { CustomResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CommonProps } from './cf-common/cf-common-stack'

@@ -29,7 +29,7 @@ export class CloudFrontMonitoringStack extends Stack {
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
 
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
-      description: 'The cloudfront domain name to be monitored, for example: d1v8v39goa3nap.cloudfront.net, for multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
+      description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
       type: 'String',
     })
 
@@ -122,8 +122,7 @@ export class CloudFrontMonitoringStack extends Stack {
       tableInput: {
         tableType: "EXTERNAL_TABLE",
         parameters: {
-          external: "TRUE",
-          'skip.header.line.count': "2"
+          external: "TRUE"
         },
         storageDescriptor: {
           columns: [
@@ -807,10 +806,10 @@ export class CloudFrontMonitoringStack extends Stack {
 
     const metricsCollectorDownstreamTraffic = new lambda.Function(this, 'metricsCollectorDownstreamTraffic', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metrics_collector_traffic.lambda_handler',
+      handler: 'metric_collector_traffic.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metrics_collector_traffic')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/metric_collector_traffic')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -981,8 +980,7 @@ export class CloudFrontMonitoringStack extends Stack {
     });
 
     //Policy to allow client to call this restful api
-    const api_client_policy = new ManagedPolicy(this, "cloudfront_metrics_api_client_policy", {
-      managedPolicyName: "cloudfront_metric_client_policy_" + deployStage.valueAsString,
+    const api_client_policy = new ManagedPolicy(this, "CFMetricAPIClientPolicy", {
       description: "policy for client to call stage:" + deployStage.valueAsString,
       statements: [
         new iam.PolicyStatement({

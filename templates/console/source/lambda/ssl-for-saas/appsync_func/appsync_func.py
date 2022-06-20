@@ -35,6 +35,10 @@ certificate = {
     'ChainPem': ''
 }
 
+FILE_FOLDER = '/tmp'
+PEM_FILE = FILE_FOLDER + "/cert.pem"
+_GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
+
 
 def _tag_certificate(certArn, taskToken):
     """[summary]
@@ -201,19 +205,23 @@ def import_certificate(certificate):
         [type]: [description]
     """
     logger.info('start to importing existing cerfification %s', certificate)
-    resp = acm.import_certificate(
-        Certificate=certificate['CertPem'],
-        PrivateKey=certificate['PrivateKeyPem'],
-        CertificateChain=certificate['ChainPem'],
-        # CertificateArn=certificate['CertificateArn'],
-        Tags=[
-            {
-                'Key': 'issuer',
-                # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
-                'Value': certificate['DomainName'].replace('*.', '')
-            }
-        ]
-    )
+    try:
+        resp = acm.import_certificate(
+            Certificate=certificate['CertPem'],
+            PrivateKey=certificate['PrivateKeyPem'],
+            CertificateChain=certificate['ChainPem'],
+            # CertificateArn=certificate['CertificateArn'],
+            Tags=[
+                {
+                    'Key': 'issuer',
+                    # strip * if exist due to regular expression pattern: [\p{L}\p{Z}\p{N}_.:\/=+\-@]* in tag
+                    'Value': certificate['DomainName'].replace('*.', '')
+                }
+            ]
+        )
+    except Exception as e:
+        logger.info('error importing certificate: %s', e)
+        return None
 
     logger.info('certificate imported: %s', json.dumps(resp))
     return resp
@@ -229,14 +237,17 @@ def invoke_step_function(arn, input):
         [type]: [description]
     """
     logger.info('start to invoke step function with input %s', input)
-    resp = step_function.start_execution(
-        stateMachineArn=arn,
-        input=json.dumps(input)
-    )
+    try:
+        resp = step_function.start_execution(
+            stateMachineArn=arn,
+            input=json.dumps(input)
+        )
+        return resp
+    except Exception as e:
+        logger.info('error invoking step function: %s', e)
+        return None
 
     logger.info('step function invoked: %s', resp)
-
-    return resp
 
 
 # check if san list provided is subset of existing san list
@@ -363,7 +374,7 @@ def cert_create_or_import(input):
                     resp = request_certificate(certificate)
                     logger.info('Certificate creation response: %s', resp)
 
-        # note dist_aggregate is ingore here, we don't aggregate imported certificate
+        # note dist_aggregate is ignored here, we don't aggregate imported certificate
         elif acm_op == "import":
             # iterate pemList array from event
             for pem_index, pem_value in enumerate(body['pemList']):

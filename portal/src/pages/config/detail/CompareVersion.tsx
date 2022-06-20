@@ -33,6 +33,7 @@ const CompareVersion: React.FC = () => {
   const [versionDiffRes, setVersionDiffRes] = useState<any>({});
   const [loadingDistribution, setLoadingDistribution] = useState(false);
   const [loadingChangeVersion, setLoadingChangeVersion] = useState(false);
+  const [onlyShowDiff, setOnlyShowDiff] = useState(false);
 
   const BreadCrunbList = [
     {
@@ -252,7 +253,7 @@ const CompareVersion: React.FC = () => {
                   />
                 </div>
                 <div className="flex-1 flex justify-between">
-                  <div className="flex-1">
+                  <div className="flex-1 ml-5">
                     <Select
                       // className="m-w-320"
                       value={rightVersion}
@@ -264,8 +265,37 @@ const CompareVersion: React.FC = () => {
                       }}
                     />
                   </div>
-                  {/*<Button btnType="primary">Compare</Button>*/}
                 </div>
+              </div>
+              <div className="mt-15 ml-5">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={onlyShowDiff}
+                    onChange={(event) => {
+                      setOnlyShowDiff(event.target.checked);
+                    }}
+                  />{" "}
+                  Show Different Sections Only
+                </label>
+                {/* {onlyShowDiff && (
+                  <Button
+                    onClick={() => {
+                      setOnlyShowDiff(false);
+                    }}
+                  >
+                    Show All Sections
+                  </Button>
+                )}
+                {!onlyShowDiff && (
+                  <Button
+                    onClick={() => {
+                      setOnlyShowDiff(true);
+                    }}
+                  >
+                    Only Show Different Sections
+                  </Button>
+                )} */}
               </div>
               <div className="mt-10 version-compare">
                 {loadingChangeVersion ? (
@@ -293,62 +323,63 @@ const CompareVersion: React.FC = () => {
                           return (
                             <>
                               {versionDiffRes[key].res ===
-                                COMPARE_RESULT.SAME && (
-                                <tr key={key}>
-                                  <td>
-                                    <div className="key">{key}</div>
-                                  </td>
-                                  <td colSpan={2} align="center">
-                                    <div className="same">
-                                      <span>
-                                        Same{" "}
-                                        <PauseCircleFilledIcon className="icon reverse-90" />
-                                      </span>
-                                      <span className="show-btn">
-                                        (
-                                        {!versionDiffRes[key].show && (
-                                          <span
-                                            onClick={() => {
-                                              showConfigDetail(
-                                                key,
-                                                COMPARE_RESULT.SAME,
-                                                true
-                                              );
-                                            }}
-                                          >
-                                            <b>Show</b>
-                                          </span>
-                                        )}
-                                        {versionDiffRes[key].show && (
-                                          <span
-                                            onClick={() => {
-                                              showConfigDetail(
-                                                key,
-                                                COMPARE_RESULT.SAME,
-                                                false
-                                              );
-                                            }}
-                                          >
-                                            <b>Hide</b>
-                                          </span>
-                                        )}
-                                        )
-                                      </span>
-                                    </div>
-                                    {versionDiffRes[key].show && (
-                                      <div className="text-left bg-gray">
-                                        <pre>
-                                          {JSON.stringify(
-                                            versionDiffRes[key].data,
-                                            null,
-                                            2
+                                COMPARE_RESULT.SAME &&
+                                !onlyShowDiff && (
+                                  <tr key={key}>
+                                    <td>
+                                      <div className="key">{key}</div>
+                                    </td>
+                                    <td colSpan={2} align="center">
+                                      <div className="same">
+                                        <span>
+                                          Same{" "}
+                                          <PauseCircleFilledIcon className="icon reverse-90" />
+                                        </span>
+                                        <span className="show-btn">
+                                          (
+                                          {!versionDiffRes[key].show && (
+                                            <span
+                                              onClick={() => {
+                                                showConfigDetail(
+                                                  key,
+                                                  COMPARE_RESULT.SAME,
+                                                  true
+                                                );
+                                              }}
+                                            >
+                                              <b>Show</b>
+                                            </span>
                                           )}
-                                        </pre>
+                                          {versionDiffRes[key].show && (
+                                            <span
+                                              onClick={() => {
+                                                showConfigDetail(
+                                                  key,
+                                                  COMPARE_RESULT.SAME,
+                                                  false
+                                                );
+                                              }}
+                                            >
+                                              <b>Hide</b>
+                                            </span>
+                                          )}
+                                          )
+                                        </span>
                                       </div>
-                                    )}
-                                  </td>
-                                </tr>
-                              )}
+                                      {versionDiffRes[key].show && (
+                                        <div className="text-left bg-gray">
+                                          <pre>
+                                            {JSON.stringify(
+                                              versionDiffRes[key].data,
+                                              null,
+                                              2
+                                            )}
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                )}
                               {versionDiffRes[key].res ===
                                 COMPARE_RESULT.DIFF && (
                                 <tr key={key}>

@@ -11,6 +11,7 @@ import string
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
 dynamo_client = boto3.client('dynamodb')
+cf = boto3.client('cloudfront')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 
@@ -300,33 +301,9 @@ def lambda_handler(event, context):
     task_token = event['task_token']
     domain_name_list = event['input']['cnameList']
 
-    if not task_token:
-        logger.error("Task token not found in event, generate a random token")
-        # generate a random string as task_token
-        task_token = ''.join(random.choices(string.ascii_lowercase, k=128))
-    else:
-        logger.info("Task token {}".format(task_token))
+    task_token = check_generate_task_token(task_token)
 
-    # validate the source cloudfront distribution/version is existed
-    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
-    ddb_client = boto3.resource('dynamodb')
-    ddb_table = ddb_client.Table(ddb_table_name)
-    for cname_index, cname_value in enumerate(domain_name_list):
-        source_cf_info = cname_value['existing_cf_info']
-        dist_id = source_cf_info['distribution_id']
-        version_id = source_cf_info['config_version_id']
-
-        # get specific cloudfront distributions version info
-        response = ddb_table.get_item(
-            Key={
-                "distributionId": dist_id,
-                "versionId": int(version_id)
-            })
-        if 'Item' in response:
-            continue
-        else:
-            logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
-            raise Exception("Failed to find existing config with name: %s, version: %s does not exist", dist_id, version_id)
+    validate_source_cloudfront_dist(domain_name_list)
 
     # iterate pemList array from event
     for pem_index, pem_value in enumerate(event['input']['pemList']):
@@ -341,12 +318,7 @@ def lambda_handler(event, context):
         certificate['DomainName'] = _domainList[0] if _domainList else ''
 
         if event['input']['enable_cname_check'] == 'true':
-            # validation for certificate
-            if event['input']['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                logger.info("Domain name {} matches certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-            else:
-                logger.error("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                raise Exception("Domain name {} does not match certificate domain name {}".format(event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+            check_domain_name(event, pem_index)
         else:
             logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(event['input']['cnameList'][pem_index]['domainName']))
 
@@ -369,5 +341,68 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps('step to acm callback complete')
+        'body': json.dumps('step to acm import callback complete')
     }
+
+
+def check_domain_name(event, pem_index):
+    # validation for certificate
+    if event['input']['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
+        logger.info("Domain name {} matches certificate domain name {}".format(
+            event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+    else:
+        logger.error("Domain name {} does not match certificate domain name {}".format(
+            event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+        raise Exception("Domain name {} does not match certificate domain name {}".format(
+            event['input']['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+
+
+def validate_source_cloudfront_dist(domain_name_list):
+    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
+    # validate all the source cloudfront distribution/version is existed
+    for cname_index, cname_value in enumerate(domain_name_list):
+        if 'existing_cf_info' in cname_value:
+            source_cf_info = cname_value['existing_cf_info']
+            dist_id = source_cf_info['distribution_id']
+            if 'config_version_id' in source_cf_info:
+                # search the config ddb for source cloudfront config version
+                version_id = source_cf_info['config_version_id']
+                # get specific cloudfront distributions version info
+                response = ddb_table.get_item(
+                    Key={
+                        "distributionId": dist_id,
+                        "versionId": int(version_id)
+                    })
+                if 'Item' not in response:
+                    logger.error("existing cf config with name: %s, version: %s does not exist", dist_id, version_id)
+                    raise Exception(
+                        "Failed to find existing config with name: %s, version: %s in cname_value: %s, index: %s",
+                        dist_id, version_id, cname_value, cname_index)
+            else:
+                # There is no config version info, just check whether cloudfront distribution exist
+                resp = cf.get_distribution(
+                    Id=dist_id,
+                )
+                if 'Distribution' not in resp:
+                    logger.error("Can not found source cloudfront distribution with id: %s", dist_id)
+                    raise Exception("Can not found source cloudfront distribution with id: %s", dist_id)
+
+        else:
+            logger.error("Request missing existing_cf_info section which is not optional field"
+                         "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
+                         "\"config_version_id\": \"1\"}})")
+            raise Exception("Request missing existing_cf_info section which is not optional field"
+                            "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
+                            "\"config_version_id\": \"1\"}})")
+
+
+def check_generate_task_token(task_token):
+    if not task_token:
+        logger.error("Task token not found in event, generate a random token")
+        # generate a random string as task_token
+        task_token = ''.join(random.choices(string.ascii_lowercase, k=128))
+    else:
+        logger.info("Task token {}".format(task_token))
+    return task_token

@@ -6,6 +6,10 @@ import json
 import subprocess
 import urllib
 import re
+from aws_lambda_powertools import Logger, Tracer
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+
+app = APIGatewayRestResolver()
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -150,7 +154,7 @@ def convert_string_to_file(string, file_name):
 # get domain name from certificate
 def get_domain_list_from_cert():
     """[summary]
-    Validate cerfiticate created by certbot with command below:
+    Validate certificate created by certbot with command below:
     Args:
         certificate ([type]): refer to https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/CNAMEs.html#alternate-domain-names-requirements for certificate requirement
 
@@ -167,7 +171,6 @@ def get_domain_list_from_cert():
         resp = resp.split('\n')
         resp = [x for x in resp if 'DNS:' in x]
         resp = resp[0].split(',')
-        # resp = ['DNS:*.ssl2.keyi.solutions.aws.a2z.org.cn, DNS:ssl3.keyi.solutions.aws.a2z.org.cn']
 
         # iterate all DNS names
         for x in resp:
@@ -181,6 +184,7 @@ def get_domain_list_from_cert():
                 logger.error('invalid domain name %s', x)
     except Exception as e:
         logger.error('error validating certificate: %s', e)
+        raise Exception('error validating certificate: %s', str(e))
     return domainList
 
 
@@ -289,10 +293,52 @@ def is_wildcard(sanList):
     return None
 
 
+@app.get("/ssl_for_saas/cert_list")
+def cf_ssl_for_saas():
+    # first get distribution List from current account
+    acm_client = boto3.client('acm')
+    response = acm_client.list_certificates()
+
+    result = []
+    for acmItem in response['CertificateSummaryList']:
+
+        resp = acm_client.describe_certificate(
+            CertificateArn=acmItem['CertificateArn']
+        )
+        certInfo = resp['Certificate']
+        logger.info(certInfo)
+        tmp_acm = {}
+        tmp_acm['CertificateArn'] = certInfo['CertificateArn']
+        tmp_acm['DomainName'] = certInfo['DomainName']
+        tmp_acm['SubjectAlternativeNames'] = ",".join(certInfo['SubjectAlternativeNames'])
+        tmp_acm['Issuer'] = certInfo['Issuer']
+        tmp_acm['CreatedAt'] = json.dumps(certInfo['CreatedAt'], indent=4, sort_keys=True, default=str)
+        if 'IssueAt' in certInfo:
+            tmp_acm['IssuedAt'] = json.dumps(certInfo['IssuedAt'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['IssuedAt'] = ""
+        tmp_acm['Status'] = certInfo['Status']
+        if 'NotBefore' in certInfo:
+            tmp_acm['NotBefore'] = json.dumps(certInfo['NotBefore'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['NotBefore'] = ""
+        if 'NotAfter' in certInfo:
+            tmp_acm['NotAfter'] = json.dumps(certInfo['NotAfter'], indent=4, sort_keys=True, default=str)
+        else:
+            tmp_acm['NotAfter'] = ""
+        tmp_acm['KeyAlgorithm'] = certInfo['KeyAlgorithm']
+
+        logger.info(tmp_acm)
+        result.append(tmp_acm)
+
+    return result
+
+
 # {
 #   "acm_op": "create",
 #   "dist_aggregate": "false",
 #   "auto_creation": "true",
+#   "enable_cname_check": "true",
 #   "cnameList": [
 #     {
 #         "domainName": "cdn2.risetron.cn",
@@ -322,81 +368,30 @@ def is_wildcard(sanList):
 #     }
 #   ]
 # }
-def lambda_handler(event, context):
+@app.post("/ssl_for_saas")
+def cf_ssl_for_saas():
     """
-
     :param event:
     :param context:
     """
-    logger.info("Received event: " + json.dumps(event))
+    body: dict = app.current_event.json_body
+    logger.info("Received event: " + json.dumps(body))
 
     # Get the parameters from the event
-    body = json.loads(event['body'])
     acm_op = body['acm_op']
     dist_aggregate = body['dist_aggregate']
     auto_creation = body['auto_creation']
     domain_name_list = body['cnameList']
+    enable_cname_check = body['enable_cname_check']
 
     if auto_creation == "false":
         if acm_op == "create":
-            # aggregate certificate if dist_aggregate is true
-            if dist_aggregate == "true":
-                wildcard_cert_dict = {}
-                for cname_index, cname_value in enumerate(domain_name_list):
-                    certificate['DomainName'] = cname_value['domainName']
-                    certificate['SubjectAlternativeNames'] = cname_value['sanList']
-
-                    # TBD, add cname_value['domainName'] to wildcard_cert_dict
-                    wildcardSan = is_wildcard(cname_value['sanList'])
-                    logger.info('wildcardSan: %s', wildcardSan)
-                    if wildcardSan:
-                        resp = request_certificate(certificate)
-                        logger.info('Certificate creation response: %s', resp)
-                        # update wildcard certificate dict
-                        wildcard_cert_dict[wildcardSan] = resp["CertificateArn"]
-                    else:
-                        parentCertArn = is_subset(cname_value['sanList'], wildcard_cert_dict)
-                        logger.info('parentCertArn: %s', parentCertArn)
-                        if parentCertArn:
-                            # don't create certificate if parent certificate exists
-                            continue
-                        resp = request_certificate(certificate)
-                        logger.info('Certificate creation response: %s', resp)
-
-            # otherwise, create certificate for each cname
-            else:
-                for cname_index, cname_value in enumerate(domain_name_list):
-                    certificate['DomainName'] = cname_value['domainName']
-                    certificate['SubjectAlternativeNames'] = cname_value['sanList']
-
-                    resp = request_certificate(certificate)
-                    logger.info('Certificate creation response: %s', resp)
+            create_acm_cert(dist_aggregate, domain_name_list)
 
         # note dist_aggregate is ignored here, we don't aggregate imported certificate
         elif acm_op == "import":
-            # iterate pemList array from event
-            for pem_index, pem_value in enumerate(body['pemList']):
+            import_acm_cert(body, enable_cname_check)
 
-                certificate['CertPem'] = str.encode(pem_value['CertPem'])
-                certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
-                certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
-
-                convert_string_to_file(pem_value['CertPem'], PEM_FILE)
-                _domainList = get_domain_list_from_cert()
-                certificate['SubjectAlternativeNames'] = _domainList
-                certificate['DomainName'] = _domainList[0] if _domainList else ''
-
-                # validation for certificate
-                if body['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                    logger.info("Domain name {} matches certificate domain name {}".format(
-                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                else:
-                    logger.error("Domain name {} does not match certificate domain name {}".format(
-                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                    continue
-                resp = import_certificate(certificate)
-
-    # invoke step function to implement streamlined process of cert create/import and distribution create
         return {
             'statusCode': 200,
             'body': json.dumps('Certificate Create/Import Successfully without invoke step function')
@@ -418,3 +413,75 @@ def lambda_handler(event, context):
         }
 
 
+def lambda_handler(event, context):
+    return app.resolve(event, context)
+
+
+def create_acm_cert(dist_aggregate, domain_name_list):
+    # aggregate certificate if dist_aggregate is true
+    if dist_aggregate == "true":
+        request_aggregate_cert(domain_name_list)
+
+    # otherwise, create certificate for each cname
+    else:
+        for cname_index, cname_value in enumerate(domain_name_list):
+            certificate['DomainName'] = cname_value['domainName']
+            certificate['SubjectAlternativeNames'] = cname_value['sanList']
+
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)
+
+
+def import_acm_cert(body, enable_cname_check):
+    # iterate pemList array from event
+    for pem_index, pem_value in enumerate(body['pemList']):
+
+        certificate['CertPem'] = str.encode(pem_value['CertPem'])
+        certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
+        certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
+
+        convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+        _domainList = get_domain_list_from_cert()
+        certificate['SubjectAlternativeNames'] = _domainList
+        certificate['DomainName'] = _domainList[0] if _domainList else ''
+
+        # validation for certificate
+        if enable_cname_check == 'true':
+            if body['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
+                logger.info("Domain name {} matches certificate domain name {}".format(
+                    body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+            else:
+                logger.info('enable_cname_check is true, checking domain name')
+                logger.error("Domain name {} does not match certificate domain name {}".format(
+                    body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+                raise Exception("Domain name {} does not match certificate domain name {}".format(
+                    body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
+                continue
+        else:
+            logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(
+                body['cnameList'][pem_index]['domainName']))
+        resp = import_certificate(certificate)
+
+
+def request_aggregate_cert(domain_name_list):
+    wildcard_cert_dict = {}
+    for cname_index, cname_value in enumerate(domain_name_list):
+        certificate['DomainName'] = cname_value['domainName']
+        certificate['SubjectAlternativeNames'] = cname_value['sanList']
+
+        # TBD, add cname_value['domainName'] to wildcard_cert_dict
+        wildcard_san = is_wildcard(cname_value['sanList'])
+        logger.info('wildcard_san: %s', wildcard_san)
+        if wildcard_san:
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)
+            # update wildcard certificate dict
+            wildcard_cert_dict[wildcard_san] = resp["CertificateArn"]
+        else:
+            parent_cert_arn = is_subset(cname_value['sanList'], wildcard_cert_dict)
+            logger.info('parent_cert_arn: %s', parent_cert_arn)
+            if parent_cert_arn:
+                # don't create certificate if parent certificate exists
+                continue
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)

@@ -122,6 +122,7 @@ default_distribution_config = {
     "IsIPV6Enabled": True
 }
 
+
 # create CloudFront distribution
 def create_distribution(config):
     """[summary]
@@ -137,7 +138,8 @@ def create_distribution(config):
     resp = cf.create_distribution(
         DistributionConfig=config
     )
-    logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s', resp['Distribution']['Id'], resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
+    logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s', resp['Distribution']['Id'],
+                resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
 
     return resp
     # TODO: Do we need to wait distribution status to be deployed?
@@ -152,6 +154,7 @@ def create_distribution(config):
     #     else:
     #         logger.info('Waiting for distribution to be deployed...')
     #         time.sleep(10)
+
 
 # scan dynamodb table for certificate
 @retry(wait=wait_fixed(3), stop=stop_after_attempt(5), retry=retry_if_exception_type(exceptions.Timeout))
@@ -176,8 +179,9 @@ def scan_for_cert(callback_table, domain_name):
 
     return response
 
+
 # get the cloudfront config from ddb and s3
-def fetch_cloudfront_config_version(distribution_id,config_version_id, ddb_table_name):
+def fetch_cloudfront_config_version(distribution_id, config_version_id, ddb_table_name):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(ddb_table_name)
@@ -198,6 +202,21 @@ def fetch_cloudfront_config_version(distribution_id,config_version_id, ddb_table
     # result = str(json.dumps(content, indent=4))
     # result = data['Body']
 
+    return content
+
+
+# get the cloudfront config from source distribution
+def fetch_cloudfront_config(distribution_id):
+    # get specific cloudfront distributions version info
+    cf_client = boto3.client('cloudfront')
+    try:
+        response = cf_client.get_distribution_config(
+            Id=distribution_id
+        )
+    except Exception as error:
+        raise Exception("Failed to get config of source cloudfront distribution with id:" + distribution_id)
+
+    content = response["DistributionConfig"]
     return content
 
 # INPUT
@@ -233,11 +252,6 @@ def lambda_handler(event, context):
     # scan domain name in DynamoDB and filter status is CERT_ISSUED, TBD retry here
     response = scan_for_cert(callback_table, domain_name)
 
-    # # iterate all certArn match domain name
-    # for item in response['Items']:
-    #     # fetch certArn from dynamoDB
-    #     certArn = item['certArn']['S']
-
     logger.info('scan result of DynamoDB %s', json.dumps(response))
     # fetch certArn from DynamoDB, assume such reverse search only had one result
     cert_arn = response['Items'][0]['certArn']['S']
@@ -258,7 +272,12 @@ def lambda_handler(event, context):
     )
 
     sub_domain_name_list = event['input']['sanList'] if event['input']['sanList'] else None
-    origins_items_domain_name = '%s' % event['input']['originsItemsDomainName'] if event['input']['originsItemsDomainName'] else None
+    if 'originsItemsDomainName' in event['input']:
+        origins_items_domain_name = '%s' % event['input']['originsItemsDomainName'] if event['input'][
+            'originsItemsDomainName'] else None
+    else:
+        origins_items_domain_name = ''
+
     # concatenate from OriginsItemsDomainName and random string
     origins_items_id = '%s-%s' % (str(uuid.uuid4())[:8], origins_items_domain_name)
     default_root_object = ''
@@ -268,42 +287,23 @@ def lambda_handler(event, context):
 
     # customization configuration of CloudFront distribution
     original_cf_distribution_id = event['input']['existing_cf_info']['distribution_id']
-    original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
     ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+    if 'config_version_id' in event['input']['existing_cf_info']:
 
-    config = fetch_cloudfront_config_version(original_cf_distribution_id,
-                                             original_cf_distribution_version,
-                                             ddb_table_name)
-
-    config['CallerReference'] = str(uuid.uuid4())
-    config['Aliases']['Items'] = sub_domain_name_list
-    config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
-    config['DefaultRootObject'] = default_root_object
-
-    # support single origin for now, will support multiple origin in future TBD
-    config['Origins']['Items'] = [
-    {
-        "Id": origins_items_id,
-        "DomainName": origins_items_domain_name,
-        "OriginPath": origins_items_origin_path,
-        "CustomHeaders": {
-            "Quantity": 0
-        },
-        "S3OriginConfig": {
-            "OriginAccessIdentity": ""
-        },
-        "ConnectionAttempts": 3,
-        "ConnectionTimeout": 10,
-        "OriginShield": {
-            "Enabled": False
-        }
-    }]
-    config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
-    config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-
-    config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
-    config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
-    config['ViewerCertificate']['Certificate'] = certificate_arn
+        original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
+        config = construct_cloudfront_config_with_version(certificate_arn, ddb_table_name,
+                                                          default_cache_behavior_target_origin_id,
+                                                          default_root_object, original_cf_distribution_id,
+                                                          original_cf_distribution_version, origins_items_domain_name,
+                                                          origins_items_id,
+                                                          origins_items_origin_path, sub_domain_name_list)
+    else:
+        # Just fetch the config from source cloudfront distribution config
+        config = construct_cloudfront_config_with_dist_id(certificate_arn,
+                                                          default_cache_behavior_target_origin_id,
+                                                          default_root_object, original_cf_distribution_id,
+                                                          origins_items_domain_name, origins_items_id,
+                                                          origins_items_origin_path, sub_domain_name_list)
 
     resp = create_distribution(config)
 
@@ -316,3 +316,76 @@ def lambda_handler(event, context):
             'distributionDomainName': resp['Distribution']['DomainName']
         }
     }
+
+
+def construct_cloudfront_config_with_version(certificate_arn, ddb_table_name, default_cache_behavior_target_origin_id,
+                                             default_root_object, original_cf_distribution_id,
+                                             original_cf_distribution_version,
+                                             origins_items_domain_name, origins_items_id, origins_items_origin_path,
+                                             sub_domain_name_list):
+    config = fetch_cloudfront_config_version(original_cf_distribution_id,
+                                             original_cf_distribution_version,
+                                             ddb_table_name)
+    config['CallerReference'] = str(uuid.uuid4())
+    config['Aliases']['Items'] = sub_domain_name_list
+    config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
+    # config['DefaultRootObject'] = default_root_object
+    # support single origin for now, will support multiple origin in future TBD
+    # config['Origins']['Items'] = [
+    #     {
+    #         "Id": origins_items_id,
+    #         "DomainName": origins_items_domain_name,
+    #         "OriginPath": origins_items_origin_path,
+    #         "CustomHeaders": {
+    #             "Quantity": 0
+    #         },
+    #         "S3OriginConfig": {
+    #             "OriginAccessIdentity": ""
+    #         },
+    #         "ConnectionAttempts": 3,
+    #         "ConnectionTimeout": 10,
+    #         "OriginShield": {
+    #             "Enabled": False
+    #         }
+    #     }]
+    # config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
+    # config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
+    config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
+    config['ViewerCertificate']['Certificate'] = certificate_arn
+    return config
+
+
+def construct_cloudfront_config_with_dist_id(certificate_arn, default_cache_behavior_target_origin_id,
+                                             default_root_object, original_cf_distribution_id,
+                                             origins_items_domain_name, origins_items_id, origins_items_origin_path,
+                                             sub_domain_name_list):
+    config = fetch_cloudfront_config(original_cf_distribution_id)
+    config['CallerReference'] = str(uuid.uuid4())
+    config['Aliases']['Items'] = sub_domain_name_list
+    config['Aliases']['Quantity'] = len(config['Aliases']['Items'])
+    # config['DefaultRootObject'] = default_root_object
+    # support single origin for now, will support multiple origin in future TBD
+    # config['Origins']['Items'] = [
+    #     {
+    #         "Id": origins_items_id,
+    #         "DomainName": origins_items_domain_name,
+    #         "OriginPath": origins_items_origin_path,
+    #         "CustomHeaders": {
+    #             "Quantity": 0
+    #         },
+    #         "S3OriginConfig": {
+    #             "OriginAccessIdentity": ""
+    #         },
+    #         "ConnectionAttempts": 3,
+    #         "ConnectionTimeout": 10,
+    #         "OriginShield": {
+    #             "Enabled": False
+    #         }
+    #     }]
+    # config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
+    # config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
+    config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
+    config['ViewerCertificate']['Certificate'] = certificate_arn
+    return config
