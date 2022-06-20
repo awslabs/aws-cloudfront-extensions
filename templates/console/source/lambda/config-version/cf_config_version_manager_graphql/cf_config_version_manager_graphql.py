@@ -180,6 +180,22 @@ def manager_version_config_cf_list():
         tmp_dist['status'] = dist['Status']
         tmp_dist['enabled'] = dist['Enabled']
 
+        if 'Aliases' in dist:
+            tmp_aliases = {}
+            tmp_aliases['Quantity'] = dist['Aliases']['Quantity']
+            itemList = []
+            if 'Items' in dist['Aliases']:
+                for item in dist['Aliases']['Items']:
+                    itemList.append(item)
+            tmp_aliases['Items'] = itemList
+            tmp_dist['aliases'] = tmp_aliases
+        else:
+            tmp_aliases = {}
+            tmp_aliases['Quantity'] = 0;
+            tmp_aliases['Items'] = []
+            tmp_dist['aliases'] = tmp_aliases
+
+
         logger.info(tmp_dist)
         # get latest version from ddb latest version ddb
         ddb_data = ddb_table.get_item(
