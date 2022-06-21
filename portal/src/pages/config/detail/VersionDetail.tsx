@@ -87,12 +87,18 @@ const VersionDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(listDistribution);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpList = [];
+      console.log(Cloudfront_info_list);
       for (const cfdistlistKey in Cloudfront_info_list) {
+        const cname =
+          Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
+            ? ""
+            : Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
         tmpList.push({
-          name: Cloudfront_info_list[cfdistlistKey].id,
+          name: Cloudfront_info_list[cfdistlistKey].id + " | " + cname,
           value: Cloudfront_info_list[cfdistlistKey].id,
         });
       }
+      console.log(tmpList);
       setDistributionList(tmpList);
     } catch (error) {
       console.error(error);

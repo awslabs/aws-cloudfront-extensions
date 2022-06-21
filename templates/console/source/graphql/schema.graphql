@@ -64,6 +64,12 @@ type Cloudfront_info {
     status: String
     enabled: String
     versionCount: String
+    aliases: AliasInfo!
+}
+
+type AliasInfo {
+    Quantity: Int!
+    Items: [String]!
 }
 
 type certification_info {

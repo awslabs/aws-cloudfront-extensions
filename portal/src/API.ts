@@ -88,6 +88,13 @@ export type Cloudfront_info = {
   status?: string | null,
   enabled?: string | null,
   versionCount?: string | null,
+  aliases: AliasInfo,
+};
+
+export type AliasInfo = {
+  __typename: "AliasInfo",
+  Quantity: number,
+  Items: Array< string | null >,
 };
 
 export type Version = {
@@ -256,6 +263,11 @@ export type ListDistributionQuery = {
     status?: string | null,
     enabled?: string | null,
     versionCount?: string | null,
+    aliases:  {
+      __typename: "AliasInfo",
+      Quantity: number,
+      Items: Array< string | null >,
+    },
   } | null > | null,
 };
 

@@ -82,6 +82,21 @@ const Version = () => {
               },
             },
             {
+              id: "cname",
+              header: "Cname",
+              cell: (e: Cloudfront_info) => {
+                if (e.aliases.Quantity == 0) {
+                  return "";
+                } else {
+                  let cnameList = "";
+                  for (let i = 0; i < e.aliases.Quantity; i++) {
+                    cnameList = cnameList + e.aliases.Items[i] + "\n";
+                  }
+                  return cnameList;
+                }
+              },
+            },
+            {
               id: "domain",
               header: "Domain",
               cell: (e: Cloudfront_info) => e.domainName,

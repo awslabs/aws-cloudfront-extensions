@@ -1,7 +1,7 @@
 {
-  "aws_api_key": "da2-vkn5pdqvsfajvelqghqpaywtw4",
+  "aws_api_key": "da2-3gldxsp2ybcc7n7vik764lbdci",
   "aws_project_region": "us-east-1",
-  "aws_appsync_graphqlEndpoint": "https://bjvidag43ndjxfayrsjkyouaq4.appsync-api.us-east-1.amazonaws.com/graphql",
+  "aws_appsync_graphqlEndpoint": "https://aiifapk37vhb7i46rw3hwuczgq.appsync-api.us-east-1.amazonaws.com/graphql",
   "aws_appsync_region": "us-east-1",
   "aws_appsync_authenticationType": "API_KEY",
   "aws_cognito_region": "us-east-1",

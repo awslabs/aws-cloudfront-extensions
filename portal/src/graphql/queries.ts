@@ -80,6 +80,10 @@ export const listDistribution = /* GraphQL */ `
       status
       enabled
       versionCount
+      aliases {
+        Quantity
+        Items
+      }
     }
   }
 `;
