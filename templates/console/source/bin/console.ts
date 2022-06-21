@@ -25,14 +25,6 @@ new WebPortalStack(
     }
 );
 
-new ConsoleStack(app, 'ConsoleStack', {
-  tags: {
-    app: 'CloudFrontExtensionsConsole',
-  },
-  synthesizer: newSynthesizer(),
-  appsyncApi: commonStack.appsyncApi
-});
-
 // Config version stack
 const configVersionStack = new CloudFrontConfigVersionStack(
   app,
