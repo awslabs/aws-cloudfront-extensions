@@ -6,31 +6,27 @@ import { BootstraplessStackSynthesizer } from "cdk-bootstrapless-synthesizer";
 import { CloudFrontConfigVersionStack } from "../lib/config-version/aws-cloudfront-config-version-stack";
 import { StepFunctionRpTsStack } from "../lib/ssl-for-saas/step_function_rp_ts-stack";
 import { CommonStack } from "../lib/cf-common/cf-common-stack";
-import {WebPortalStack} from "../lib/web-portal/web_portal_stack";
-
+import { WebPortalStack } from "../lib/web-portal/web_portal_stack";
 
 const app = new cdk.App();
 
 // Main stack with shared components
 const commonStack = new CommonStack(app, `cf-common-stack`);
 
-new WebPortalStack(
-    app,
-    `WebPortalStack`, {
-        tags: {
-            app: 'WebPortal',
-        },
-        synthesizer: newSynthesizer(),
-        appsyncApi: commonStack.appsyncApi,
-    }
-);
-
-new ConsoleStack(app, 'ConsoleStack', {
+new WebPortalStack(app, `WebPortalStack`, {
   tags: {
-    app: 'CloudFrontExtensionsConsole',
+    app: "WebPortal",
   },
   synthesizer: newSynthesizer(),
-  appsyncApi: commonStack.appsyncApi
+  appsyncApi: commonStack.appsyncApi,
+});
+
+new ConsoleStack(app, "ConsoleStack", {
+  tags: {
+    app: "CloudFrontExtensionsConsole",
+  },
+  synthesizer: newSynthesizer(),
+  appsyncApi: commonStack.appsyncApi,
 });
 
 // Config version stack
@@ -64,14 +60,6 @@ new StepFunctionRpTsStack(app, "StepFunctionRpTsStack", {
   synthesizer: newSynthesizer(),
   appsyncApi: commonStack.appsyncApi,
   // configVersion_ddb_table_name: cdk.Fn.importValue('configVersionDDBTableName')
-});
-
-new ConsoleStack(app, "ConsoleStack", {
-  tags: {
-    app: "CloudFrontExtensionsConsole",
-  },
-  synthesizer: newSynthesizer(),
-  appsyncApi: commonStack.appsyncApi,
 });
 
 // TODO: Add monitoring dashboard stack

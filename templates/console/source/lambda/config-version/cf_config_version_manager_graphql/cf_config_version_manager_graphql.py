@@ -2,6 +2,7 @@ import json
 import logging
 import subprocess
 import os
+from datetime import datetime
 
 import boto3
 from aws_lambda_powertools import Logger, Tracer
@@ -22,6 +23,7 @@ app = AppSyncResolver()
 S3_BUCKET = os.environ['S3_BUCKET']
 DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
 DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
+DDB_SNAPSHOT_TABLE_NAME = os.environ['DDB_SNAPSHOT_TABLE_NAME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -80,7 +82,7 @@ def manager_version_diff(distribution_id: str = "", version1: str = "", version2
 
 
 @app.resolver(type_name="Query", field_name="applyConfig")
-def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [],version: str = ""):
+def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [], version: str = ""):
     source_dist_id = src_distribution_id
     src_version = version
     target_dist_ids = target_distribution_ids
@@ -123,7 +125,7 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
                 return "the config is not changed"
             else:
                 logger.info("the two configuration is different")
-                logger.info("prev config is "+str(prev_config) + ", current config is " + str(dictData))
+                logger.info("prev config is " + str(prev_config) + ", current config is " + str(dictData))
                 response = cf_client.update_distribution(
                     DistributionConfig=dictData,
                     Id=distribution_id,
@@ -133,7 +135,7 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
 
 
 @app.resolver(type_name="Query", field_name="updateConfigTag")
-def manager_version_config_tag_update(distribution_id: str="", note: str = "", version: str = ""):
+def manager_version_config_tag_update(distribution_id: str = "", note: str = "", version: str = ""):
     dist_id = distribution_id
     version_id = version
     dist_note = note
@@ -194,7 +196,6 @@ def manager_version_config_cf_list():
             tmp_aliases['Quantity'] = 0;
             tmp_aliases['Items'] = []
             tmp_dist['aliases'] = tmp_aliases
-
 
         logger.info(tmp_dist)
         # get latest version from ddb latest version ddb
@@ -272,6 +273,105 @@ def manager_version_get_all(distribution_id: str = ""):
     data = response['Items']
 
     return data
+
+
+@app.resolver(type_name="Query", field_name="listCloudfrontSnapshots")
+def manager_snapshot_get_all(distribution_id: str = ""):
+    dist_id = distribution_id
+
+    # get all the snapshot of the specific cloudfront distributions, latest version come first
+    ddb_client = boto3.resource('dynamodb')
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+
+    response = ddb_snapshot_table.query(
+        KeyConditionExpression=Key('distributionId').eq(dist_id),
+        ScanIndexForward=False
+    )
+    snapshot_response = response['Items']
+
+    # get more info from the version table of snapshot
+    ddb_version_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    result = []
+    for snap_shot_record in snapshot_response:
+        tmp = {'id': snap_shot_record['snapShotName'], 'distribution_id': snap_shot_record['distributionId'],
+               'snapshot_name': snap_shot_record['snapShotName'], 'note': snap_shot_record['note'],
+               'dateTime': snap_shot_record['dateTime']}
+
+        # query more info from version table
+        response = ddb_version_table.get_item(
+            Key={
+                "distributionId": dist_id,
+                "versionId": snap_shot_record['versionId']
+            })
+
+        version_resp = response['Item']
+
+        tmp['config_link'] = version_resp['config_link']
+        tmp['s3_bucket'] = version_resp['s3_bucket']
+        tmp['s3_key'] = version_resp['s3_key']
+        result.append(tmp)
+
+    logger.info(result)
+    return result
+
+
+@app.resolver(type_name="Mutation", field_name="createVersionSnapShot")
+def createVersionSnapShot(distributionId: str = "", snapShotName: str = "", snapShotNote: str = ""):
+    if distributionId == "":
+        raise Exception("DistributionId can not be empty")
+    if snapShotName == "":
+        raise Exception("snapShotName can not be empty")
+
+    # check existing ddb record to check whether same snapShotName exists
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distributionId,
+            "snapShotName": snapShotName
+        })
+    logger.info(response)
+    if 'Item' in response:
+        # No duplicate snapShotName allowed
+        raise Exception("There is already snapShotName:" + snapShotName)
+
+    # create a record in snapshot ddb table with the snapShotName
+    # first get the latest versionId of updated distribution
+    latest_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
+    try:
+        resp = latest_table.query(
+            KeyConditionExpression=Key('distributionId').eq(distributionId)
+        )
+        log.info(resp)
+    except ClientError as e:
+        logging.error(e)
+
+    record_list = resp['Items']
+    if len(record_list) == 0:
+        raise Exception("There is no latest version for distributionId:" + distributionId)
+    latest_version = record_list[0]['versionId']
+    logging.info("The latest version of distribution:" + str(distributionId) + " is " + str(latest_version))
+
+    # insert a record to snapshot ddb table
+    # save the record to config version dynamoDB
+    current_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    response = ddb_table.put_item(
+        Item={
+            'distributionId': str(distributionId),
+            'snapShotName': snapShotName,
+            'versionId': latest_version,
+            'dateTime': current_time,
+            'note': snapShotNote,
+        })
+
+    return {
+        'statusCode': 200,
+        'body': 'succeed create new snapshot'
+    }
+
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
 @tracer.capture_lambda_handler

@@ -58,6 +58,17 @@ type Version {
     s3_key: String
 }
 
+type Snapshot {
+    id: String!,
+    distribution_id: String!,
+    snapshot_name: String!
+    config_link: String,
+    dateTime: String
+    note: String,
+    s3_bucket: String,
+    s3_key: String
+}
+
 type Cloudfront_info {
     id: String
     domainName: String
@@ -166,6 +177,8 @@ type Query {
 
     listCloudfrontVersions(distribution_id: String): [Version]
 
+    listCloudfrontSnapshots(distribution_id: String): [Snapshot]
+
     getConfigLink(distribution_id: String, versionId: String): ConfigLink
 
     getConfigContent(distribution_id: String, versionId: String): String
@@ -183,6 +196,9 @@ type Mutation {
 
     # Get the latest extensions
     syncExtensions: String
+
+    # config version create snapShot
+    createVersionSnapShot( distributionId: String!, snapShotName: String!, snapShotNote: String ): String
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
