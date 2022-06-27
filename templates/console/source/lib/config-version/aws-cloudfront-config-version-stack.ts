@@ -290,6 +290,12 @@ export class CloudFrontConfigVersionStack extends Stack {
       authorizationType: AuthorizationType.IAM,
     });
 
+    const apply_snapshot_proxy =
+      config_diff_proxy.addResource("apply_snapshot");
+    apply_snapshot_proxy.addMethod("POST", undefined, {
+      authorizationType: AuthorizationType.IAM,
+    });
+
     const config_tag_update_proxy =
       config_diff_proxy.addResource("config_tag_update");
     config_tag_update_proxy.addMethod("POST", undefined, {

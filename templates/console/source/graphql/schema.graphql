@@ -200,6 +200,9 @@ type Mutation {
     # config version create snapShot
     createVersionSnapShot( distributionId: String!, snapShotName: String!, snapShotNote: String ): String
 
+    # apply snapshot
+    applySnapshot(src_distribution_id: String, snapshot_name: String, target_distribution_ids: [String]): String
+
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
 }

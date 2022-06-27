@@ -122,7 +122,6 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
 
             if dictData == prev_config['DistributionConfig']:
                 logger.info("the two configuration is same, no need to create a new version")
-                return "the config is not changed"
             else:
                 logger.info("the two configuration is different")
                 logger.info("prev config is " + str(prev_config) + ", current config is " + str(dictData))
@@ -131,8 +130,76 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
                     Id=distribution_id,
                     IfMatch=etag
                 )
-                return 'target distributions been updated'
+                logger.info('target distributions been updated')
 
+@app.resolver(type_name="Mutation", field_name="applySnapshot")
+def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [], snapshot_name: str = ""):
+    source_dist_id = src_distribution_id
+    src_snapshot = snapshot_name
+    if source_dist_id == "":
+        raise Exception("source distribution id can not be empty")
+    if src_snapshot == "":
+        raise Exception("source snapshot name can not be empty")
+
+    # first get the version from snapshot ddb table
+    ddb_client = boto3.resource('dynamodb')
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": source_dist_id,
+            "snapShotName": snapshot_name
+        })
+    snapshot_resp = response['Item']
+    if not snapshot_resp:
+        raise Exception(f"Failed to get the snapshot with distribution id:{source_dist_id}, snapshot_name:{snapshot_name}")
+
+    src_version = snapshot_resp['versionId']
+
+    target_dist_ids = target_distribution_ids
+
+    # get specific cloudfront distributions version info
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": source_dist_id,
+            "versionId": int(src_version)
+        })
+    data = response['Item']
+
+    s3_bucket = data['s3_bucket']
+    s3_key1 = data['s3_key']
+
+    s3_client = boto3.client('s3')
+    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + src_version + ".json"
+    s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
+
+    # call boto to apply the config to target distribution
+    cf_client = boto3.client('cloudfront')
+
+    with open(local_config_file_name_version) as config_file:
+        dictData = json.load(config_file)
+        for distribution_id in target_dist_ids:
+            # first get the current ETAG for target distribution
+            prev_config = cf_client.get_distribution_config(
+                Id=distribution_id
+            )
+            etag = prev_config['ETag']
+            target_dist_caller_reference = prev_config['DistributionConfig']['CallerReference']
+
+            dictData['CallerReference'] = target_dist_caller_reference
+
+            if dictData == prev_config['DistributionConfig']:
+                logger.info("the two configuration is same, no need to create a new version")
+            else:
+                logger.info("the two configuration is different")
+                logger.info("prev config is " + str(prev_config) + ", current config is " + str(dictData))
+                response = cf_client.update_distribution(
+                    DistributionConfig=dictData,
+                    Id=distribution_id,
+                    IfMatch=etag
+                )
+                logger.info('target distributions been updated')
 
 @app.resolver(type_name="Query", field_name="updateConfigTag")
 def manager_version_config_tag_update(distribution_id: str = "", note: str = "", version: str = ""):
