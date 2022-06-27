@@ -402,6 +402,11 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     lambdaDs.createResolver({
       typeName: "Query",
+      fieldName: "diffCloudfrontConfigSnapshot",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
       fieldName: "listCloudfrontVersions",
     });
 
@@ -417,7 +422,17 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     lambdaDs.createResolver({
       typeName: "Query",
+      fieldName: "getConfigSnapshotLink",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
       fieldName: "getConfigContent",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
+      fieldName: "getConfigSnapshotContent",
     });
 
     lambdaDs.createResolver({

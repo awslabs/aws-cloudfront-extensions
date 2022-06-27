@@ -175,13 +175,19 @@ type Query {
 
     diffCloudfrontConfig(distribution_id: String, version1: String, version2: String): String
 
+    diffCloudfrontConfigSnapshot(distribution_id: String, snapshot1: String, snapshot2: String): String
+
     listCloudfrontVersions(distribution_id: String): [Version]
 
     listCloudfrontSnapshots(distribution_id: String): [Snapshot]
 
     getConfigLink(distribution_id: String, versionId: String): ConfigLink
 
+    getConfigSnapshotLink(distribution_id: String, snapshot_name: String): ConfigLink
+
     getConfigContent(distribution_id: String, versionId: String): String
+
+    getConfigSnapshotContent(distribution_id: String, snapshot_name: String): String
 
     # SSL for SAAS
     Notifications(limit: Int): [Notification]

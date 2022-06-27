@@ -80,6 +80,85 @@ def manager_version_diff(distribution_id: str = "", version1: str = "", version2
 
     return diff_content
 
+@app.resolver(type_name="Query", field_name="diffCloudfrontConfigSnapshot")
+def manager_snapshot_diff(distribution_id: str = "", snapshot1: str = "", snapshot2: str = ""):
+    dist_id = distribution_id
+    if snapshot1 == "" or snapshot2 == "":
+        raise Exception("Snapshot name can not be empty")
+
+    # first get the version id from snapshot id
+    ddb_client = boto3.resource('dynamodb')
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "snapShotName": snapshot1
+        })
+    snapshot_resp = response['Item']
+    if not snapshot_resp:
+        raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot1}")
+
+    src_version_1 = snapshot_resp['versionId']
+
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "snapShotName": snapshot2
+        })
+    snapshot_resp = response['Item']
+    if not snapshot_resp:
+        raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot2}")
+
+    src_version_2 = snapshot_resp['versionId']
+
+    version_1 = src_version_1
+    version_2 = src_version_2
+
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": dist_id,
+            "versionId": int(version_1)
+        })
+    data = response['Item']
+
+    s3_bucket = data['s3_bucket']
+    s3_key1 = data['s3_key']
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": dist_id,
+            "versionId": int(version_2)
+        })
+    data = response['Item']
+    s3_key2 = data['s3_key']
+
+    s3_client = boto3.client('s3')
+    local_config_file_name_version1 = '/tmp/' + dist_id + "_" + version_1 + ".json"
+    local_config_file_name_version2 = '/tmp/' + dist_id + "_" + version_2 + ".json"
+    s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version1)
+    s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
+
+    # compare the two files
+    cmd = ['git', 'diff', '--no-index', local_config_file_name_version1, local_config_file_name_version2,
+           '>/tmp/diff.txt', ';', 'exit 0']
+
+    shell_cmd = ' '.join(cmd)
+    log.info(shell_cmd)
+
+    output = subprocess.check_output(shell_cmd, shell=True)
+
+    diff_file = open("/tmp/diff.txt", "r")
+
+    diff_content = diff_file.read()
+
+    diff_file.close()
+
+    return diff_content
 
 @app.resolver(type_name="Query", field_name="applyConfig")
 def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [], version: str = ""):
@@ -300,6 +379,42 @@ def manager_version_get_link(distribution_id: str = "", versionId: str = ""):
         "config_link": config_link
     }
 
+@app.resolver(type_name="Query", field_name="getConfigSnapshotLink")
+def manager_snapshot_get_link(distribution_id: str = "", snapshot_name: str = ""):
+    # first get the version from snapshot ddb table
+    ddb_client = boto3.resource('dynamodb')
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "snapShotName": snapshot_name
+        })
+    snapshot_resp = response['Item']
+    if not snapshot_resp:
+        raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
+
+    src_version = snapshot_resp['versionId']
+
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "versionId": int(src_version)
+        })
+    data = response['Item']
+    if not data:
+        raise Exception(f"Failed to get the version with distribution id:{distribution_id}, version_id:{src_version}")
+
+    config_link = data['config_link']
+    log.info("target s3 link is " + config_link)
+
+    return {
+        "config_link": config_link
+    }
+
 
 @app.resolver(type_name="Query", field_name="getConfigContent")
 def manager_version_get_content(distribution_id: str = "", versionId: str = ""):
@@ -313,6 +428,44 @@ def manager_version_get_content(distribution_id: str = "", versionId: str = ""):
             "versionId": int(versionId)
         })
     data = response['Item']
+
+    config_link = data['config_link']
+    log.info("target s3 link is " + config_link)
+
+    s3_client = boto3.client('s3')
+    data = s3_client.get_object(Bucket=data['s3_bucket'], Key=data['s3_key'])
+    content = json.load(data['Body'])
+    result = str(json.dumps(content, indent=4))
+
+    return result
+
+@app.resolver(type_name="Query", field_name="getConfigSnapshotContent")
+def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str = ""):
+    # first get the version from snapshot ddb table
+    ddb_client = boto3.resource('dynamodb')
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "snapShotName": snapshot_name
+        })
+    snapshot_resp = response['Item']
+    if not snapshot_resp:
+        raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
+
+    src_version = snapshot_resp['versionId']
+
+    # get specific cloudfront distributions version info
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "versionId": int(src_version)
+        })
+    data = response['Item']
+    if not data:
+        raise Exception(f"Failed to get the version with distribution id:{distribution_id}, version_id:{src_version}")
 
     config_link = data['config_link']
     log.info("target s3 link is " + config_link)
