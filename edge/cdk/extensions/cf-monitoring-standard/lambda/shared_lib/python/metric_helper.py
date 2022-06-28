@@ -225,8 +225,8 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
                        f'from (select "cs-host", "cs-uri-stem", count(1) as cnt from ' \
                        f'"{db_name}"."{table_name}" where '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string = query_string + ' AND timestamp <= ' + str(
-            format_date_time(end_time)) + ' AND timestamp > ' + str(
+        query_string = query_string + ' AND timestamp < ' + str(
+            format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
         ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=100 order by "cs-host", "cnt" desc'
     elif metric == 'topNUrlSize':
@@ -235,8 +235,8 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
                        f'from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from ' \
                        f'"{db_name}"."{table_name}" where '
         query_string = assemble_query(start_time, end_time, query_string)
-        query_string = query_string + ' AND timestamp <= ' + str(
-            format_date_time(end_time)) + ' AND timestamp > ' + str(
+        query_string = query_string + ' AND timestamp < ' + str(
+            format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
         ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=100 order by "cs-host", "sc_size" desc'
     else:
@@ -248,7 +248,7 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
 
 
 def gen_detailed_by_interval(metric, start_time, end_time,
-                             athena_client, db_name, table_name, query_output):
+                             athena_client, db_name, table_name, query_output, interval_minutes=5, use_start='false'):
     '''Generate detailed data according to start time, end time and interval'''
     interval_list = []
     start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
@@ -261,7 +261,7 @@ def gen_detailed_by_interval(metric, start_time, end_time,
         log.info("[gen_detailed_by_interval] Setup interval list")
         interval_item = {}
         interval_item['start'] = temp_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        temp_datetime += timedelta(minutes=5)
+        temp_datetime += timedelta(minutes=interval_minutes)
         if not temp_datetime < end_datetime:
             interval_item['end'] = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
             athena_query_result = schedule_athena_query(
@@ -282,7 +282,11 @@ def gen_detailed_by_interval(metric, start_time, end_time,
         log.info("[gen_detailed_by_interval] Start to get query result")
         log.info(item)
 
-        detailed_data_item['Time'] = str(int(format_date_time(item['end'])))
+        if use_start.lower() == 'true':
+            detailed_data_item['Time'] = str(int(format_date_time(item['start'])))
+        else:
+            detailed_data_item['Time'] = str(int(format_date_time(item['end'])))
+
         detailed_data_item['QueryId'] = item['QueryId']
         detailed_data.append(detailed_data_item)
 

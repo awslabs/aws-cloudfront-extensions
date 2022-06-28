@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from datetime import timedelta
 from decimal import Decimal
 
 import boto3
@@ -61,8 +62,14 @@ def get_metric_data(start_time, end_time, metric, domain):
             log.info(
                 "[get_metric_data] Start to get query result from ddb table - "
                 + metric_item)
-            detailed_data = query_metric_ddb(start_time, end_time, metric_item,
-                                             domain)
+            if metric_item == 'topNUrlRequests' or 'topNUrlSize':
+                temp_start_time = datetime.fromtimestamp(start_time).replace(hour=0, minute=0, second=0)
+                temp_end_time = datetime.fromtimestamp(end_time).replace(hour=0, minute=0, second=0)
+                if temp_start_time == temp_end_time:
+                    temp_end_time = temp_end_time + timedelta(days=1)
+                detailed_data = query_metric_ddb(temp_start_time.timestamp(), temp_end_time.timestamp(), metric_item, domain)
+            else:
+                detailed_data = query_metric_ddb(start_time, end_time, metric_item, domain)
             cdn_data_item['Metric'] = metric_item
             cdn_data_item['DetailData'] = detailed_data
             cdn_data.append(cdn_data_item)

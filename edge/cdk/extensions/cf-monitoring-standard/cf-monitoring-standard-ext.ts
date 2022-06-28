@@ -34,6 +34,16 @@ export class CfLogStack extends cdk.Stack {
       type: 'Number',
       default: 120,
     });
+    const DeleteLog = new CfnParameter(this, 'DeleteLog', {
+      description: 'Delete original CloudFront standard logs in S3 bucket (true or false)',
+      type: 'String',
+      default: 'false',
+    });
+    const UseStartTime = new CfnParameter(this, 'UseStartTime', {
+      description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time',
+      type: 'String',
+      default: 'false',
+    });
 
     const glueTableName = "cloudfront_standard_log";
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
@@ -346,6 +356,9 @@ export class CfLogStack extends cdk.Stack {
         architecture: lambda.Architecture.ARM_64,
         role: partitionRole,
         timeout: cdk.Duration.seconds(900),
+        environment: {
+          DELETE_LOG: DeleteLog.valueAsString,
+        },
       },
       existingBucketObj: cfLogBucket,
     });
@@ -365,7 +378,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -386,7 +400,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -407,7 +422,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -428,7 +444,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -449,7 +466,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -470,7 +488,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -491,7 +510,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -512,7 +532,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -533,7 +554,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -554,7 +576,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -575,7 +598,8 @@ export class CfLogStack extends cdk.Stack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region
+        REGION_NAME: this.region,
+        USE_START_TIME: UseStartTime.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -715,11 +739,13 @@ export class CfLogStack extends cdk.Stack {
     const lambdaMetricsCollectorBandwidthOrigin = new LambdaFunction(metricsCollectorBandwidthOrigin);
     const lambdaMetricsCollectorChrBandwidth = new LambdaFunction(metricsCollectorChrBandwidth);
     const lambdaMetricsCollectorChrRequest = new LambdaFunction(metricsCollectorChrRequest);
+    const lambdaMetricsCollectorDownstreamTraffic = new LambdaFunction(metricsCollectorDownstreamTraffic);
 
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthOrigin);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorChrBandwidth);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorChrRequest);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthCdn);
+    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownstreamTraffic);
 
     const cloudfront5MinutesRuleSecond = new Rule(this, 'CFStandardLogs_5_minutes_rule_2', {
       schedule: Schedule.expression("cron(0/5 * * * ? *)"),
@@ -734,17 +760,6 @@ export class CfLogStack extends cdk.Stack {
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestCDN);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestOrigin);
 
-    const cloudfront5MinutesRuleThird = new Rule(this, 'CloudfrontLogs_5_minutes_rule_3', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
-    });
-    const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
-    const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
-    const lambdaMetricsCollectorDownstreamTraffic = new LambdaFunction(metricsCollectorDownstreamTraffic);
-
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopTraffic);
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopRequest);
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorDownstreamTraffic);
-
     const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),
     });
@@ -757,32 +772,13 @@ export class CfLogStack extends cdk.Stack {
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
 
-    // const customResourceLambda = new lambda.Function(this, "EnableCFLog", {
-    //   description: "This lambda function enables CloudFront access log",
-    //   runtime: lambda.Runtime.PYTHON_3_9,
-    //   code: lambda.Code.fromAsset(path.join(__dirname, './lambda/custom_resource')),
-    //   handler: "custom_resource.lambda_handler",
-    //   role: lambdaRole,
-    //   memorySize: 256,
-    //   timeout: cdk.Duration.seconds(300),
-    //   environment: {
-    //     CF_DISTRIBUTION_ID: CfDistId.valueAsString,
-    //     S3_BUCKET: cfLogBucket.bucketName,
-    //   }
-    // });
-
-    // const customResourceProvider = new cr.Provider(this, 'customResourceProvider', {
-    //   onEventHandler: customResourceLambda,
-    //   logRetention: logs.RetentionDays.ONE_DAY,
-    // });
-
-    // customResourceLambda.node.addDependency(cfLogBucket);
-    // customResourceProvider.node.addDependency(cfLogBucket); 
-
-    // new CustomResource(this, 'EnableCFLogsCustomResource', {
-    //   serviceToken: customResourceProvider.serviceToken,
-    //   resourceType: "Custom::EnableCFLog",
-    // });
+    const cloudfrontRuleTopUrl = new Rule(this, 'cloudfrontRuleTopUrl', {
+      schedule: Schedule.expression("cron(0 1 * * ? *)"),
+    });
+    const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
+    const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
+    cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopTraffic);
+    cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopRequest);
 
     new cdk.CfnOutput(this, 'S3 bucket to store CloudFront logs', { value: cfLogBucket.bucketName });
     new cdk.CfnOutput(this, 'Dynamodb table', { value: cloudfrontMetricsTable.tableName });

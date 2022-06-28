@@ -1,10 +1,10 @@
 import json
 import logging
-from datetime import datetime
-from datetime import timedelta
-import boto3
 import os
-from metric_helper import get_athena_query_result, gen_detailed_by_interval, get_domain_list
+from datetime import datetime, timedelta
+
+import boto3
+from metric_helper import gen_detailed_by_interval, get_athena_query_result
 
 ATHENA_QUERY_OUTPUT = "s3://" + os.environ['S3_BUCKET'] + "/athena_results/"
 athena_client = boto3.client('athena')
@@ -12,6 +12,7 @@ dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
+USE_START_TIME = os.environ['USE_START_TIME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -35,14 +36,13 @@ def lambda_handler(event, context):
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
-    domain_list = get_domain_list()
     metric = "downstreamTraffic"
 
     try:
         gen_data = {}
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
-                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT)
+                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, use_start=USE_START_TIME)
 
         for queryItem in gen_data['Detail']:
             log.info(json.dumps(queryItem))
@@ -50,7 +50,6 @@ def lambda_handler(event, context):
             item_query_result = get_athena_query_result(
                 athena_client, queryItem['QueryId'])
 
-            temp_list = domain_list
             for i in range(1, len(item_query_result['ResultSet']['Rows'])):
                 if item_query_result['ResultSet']['Rows'][i]['Data'][0].get(
                         'VarCharValue') != None:
@@ -68,20 +67,6 @@ def lambda_handler(event, context):
                     ddb_response = table.put_item(Item=table_item)
                     log.info(json.dumps(table_item))
                     log.info(str(ddb_response))
-
-                    temp_list.remove(domain)
-
-            for domain_item in temp_list:
-                item_query_value = 0
-                table_item = {
-                    'metricId': metric + '-' + domain_item,
-                    'timestamp': int(queryItem['Time']),
-                    'metricData': item_query_value
-                }
-                table = dynamodb.Table(DDB_TABLE_NAME)
-                ddb_response = table.put_item(Item=table_item)
-                log.info(json.dumps(table_item))
-                log.info(str(ddb_response))
 
     except Exception as error:
         log.error(str(error))

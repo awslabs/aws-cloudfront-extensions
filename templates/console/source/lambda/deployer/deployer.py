@@ -1,5 +1,4 @@
 import csv
-import json
 import os
 
 import boto3
@@ -20,9 +19,8 @@ DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 EXT_META_DATA_URL = os.environ['EXT_META_DATA_URL']
 
 sar_client = boto3.client('serverlessrepo')
-cfn_client = boto3.client('cloudformation')
+cfn_client = boto3.client('cloudformation', region_name=region)
 cloudfront_client = boto3.client('cloudfront')
-lambda_client = boto3.client('lambda')
 dynamodb_client = boto3.resource('dynamodb', region_name=region)
 ddb_table = dynamodb_client.Table(DDB_TABLE_NAME)
 

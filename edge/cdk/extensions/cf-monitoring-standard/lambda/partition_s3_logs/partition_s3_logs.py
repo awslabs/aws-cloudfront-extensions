@@ -4,8 +4,11 @@ import re
 from os import environ
 from datetime import datetime
 from sqlite3 import Timestamp
+import os
 
 import boto3
+
+DELETE_LOG = os.environ['DELETE_LOG']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -70,11 +73,11 @@ def lambda_handler(event, context):
     
                     log.info(
                         "\n[partition_s3_logs lambda_handler] Update file %s to destination %s" % (source_path, dest_path))
-    
-                    s3.delete_object(Bucket=bucket, Key=key)
-                    log.info(
-                        "\n[partition_s3_logs lambda_handler] Removed file %s" % source_path)
-    
+                    
+                    if DELETE_LOG.lower() == 'true':
+                        s3.delete_object(Bucket=bucket, Key=key)
+                        log.info("\n[partition_s3_logs lambda_handler] Removed file %s" % source_path)
+                      
                     count = count + 1
 
         log.info(

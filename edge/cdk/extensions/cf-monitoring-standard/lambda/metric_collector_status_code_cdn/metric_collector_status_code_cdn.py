@@ -12,6 +12,7 @@ dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
+USE_START_TIME = os.environ['USE_START_TIME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -41,7 +42,7 @@ def lambda_handler(event, context):
         gen_data = {}
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
-                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT)
+                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, use_start=USE_START_TIME)
 
         for queryItem in gen_data['Detail']:
             log.info(json.dumps(queryItem))

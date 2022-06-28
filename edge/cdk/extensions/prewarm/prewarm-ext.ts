@@ -37,7 +37,7 @@ export class PrewarmStack extends cdk.Stack {
 
     const messageQueue = new sqs.Queue(this, 'PrewarmMessageQueue', {
       encryption: sqs.QueueEncryption.KMS_MANAGED,
-      visibilityTimeout: cdk.Duration.hours(10),
+      visibilityTimeout: cdk.Duration.hours(3),
       deadLetterQueue: {
         queue: dlq,
         maxReceiveCount: 50,
