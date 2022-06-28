@@ -277,6 +277,7 @@ const SnapshotDetail: React.FC = () => {
                   setLoadingApply(true);
                   deleteSnapshotRequest();
                   setLoadingApply(false);
+                  getSnapshotListByDistribution();
                   Swal.fire(
                     "Cloudfront snapshot deleted",
                     "Cloudfront snapshot deleted",
@@ -463,6 +464,7 @@ const SnapshotDetail: React.FC = () => {
                   "success"
                 );
                 setSnapshotModal(false);
+                getSnapshotListByDistribution();
               }}
             >
               Create

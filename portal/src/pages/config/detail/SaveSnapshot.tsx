@@ -9,7 +9,7 @@ import TagList from "components/TagList";
 import Button from "components/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
-import { updateConfigTag } from "graphql/queries";
+import { updateConfigSnapshotTag, updateConfigTag } from "graphql/queries";
 
 const SaveSnapshot: React.FC = () => {
   const [distribution, setDistribution] = useState<any>("");
@@ -47,15 +47,15 @@ const SaveSnapshot: React.FC = () => {
   }, []);
 
   // Get Snapshot List By Distribution
-  const updateDistConfigTag = async (
+  const updateDistConfigSnapshotTag = async (
     distId: string,
-    ver: string,
+    snapshot_name: string,
     note: string
   ) => {
     try {
-      await appSyncRequestQuery(updateConfigTag, {
+      await appSyncRequestQuery(updateConfigSnapshotTag, {
         distribution_id: distId,
-        snapshot: ver,
+        snapshot_name: snapshot_name,
         note: note,
       });
     } catch (error) {
@@ -121,8 +121,12 @@ const SaveSnapshot: React.FC = () => {
               btnType="primary"
               onClick={() => {
                 const dist_id: any = id;
-                const ver: any = snapshot;
-                updateDistConfigTag(dist_id, ver, snapshotDesc);
+                const snapshot_name: any = snapshot;
+                updateDistConfigSnapshotTag(
+                  dist_id,
+                  snapshot_name,
+                  snapshotDesc
+                );
                 navigate("/config/snapshot/detail/" + id);
               }}
             >
