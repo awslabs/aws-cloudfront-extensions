@@ -80,6 +80,7 @@ export const listDistribution = /* GraphQL */ `
       status
       enabled
       versionCount
+      snapshotCount
       aliases {
         Quantity
         Items
@@ -100,6 +101,19 @@ export const updateConfigTag = /* GraphQL */ `
     )
   }
 `;
+export const updateConfigSnapshotTag = /* GraphQL */ `
+  query UpdateConfigSnapshotTag(
+    $distribution_id: String
+    $snapshot_name: String
+    $note: String
+  ) {
+    updateConfigSnapshotTag(
+      distribution_id: $distribution_id
+      snapshot_name: $snapshot_name
+      note: $note
+    )
+  }
+`;
 export const diffCloudfrontConfig = /* GraphQL */ `
   query DiffCloudfrontConfig(
     $distribution_id: String
@@ -110,6 +124,19 @@ export const diffCloudfrontConfig = /* GraphQL */ `
       distribution_id: $distribution_id
       version1: $version1
       version2: $version2
+    )
+  }
+`;
+export const diffCloudfrontConfigSnapshot = /* GraphQL */ `
+  query DiffCloudfrontConfigSnapshot(
+    $distribution_id: String
+    $snapshot1: String
+    $snapshot2: String
+  ) {
+    diffCloudfrontConfigSnapshot(
+      distribution_id: $distribution_id
+      snapshot1: $snapshot1
+      snapshot2: $snapshot2
     )
   }
 `;
@@ -127,6 +154,20 @@ export const listCloudfrontVersions = /* GraphQL */ `
     }
   }
 `;
+export const listCloudfrontSnapshots = /* GraphQL */ `
+  query ListCloudfrontSnapshots($distribution_id: String) {
+    listCloudfrontSnapshots(distribution_id: $distribution_id) {
+      id
+      distribution_id
+      snapshot_name
+      config_link
+      dateTime
+      note
+      s3_bucket
+      s3_key
+    }
+  }
+`;
 export const getConfigLink = /* GraphQL */ `
   query GetConfigLink($distribution_id: String, $versionId: String) {
     getConfigLink(distribution_id: $distribution_id, versionId: $versionId) {
@@ -134,9 +175,33 @@ export const getConfigLink = /* GraphQL */ `
     }
   }
 `;
+export const getConfigSnapshotLink = /* GraphQL */ `
+  query GetConfigSnapshotLink(
+    $distribution_id: String
+    $snapshot_name: String
+  ) {
+    getConfigSnapshotLink(
+      distribution_id: $distribution_id
+      snapshot_name: $snapshot_name
+    ) {
+      config_link
+    }
+  }
+`;
 export const getConfigContent = /* GraphQL */ `
   query GetConfigContent($distribution_id: String, $versionId: String) {
     getConfigContent(distribution_id: $distribution_id, versionId: $versionId)
+  }
+`;
+export const getConfigSnapshotContent = /* GraphQL */ `
+  query GetConfigSnapshotContent(
+    $distribution_id: String
+    $snapshot_name: String
+  ) {
+    getConfigSnapshotContent(
+      distribution_id: $distribution_id
+      snapshot_name: $snapshot_name
+    )
   }
 `;
 export const notifications = /* GraphQL */ `

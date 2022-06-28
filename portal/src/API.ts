@@ -88,6 +88,7 @@ export type Cloudfront_info = {
   status?: string | null,
   enabled?: string | null,
   versionCount?: string | null,
+  snapshotCount?: string | null,
   aliases: AliasInfo,
 };
 
@@ -102,6 +103,18 @@ export type Version = {
   id: string,
   distribution_id?: string | null,
   versionId?: string | null,
+  config_link?: string | null,
+  dateTime?: string | null,
+  note?: string | null,
+  s3_bucket?: string | null,
+  s3_key?: string | null,
+};
+
+export type Snapshot = {
+  __typename: "Snapshot",
+  id: string,
+  distribution_id: string,
+  snapshot_name: string,
   config_link?: string | null,
   dateTime?: string | null,
   note?: string | null,
@@ -148,6 +161,38 @@ export type DeployExtensionMutation = {
 export type SyncExtensionsMutation = {
   // Get the latest extensions
   syncExtensions?: string | null,
+};
+
+export type CreateVersionSnapShotMutationVariables = {
+  distributionId: string,
+  snapShotName: string,
+  snapShotNote?: string | null,
+};
+
+export type CreateVersionSnapShotMutation = {
+  // config version create snapShot
+  createVersionSnapShot?: string | null,
+};
+
+export type ApplySnapshotMutationVariables = {
+  src_distribution_id?: string | null,
+  snapshot_name?: string | null,
+  target_distribution_ids?: Array< string | null > | null,
+};
+
+export type ApplySnapshotMutation = {
+  // apply snapshot
+  applySnapshot?: string | null,
+};
+
+export type DeleteSnapshotMutationVariables = {
+  distributionId?: string | null,
+  snapShotName?: string | null,
+};
+
+export type DeleteSnapshotMutation = {
+  // delete snapshot
+  deleteSnapshot?: string | null,
 };
 
 export type CertCreateOrImportMutationVariables = {
@@ -263,6 +308,7 @@ export type ListDistributionQuery = {
     status?: string | null,
     enabled?: string | null,
     versionCount?: string | null,
+    snapshotCount?: string | null,
     aliases:  {
       __typename: "AliasInfo",
       Quantity: number,
@@ -281,6 +327,16 @@ export type UpdateConfigTagQuery = {
   updateConfigTag?: string | null,
 };
 
+export type UpdateConfigSnapshotTagQueryVariables = {
+  distribution_id?: string | null,
+  snapshot_name?: string | null,
+  note?: string | null,
+};
+
+export type UpdateConfigSnapshotTagQuery = {
+  updateConfigSnapshotTag?: string | null,
+};
+
 export type DiffCloudfrontConfigQueryVariables = {
   distribution_id?: string | null,
   version1?: string | null,
@@ -289,6 +345,16 @@ export type DiffCloudfrontConfigQueryVariables = {
 
 export type DiffCloudfrontConfigQuery = {
   diffCloudfrontConfig?: string | null,
+};
+
+export type DiffCloudfrontConfigSnapshotQueryVariables = {
+  distribution_id?: string | null,
+  snapshot1?: string | null,
+  snapshot2?: string | null,
+};
+
+export type DiffCloudfrontConfigSnapshotQuery = {
+  diffCloudfrontConfigSnapshot?: string | null,
 };
 
 export type ListCloudfrontVersionsQueryVariables = {
@@ -309,6 +375,24 @@ export type ListCloudfrontVersionsQuery = {
   } | null > | null,
 };
 
+export type ListCloudfrontSnapshotsQueryVariables = {
+  distribution_id?: string | null,
+};
+
+export type ListCloudfrontSnapshotsQuery = {
+  listCloudfrontSnapshots?:  Array< {
+    __typename: "Snapshot",
+    id: string,
+    distribution_id: string,
+    snapshot_name: string,
+    config_link?: string | null,
+    dateTime?: string | null,
+    note?: string | null,
+    s3_bucket?: string | null,
+    s3_key?: string | null,
+  } | null > | null,
+};
+
 export type GetConfigLinkQueryVariables = {
   distribution_id?: string | null,
   versionId?: string | null,
@@ -321,6 +405,18 @@ export type GetConfigLinkQuery = {
   } | null,
 };
 
+export type GetConfigSnapshotLinkQueryVariables = {
+  distribution_id?: string | null,
+  snapshot_name?: string | null,
+};
+
+export type GetConfigSnapshotLinkQuery = {
+  getConfigSnapshotLink?:  {
+    __typename: "ConfigLink",
+    config_link?: string | null,
+  } | null,
+};
+
 export type GetConfigContentQueryVariables = {
   distribution_id?: string | null,
   versionId?: string | null,
@@ -328,6 +424,15 @@ export type GetConfigContentQueryVariables = {
 
 export type GetConfigContentQuery = {
   getConfigContent?: string | null,
+};
+
+export type GetConfigSnapshotContentQueryVariables = {
+  distribution_id?: string | null,
+  snapshot_name?: string | null,
+};
+
+export type GetConfigSnapshotContentQuery = {
+  getConfigSnapshotContent?: string | null,
 };
 
 export type NotificationsQueryVariables = {

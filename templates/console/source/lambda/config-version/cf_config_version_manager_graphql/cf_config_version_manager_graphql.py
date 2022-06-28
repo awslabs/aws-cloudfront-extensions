@@ -309,6 +309,34 @@ def manager_version_config_tag_update(distribution_id: str = "", note: str = "",
     )
     return response
 
+@app.resolver(type_name="Query", field_name="updateConfigSnapshotTag")
+def manager_snapshot_config_tag_update(distribution_id: str = "", note: str = "", snapshot_name: str = ""):
+    dist_id = distribution_id
+    snapShotName = snapshot_name
+    dist_note = note
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": dist_id,
+            "snapShotName": snapShotName
+        })
+    data = response['Item']
+
+    data['note'] = dist_note
+
+    response = ddb_table.update_item(
+        Key={
+            "distributionId": dist_id,
+            "snapShotName": snapShotName
+        },
+        UpdateExpression="set note = :r",
+        ExpressionAttributeValues={':r': dist_note},
+        ReturnValues="UPDATED_NEW"
+    )
+    return response
 
 @app.resolver(type_name="Query", field_name="listDistribution")
 def manager_version_config_cf_list():
@@ -345,6 +373,7 @@ def manager_version_config_cf_list():
 
         logger.info(tmp_dist)
         # get latest version from ddb latest version ddb
+        ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
         ddb_data = ddb_table.get_item(
             Key={
                 "distributionId": dist['Id'],
@@ -356,6 +385,21 @@ def manager_version_config_cf_list():
             result.append(tmp_dist)
         else:
             logger.info(f"no ddb record for {tmp_dist}")
+
+        # get snapshot count from snapshot ddb
+        ddb_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+
+        ddb_data = ddb_table.query(
+            KeyConditionExpression=Key('distributionId').eq(dist['Id']),
+            ScanIndexForward=False
+        )
+        record_list = ddb_data['Items']
+        logger.info(record_list)
+        if len(record_list) == 0:
+            tmp_dist['snapshotCount'] = 0
+        else:
+            tmp_dist['snapshotCount'] = len(record_list)
+
     return result
 
 
@@ -591,6 +635,28 @@ def createVersionSnapShot(distributionId: str = "", snapShotName: str = "", snap
         'statusCode': 200,
         'body': 'succeed create new snapshot'
     }
+
+@app.resolver(type_name="Mutation", field_name="deleteSnapshot")
+def deleteSnapShot(distributionId: str = "", snapShotName: str = ""):
+    if distributionId == "":
+        raise Exception("DistributionId can not be empty")
+    if snapShotName == "":
+        raise Exception("snapShotName can not be empty")
+
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+
+    response = ddb_table.delete_item(
+        Key={
+            "distributionId": distributionId,
+            "snapShotName": snapShotName
+        })
+    logger.info(response)
+    return {
+        'statusCode': 200,
+        'body': 'succeed delete snapshot'
+    }
+
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)

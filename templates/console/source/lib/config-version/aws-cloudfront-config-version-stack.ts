@@ -397,6 +397,11 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     lambdaDs.createResolver({
       typeName: "Query",
+      fieldName: "updateConfigSnapshotTag",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
       fieldName: "diffCloudfrontConfig",
     });
 
@@ -438,6 +443,11 @@ export class CloudFrontConfigVersionStack extends Stack {
     lambdaDs.createResolver({
       typeName: "Mutation",
       fieldName: "createVersionSnapShot",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Mutation",
+      fieldName: "deleteSnapshot",
     });
 
     // Prints out the stack region to the terminal

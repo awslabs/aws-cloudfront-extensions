@@ -33,6 +33,10 @@ const SIDE_MENU_LIST = [
         link: "/config/version",
       },
       {
+        name: "Snapshot",
+        link: "/config/snapshot",
+      },
+      {
         name: "Certification",
         link: "/config/certification",
       },

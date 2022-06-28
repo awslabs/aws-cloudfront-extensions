@@ -30,6 +30,11 @@ import { ActionType } from "reducer/appReducer";
 import { useDispatch } from "react-redux";
 import VersionDetailDisplay from "./pages/config/detail/VersionDetailDisplay";
 import ConfigCertificate from "./pages/config/certificate/steps/ConfigCertificate";
+import Snapshot from "./pages/config/Snapshot";
+import SnapshotDetail from "./pages/config/detail/SnapshotDetail";
+import SaveSnapshot from "./pages/config/detail/SaveSnapshot";
+import SnapshotDetailDisplay from "./pages/config/detail/SnapshotDetailDisplay";
+import CompareSnapshot from "./pages/config/detail/CompareSnapshot";
 
 const SignInRouter: React.FC = () => {
   return (
@@ -128,6 +133,59 @@ const SignInRouter: React.FC = () => {
             element={
               <Container>
                 <CompareVersion />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/Snapshot"
+            element={
+              <Container>
+                <Snapshot />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/:id"
+            element={
+              <Container>
+                <SnapshotDetail />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/:id/:snapshot/save/:note"
+            element={
+              <Container>
+                <SaveSnapshot />
+              </Container>
+            }
+          />
+          <Route
+            path="/config/snapshot/detail/:id/:snapshot/save"
+            element={
+              <Container>
+                <SaveSnapshot />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/display/:id/:snapshot"
+            element={
+              <Container>
+                <SnapshotDetailDisplay />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/:id/compare/:snapshot1/:snapshot2"
+            element={
+              <Container>
+                <CompareSnapshot />
               </Container>
             }
           />

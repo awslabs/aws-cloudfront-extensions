@@ -75,6 +75,7 @@ type Cloudfront_info {
     status: String
     enabled: String
     versionCount: String
+    snapshotCount: String
     aliases: AliasInfo!
 }
 
@@ -173,6 +174,8 @@ type Query {
 
     updateConfigTag(distribution_id: String, version: String, note: String): String
 
+    updateConfigSnapshotTag(distribution_id: String, snapshot_name: String, note: String): String
+
     diffCloudfrontConfig(distribution_id: String, version1: String, version2: String): String
 
     diffCloudfrontConfigSnapshot(distribution_id: String, snapshot1: String, snapshot2: String): String
@@ -208,6 +211,9 @@ type Mutation {
 
     # apply snapshot
     applySnapshot(src_distribution_id: String, snapshot_name: String, target_distribution_ids: [String]): String
+
+    # delete snapshot
+    deleteSnapshot(distributionId: String, snapShotName: String): String
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput

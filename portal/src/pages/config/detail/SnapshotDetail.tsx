@@ -1,0 +1,509 @@
+import React, { useState, useEffect } from "react";
+import Breadcrumb from "components/Breadcrumb";
+import Button from "components/Button";
+import { SelectType, TablePanel } from "components/TablePanel";
+import { Pagination } from "@material-ui/lab";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import { useNavigate, useParams } from "react-router-dom";
+import TextInput from "components/TextInput";
+import Modal from "components/Modal";
+import FormItem from "components/FormItem";
+import MultiSelect from "components/MultiSelect";
+import { Cloudfront_info, Snapshot } from "API";
+import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
+import {
+  applyConfig,
+  listCloudfrontSnapshots,
+  listDistribution,
+} from "graphql/queries";
+import LoadingText from "../../../components/LoadingText";
+import TextArea from "../../../components/TextArea";
+import {
+  certCreateOrImport,
+  createVersionSnapShot,
+  deleteSnapshot,
+} from "../../../graphql/mutations";
+import Swal from "sweetalert2";
+
+const SnapshotDetail: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useState("");
+  const [snapshotFilterList, setSnapshotFilterList] = useState<Snapshot[]>([]);
+  const [snapshotList, setSnapshotList] = useState<Snapshot[]>([]);
+  const [snapshotWithNotesList, setSnapshotWithNotesList] = useState<
+    Snapshot[]
+  >([]);
+  const [distributionList, setDistributionList] = useState<any[]>([]);
+  const [selectedItem, setSelectedItem] = useState<Snapshot[]>([]);
+  const [applyDisabled, setApplyDisabled] = useState(false);
+  const [saveDisabled, setSaveDisabled] = useState(false);
+  const [deleteDisabled, setDeleteDisabled] = useState(false);
+  const [compareDisabled, setCompareDisabled] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [snapshotModal, setSnapshotModal] = useState(false);
+  const [selectDistribution, setSelectDistribution] = useState<any>([]);
+  const [confirm, setConfirm] = useState("");
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
+  const [snapShotName, setSnapShotName] = useState<any>("");
+  const [snapShotNote, setSnapShotNote] = useState<any>("");
+  const [distributionId, setDistributionId] = useState<any>("");
+  const { id } = useParams();
+  const BreadCrunbList = [
+    {
+      name: "CloudFront Extensions",
+      link: "/",
+    },
+    {
+      name: "Configuration Snapshot",
+      link: "/config/snapshot",
+    },
+    {
+      name: id || "",
+    },
+  ];
+
+  // Get Snapshot List By Distribution
+  const getSnapshotListByDistribution = async () => {
+    try {
+      setDistributionId(id || "");
+      setLoadingData(true);
+      setSnapshotList([]);
+      const resData = await appSyncRequestQuery(listCloudfrontSnapshots, {
+        distribution_id: id,
+      });
+      const snapshotList: Snapshot[] = resData.data.listCloudfrontSnapshots;
+      const snapshotWithNoteList: Snapshot[] = snapshotList.filter(
+        (snapshot) => snapshot.note != ""
+      );
+      setLoadingData(false);
+      setSnapshotList(snapshotList);
+      setSnapshotFilterList(snapshotList);
+      setSnapshotWithNotesList(snapshotWithNoteList);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getSnapshotListByDistribution();
+  }, []);
+
+  // Get Snapshot List By Distribution
+  const getDistributionList = async () => {
+    try {
+      setDistributionList([]);
+      const resData = await appSyncRequestQuery(listDistribution);
+      const Cloudfront_info_list: any[] = resData.data.listDistribution;
+      const tmpList = [];
+      console.log(Cloudfront_info_list);
+      for (const cfdistlistKey in Cloudfront_info_list) {
+        const cname =
+          Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
+            ? ""
+            : Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
+        tmpList.push({
+          name: Cloudfront_info_list[cfdistlistKey].id + " | " + cname,
+          value: Cloudfront_info_list[cfdistlistKey].id,
+        });
+      }
+      console.log(tmpList);
+      setDistributionList(tmpList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Get Snapshot List By Distribution
+  const applyCloudFrontConfig = async () => {
+    try {
+      //convert the selected dist list
+      const targetDistList: string[] = [];
+      for (const index in selectDistribution) {
+        targetDistList.push(selectDistribution[index]);
+      }
+
+      const snapshotId = selectedItem[0].snapshot_name;
+
+      setLoadingApply(true);
+      const resData = await appSyncRequestQuery(applyConfig, {
+        src_distribution_id: id,
+        snapshot: snapshotId,
+        target_distribution_ids: targetDistList,
+      });
+      setLoadingApply(false);
+      setOpenModal(false);
+    } catch (error) {
+      setLoadingApply(false);
+      console.error(error);
+    }
+  };
+
+  const selectAllDistributions = () => {
+    const selectList: any = [];
+    for (const index in distributionList) {
+      selectList.push(distributionList[index].name);
+    }
+    console.info(selectList);
+    setSelectDistribution(() => {
+      return selectList;
+    });
+  };
+
+  useEffect(() => {
+    console.info(selectDistribution);
+  }, [selectDistribution]);
+
+  const selectNoneDistributions = async () => {
+    setSelectDistribution([]);
+  };
+
+  // Get Version List By Distribution
+  const createSnapshotRequest = async () => {
+    try {
+      console.info(distributionId);
+      console.info(snapShotName);
+      console.info(snapShotNote);
+      const resData = await appSyncRequestMutation(createVersionSnapShot, {
+        distributionId,
+        snapShotName,
+        snapShotNote,
+      });
+      console.info(resData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  // delete target snapshot
+  const deleteSnapshotRequest = async () => {
+    try {
+      console.info(distributionId);
+      console.info(snapShotName);
+      const resData = await appSyncRequestMutation(deleteSnapshot, {
+        distributionId,
+        snapShotName: selectedItem[0].snapshot_name,
+      });
+      console.info(resData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    console.info("selectedItem:", selectedItem);
+    if (selectedItem.length > 0) {
+      if (selectedItem.length === 1) {
+        setApplyDisabled(false);
+        setSaveDisabled(false);
+        setDeleteDisabled(false);
+        setCompareDisabled(true);
+      } else if (selectedItem.length === 2) {
+        setApplyDisabled(true);
+        setSaveDisabled(true);
+        setDeleteDisabled(true);
+        setCompareDisabled(false);
+      } else {
+        setApplyDisabled(true);
+        setSaveDisabled(true);
+        setCompareDisabled(true);
+      }
+    } else {
+      setApplyDisabled(true);
+      setSaveDisabled(true);
+      setCompareDisabled(true);
+    }
+  }, [selectedItem]);
+
+  return (
+    <div>
+      <Breadcrumb list={BreadCrunbList} />
+      <div className="mt-10">
+        <TablePanel
+          loading={loadingData}
+          title={id || ""}
+          selectType={SelectType.CHECKBOX}
+          actions={
+            <div>
+              <Button
+                onClick={() => {
+                  getSnapshotListByDistribution();
+                }}
+              >
+                {loadingData ? (
+                  <LoadingText />
+                ) : (
+                  <RefreshIcon fontSize="small" />
+                )}
+              </Button>
+              <Button
+                disabled={applyDisabled}
+                onClick={() => {
+                  setOpenModal(true);
+                  getDistributionList();
+                }}
+              >
+                Apply Config
+              </Button>
+              <Button
+                disabled={saveDisabled}
+                onClick={() => {
+                  const path =
+                    "/config/snapshot/detail/" +
+                    id +
+                    "/" +
+                    selectedItem[0].snapshot_name +
+                    "/save" +
+                    "/" +
+                    selectedItem[0].note;
+                  navigate(path);
+                }}
+              >
+                Update Snapshot Notes
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  setSnapshotModal(true);
+                }}
+              >
+                Create Snapshot
+              </Button>
+
+              <Button
+                disabled={saveDisabled}
+                onClick={() => {
+                  // startWorkflow();
+                  setLoadingApply(true);
+                  deleteSnapshotRequest();
+                  setLoadingApply(false);
+                  Swal.fire(
+                    "Cloudfront snapshot deleted",
+                    "Cloudfront snapshot deleted",
+                    "success"
+                  );
+                }}
+              >
+                Delete Snapshot
+              </Button>
+              <Button
+                disabled={compareDisabled}
+                btnType="primary"
+                onClick={() => {
+                  const path =
+                    "/config/snapshot/detail/" +
+                    id +
+                    "/compare/" +
+                    selectedItem[0].snapshot_name +
+                    "/" +
+                    selectedItem[1].snapshot_name;
+                  navigate(path);
+                }}
+              >
+                Compare
+              </Button>
+            </div>
+          }
+          pagination={<Pagination />}
+          items={snapshotFilterList}
+          columnDefinitions={[
+            {
+              // width: 150,
+              id: "snapShotName",
+              header: "Snapshot Name",
+              cell: (e: Snapshot) => {
+                const path =
+                  "/config/snapshot/detail/display/" +
+                  id +
+                  "/" +
+                  e.snapshot_name;
+                return <a href={path}>{e.snapshot_name}</a>;
+              },
+            },
+            {
+              // width: 180,
+              id: "date",
+              header: "Date",
+              cell: (e: Snapshot) => e.dateTime,
+            },
+            {
+              id: "s3key",
+              header: "S3 Key",
+              cell: (e: Snapshot) => e.s3_key,
+            },
+            {
+              // width: 200,
+              id: "tags",
+              header: "Snapshot Notes",
+              cell: (e: Snapshot) => e.note,
+            },
+          ]}
+          filter={
+            <div>
+              <TextInput
+                value={searchParams}
+                isSearch={true}
+                placeholder={"Search all snapshots"}
+                onChange={(event) => {
+                  console.info("event:", event);
+                  setSearchParams(event.target.value);
+                }}
+              />
+            </div>
+          }
+          changeSelected={(item) => {
+            setSelectedItem(item);
+          }}
+        />
+      </div>
+      <Modal
+        title="Apply Settings?"
+        isOpen={openModal}
+        fullWidth={true}
+        closeModal={() => {
+          setOpenModal(false);
+        }}
+        actions={
+          <div className="button-action no-pb text-right">
+            <Button
+              onClick={() => {
+                setConfirm("");
+                setOpenModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={confirm !== "Confirm"}
+              btnType="primary"
+              loading={loadingApply}
+              onClick={() => {
+                applyCloudFrontConfig();
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        }
+      >
+        <div className="gsui-modal-content">
+          <FormItem
+            optionTitle="Distribution"
+            optionDesc="Distribution to apply configurations"
+          >
+            <div className="flex">
+              <div style={{ width: 800 }}>
+                <MultiSelect
+                  optionList={distributionList}
+                  value={selectDistribution}
+                  placeholder="Select distribution"
+                  onChange={(items) => {
+                    setSelectDistribution(items);
+                  }}
+                />
+              </div>
+              <div className="ml-5">
+                <Button
+                  onClick={() => {
+                    selectAllDistributions();
+                  }}
+                >
+                  Select all
+                </Button>
+              </div>
+              <div className="ml-5">
+                <Button
+                  onClick={() => {
+                    selectNoneDistributions();
+                  }}
+                >
+                  Select None
+                </Button>
+              </div>
+            </div>
+          </FormItem>
+          <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
+            <TextInput
+              value={confirm}
+              placeholder="Confirm"
+              onChange={(event) => {
+                setConfirm(event.target.value);
+              }}
+            />
+          </FormItem>
+        </div>
+      </Modal>
+      <Modal
+        title="Create new Cloudfront Snapshot"
+        isOpen={snapshotModal}
+        fullWidth={true}
+        closeModal={() => {
+          setSnapshotModal(false);
+        }}
+        actions={
+          <div className="button-action no-pb text-right">
+            <Button
+              onClick={() => {
+                setConfirm("");
+                setSnapshotModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              btnType="primary"
+              onClick={() => {
+                // startWorkflow();
+                setLoadingApply(true);
+                createSnapshotRequest();
+                setLoadingApply(false);
+                Swal.fire(
+                  "Cloudfront snapshot created",
+                  "Cloudfront snapshot created",
+                  "success"
+                );
+                setSnapshotModal(false);
+              }}
+            >
+              Create
+            </Button>
+          </div>
+        }
+      >
+        <div className="gsui-modal-content">
+          <FormItem optionTitle="Distribution" optionDesc="">
+            <TextInput
+              disabled
+              value={id || ""}
+              onChange={(event) => {
+                console.info("test");
+              }}
+            />
+          </FormItem>
+          <FormItem optionTitle="Snapshot Name" optionDesc="">
+            <TextArea
+              placeholder="Snapshot Name"
+              rows={1}
+              value={snapShotName}
+              onChange={(event) => {
+                setSnapShotName(event.target.value);
+              }}
+            />
+          </FormItem>
+          <FormItem optionTitle="Snapshot Note" optionDesc="">
+            <TextArea
+              placeholder="Snapshot Note"
+              rows={2}
+              value={snapShotNote || ""}
+              onChange={(event) => {
+                setSnapShotNote(event.target.value);
+              }}
+            />
+          </FormItem>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default SnapshotDetail;
