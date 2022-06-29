@@ -22,6 +22,8 @@ new WebPortalStack(
         },
         synthesizer: newSynthesizer(),
         appsyncApi: commonStack.appsyncApi,
+        cognitoUserPool: commonStack.cognitoUserPool,
+        cognitoClient: commonStack.cognitoUserPoolClient
     }
 );
 
@@ -35,6 +37,8 @@ const configVersionStack = new CloudFrontConfigVersionStack(
     },
     synthesizer: newSynthesizer(),
     appsyncApi: commonStack.appsyncApi,
+    cognitoUserPool: commonStack.cognitoUserPool,
+    cognitoClient: commonStack.cognitoUserPoolClient
   }
 );
 
@@ -55,6 +59,8 @@ new StepFunctionRpTsStack(app, "StepFunctionRpTsStack", {
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
   synthesizer: newSynthesizer(),
   appsyncApi: commonStack.appsyncApi,
+  cognitoUserPool: commonStack.cognitoUserPool,
+  cognitoClient: commonStack.cognitoUserPoolClient
   // configVersion_ddb_table_name: cdk.Fn.importValue('configVersionDDBTableName')
 });
 
@@ -64,6 +70,8 @@ new ConsoleStack(app, "ConsoleStack", {
   },
   synthesizer: newSynthesizer(),
   appsyncApi: commonStack.appsyncApi,
+  cognitoUserPool: commonStack.cognitoUserPool,
+  cognitoClient: commonStack.cognitoUserPoolClient
 });
 
 // TODO: Add monitoring dashboard stack

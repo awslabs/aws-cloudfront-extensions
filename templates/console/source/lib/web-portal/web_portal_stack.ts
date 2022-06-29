@@ -28,18 +28,19 @@ export interface PortalProps {
 }
 
 export class WebPortalStack extends Stack {
+
       constructor(scope: cdk.App, id: string, props?: CommonProps) {
           super(scope, id, props);
 
           new PortalStack(this, "WebConsole", {
               aws_api_key: props?.appsyncApi.apiKey,
-              aws_appsync_authenticationType: appsync.AuthorizationType.API_KEY,
+              aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
               aws_appsync_graphqlEndpoint: props?.appsyncApi.graphqlUrl,
               aws_appsync_region: this.region,
-              aws_cognito_region: "",
               aws_project_region: this.region,
-              aws_user_pools_id: "",
-              aws_user_pools_web_client_id: ""
+              aws_user_pools_id: props?.cognitoUserPool.userPoolId,
+              aws_user_pools_web_client_id: props?.cognitoClient.userPoolClientId,
+              aws_cognito_region: this.region,
           });
       };
 }
@@ -48,6 +49,7 @@ export class WebPortalStack extends Stack {
  * Stack to provision Portal assets and CloudFront Distribution
  */
 export class PortalStack extends Construct {
+
     constructor(scope: Construct, id: string, props: PortalProps) {
         super(scope, id);
 
@@ -94,7 +96,9 @@ export class PortalStack extends Construct {
           destinationBucket: portalBucket,
           prune: false,
         });
-
+        new cdk.CfnOutput(this, "export.json", {
+            value: portalBucket.bucketName,
+        });
         new AwsCustomResource(this, 'WebConfig', {
             logRetention: RetentionDays.ONE_DAY,
             onUpdate: {
@@ -116,7 +120,6 @@ export class PortalStack extends Construct {
                 })
             ])
         });
-
     }
 
 
