@@ -19,6 +19,7 @@ import {
 import LoadingText from "../../../components/LoadingText";
 import TextArea from "../../../components/TextArea";
 import {
+  applySnapshot,
   certCreateOrImport,
   createVersionSnapShot,
   deleteSnapshot,
@@ -116,7 +117,7 @@ const SnapshotDetail: React.FC = () => {
   };
 
   // Get Snapshot List By Distribution
-  const applyCloudFrontConfig = async () => {
+  const applyCloudFrontSnapshot = async () => {
     try {
       //convert the selected dist list
       const targetDistList: string[] = [];
@@ -127,9 +128,9 @@ const SnapshotDetail: React.FC = () => {
       const snapshotId = selectedItem[0].snapshot_name;
 
       setLoadingApply(true);
-      const resData = await appSyncRequestQuery(applyConfig, {
+      const resData = await appSyncRequestMutation(applySnapshot, {
         src_distribution_id: id,
-        snapshot: snapshotId,
+        snapshot_name: snapshotId,
         target_distribution_ids: targetDistList,
       });
       setLoadingApply(false);
@@ -379,7 +380,7 @@ const SnapshotDetail: React.FC = () => {
               btnType="primary"
               loading={loadingApply}
               onClick={() => {
-                applyCloudFrontConfig();
+                applyCloudFrontSnapshot();
               }}
             >
               Apply

@@ -447,6 +447,11 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     lambdaDs.createResolver({
       typeName: "Mutation",
+      fieldName: "applySnapshot",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Mutation",
       fieldName: "deleteSnapshot",
     });
 

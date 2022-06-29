@@ -297,7 +297,7 @@ const CompareSnapshot: React.FC = () => {
                   </Button>
                 )} */}
               </div>
-              <div className="mt-10 snapshot-compare">
+              <div className="mt-10 version-compare">
                 {loadingChangeSnapshot ? (
                   <LoadingText />
                 ) : (

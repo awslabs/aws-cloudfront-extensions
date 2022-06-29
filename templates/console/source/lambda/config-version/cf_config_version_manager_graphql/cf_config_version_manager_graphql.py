@@ -80,6 +80,7 @@ def manager_version_diff(distribution_id: str = "", version1: str = "", version2
 
     return diff_content
 
+
 @app.resolver(type_name="Query", field_name="diffCloudfrontConfigSnapshot")
 def manager_snapshot_diff(distribution_id: str = "", snapshot1: str = "", snapshot2: str = ""):
     dist_id = distribution_id
@@ -160,6 +161,7 @@ def manager_snapshot_diff(distribution_id: str = "", snapshot1: str = "", snapsh
 
     return diff_content
 
+
 @app.resolver(type_name="Query", field_name="applyConfig")
 def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [], version: str = ""):
     source_dist_id = src_distribution_id
@@ -211,8 +213,10 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
                 )
                 logger.info('target distributions been updated')
 
+
 @app.resolver(type_name="Mutation", field_name="applySnapshot")
-def manager_version_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [], snapshot_name: str = ""):
+def manager_snapshot_apply_config(src_distribution_id: str = "", target_distribution_ids: [str] = [],
+                                 snapshot_name: str = ""):
     source_dist_id = src_distribution_id
     src_snapshot = snapshot_name
     if source_dist_id == "":
@@ -230,9 +234,11 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
         })
     snapshot_resp = response['Item']
     if not snapshot_resp:
-        raise Exception(f"Failed to get the snapshot with distribution id:{source_dist_id}, snapshot_name:{snapshot_name}")
+        raise Exception(
+            f"Failed to get the snapshot with distribution id:{source_dist_id}, snapshot_name:{snapshot_name}")
 
     src_version = snapshot_resp['versionId']
+    logger.info(f"source version is {src_version}")
 
     target_dist_ids = target_distribution_ids
 
@@ -250,7 +256,7 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
     s3_key1 = data['s3_key']
 
     s3_client = boto3.client('s3')
-    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + src_version + ".json"
+    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + str(src_version) + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
 
     # call boto to apply the config to target distribution
@@ -279,6 +285,12 @@ def manager_version_apply_config(src_distribution_id: str = "", target_distribut
                     IfMatch=etag
                 )
                 logger.info('target distributions been updated')
+
+    return {
+        'statusCode': 200,
+        'body': 'succeed apply snapshot to target distributions'
+    }
+
 
 @app.resolver(type_name="Query", field_name="updateConfigTag")
 def manager_version_config_tag_update(distribution_id: str = "", note: str = "", version: str = ""):
@@ -309,6 +321,7 @@ def manager_version_config_tag_update(distribution_id: str = "", note: str = "",
     )
     return response
 
+
 @app.resolver(type_name="Query", field_name="updateConfigSnapshotTag")
 def manager_snapshot_config_tag_update(distribution_id: str = "", note: str = "", snapshot_name: str = ""):
     dist_id = distribution_id
@@ -337,6 +350,7 @@ def manager_snapshot_config_tag_update(distribution_id: str = "", note: str = ""
         ReturnValues="UPDATED_NEW"
     )
     return response
+
 
 @app.resolver(type_name="Query", field_name="listDistribution")
 def manager_version_config_cf_list():
@@ -423,6 +437,7 @@ def manager_version_get_link(distribution_id: str = "", versionId: str = ""):
         "config_link": config_link
     }
 
+
 @app.resolver(type_name="Query", field_name="getConfigSnapshotLink")
 def manager_snapshot_get_link(distribution_id: str = "", snapshot_name: str = ""):
     # first get the version from snapshot ddb table
@@ -435,7 +450,8 @@ def manager_snapshot_get_link(distribution_id: str = "", snapshot_name: str = ""
         })
     snapshot_resp = response['Item']
     if not snapshot_resp:
-        raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
+        raise Exception(
+            f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
 
     src_version = snapshot_resp['versionId']
 
@@ -483,6 +499,7 @@ def manager_version_get_content(distribution_id: str = "", versionId: str = ""):
 
     return result
 
+
 @app.resolver(type_name="Query", field_name="getConfigSnapshotContent")
 def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str = ""):
     # first get the version from snapshot ddb table
@@ -495,7 +512,8 @@ def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str =
         })
     snapshot_resp = response['Item']
     if not snapshot_resp:
-        raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
+        raise Exception(
+            f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
 
     src_version = snapshot_resp['versionId']
 
@@ -636,6 +654,7 @@ def createVersionSnapShot(distributionId: str = "", snapShotName: str = "", snap
         'body': 'succeed create new snapshot'
     }
 
+
 @app.resolver(type_name="Mutation", field_name="deleteSnapshot")
 def deleteSnapShot(distributionId: str = "", snapShotName: str = ""):
     if distributionId == "":
@@ -656,7 +675,6 @@ def deleteSnapShot(distributionId: str = "", snapShotName: str = ""):
         'statusCode': 200,
         'body': 'succeed delete snapshot'
     }
-
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
