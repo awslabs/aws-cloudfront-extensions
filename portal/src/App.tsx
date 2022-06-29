@@ -12,11 +12,11 @@ import Deploy from "pages/deploy/Deploy";
 import Axios from "axios";
 
 import "./App.scss";
-import Version from "pages/config/Version";
+import Version from "pages/config/Version/Version";
 // import DeploymentStatusDetail from "pages/statusDetail/DeploymentStatusDetail";
-import VersionDetail from "pages/config/detail/VersionDetail";
-import SaveVersion from "pages/config/detail/SaveVersion";
-import CompareVersion from "pages/config/detail/CompareVersion";
+import VersionDetail from "pages/config/Version/VersionDetail";
+import SaveVersion from "pages/config/Version/SaveVersion";
+import CompareVersion from "pages/config/Version/CompareVersion";
 import Button from "components/Button";
 import Certification from "pages/config/Certification";
 import Create from "pages/config/certificate/Create";
@@ -28,13 +28,13 @@ import { AMPLIFY_CONFIG_JSON } from "assets/js/const";
 import LoadingText from "components/LoadingText";
 import { ActionType } from "reducer/appReducer";
 import { useDispatch } from "react-redux";
-import VersionDetailDisplay from "./pages/config/detail/VersionDetailDisplay";
+import VersionDetailDisplay from "./pages/config/Version/VersionDetailDisplay";
 import ConfigCertificate from "./pages/config/certificate/steps/ConfigCertificate";
-import Snapshot from "./pages/config/Snapshot";
-import SnapshotDetail from "./pages/config/detail/SnapshotDetail";
-import SaveSnapshot from "./pages/config/detail/SaveSnapshot";
-import SnapshotDetailDisplay from "./pages/config/detail/SnapshotDetailDisplay";
-import CompareSnapshot from "./pages/config/detail/CompareSnapshot";
+import Snapshot from "./pages/config/Snapshot/Snapshot";
+import SnapshotDetail from "./pages/config/Snapshot/SnapshotDetail";
+import SaveSnapshot from "./pages/config/Snapshot/SaveSnapshot";
+import SnapshotDetailDisplay from "./pages/config/Snapshot/SnapshotDetailDisplay";
+import CompareSnapshot from "./pages/config/Snapshot/CompareSnapshot";
 
 const SignInRouter: React.FC = () => {
   return (

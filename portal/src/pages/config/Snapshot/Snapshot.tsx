@@ -9,7 +9,7 @@ import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
 import { listDistribution } from "graphql/queries";
-import { Cloudfront_info } from "../../API";
+import { Cloudfront_info } from "../../../API";
 
 const BreadCrunbList = [
   {
