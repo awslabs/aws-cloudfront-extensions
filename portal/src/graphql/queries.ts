@@ -93,6 +93,11 @@ export const getDistributionCname = /* GraphQL */ `
     getDistributionCname(distribution_id: $distribution_id)
   }
 `;
+export const getAppliedSnapshotName = /* GraphQL */ `
+  query GetAppliedSnapshotName($distribution_id: String) {
+    getAppliedSnapshotName(distribution_id: $distribution_id)
+  }
+`;
 export const updateConfigTag = /* GraphQL */ `
   query UpdateConfigTag(
     $distribution_id: String

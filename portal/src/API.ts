@@ -325,6 +325,14 @@ export type GetDistributionCnameQuery = {
   getDistributionCname?: Array< string | null > | null,
 };
 
+export type GetAppliedSnapshotNameQueryVariables = {
+  distribution_id?: string | null,
+};
+
+export type GetAppliedSnapshotNameQuery = {
+  getAppliedSnapshotName?: string | null,
+};
+
 export type UpdateConfigTagQueryVariables = {
   distribution_id?: string | null,
   version?: string | null,

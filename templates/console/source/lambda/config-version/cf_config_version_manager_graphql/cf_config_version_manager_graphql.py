@@ -445,6 +445,25 @@ def manager_get_cf_cname_info(distribution_id: str = ""):
         return config_data['Aliases']['Items']
 
 
+@app.resolver(type_name="Query", field_name="getAppliedSnapshotName")
+def manager_get_applied_snapshot_name(distribution_id: str = ""):
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+        })
+    data = response['Item']
+
+    if 'snapshot_name' in data:
+        snapshot_name = data['snapshot_name']
+        return snapshot_name
+    else:
+        return ""
+
+
 @app.resolver(type_name="Query", field_name="getConfigLink")
 def manager_version_get_link(distribution_id: str = "", versionId: str = ""):
     # get specific cloudfront distributions version info

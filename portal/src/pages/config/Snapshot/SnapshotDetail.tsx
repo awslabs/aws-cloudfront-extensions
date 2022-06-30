@@ -13,6 +13,8 @@ import { Cloudfront_info, Snapshot, Version } from "API";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import {
   applyConfig,
+  getAppliedSnapshotName,
+  getConfigSnapshotContent,
   getDistributionCname,
   listCloudfrontSnapshots,
   listDistribution,
@@ -26,6 +28,8 @@ import {
   deleteSnapshot,
 } from "../../../graphql/mutations";
 import Swal from "sweetalert2";
+import HeaderPanel from "../../../components/HeaderPanel";
+import ValueWithLabel from "../../../components/ValueWithLabel";
 
 const SnapshotDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -50,8 +54,12 @@ const SnapshotDetail: React.FC = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [loadingApply, setLoadingApply] = useState(false);
   const [snapShotName, setSnapShotName] = useState<any>("");
+  const [bindingSnapShotName, setBindingSnapShotName] = useState<any>("");
   const [snapShotNote, setSnapShotNote] = useState<any>("");
   const [distributionId, setDistributionId] = useState<any>("");
+  const [isDrifting, setIsDrifting] = useState<any>("NO");
+  const [driftingCompareDisable, setDriftingCompareDisable] =
+    useState<any>(true);
   const [distributionAliases, setDistributionAliases] = useState<string[]>([]);
   const { id } = useParams();
   const BreadCrunbList = [
@@ -136,6 +144,72 @@ const SnapshotDetail: React.FC = () => {
   useEffect(() => {
     getCloudfrontAliases();
   }, []);
+
+  // get alias by Distribution
+  const getBindSnapshot = async () => {
+    try {
+      const resData = await appSyncRequestQuery(getAppliedSnapshotName, {
+        distribution_id: id,
+      });
+      console.info(resData);
+      const snapshot: string = resData.data.getAppliedSnapshotName;
+      setBindingSnapShotName(snapshot);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getBindSnapshot();
+  }, []);
+
+  // get Binding Snapshot drifting status
+  const getBindSnapshotDriftStatus = async () => {
+    if (
+      bindingSnapShotName === "Not binding with any Snapshot" ||
+      bindingSnapShotName === ""
+    ) {
+      console.info("Not binding with any Snapshot, no need to check diff");
+      setIsDrifting("NO");
+      setDriftingCompareDisable(true);
+      return;
+    }
+
+    try {
+      const resDataCurrent = await appSyncRequestQuery(
+        getConfigSnapshotContent,
+        {
+          distribution_id: id,
+          snapshot_name: bindingSnapShotName,
+        }
+      );
+      const bindSnapshotContent: string =
+        resDataCurrent.data.getConfigSnapshotContent;
+
+      const resDataLatest = await appSyncRequestQuery(
+        getConfigSnapshotContent,
+        {
+          distribution_id: id,
+          snapshot_name: "_LATEST_",
+        }
+      );
+      const currentCloudfrontContent: string =
+        resDataLatest.data.getConfigSnapshotContent;
+
+      if (bindSnapshotContent == currentCloudfrontContent) {
+        console.info("binding is same");
+        setIsDrifting("NO");
+      } else {
+        setIsDrifting("YES");
+        setDriftingCompareDisable(false);
+        console.info("binding is different");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getBindSnapshotDriftStatus();
+  }, [bindingSnapShotName]);
 
   // Get Snapshot List By Distribution
   const applyCloudFrontSnapshot = async () => {
@@ -245,11 +319,51 @@ const SnapshotDetail: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
-        <TablePanel
-          loading={loadingData}
+        <HeaderPanel
           title={
             distributionId + "(" + (distributionAliases[0] || "No Cname") + ")"
           }
+        >
+          <div className="flex value-label-span">
+            <div className="flex-1">
+              <ValueWithLabel label="Applied Snapshot Name">
+                <div>
+                  {bindingSnapShotName == ""
+                    ? "Not binding with any Snapshot"
+                    : bindingSnapShotName}
+                </div>
+              </ValueWithLabel>
+            </div>
+            <div className="flex-1 border-left-c">
+              <ValueWithLabel label="Drifting from applied Snapshot?">
+                <div>{isDrifting}</div>
+              </ValueWithLabel>
+              <ValueWithLabel label="Diff with applied Snapshot">
+                <div>
+                  <Button
+                    btnType="primary"
+                    disabled={driftingCompareDisable}
+                    onClick={() => {
+                      const path =
+                        "/config/snapshot/detail/" +
+                        id +
+                        "/compare/" +
+                        bindingSnapShotName +
+                        "/" +
+                        "_LATEST_";
+                      navigate(path);
+                    }}
+                  >
+                    Compare with Applied Snapshot
+                  </Button>
+                </div>
+              </ValueWithLabel>
+            </div>
+          </div>
+        </HeaderPanel>
+        <TablePanel
+          loading={loadingData}
+          title="Snapshot list"
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
@@ -329,7 +443,7 @@ const SnapshotDetail: React.FC = () => {
                   getDistributionList();
                 }}
               >
-                Apply Config
+                Apply Snapshot
               </Button>
               <Button
                 disabled={saveDisabled}
