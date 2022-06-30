@@ -25,6 +25,7 @@ export interface PortalProps {
  readonly aws_cognito_region?: string;
  readonly aws_user_pools_id?: string;
  readonly aws_user_pools_web_client_id?: string;
+ readonly build_time?: string;
 }
 
 export class WebPortalStack extends Stack {
@@ -41,6 +42,7 @@ export class WebPortalStack extends Stack {
               aws_user_pools_id: props?.cognitoUserPool.userPoolId,
               aws_user_pools_web_client_id: props?.cognitoClient.userPoolClientId,
               aws_cognito_region: this.region,
+              build_time: new Date().getTime() + "",
           });
       };
 }
@@ -89,7 +91,7 @@ export class PortalStack extends Construct {
         });
         const configFn = 'aws-exports.json';
         // upload static web assets
-        new s3d.BucketDeployment(this, "DeployWebAssets", {
+        const bucketFile = new s3d.BucketDeployment(this, "DeployWebAssets", {
           sources: [
             s3d.Source.asset(path.join(__dirname, "../../../../../portal/build")),
           ],
@@ -99,7 +101,7 @@ export class PortalStack extends Construct {
         new cdk.CfnOutput(this, "export.json", {
             value: portalBucket.bucketName,
         });
-        new AwsCustomResource(this, 'WebConfig', {
+        const configLambda = new AwsCustomResource(this, 'WebConfig', {
             logRetention: RetentionDays.ONE_DAY,
             onUpdate: {
                 action: 'putObject',
@@ -120,6 +122,7 @@ export class PortalStack extends Construct {
                 })
             ])
         });
+        configLambda.node.addDependency(bucketFile);
     }
 
 
