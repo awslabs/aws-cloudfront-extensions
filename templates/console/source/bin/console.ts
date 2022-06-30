@@ -6,7 +6,7 @@ import { BootstraplessStackSynthesizer } from "cdk-bootstrapless-synthesizer";
 import { CloudFrontConfigVersionStack } from "../lib/config-version/aws-cloudfront-config-version-stack";
 import { StepFunctionRpTsStack } from "../lib/ssl-for-saas/step_function_rp_ts-stack";
 import { CommonStack } from "../lib/cf-common/cf-common-stack";
-import {WebPortalStack} from "../lib/web-portal/web_portal_stack";
+import { WebPortalStack } from "../lib/web-portal/web_portal_stack";
 
 
 const app = new cdk.App();

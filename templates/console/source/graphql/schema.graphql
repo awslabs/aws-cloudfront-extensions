@@ -58,12 +58,24 @@ type Version {
     s3_key: String
 }
 
+type Snapshot {
+    id: String!,
+    distribution_id: String!,
+    snapshot_name: String!
+    config_link: String,
+    dateTime: String
+    note: String,
+    s3_bucket: String,
+    s3_key: String
+}
+
 type Cloudfront_info {
     id: String
     domainName: String
     status: String
     enabled: String
     versionCount: String
+    snapshotCount: String
     aliases: AliasInfo!
 }
 
@@ -160,15 +172,29 @@ type Query {
 
     listDistribution: [Cloudfront_info]
 
+    getDistributionCname(distribution_id: String): [String]
+
+    getAppliedSnapshotName(distribution_id: String): String
+
     updateConfigTag(distribution_id: String, version: String, note: String): String
+
+    updateConfigSnapshotTag(distribution_id: String, snapshot_name: String, note: String): String
 
     diffCloudfrontConfig(distribution_id: String, version1: String, version2: String): String
 
+    diffCloudfrontConfigSnapshot(distribution_id: String, snapshot1: String, snapshot2: String): String
+
     listCloudfrontVersions(distribution_id: String): [Version]
+
+    listCloudfrontSnapshots(distribution_id: String): [Snapshot]
 
     getConfigLink(distribution_id: String, versionId: String): ConfigLink
 
+    getConfigSnapshotLink(distribution_id: String, snapshot_name: String): ConfigLink
+
     getConfigContent(distribution_id: String, versionId: String): String
+
+    getConfigSnapshotContent(distribution_id: String, snapshot_name: String): String
 
     # SSL for SAAS
     Notifications(limit: Int): [Notification]
@@ -183,6 +209,15 @@ type Mutation {
 
     # Get the latest extensions
     syncExtensions: String
+
+    # config version create snapShot
+    createVersionSnapShot( distributionId: String!, snapShotName: String!, snapShotNote: String ): String
+
+    # apply snapshot
+    applySnapshot(src_distribution_id: String, snapshot_name: String, target_distribution_ids: [String]): String
+
+    # delete snapshot
+    deleteSnapshot(distributionId: String, snapShotName: String): String
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput

@@ -12,11 +12,11 @@ import Deploy from "pages/deploy/Deploy";
 import Axios from "axios";
 
 import "./App.scss";
-import Version from "pages/config/Version";
+import Version from "pages/config/Version/Version";
 // import DeploymentStatusDetail from "pages/statusDetail/DeploymentStatusDetail";
-import VersionDetail from "pages/config/detail/VersionDetail";
-import SaveVersion from "pages/config/detail/SaveVersion";
-import CompareVersion from "pages/config/detail/CompareVersion";
+import VersionDetail from "pages/config/Version/VersionDetail";
+import SaveVersion from "pages/config/Version/SaveVersion";
+import CompareVersion from "pages/config/Version/CompareVersion";
 import Button from "components/Button";
 import Certification from "pages/config/Certification";
 import Create from "pages/config/certificate/Create";
@@ -28,8 +28,13 @@ import { AMPLIFY_CONFIG_JSON } from "assets/js/const";
 import LoadingText from "components/LoadingText";
 import { ActionType } from "reducer/appReducer";
 import { useDispatch } from "react-redux";
-import VersionDetailDisplay from "./pages/config/detail/VersionDetailDisplay";
+import VersionDetailDisplay from "./pages/config/Version/VersionDetailDisplay";
 import ConfigCertificate from "./pages/config/certificate/steps/ConfigCertificate";
+import Snapshot from "./pages/config/Snapshot/Snapshot";
+import SnapshotDetail from "./pages/config/Snapshot/SnapshotDetail";
+import SaveSnapshot from "./pages/config/Snapshot/SaveSnapshot";
+import SnapshotDetailDisplay from "./pages/config/Snapshot/SnapshotDetailDisplay";
+import CompareSnapshot from "./pages/config/Snapshot/CompareSnapshot";
 
 import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
@@ -130,14 +135,67 @@ const SignInRouter: React.FC = () => {
                   }
                 />
 
-                <Route
-                  path="/config/version/detail/:id/compare/:ver1/:ver2"
-                  element={
-                    <Container>
-                      <CompareVersion />
-                    </Container>
-                  }
-                />
+          <Route
+            path="/config/version/detail/:id/compare/:ver1/:ver2"
+            element={
+              <Container>
+                <CompareVersion />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/Snapshot"
+            element={
+              <Container>
+                <Snapshot />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/:id"
+            element={
+              <Container>
+                <SnapshotDetail />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/:id/:snapshot/save/:note"
+            element={
+              <Container>
+                <SaveSnapshot />
+              </Container>
+            }
+          />
+          <Route
+            path="/config/snapshot/detail/:id/:snapshot/save"
+            element={
+              <Container>
+                <SaveSnapshot />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/display/:id/:snapshot"
+            element={
+              <Container>
+                <SnapshotDetailDisplay />
+              </Container>
+            }
+          />
+
+          <Route
+            path="/config/snapshot/detail/:id/compare/:snapshot1/:snapshot2"
+            element={
+              <Container>
+                <CompareSnapshot />
+              </Container>
+            }
+          />
 
                 <Route
                   path="/config/certification"
@@ -232,6 +290,7 @@ const App: React.FC = () => {
       setLoadingConfig(false);
     });
   }, []);
+
   return (
     <div className="App">
       {loadingConfig ? <LoadingText /> : <SignInRouter />}

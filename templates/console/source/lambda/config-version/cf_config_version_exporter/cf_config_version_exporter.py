@@ -10,6 +10,7 @@ from botocore.exceptions import ClientError
 S3_BUCKET = os.environ['S3_BUCKET']
 DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
 DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
+DDB_SNAPSHOT_TABLE_NAME = os.environ['DDB_SNAPSHOT_TABLE_NAME']
 
 # TODO: for local debug purpose, will remove before release
 # S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
@@ -118,6 +119,41 @@ def lambda_handler(event, context):
         },
         ReturnValues="UPDATED_NEW"
     )
+
+    # create or update the latest snapshot record in snapshot DDB
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+    ddb_data = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "snapShotName": '_LATEST_'
+        })
+    if 'Item' in ddb_data:
+        # Update the latest snapshot record
+        # Update the snapshot version to latest version
+        response = ddb_snapshot_table.update_item(
+            Key={
+                'distributionId': distribution_id,
+                'snapShotName': '_LATEST_'
+            },
+            UpdateExpression="set versionId=:r, dateTime=:d",
+            ExpressionAttributeValues={
+                ':r': new_version,
+                ':d': current_time
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+    else:
+        logging.info("not found any snapshot records for distribution:" + distribution_id)
+        logging.info("create first snapshot record for distribution:" + distribution_id)
+        ddb_snapshot_table.put_item(
+            Item={
+                'distributionId': distribution_id,
+                'snapShotName': "_LATEST_",
+                'versionId': new_version,
+                'dateTime': current_time,
+                'note': ""
+            })
+
 
     return {
         'statusCode': 200,

@@ -9,7 +9,7 @@ import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
 import { listDistribution } from "graphql/queries";
-import { Cloudfront_info } from "../../API";
+import { Cloudfront_info } from "../../../API";
 
 const BreadCrunbList = [
   {
@@ -22,7 +22,7 @@ const BreadCrunbList = [
   },
 ];
 
-const Version = () => {
+const Snapshot = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [cloudFrontList, setCloudFrontList] = useState<Cloudfront_info[]>([]);
   const [searchParams, setSearchParams] = useState("");
@@ -77,7 +77,7 @@ const Version = () => {
               header: "ID",
               cell: (e: Cloudfront_info) => {
                 return (
-                  <Link to={`/config/version/detail/${e.id}`}>{e.id}</Link>
+                  <Link to={`/config/snapshot/detail/${e.id}`}>{e.id}</Link>
                 );
               },
             },
@@ -102,9 +102,9 @@ const Version = () => {
               cell: (e: Cloudfront_info) => e.domainName,
             },
             {
-              id: "versionCount",
-              header: "Version count",
-              cell: (e: Cloudfront_info) => e.versionCount,
+              id: "snapshotCount",
+              header: "Snapshot count",
+              cell: (e: Cloudfront_info) => e.snapshotCount,
             },
             {
               width: 150,
@@ -118,23 +118,23 @@ const Version = () => {
           changeSelected={() => {
             // setCloudFrontList(MOCK_CLOUDFRONT_LIST);
           }}
-          filter={
-            <div>
-              <TextInput
-                value={searchParams}
-                isSearch={true}
-                placeholder={"Search all contributions"}
-                onChange={(event) => {
-                  console.info("event:", event);
-                  setSearchParams(event.target.value);
-                }}
-              />
-            </div>
-          }
+          // filter={
+          //   <div>
+          //     <TextInput
+          //       value={searchParams}
+          //       isSearch={true}
+          //       placeholder={"Search all contributions"}
+          //       onChange={(event) => {
+          //         console.info("event:", event);
+          //         setSearchParams(event.target.value);
+          //       }}
+          //     />
+          //   </div>
+          // }
         />
       </div>
     </div>
   );
 };
 
-export default Version;
+export default Snapshot;

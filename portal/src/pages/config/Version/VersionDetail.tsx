@@ -13,6 +13,7 @@ import { Cloudfront_info, Version } from "API";
 import { appSyncRequestQuery } from "assets/js/request";
 import {
   applyConfig,
+  getDistributionCname,
   listCloudfrontVersions,
   listDistribution,
 } from "graphql/queries";
@@ -39,6 +40,8 @@ const VersionDetail: React.FC = () => {
   const [confirm, setConfirm] = useState("");
   const [loadingData, setLoadingData] = useState(false);
   const [loadingApply, setLoadingApply] = useState(false);
+  const [distributionId, setDistributionId] = useState<any>("");
+  const [distributionAliases, setDistributionAliases] = useState<string[]>([]);
   const { id } = useParams();
   const BreadCrunbList = [
     {
@@ -57,6 +60,7 @@ const VersionDetail: React.FC = () => {
   // Get Version List By Distribution
   const getVersionListByDistribution = async () => {
     try {
+      setDistributionId(id || "");
       setLoadingData(true);
       setVersionList([]);
       const resData = await appSyncRequestQuery(listCloudfrontVersions, {
@@ -78,6 +82,23 @@ const VersionDetail: React.FC = () => {
 
   useEffect(() => {
     getVersionListByDistribution();
+  }, []);
+
+  // get alias by Distribution
+  const getCloudfrontAliases = async () => {
+    try {
+      const resData = await appSyncRequestQuery(getDistributionCname, {
+        distribution_id: id,
+      });
+      console.info(resData);
+      const result: string[] = resData.data.getDistributionCname;
+      setDistributionAliases(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getCloudfrontAliases();
   }, []);
 
   // Get Version List By Distribution
@@ -182,7 +203,9 @@ const VersionDetail: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title={id || ""}
+          title={
+            distributionId + "(" + (distributionAliases[0] || "No CName") + ")"
+          }
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
@@ -197,15 +220,15 @@ const VersionDetail: React.FC = () => {
                   <RefreshIcon fontSize="small" />
                 )}
               </Button>
-              <Button
-                disabled={applyDisabled}
-                onClick={() => {
-                  setOpenModal(true);
-                  getDistributionList();
-                }}
-              >
-                Apply Config
-              </Button>
+              {/*<Button*/}
+              {/*  disabled={applyDisabled}*/}
+              {/*  onClick={() => {*/}
+              {/*    setOpenModal(true);*/}
+              {/*    getDistributionList();*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  Apply Config*/}
+              {/*</Button>*/}
               <Button
                 disabled={saveDisabled}
                 onClick={() => {
@@ -272,7 +295,7 @@ const VersionDetail: React.FC = () => {
           items={versionFilterList}
           columnDefinitions={[
             {
-              // width: 150,
+              width: 150,
               id: "id",
               header: "Version Id",
               cell: (e: Version) => {
@@ -282,16 +305,16 @@ const VersionDetail: React.FC = () => {
               },
             },
             {
-              // width: 180,
+              width: 200,
               id: "date",
               header: "Date",
               cell: (e: Version) => e.dateTime,
             },
-            {
-              id: "s3key",
-              header: "S3 Key",
-              cell: (e: Version) => e.s3_key,
-            },
+            // {
+            //   id: "s3key",
+            //   header: "S3 Key",
+            //   cell: (e: Version) => e.s3_key,
+            // },
             {
               // width: 200,
               id: "tags",
@@ -299,19 +322,19 @@ const VersionDetail: React.FC = () => {
               cell: (e: Version) => e.note,
             },
           ]}
-          filter={
-            <div>
-              <TextInput
-                value={searchParams}
-                isSearch={true}
-                placeholder={"Search all versions"}
-                onChange={(event) => {
-                  console.info("event:", event);
-                  setSearchParams(event.target.value);
-                }}
-              />
-            </div>
-          }
+          // filter={
+          //   <div>
+          //     <TextInput
+          //       value={searchParams}
+          //       isSearch={true}
+          //       placeholder={"Search all versions"}
+          //       onChange={(event) => {
+          //         console.info("event:", event);
+          //         setSearchParams(event.target.value);
+          //       }}
+          //     />
+          //   </div>
+          // }
           changeSelected={(item) => {
             setSelectedItem(item);
           }}
