@@ -621,7 +621,12 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       "appsync_func",
       {
         code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/appsync_func")
+          path.join(__dirname, "../../lambda/ssl-for-saas/appsync_func"),
+          {
+              buildArgs: {
+                  "--platform": "linux/amd64"
+              }
+          }
         ),
         environment: {
           STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
