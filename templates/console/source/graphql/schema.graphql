@@ -172,6 +172,8 @@ type Query {
 
     listDistribution: [Cloudfront_info]
 
+    getDistributionCname(distribution_id: String): [String]
+
     updateConfigTag(distribution_id: String, version: String, note: String): String
 
     updateConfigSnapshotTag(distribution_id: String, snapshot_name: String, note: String): String

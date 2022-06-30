@@ -392,6 +392,11 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     lambdaDs.createResolver({
       typeName: "Query",
+      fieldName: "getDistributionCname",
+    });
+
+    lambdaDs.createResolver({
+      typeName: "Query",
       fieldName: "updateConfigTag",
     });
 

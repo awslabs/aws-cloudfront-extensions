@@ -88,6 +88,11 @@ export const listDistribution = /* GraphQL */ `
     }
   }
 `;
+export const getDistributionCname = /* GraphQL */ `
+  query GetDistributionCname($distribution_id: String) {
+    getDistributionCname(distribution_id: $distribution_id)
+  }
+`;
 export const updateConfigTag = /* GraphQL */ `
   query UpdateConfigTag(
     $distribution_id: String

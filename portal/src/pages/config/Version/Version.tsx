@@ -118,19 +118,19 @@ const Version = () => {
           changeSelected={() => {
             // setCloudFrontList(MOCK_CLOUDFRONT_LIST);
           }}
-          filter={
-            <div>
-              <TextInput
-                value={searchParams}
-                isSearch={true}
-                placeholder={"Search all contributions"}
-                onChange={(event) => {
-                  console.info("event:", event);
-                  setSearchParams(event.target.value);
-                }}
-              />
-            </div>
-          }
+          // filter={
+          //   <div>
+          //     <TextInput
+          //       value={searchParams}
+          //       isSearch={true}
+          //       placeholder={"Search all contributions"}
+          //       onChange={(event) => {
+          //         console.info("event:", event);
+          //         setSearchParams(event.target.value);
+          //       }}
+          //     />
+          //   </div>
+          // }
         />
       </div>
     </div>

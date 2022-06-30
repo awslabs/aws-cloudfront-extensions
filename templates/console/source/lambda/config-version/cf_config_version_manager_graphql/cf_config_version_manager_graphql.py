@@ -261,6 +261,7 @@ def manager_snapshot_apply_config(src_distribution_id: str = "", target_distribu
 
     # call boto to apply the config to target distribution
     cf_client = boto3.client('cloudfront')
+    ddb_latest_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
 
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
@@ -284,6 +285,18 @@ def manager_snapshot_apply_config(src_distribution_id: str = "", target_distribu
                     Id=distribution_id,
                     IfMatch=etag
                 )
+                # Update the snapshot name to DDB_LATESTVERSION_TABLE_NAME
+                response = ddb_latest_table.update_item(
+                    Key={
+                        'distributionId': distribution_id,
+                    },
+                    UpdateExpression="set snapshot_name=:r",
+                    ExpressionAttributeValues={
+                        ':r': src_snapshot
+                    },
+                    ReturnValues="UPDATED_NEW"
+                )
+
                 logger.info('target distributions been updated')
 
     return {
@@ -412,9 +425,24 @@ def manager_version_config_cf_list():
         if len(record_list) == 0:
             tmp_dist['snapshotCount'] = 0
         else:
-            tmp_dist['snapshotCount'] = len(record_list)
+            tmp_dist['snapshotCount'] = len(record_list) - 1
 
     return result
+
+@app.resolver(type_name="Query", field_name="getDistributionCname")
+def manager_get_cf_cname_info(distribution_id: str = ""):
+    # first get distribution List from current account
+    cf_client = boto3.client('cloudfront')
+    response = cf_client.get_distribution_config(
+        Id=distribution_id
+    )
+    config_data = response['DistributionConfig']
+    logger.info(config_data)
+
+    if config_data['Aliases']['Quantity'] == 0:
+        return []
+    else:
+        return config_data['Aliases']['Items']
 
 
 @app.resolver(type_name="Query", field_name="getConfigLink")

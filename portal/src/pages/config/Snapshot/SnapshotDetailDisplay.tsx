@@ -75,15 +75,17 @@ const SnapshotDetailDisplay: React.FC = () => {
       const snapshotList: Snapshot[] = resData.data.listCloudfrontSnapshots;
       const tmpList = [];
       for (const snapshotKey in snapshotList) {
-        tmpList.push({
-          name:
-            snapshotList[snapshotKey].snapshot_name +
-            "\t|\t" +
-            snapshotList[snapshotKey].dateTime +
-            "\t|\t" +
-            snapshotList[snapshotKey].note,
-          value: snapshotList[snapshotKey].snapshot_name,
-        });
+        if (snapshotList[snapshotKey].snapshot_name != "_LATEST_") {
+          tmpList.push({
+            name:
+              snapshotList[snapshotKey].snapshot_name +
+              "\t|\t" +
+              snapshotList[snapshotKey].dateTime +
+              "\t|\t" +
+              snapshotList[snapshotKey].note,
+            value: snapshotList[snapshotKey].snapshot_name,
+          });
+        }
       }
       setSnapshotList(tmpList);
     } catch (error) {

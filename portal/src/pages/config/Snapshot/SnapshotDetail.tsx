@@ -9,10 +9,11 @@ import TextInput from "components/TextInput";
 import Modal from "components/Modal";
 import FormItem from "components/FormItem";
 import MultiSelect from "components/MultiSelect";
-import { Cloudfront_info, Snapshot } from "API";
+import { Cloudfront_info, Snapshot, Version } from "API";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import {
   applyConfig,
+  getDistributionCname,
   listCloudfrontSnapshots,
   listDistribution,
 } from "graphql/queries";
@@ -40,6 +41,8 @@ const SnapshotDetail: React.FC = () => {
   const [saveDisabled, setSaveDisabled] = useState(false);
   const [deleteDisabled, setDeleteDisabled] = useState(false);
   const [compareDisabled, setCompareDisabled] = useState(false);
+  const [compareWithCurrentDisabled, setCompareWithCurrentDisabled] =
+    useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [snapshotModal, setSnapshotModal] = useState(false);
   const [selectDistribution, setSelectDistribution] = useState<any>([]);
@@ -49,6 +52,7 @@ const SnapshotDetail: React.FC = () => {
   const [snapShotName, setSnapShotName] = useState<any>("");
   const [snapShotNote, setSnapShotNote] = useState<any>("");
   const [distributionId, setDistributionId] = useState<any>("");
+  const [distributionAliases, setDistributionAliases] = useState<string[]>([]);
   const { id } = useParams();
   const BreadCrunbList = [
     {
@@ -74,13 +78,13 @@ const SnapshotDetail: React.FC = () => {
         distribution_id: id,
       });
       const snapshotList: Snapshot[] = resData.data.listCloudfrontSnapshots;
-      const snapshotWithNoteList: Snapshot[] = snapshotList.filter(
-        (snapshot) => snapshot.note != ""
+      const snapshotWithoutLatest: Snapshot[] = snapshotList.filter(
+        (snapshot) => snapshot.snapshot_name != "_LATEST_"
       );
       setLoadingData(false);
-      setSnapshotList(snapshotList);
-      setSnapshotFilterList(snapshotList);
-      setSnapshotWithNotesList(snapshotWithNoteList);
+      setSnapshotList(snapshotWithoutLatest);
+      setSnapshotFilterList(snapshotWithoutLatest);
+      setSnapshotWithNotesList(snapshotWithoutLatest);
     } catch (error) {
       setLoadingData(false);
       console.error(error);
@@ -115,6 +119,23 @@ const SnapshotDetail: React.FC = () => {
       console.error(error);
     }
   };
+
+  // get alias by Distribution
+  const getCloudfrontAliases = async () => {
+    try {
+      const resData = await appSyncRequestQuery(getDistributionCname, {
+        distribution_id: id,
+      });
+      console.info(resData);
+      const result: string[] = resData.data.getDistributionCname;
+      setDistributionAliases(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getCloudfrontAliases();
+  }, []);
 
   // Get Snapshot List By Distribution
   const applyCloudFrontSnapshot = async () => {
@@ -199,20 +220,24 @@ const SnapshotDetail: React.FC = () => {
         setSaveDisabled(false);
         setDeleteDisabled(false);
         setCompareDisabled(true);
+        setCompareWithCurrentDisabled(false);
       } else if (selectedItem.length === 2) {
         setApplyDisabled(true);
         setSaveDisabled(true);
         setDeleteDisabled(true);
         setCompareDisabled(false);
+        setCompareWithCurrentDisabled(true);
       } else {
         setApplyDisabled(true);
         setSaveDisabled(true);
         setCompareDisabled(true);
+        setCompareWithCurrentDisabled(true);
       }
     } else {
       setApplyDisabled(true);
       setSaveDisabled(true);
       setCompareDisabled(true);
+      setCompareWithCurrentDisabled(true);
     }
   }, [selectedItem]);
 
@@ -222,7 +247,9 @@ const SnapshotDetail: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title={id || ""}
+          title={
+            distributionId + "(" + (distributionAliases[0] || "No Cname") + ")"
+          }
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
@@ -236,31 +263,6 @@ const SnapshotDetail: React.FC = () => {
                 ) : (
                   <RefreshIcon fontSize="small" />
                 )}
-              </Button>
-              <Button
-                disabled={applyDisabled}
-                onClick={() => {
-                  setOpenModal(true);
-                  getDistributionList();
-                }}
-              >
-                Apply Config
-              </Button>
-              <Button
-                disabled={saveDisabled}
-                onClick={() => {
-                  const path =
-                    "/config/snapshot/detail/" +
-                    id +
-                    "/" +
-                    selectedItem[0].snapshot_name +
-                    "/save" +
-                    "/" +
-                    selectedItem[0].note;
-                  navigate(path);
-                }}
-              >
-                Update Snapshot Notes
               </Button>
               <Button
                 btnType="primary"
@@ -289,6 +291,22 @@ const SnapshotDetail: React.FC = () => {
                 Delete Snapshot
               </Button>
               <Button
+                disabled={compareWithCurrentDisabled}
+                btnType="primary"
+                onClick={() => {
+                  const path =
+                    "/config/snapshot/detail/" +
+                    id +
+                    "/compare/" +
+                    selectedItem[0].snapshot_name +
+                    "/" +
+                    "_LATEST_";
+                  navigate(path);
+                }}
+              >
+                Compare with Current
+              </Button>
+              <Button
                 disabled={compareDisabled}
                 btnType="primary"
                 onClick={() => {
@@ -304,13 +322,38 @@ const SnapshotDetail: React.FC = () => {
               >
                 Compare
               </Button>
+              <Button
+                disabled={applyDisabled}
+                onClick={() => {
+                  setOpenModal(true);
+                  getDistributionList();
+                }}
+              >
+                Apply Config
+              </Button>
+              <Button
+                disabled={saveDisabled}
+                onClick={() => {
+                  const path =
+                    "/config/snapshot/detail/" +
+                    id +
+                    "/" +
+                    selectedItem[0].snapshot_name +
+                    "/save" +
+                    "/" +
+                    selectedItem[0].note;
+                  navigate(path);
+                }}
+              >
+                Update Snapshot Notes
+              </Button>
             </div>
           }
           pagination={<Pagination />}
           items={snapshotFilterList}
           columnDefinitions={[
             {
-              // width: 150,
+              width: 150,
               id: "snapShotName",
               header: "Snapshot Name",
               cell: (e: Snapshot) => {
@@ -323,16 +366,16 @@ const SnapshotDetail: React.FC = () => {
               },
             },
             {
-              // width: 180,
+              width: 200,
               id: "date",
               header: "Date",
               cell: (e: Snapshot) => e.dateTime,
             },
-            {
-              id: "s3key",
-              header: "S3 Key",
-              cell: (e: Snapshot) => e.s3_key,
-            },
+            // {
+            //   id: "s3key",
+            //   header: "S3 Key",
+            //   cell: (e: Snapshot) => e.s3_key,
+            // },
             {
               // width: 200,
               id: "tags",
@@ -340,19 +383,19 @@ const SnapshotDetail: React.FC = () => {
               cell: (e: Snapshot) => e.note,
             },
           ]}
-          filter={
-            <div>
-              <TextInput
-                value={searchParams}
-                isSearch={true}
-                placeholder={"Search all snapshots"}
-                onChange={(event) => {
-                  console.info("event:", event);
-                  setSearchParams(event.target.value);
-                }}
-              />
-            </div>
-          }
+          // filter={
+          //   <div>
+          //     <TextInput
+          //       value={searchParams}
+          //       isSearch={true}
+          //       placeholder={"Search all snapshots"}
+          //       onChange={(event) => {
+          //         console.info("event:", event);
+          //         setSearchParams(event.target.value);
+          //       }}
+          //     />
+          //   </div>
+          // }
           changeSelected={(item) => {
             setSelectedItem(item);
           }}
