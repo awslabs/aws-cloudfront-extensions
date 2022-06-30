@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+t import React, { useState, useEffect } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Container from "./components/layouts/PageContainer";
 import Footer from "./components/layouts/PageFooter";
@@ -135,67 +135,67 @@ const SignInRouter: React.FC = () => {
                   }
                 />
 
-          <Route
-            path="/config/version/detail/:id/compare/:ver1/:ver2"
-            element={
-              <Container>
-                <CompareVersion />
-              </Container>
-            }
-          />
+                <Route
+                  path="/config/version/detail/:id/compare/:ver1/:ver2"
+                  element={
+                    <Container>
+                      <CompareVersion />
+                    </Container>
+                  }
+                />
 
-          <Route
-            path="/config/Snapshot"
-            element={
-              <Container>
-                <Snapshot />
-              </Container>
-            }
-          />
+                <Route
+                  path="/config/Snapshot"
+                  element={
+                    <Container>
+                      <Snapshot />
+                    </Container>
+                  }
+                />
 
-          <Route
-            path="/config/snapshot/detail/:id"
-            element={
-              <Container>
-                <SnapshotDetail />
-              </Container>
-            }
-          />
+                <Route
+                  path="/config/snapshot/detail/:id"
+                  element={
+                    <Container>
+                      <SnapshotDetail />
+                    </Container>
+                  }
+                />
 
-          <Route
-            path="/config/snapshot/detail/:id/:snapshot/save/:note"
-            element={
-              <Container>
-                <SaveSnapshot />
-              </Container>
-            }
-          />
-          <Route
-            path="/config/snapshot/detail/:id/:snapshot/save"
-            element={
-              <Container>
-                <SaveSnapshot />
-              </Container>
-            }
-          />
+                <Route
+                  path="/config/snapshot/detail/:id/:snapshot/save/:note"
+                  element={
+                    <Container>
+                      <SaveSnapshot />
+                    </Container>
+                  }
+                />
+                <Route
+                  path="/config/snapshot/detail/:id/:snapshot/save"
+                  element={
+                    <Container>
+                      <SaveSnapshot />
+                    </Container>
+                  }
+                />
 
-          <Route
-            path="/config/snapshot/detail/display/:id/:snapshot"
-            element={
-              <Container>
-                <SnapshotDetailDisplay />
-              </Container>
-            }
-          />
+                <Route
+                  path="/config/snapshot/detail/display/:id/:snapshot"
+                  element={
+                    <Container>
+                      <SnapshotDetailDisplay />
+                    </Container>
+                  }
+                />
 
-          <Route
-            path="/config/snapshot/detail/:id/compare/:snapshot1/:snapshot2"
-            element={
-              <Container>
-                <CompareSnapshot />
-              </Container>
-            }
-          />
+                <Route
+                  path="/config/snapshot/detail/:id/compare/:snapshot1/:snapshot2"
+                  element={
+                    <Container>
+                      <CompareSnapshot />
+                    </Container>
+                  }
+                />
 
                 <Route
                   path="/config/certification"
