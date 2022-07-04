@@ -46,7 +46,7 @@ const SignInRouter: React.FC = () => {
       {({ signOut, user }) => {
         return (
           <>
-            <Header signOut={signOut} user={user} />;
+            <Header signOut={signOut} user={user} />
             <BrowserRouter>
               <Routes>
                 <Route
