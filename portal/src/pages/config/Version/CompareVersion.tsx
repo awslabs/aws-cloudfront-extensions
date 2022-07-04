@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import deepEqual from "deep-equal";
 import ReactDiffViewer from "react-diff-viewer";
 import PauseCircleFilledIcon from "@material-ui/icons/PauseCircleFilled";
 import SwapHorizontalCircleIcon from "@material-ui/icons/SwapHorizontalCircle";
@@ -127,9 +128,10 @@ const CompareVersion: React.FC = () => {
       result[key]["showLeft"] = false;
       result[key]["showRight"] = false;
       if (typeof obj2[key] === "object" && typeof obj1[key] === "object") {
-        const obj1Str = JSON.stringify(obj1[key]);
-        const obj2Str = JSON.stringify(obj2[key]);
-        if (obj1Str !== obj2Str) {
+        // const obj1Str = JSON.stringify(obj1[key]);
+        // const obj2Str = JSON.stringify(obj2[key]);
+        // if (obj1Str !== obj2Str) {
+        if (!deepEqual(obj1[key], obj2[key])) {
           result[key]["res"] = COMPARE_RESULT.DIFF;
           result[key]["data1"] = obj1[key];
           result[key]["data2"] = obj2[key];

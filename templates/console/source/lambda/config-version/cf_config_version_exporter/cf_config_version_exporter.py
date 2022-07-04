@@ -135,13 +135,13 @@ def lambda_handler(event, context):
                 'distributionId': distribution_id,
                 'snapShotName': '_LATEST_'
             },
-            UpdateExpression="set versionId=:r, dateTime=:d",
+            UpdateExpression="set versionId=:r",
             ExpressionAttributeValues={
                 ':r': new_version,
-                ':d': current_time
             },
             ReturnValues="UPDATED_NEW"
         )
+        log.info("Snapshot Latest version been updated")
     else:
         logging.info("not found any snapshot records for distribution:" + distribution_id)
         logging.info("create first snapshot record for distribution:" + distribution_id)
@@ -153,6 +153,7 @@ def lambda_handler(event, context):
                 'dateTime': current_time,
                 'note': ""
             })
+        log.info("Snapshot Latest version does not exist, just create a new one")
 
 
     return {

@@ -34,7 +34,6 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     // dynamodb table for acm callback
     const callback_table = new dynamodb.Table(this, "acm_metadata", {
-      tableName: "acm_metadata_store",
       partitionKey: {
         name: "taskToken",
         type: dynamodb.AttributeType.STRING,
