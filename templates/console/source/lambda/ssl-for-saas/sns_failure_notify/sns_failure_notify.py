@@ -3,11 +3,14 @@ import uuid
 import boto3
 import os
 import json
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)

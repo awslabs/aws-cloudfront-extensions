@@ -7,6 +7,7 @@ import json
 import re
 import random
 import string
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
 from requests import exceptions
@@ -18,6 +19,8 @@ sns_client = boto3.client('sns')
 cf = boto3.client('cloudfront')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
@@ -326,7 +329,16 @@ def lambda_handler(event, context):
 
     sns_msg = []
 
-    validate_source_cloudfront_dist(domain_name_list)
+    auto_creation = event['input']['auto_creation']
+
+    certTotalNumber = len(event['input']['cnameList'])
+    cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
+
+    create_job_info(JOB_INFO_TABLE_NAME,task_token,json.dumps(event['input'],indent=4), certTotalNumber,
+                            cloudfrontTotalNumber, 0, 0)
+
+    if 'true' == auto_creation:
+        validate_source_cloudfront_dist(domain_name_list)
 
     # aggregate certificate if dist_aggregate is true
     if dist_aggregate == "true":

@@ -3,6 +3,7 @@ import uuid
 import boto3
 import os
 import json
+from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -10,6 +11,9 @@ dynamo_client = boto3.client('dynamodb')
 sf_client = boto3.client('stepfunctions')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+# JOB_INFO_TABLE_NAME = 'StepFunctionRpTsStack-sslforsaasjobinfotable858BC785-VPJ5L5TT5PSV'
+JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
@@ -167,6 +171,7 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
 
 def query_update_metadata(acm_dcv_dict, item, table_name):
     # iterate all taskToken in acm_dcv_dict
+    jobStatusDict = {}
     for task_token in acm_dcv_dict:
         resp = query_certificate_status(task_token[:128])
         # check if all certificates with specified taskToken are issued
@@ -175,6 +180,9 @@ def query_update_metadata(acm_dcv_dict, item, table_name):
             for domainName in acm_dcv_dict[task_token]:
                 _update_acm_metadata_task_status(table_name, task_token, domainName, 'CERT_ISSUED')
             _set_task_success(item['taskToken']['S'], {'status': 'SUCCEEDED'})
+            currentNum = jobStatusDict.get(task_token,0)
+            jobStatusDict.setdefault(task_token, currentNum);
+            jobStatusDict.update({task_token: currentNum+1})
             # update all certs in acm_dcv_dict, validate transient status are:
             # TASK_TOKEN_TAGGED | CERT_ISSUED | CERT_FAILED
         elif resp == 'certNotIssued':
@@ -186,6 +194,19 @@ def query_update_metadata(acm_dcv_dict, item, table_name):
             for domainName in acm_dcv_dict[task_token]:
                 _update_acm_metadata_task_status(table_name, task_token, domainName, 'CERT_FAILED')
             _set_task_failure(item['taskToken']['S'], {'status': 'FAILED'})
+
+    # Update the Job info table for the issued CertNumber
+    for job_token,num in jobStatusDict.items():
+        logger.info(job_token)
+        logger.info(num)
+        resp = get_job_info(JOB_INFO_TABLE_NAME,job_token)
+        if 'Items' in resp:
+            ddb_record = resp['Items'][0]
+            cert_completed_number = ddb_record['cert_completed_number']
+            new_number = int(cert_completed_number) + num
+            update_job_cert_completed_number(JOB_INFO_TABLE_NAME,job_token,new_number)
+        else:
+            logger.error(f"failed to get the job info of job_id:{job_token} ")
 
 
 def lambda_handler(event, context):
