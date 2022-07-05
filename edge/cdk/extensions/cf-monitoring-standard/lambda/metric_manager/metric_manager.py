@@ -62,7 +62,7 @@ def get_metric_data(start_time, end_time, metric, domain):
             log.info(
                 "[get_metric_data] Start to get query result from ddb table - "
                 + metric_item)
-            if metric_item == 'topNUrlRequests' or 'topNUrlSize':
+            if metric_item == 'topNUrlRequests' or metric_item == 'topNUrlSize':
                 temp_start_time = datetime.fromtimestamp(start_time).replace(hour=0, minute=0, second=0)
                 temp_end_time = datetime.fromtimestamp(end_time).replace(hour=0, minute=0, second=0)
                 if temp_start_time == temp_end_time:

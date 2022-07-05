@@ -67,14 +67,13 @@ def compose_error_response(message):
 
 
 def start_invalidation(url_list, cf_domain, pop_region,
-                       req_id, current_time, dist_id):
+                       req_id, current_time):
     lambda_payload = {
         'url_list': url_list,
         'cf_domain': cf_domain,
         'pop_region': pop_region,
         'req_id': req_id,
-        'create_time': current_time,
-        'dist_id': dist_id
+        'create_time': current_time
     }
     try:
         response = lambda_client.invoke(
@@ -90,32 +89,21 @@ def start_invalidation(url_list, cf_domain, pop_region,
         return None
 
 
-def find_dist_id(cf_domain):
-    try:
-        distributions = cf_client.list_distributions()
-        distribution_id = list(filter(
-            lambda d: cf_domain == d['DomainName'], distributions['DistributionList']['Items']))[0]['Id']
-        log.info('Distribution id: ' + distribution_id)
-    except Exception as e:
-        log.error('Fail to find distribution with domain name: ' +
-                  cf_domain + ', error details: ' + str(e))
-        return ''
-
-    return distribution_id
-
-
 def lambda_handler(event, context):
     req_id = context.aws_request_id
     event_body = json.loads(event['body'])
-    if 'url_list' not in event_body or 'cf_domain' not in event_body or 'region' not in event_body:
+    if 'url_list' not in event_body or 'region' not in event_body:
         return compose_error_response(
-            'Please specify url_list, cf_domain and region in the request body')
+            'Please specify url_list and region in the request body')
 
     url_list = event_body['url_list']
     if len(url_list) == 0:
         return compose_error_response('Please specify at least 1 url in url_list')
 
-    cf_domain = event_body['cf_domain']
+    if 'cf_domain' in event:
+        cf_domain = event['cf_domain']
+    else:
+        cf_domain = None
     pop_region = event_body['region']
     current_time = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
@@ -127,10 +115,9 @@ def lambda_handler(event, context):
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
-    dist_id = find_dist_id(cf_domain)
     write_in_ddb(req_id, url_list, pop_region, current_time)
     inv_resp = start_invalidation(url_list, cf_domain, pop_region,
-                                  req_id, current_time, dist_id)
+                                  req_id, current_time)
     if inv_resp is None:
         return {
             "statusCode": 500,
