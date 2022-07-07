@@ -12,6 +12,13 @@ phases:
 #      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
       - npm install -g aws-cdk
       - cdk --version
+      - git config --global user.email "cloudfront-extns-helper@example.com"
+      - git config --global user.name "cloudfront-extns-helper"
+      - VERSION=2.0.0
+      - |-
+        if [ $(git tag -l "$VERSION") ]; then
+          git tag -d 2.0.0
+        fi
 #      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
 #      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
   build:
@@ -23,6 +30,7 @@ phases:
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec.yml || true
+      - git tag -a 2.0.0 -m "${BUILD_NUMBER} ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 artifacts:
   files:
     - .git/**/*
