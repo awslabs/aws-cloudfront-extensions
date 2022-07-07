@@ -21,6 +21,7 @@ import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { Rule } from "aws-cdk-lib/aws-events";
 import targets = require("aws-cdk-lib/aws-events-targets");
 import { CommonProps } from "../cf-common/cf-common-stack";
+import { MyCustomResource } from "./custom-resources/cloudfront-config-custom-resource";
 
 export class CloudFrontConfigVersionStack extends Stack {
   constructor(scope: cdk.App, id: string, props?: CommonProps) {
@@ -464,6 +465,21 @@ export class CloudFrontConfigVersionStack extends Stack {
       typeName: "Mutation",
       fieldName: "deleteSnapshot",
     });
+
+    // create customer resource to init all cloudfront config data in DDB
+    const resource = new MyCustomResource(
+      this,
+      "CloudfrontVersionConfigResource",
+      {
+        message: "Trying to fetch all existing cloudfront distribution config",
+        DDB_VERSION_TABLE_NAME: cloudfront_config_version_table.tableName,
+        DDB_LATESTVERSION_TABLE_NAME:
+          cloudfront_config_latestVersion_table.tableName,
+        DDB_SNAPSHOT_TABLE_NAME: cloudfront_config_snapshot_table.tableName,
+        S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
+        roleArn: lambdaRole.roleArn,
+      }
+    );
 
     // Prints out the stack region to the terminal
     new cdk.CfnOutput(this, "Stack Region", {

@@ -1,9 +1,8 @@
-import json
-import logging
-import os
-from datetime import datetime
-
 import boto3
+import os
+import logging
+import json
+from datetime import datetime
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
@@ -12,29 +11,8 @@ DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
 DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
 DDB_SNAPSHOT_TABLE_NAME = os.environ['DDB_SNAPSHOT_TABLE_NAME']
 
-# TODO: for local debug purpose, will remove before release
-# S3_BUCKET = "cloudfrontconfigversions-cloudfrontconfigversions-60jwdz7zg1zi"
-# DDB_VERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigVersionTable6E23F7F5-D8I07GGNBYFJ'
-# DDB_LATESTVERSION_TABLE_NAME = 'CloudFrontConfigVersionStack-CloudFrontConfigLatestVersionTable44770AF8-7LF5V48RKDK0'
-
 log = logging.getLogger()
 log.setLevel('INFO')
-
-
-def lambda_handler(event, context):
-    # extract the distribution id from the input
-    log.info(event['detail'])
-    if event['detail']['eventName'] == 'CreateDistribution':
-        response_parameters = event["detail"]["responseElements"]
-        distribution_id = response_parameters['distribution']['id']
-    else:
-        request_parameters = event["detail"]["requestParameters"]
-        distribution_id = request_parameters["id"]
-
-    log.info(distribution_id)
-
-    return update_config_version(distribution_id)
-
 
 def update_config_version(distribution_id):
     # export the cloudfront config to S3 bucket and directory
@@ -150,7 +128,45 @@ def update_config_version(distribution_id):
                 'note': ""
             })
         log.info("Snapshot Latest version does not exist, just create a new one")
-    return {
-        'statusCode': 200,
-        'body': 'succeed'
-    }
+
+def main(event, context):
+    import logging as log
+    import cfnresponse
+    log.getLogger().setLevel(log.INFO)
+
+    # This needs to change if there are to be multiple resources in the same stack
+    physical_id = 'CustomResourceForConfigVersion'
+
+    try:
+        log.info('Input event: %s', event)
+
+        # Check if this is a 'Create' or 'Update'
+        if (event['RequestType'] == 'Create') or (event['RequestType'] == 'Update'):
+            # first get distribution List from current account
+
+            cf_client = boto3.client('cloudfront')
+            response = cf_client.list_distributions()
+
+            result = []
+            ddb_client = boto3.resource('dynamodb')
+            ddb_table= ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
+            for dist in response['DistributionList']['Items']:
+                distribution_id = dist['Id']
+                # search ddb for the distribution id
+                response = ddb_table.query(
+                    KeyConditionExpression=Key('distributionId').eq(distribution_id)
+                )
+                if(len(response['Items']) == 0):
+                    # try to insert meta data to our ddb
+                    update_config_version(distribution_id)
+
+        message = event['ResourceProperties']['message']
+        attributes = {
+            'Response': 'Cloudfront configuration init completed: "%s"' % message
+        }
+
+        cfnresponse.send(event, context, cfnresponse.SUCCESS, attributes, physical_id)
+    except Exception as e:
+        log.exception(e)
+        # cfnresponse's error message is always "see CloudWatch"
+        cfnresponse.send(event, context, cfnresponse.FAILED, {}, physical_id)
