@@ -7,6 +7,7 @@ import json
 import re
 import subprocess
 from datetime import datetime
+# from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
 
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.logging import correlation_paths
@@ -18,6 +19,8 @@ tracer = Tracer(service="ssl_for_saas_appsync_resolver")
 logger = Logger(service="ssl_for_saas_appsync_resolver")
 acm = boto3.client('acm', region_name='us-east-1')
 stepFunctionArn = os.environ.get('STEP_FUNCTION_ARN')
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 app = AppSyncResolver()
 
@@ -39,6 +42,15 @@ FILE_FOLDER = '/tmp'
 PEM_FILE = FILE_FOLDER + "/cert.pem"
 _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
 
+
+def check_generate_task_token(task_token):
+    if not task_token:
+        logger.error("Task token not found in event")
+        # generate a random string as task_token
+        task_token = ''.join(random.choices(string.ascii_lowercase, k=128))
+    else:
+        logger.info("Task token {}".format(task_token))
+    return task_token
 
 def _tag_certificate(certArn, taskToken):
     """[summary]

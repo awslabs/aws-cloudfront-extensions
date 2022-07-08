@@ -6,6 +6,7 @@ import json
 import time
 import requests
 from requests_aws4auth import AWS4Auth
+from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
 from requests import exceptions
@@ -18,6 +19,8 @@ cf = boto3.client('cloudfront')
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 GRAPHQL_API_URL = os.environ.get('GRAPHQL_API_URL')
 GRAPHQL_API_KEY = os.environ.get('GRAPHQL_API_KEY')
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
@@ -306,6 +309,18 @@ def lambda_handler(event, context):
                                                           origins_items_origin_path, sub_domain_name_list)
 
     resp = create_distribution(config)
+
+
+    # update the job info table for completed cloudfront number
+    response = get_job_info(JOB_INFO_TABLE_NAME, task_token)
+
+    if 'Items' in response:
+        ddb_record = response['Items'][0]
+        cloudfront_distribution_created_number = ddb_record['cloudfront_distribution_created_number']
+        new_number = int(cloudfront_distribution_created_number) + 1
+        update_job_cloudfront_distribution_created_number(JOB_INFO_TABLE_NAME, task_token, new_number)
+    else:
+        logger.error(f"failed to get the job info of job_id:{task_token} ")
 
     # return response in json format
     return {

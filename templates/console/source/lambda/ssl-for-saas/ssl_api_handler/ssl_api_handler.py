@@ -8,6 +8,7 @@ import urllib
 import re
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
 
 app = APIGatewayRestResolver()
 
@@ -16,6 +17,8 @@ acm = boto3.client('acm', region_name='us-east-1')
 step_function = boto3.client('stepfunctions')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)

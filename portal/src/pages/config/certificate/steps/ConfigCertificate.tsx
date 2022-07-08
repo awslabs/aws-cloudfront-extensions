@@ -57,7 +57,7 @@ const ConfigCertificate: React.FC = () => {
   const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
   const [aggregation, setAggregation] = useState(false);
   const [checkCName, setCheckCName] = useState(false);
-  const [createAuto, setCreateAuto] = useState(false);
+  const [createAuto, setCreateAuto] = useState(true);
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [versionList, setVersionList] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState(false);
