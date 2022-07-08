@@ -116,6 +116,16 @@ type certOutput {
     updatedAt: AWSDateTime!
 }
 
+type SSLJob {
+    id: String!
+    jobId: String!
+    cert_completed_number: String!
+    cert_total_number: String!
+    cloudfront_distribution_created_number: String!
+    cloudfront_distribution_total_number: String!
+    job_input: String!
+}
+
 
 input cnameInput {
     domainName: String!
@@ -201,6 +211,10 @@ type Query {
 
     # list certifications for
     listCertifications: [certification_info]
+
+    listSSLJobs: [SSLJob]
+
+    getJobInfo(jobId: String): SSLJob
 }
 
 type Mutation {

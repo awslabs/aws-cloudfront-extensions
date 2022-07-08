@@ -715,6 +715,20 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
     });
 
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listSSLJobs",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "getJobInfo",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
     const usagePlan = ssl_api_handler.addUsagePlan("SSL_for_Saas_UsagePlan", {
       description: "SSL for SAAS API usage plan",
     });

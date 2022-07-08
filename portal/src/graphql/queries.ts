@@ -239,3 +239,29 @@ export const listCertifications = /* GraphQL */ `
     }
   }
 `;
+export const listSSLJobs = /* GraphQL */ `
+  query ListSSLJobs {
+    listSSLJobs {
+      id
+      jobId
+      cert_completed_number
+      cert_total_number
+      cloudfront_distribution_created_number
+      cloudfront_distribution_total_number
+      job_input
+    }
+  }
+`;
+export const getJobInfo = /* GraphQL */ `
+  query GetJobInfo($jobId: String) {
+    getJobInfo(jobId: $jobId) {
+      id
+      jobId
+      cert_completed_number
+      cert_total_number
+      cloudfront_distribution_created_number
+      cloudfront_distribution_total_number
+      job_input
+    }
+  }
+`;

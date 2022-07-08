@@ -39,6 +39,7 @@ import CompareSnapshot from "./pages/config/Snapshot/CompareSnapshot";
 import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import SSLJobList from "./pages/config/SSLJobList";
 
 const SignInRouter: React.FC = () => {
   return (
@@ -220,6 +221,14 @@ const SignInRouter: React.FC = () => {
                   element={
                     <Container>
                       <CertificationList />
+                    </Container>
+                  }
+                />
+                <Route
+                  path="/config/certification/jobs"
+                  element={
+                    <Container>
+                      <SSLJobList />
                     </Container>
                   }
                 />

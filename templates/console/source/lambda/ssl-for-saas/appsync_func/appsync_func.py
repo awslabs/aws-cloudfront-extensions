@@ -486,6 +486,52 @@ def manager_certification_list():
 
     return result
 
+@app.resolver(type_name="Query", field_name="listSSLJobs")
+def manager_list_ssl_jobs():
+    # list data from dynamodb
+    ddb_client = boto3.client('dynamodb')
+    ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+    response = ddb_table.scan()
+    jobs = []
+    logger.info(f"SSL jobs list is : {response['Items']}")
+    for job in response['Items']:
+        tmpJob = {}
+        tmpJob['id'] = job['jobId'],
+        tmpJob['jobId'] = job['jobId'],
+        tmpJob['cert_completed_number'] = str(job['cert_completed_number']),
+        tmpJob['cert_total_number'] = str(job['cert_total_number']),
+        tmpJob['cloudfront_distribution_created_number'] = str(job['cloudfront_distribution_created_number']),
+        tmpJob['cloudfront_distribution_total_number'] = str(job['cloudfront_distribution_total_number']),
+        tmpJob['job_input'] = job['job_input'],
+        jobs.append(tmpJob)
+
+    return jobs
+
+
+@app.resolver(type_name="Query", field_name="getJobInfo")
+def manager_get_ssl_job(jobId):
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.client('dynamodb')
+    # ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+
+    response = ddb_client.get_item(
+        TableName=JOB_INFO_TABLE_NAME,
+        Key={
+            'jobId': {'S': jobId},
+        })
+    logger.info(response)
+    data = response['Item']
+    jobInfo = {}
+    jobInfo['id'] = data['jobId']['S']
+    jobInfo['jobId'] = data['jobId']['S'],
+    jobInfo['cert_completed_number'] = str(data['cert_completed_number']['N']),
+    jobInfo['cert_total_number'] = str(data['cert_total_number']),
+    jobInfo['cloudfront_distribution_created_number'] = str(data['cloudfront_distribution_created_number']),
+    jobInfo['cloudfront_distribution_total_number'] = str(data['cloudfront_distribution_total_number']),
+    jobInfo['job_input'] = data['job_input'],
+
+    return jobInfo
+
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
 @tracer.capture_lambda_handler

@@ -148,6 +148,17 @@ export type certification_info = {
   KeyAlgorithm: string,
 };
 
+export type SSLJob = {
+  __typename: "SSLJob",
+  id: string,
+  jobId: string,
+  cert_completed_number: string,
+  cert_total_number: string,
+  cloudfront_distribution_created_number: string,
+  cloudfront_distribution_total_number: string,
+  job_input: string,
+};
+
 export type DeployExtensionMutationVariables = {
   name: string,
   parameters?: Array< ExtensionParameter | null > | null,
@@ -480,4 +491,34 @@ export type ListCertificationsQuery = {
     NotAfter: string,
     KeyAlgorithm: string,
   } | null > | null,
+};
+
+export type ListSSLJobsQuery = {
+  listSSLJobs?:  Array< {
+    __typename: "SSLJob",
+    id: string,
+    jobId: string,
+    cert_completed_number: string,
+    cert_total_number: string,
+    cloudfront_distribution_created_number: string,
+    cloudfront_distribution_total_number: string,
+    job_input: string,
+  } | null > | null,
+};
+
+export type GetJobInfoQueryVariables = {
+  jobId?: string | null,
+};
+
+export type GetJobInfoQuery = {
+  getJobInfo?:  {
+    __typename: "SSLJob",
+    id: string,
+    jobId: string,
+    cert_completed_number: string,
+    cert_total_number: string,
+    cloudfront_distribution_created_number: string,
+    cloudfront_distribution_total_number: string,
+    job_input: string,
+  } | null,
 };
