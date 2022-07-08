@@ -11,6 +11,9 @@
 #     exit 1
 # fi
 
+bold=$(tput bold)
+normal=$(tput sgr0)
+
 set -e
 
 title() {
@@ -88,9 +91,6 @@ source_dir="$template_dir/../source"
 
 cd $template_dir
 
-bold=$(tput bold)
-normal=$(tput sgr0)
-echo "tput problem break my script"
 #------------------------------------------------------------------------------
 # SETTINGS
 #------------------------------------------------------------------------------
