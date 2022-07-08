@@ -5,7 +5,7 @@ phases:
     commands:
       - n 17.9.0
     runtime-versions:
-      python: 3.9
+      python: 3.8
   pre_build:
     commands:
 #      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
