@@ -245,3 +245,21 @@ export const MOCK_CNAME_LIST: CNameType[] = [
     tags: "Game",
   },
 ];
+
+export const CF_SNAPSHOT_LIST = [
+  {
+    name: "Snapshot Name: Demo21 | Snapshot Note: game day 23 demo",
+    value: "Snapshot Note: game day 23 demo",
+    optTitle: "Snapshot Name: Demo21",
+  },
+  {
+    name: "Snapshot Name: Demo22 | Snapshot Note: game day 22 demo",
+    value: "Snapshot Note: game day 22 demo",
+    optTitle: "Snapshot Name: Demo22",
+  },
+  {
+    name: "Snapshot Name: Demo23 | Snapshot Note: game day 21 demo",
+    value: "Snapshot Note: game day 21 demo",
+    optTitle: "Snapshot Name: Demo23",
+  },
+];

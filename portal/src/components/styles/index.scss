@@ -31,6 +31,9 @@
 // button
 @import "../Button/style";
 
+// button Dropdown
+@import "../ButtonDropdown/style";
+
 // header panel
 @import "../HeaderPanel/style";
 
@@ -208,6 +211,10 @@
 
 .ml-20 {
   margin-left: 20px;
+}
+
+.ml-80 {
+  margin-left: 80px;
 }
 
 .mr-10 {
@@ -392,6 +399,108 @@
       background-color: #efefef;
     }
   }
+}
+
+.create-cert-guide-img {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.import-cert-guide-img {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.create-cert-guide-card {
+  border: 1px solid #ccc;
+  margin: 20px;
+  min-height: 260px;
+  .card-header {
+    font-size: 18px;
+    background-color: #eee;
+    padding: 10px;
+  }
+  .card-body {
+    padding: 10px 10px 20px;
+    .sub-title {
+      color: #888;
+    }
+    .desc {
+      line-height: 1.6em;
+    }
+  }
+}
+
+.import-step-list {
+  padding: 20px;
+  .import-step-list-item {
+    margin-top: 15px;
+    .item-name {
+      font-size: 18px;
+      padding: 5px 0;
+    }
+    .item-desc {
+      line-height: 1.5em;
+    }
+  }
+}
+
+.job-status-list-item {
+  border: 1px solid #ddd;
+  &-title {
+    background-color: #eee;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+  &-content {
+    padding: 20px 50px;
+    &-sub-title {
+      color: #888;
+    }
+    &-desc {
+      line-height: 1.6em;
+      padding-bottom: 10px;
+    }
+    &-status {
+      color: #fff;
+      padding: 10px;
+      display: flex;
+      &.success {
+        background-color: #1d8102;
+      }
+      &.inprogress {
+        background-color: #0073bb;
+      }
+      &.notstarted {
+        background-color: #7f7f7f;
+      }
+      &.failed {
+        background-color: #d13212;
+      }
+      .bar {
+        padding-top: 8px;
+      }
+      .number {
+        padding-left: 10px;
+        width: 80px;
+      }
+      .top-text,
+      .bottom-text {
+        font-size: 12px;
+      }
+      .bottom-text {
+        min-height: 20px;
+      }
+    }
+  }
+}
+
+.job-status-number {
+  font-size: 36px;
+  padding-right: 15px;
+  line-height: 1em;
+  color: #0073bb;
 }
 
 /**material ui*/

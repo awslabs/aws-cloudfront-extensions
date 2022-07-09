@@ -11,6 +11,9 @@
     &.green {
       color: green;
     }
+    &.success {
+      color: green;
+    }
     &.enabled {
       color: green;
     }
@@ -30,11 +33,17 @@
     &.installing {
       color: #666;
     }
+    &.inprogress {
+      color: #666;
+    }
     &.creating {
       color: #666;
     }
     &.inactive {
       color: #666;
+    }
+    &.failed {
+      color: red;
     }
     &.error {
       color: red;

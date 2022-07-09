@@ -9,13 +9,17 @@ import RemoveCircleOutlineIcon from "@material-ui/icons/RemoveCircleOutline";
 export enum StatusType {
   create_complele = "create_complele",
   Enabled = "Enabled",
+  Success = "Success",
   Deployed = "Deployed",
   Disabled = "Disabled",
   Unknown = "Unknown",
   Active = "Active",
   Creating = "Creating",
+  InProgress = "InProgress",
   Inactive = "Inactive",
+  NotStarted = "NotStarted",
   Error = "Error",
+  Failed = "Failed",
   Green = "Green",
   Red = "Red",
   Yellow = "Yellow",
@@ -37,6 +41,12 @@ const Status: React.FC<StatusProps> = (props: StatusProps) => {
       <span className={"status-text " + status.toLocaleLowerCase()}>
         {status.toLocaleUpperCase() ===
           StatusType.Green.toLocaleUpperCase() && (
+          <i>
+            <CheckCircleOutlineIcon fontSize="small" />
+          </i>
+        )}
+        {status.toLocaleUpperCase() ===
+          StatusType.Success.toLocaleUpperCase() && (
           <i>
             <CheckCircleOutlineIcon fontSize="small" />
           </i>
@@ -84,6 +94,12 @@ const Status: React.FC<StatusProps> = (props: StatusProps) => {
           </i>
         )}
         {status.toLocaleUpperCase() ===
+          StatusType.InProgress.toLocaleUpperCase() && (
+          <i>
+            <AccessTimeIcon fontSize="small" />
+          </i>
+        )}
+        {status.toLocaleUpperCase() ===
           StatusType.Inactive.toLocaleUpperCase() && (
           <i>
             <RemoveCircleOutlineIcon fontSize="small" />
@@ -102,6 +118,12 @@ const Status: React.FC<StatusProps> = (props: StatusProps) => {
           </i>
         )}
         {status.toLocaleUpperCase() ===
+          StatusType.NotStarted.toLocaleUpperCase() && (
+          <i>
+            <RemoveCircleOutlineIcon fontSize="small" />
+          </i>
+        )}
+        {status.toLocaleUpperCase() ===
           StatusType.Yellow.toLocaleUpperCase() && (
           <i>
             <ErrorOutlineIcon fontSize="small" />
@@ -109,6 +131,12 @@ const Status: React.FC<StatusProps> = (props: StatusProps) => {
         )}
         {status.toLocaleUpperCase() ===
           StatusType.Offline.toLocaleUpperCase() && (
+          <i>
+            <HighlightOffIcon fontSize="small" />
+          </i>
+        )}
+        {status.toLocaleUpperCase() ===
+          StatusType.Failed.toLocaleUpperCase() && (
           <i>
             <HighlightOffIcon fontSize="small" />
           </i>
