@@ -2,10 +2,12 @@
   display: inline-block;
   position: relative;
   .btn-drop-down {
-    padding-right: 30px;
+    padding-right: 10px;
     margin-right: 0 !important;
+    display: flex;
+    justify-content: space-between;
     .dropdown-icon {
-      position: absolute;
+      // position: absolute;
       margin-top: -2px;
     }
   }
@@ -14,23 +16,31 @@
     position: absolute;
     z-index: 99;
     border: 1px solid #ccc;
-    // border-top: 1px solid transparent;
+    border-top: 1px solid #ccc;
     background-color: #fff;
     // box-shadow: 1px 1px 1px #888;
     text-align: left;
     .menu-item {
       cursor: pointer;
-      border: 1px solid transparent;
+      border-bottom: 1px solid #ccc;
       padding: 8px 12px;
       &:hover {
-        border: 1px solid #999;
+        // border: 1px solid #999;
         background-color: #efefef;
       }
-      // &:last-child {
-      //   &:hover {
-      //     border-bottom: 1px solid transparent;
-      //   }
-      // }
+      &:last-child {
+        &:hover {
+          border-bottom: 1px solid transparent;
+        }
+      }
+      &.disabled {
+        color: #999;
+        cursor: default;
+        &:hover {
+          // border: 1px solid #999;
+          background-color: #fff;
+        }
+      }
     }
   }
 }

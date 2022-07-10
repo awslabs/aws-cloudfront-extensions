@@ -111,7 +111,7 @@ export const Button: FC<ButtonProps> = (props) => {
             disabled={disabled}
             {...restProps}
           >
-            {children}{" "}
+            <span>{children} </span>
             <span className="dropdown-icon">
               {showDropdown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
             </span>
@@ -124,10 +124,14 @@ export const Button: FC<ButtonProps> = (props) => {
                     key={index}
                     onClick={() => {
                       if (onItemClick) {
-                        onItemClick(element);
+                        if (!element.disabled) {
+                          onItemClick(element);
+                        }
                       }
                     }}
-                    className="menu-item"
+                    className={`menu-item ${
+                      element.disabled ? "disabled" : ""
+                    }`}
                   >
                     {element.text}
                   </div>
