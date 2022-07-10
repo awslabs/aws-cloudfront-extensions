@@ -208,3 +208,5 @@ $RECYCLE.BIN/
 
 .aws-sam
 # End of https://www.gitignore.io/api/osx,node,linux,windows
+
+!react-app-env.d.ts
