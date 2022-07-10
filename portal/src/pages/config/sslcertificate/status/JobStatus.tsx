@@ -7,7 +7,7 @@ import ValueWithLabel from "components/ValueWithLabel";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { useDispatch } from "react-redux";
 import { ActionType } from "reducer/appReducer";
-import ArrowDown from "assets/images/config/arrowDown.svg";
+import ArrowDown from "assets/images/config/arrowDown.png";
 import StatusItem, { StatusType, StatusTypeStep } from "./StatusItem";
 
 const JobStatus: React.FC = () => {
@@ -127,7 +127,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="The step will be completed if all SSL certificates were created"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="2"
@@ -139,7 +139,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="The step will be completed if all SSL certificates were issued"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="3"
@@ -164,7 +164,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="The step will be completed if all SSL certificates were created"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="2"
@@ -190,7 +190,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="All SSL certificates were created"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="2"
@@ -202,7 +202,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="All SSL certificates were validated"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="3"
@@ -229,7 +229,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="All SSL certificates were created"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="2"
@@ -241,7 +241,7 @@ const JobStatus: React.FC = () => {
                   progressBottomText="All SSL certificates were validated"
                 />
                 <div>
-                  <img className="ml-80" src={ArrowDown} />
+                  <img className="ml-80 arrow-width" src={ArrowDown} />
                 </div>
                 <StatusItem
                   stepNo="3"
