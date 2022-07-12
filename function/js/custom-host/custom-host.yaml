@@ -18,7 +18,7 @@ Resources:
             status: 403,
             statusDescription: 'Access Denied'
         };
-        var json = '{"h(.*).market.xiaomi.com": "file.market.morig.mgslb.com", "bg(.*).market.xiaomi.com": "file.market.morig.mgslb.com", "fg(.*).market.xiaomi.com": "file.market.morig.mgslb.com"}'
+        var json = '{"h(.*).example.com": "file.real.origin.com", "bg(.*).example.com": "file.real.origin.com", "fg(.*).example.com": "file.real.origin.com"}'
 
         function handler (event)  {
             var request = event.request;
