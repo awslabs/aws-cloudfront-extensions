@@ -9,10 +9,9 @@ import TextInput from "components/TextInput";
 import Modal from "components/Modal";
 import FormItem from "components/FormItem";
 import MultiSelect from "components/MultiSelect";
-import { Cloudfront_info, Snapshot, Version } from "API";
+import { Snapshot } from "API";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import {
-  applyConfig,
   getAppliedSnapshotName,
   getConfigSnapshotContent,
   getDistributionCname,
@@ -23,17 +22,16 @@ import LoadingText from "../../../components/LoadingText";
 import TextArea from "../../../components/TextArea";
 import {
   applySnapshot,
-  certCreateOrImport,
   createVersionSnapShot,
   deleteSnapshot,
 } from "../../../graphql/mutations";
 import Swal from "sweetalert2";
 import HeaderPanel from "../../../components/HeaderPanel";
 import ValueWithLabel from "../../../components/ValueWithLabel";
+import ButtonDropdown from "components/ButtonDropdown";
 
 const SnapshotDetail: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useState("");
   const [snapshotFilterList, setSnapshotFilterList] = useState<Snapshot[]>([]);
   const [snapshotList, setSnapshotList] = useState<Snapshot[]>([]);
   const [snapshotWithNotesList, setSnapshotWithNotesList] = useState<
@@ -378,6 +376,82 @@ const SnapshotDetail: React.FC = () => {
                   <RefreshIcon fontSize="small" />
                 )}
               </Button>
+
+              <ButtonDropdown
+                style={{ minWidth: 220 }}
+                items={[
+                  {
+                    id: "compareCurrent",
+                    text: "Compare with current Config",
+                    disabled: compareWithCurrentDisabled,
+                  },
+                  { id: "compare", text: "Compare", disabled: compareDisabled },
+                  {
+                    id: "updateNote",
+                    text: "Update Snapshot Note",
+                    disabled: saveDisabled,
+                  },
+                  {
+                    id: "applyOther",
+                    text: "Apply to other distributions",
+                    disabled: applyDisabled,
+                  },
+                  { id: "delete", text: "Delete", disabled: saveDisabled },
+                ]}
+                className="drop-down"
+                // disabled={pipelineInfo?.status !== PipelineStatus.ACTIVE}
+                onItemClick={(item) => {
+                  if (item.id === "delete") {
+                    setLoadingApply(true);
+                    deleteSnapshotRequest();
+                    setLoadingApply(false);
+                    getSnapshotListByDistribution();
+                    Swal.fire(
+                      "Cloudfront snapshot deleted",
+                      "Cloudfront snapshot deleted",
+                      "success"
+                    );
+                  }
+                  if (item.id === "compareCurrent") {
+                    const path =
+                      "/config/snapshot/detail/" +
+                      id +
+                      "/compare/" +
+                      selectedItem[0].snapshot_name +
+                      "/" +
+                      "_LATEST_";
+                    navigate(path);
+                  }
+                  if (item.id === "compare") {
+                    const path =
+                      "/config/snapshot/detail/" +
+                      id +
+                      "/compare/" +
+                      selectedItem[0].snapshot_name +
+                      "/" +
+                      selectedItem[1].snapshot_name;
+                    navigate(path);
+                  }
+                  if (item.id === "applyOther") {
+                    setOpenModal(true);
+                    getDistributionList();
+                  }
+                  if (item.id === "updateNote") {
+                    const path =
+                      "/config/snapshot/detail/" +
+                      id +
+                      "/" +
+                      selectedItem[0].snapshot_name +
+                      "/save" +
+                      "/" +
+                      selectedItem[0].note;
+                    navigate(path);
+                  }
+                }}
+              >
+                Actions
+              </ButtonDropdown>
+
               <Button
                 btnType="primary"
                 onClick={() => {
@@ -385,81 +459,6 @@ const SnapshotDetail: React.FC = () => {
                 }}
               >
                 Create Snapshot
-              </Button>
-
-              <Button
-                disabled={saveDisabled}
-                onClick={() => {
-                  // startWorkflow();
-                  setLoadingApply(true);
-                  deleteSnapshotRequest();
-                  setLoadingApply(false);
-                  getSnapshotListByDistribution();
-                  Swal.fire(
-                    "Cloudfront snapshot deleted",
-                    "Cloudfront snapshot deleted",
-                    "success"
-                  );
-                }}
-              >
-                Delete Snapshot
-              </Button>
-              <Button
-                disabled={compareWithCurrentDisabled}
-                btnType="primary"
-                onClick={() => {
-                  const path =
-                    "/config/snapshot/detail/" +
-                    id +
-                    "/compare/" +
-                    selectedItem[0].snapshot_name +
-                    "/" +
-                    "_LATEST_";
-                  navigate(path);
-                }}
-              >
-                Compare with Current
-              </Button>
-              <Button
-                disabled={compareDisabled}
-                btnType="primary"
-                onClick={() => {
-                  const path =
-                    "/config/snapshot/detail/" +
-                    id +
-                    "/compare/" +
-                    selectedItem[0].snapshot_name +
-                    "/" +
-                    selectedItem[1].snapshot_name;
-                  navigate(path);
-                }}
-              >
-                Compare
-              </Button>
-              <Button
-                disabled={applyDisabled}
-                onClick={() => {
-                  setOpenModal(true);
-                  getDistributionList();
-                }}
-              >
-                Apply Snapshot
-              </Button>
-              <Button
-                disabled={saveDisabled}
-                onClick={() => {
-                  const path =
-                    "/config/snapshot/detail/" +
-                    id +
-                    "/" +
-                    selectedItem[0].snapshot_name +
-                    "/save" +
-                    "/" +
-                    selectedItem[0].note;
-                  navigate(path);
-                }}
-              >
-                Update Snapshot Notes
               </Button>
             </div>
           }
