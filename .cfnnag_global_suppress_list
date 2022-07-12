@@ -24,6 +24,12 @@ RulesToSuppress:
   - id: F4
     reason: Need iam * for function
 
+  - id: F39
+    reason: Need * resource for lambda function
+  - id: W78
+  - id: W76
+  - id: W47
+
     
 
 
