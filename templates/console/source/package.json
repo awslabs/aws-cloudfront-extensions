@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest",
     "build": "npm run test && npm run synth",
+    "cleanup:tsc": "tsc --build ./ --clean",
     "bump": "standard-version -i ../CHANGELOG.md",
     "test:watch": "jest --watch",
     "test:update": "jest --updateSnapshot",
