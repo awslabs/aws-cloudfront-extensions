@@ -288,13 +288,16 @@ do_cmd mkdir -p $build_dist_dir
 do_cmd rm -rf $staging_dist_dir
 do_cmd mkdir -p $staging_dist_dir
 
+
+
+
 echo "------------------------------------------------------------------------------"
 echo "${bold}[Init] Install dependencies for the cdk-solution-helper${normal}"
 echo "------------------------------------------------------------------------------"
 
 # we have helper.py
-#do_cmd cd $template_dir/cdk-solution-helper
-#do_cmd npm install
+do_cmd cd $template_dir/cdk-solution-helper
+do_cmd npm install
 
 # Install and build web console asset
 do_cmd cd $source_dir/../../../portal
@@ -335,15 +338,15 @@ echo "${bold}[Packing] Template artifacts${normal}"
 echo "------------------------------------------------------------------------------"
 
 # Run the helper to clean-up the templates and remove unnecessary CDK elements
-# echo "Run the helper to clean-up the templates and remove unnecessary CDK elements"
-# [[ $run_helper == "true" ]] && {
-#     echo "node $template_dir/cdk-solution-helper/index"
-#     node $template_dir/cdk-solution-helper/index
-#     if [ "$?" = "1" ]; then
-#     	echo "(cdk-solution-helper) ERROR: there is likely output above." 1>&2
-#     	exit 1
-#     fi
-# } || echo "${bold}Solution Helper skipped: ${normal}run_helper=false"
+ echo "Run the helper to clean-up the templates and remove unnecessary CDK elements"
+ [[ $run_helper == "true" ]] && {
+     echo "node $template_dir/cdk-solution-helper/index"
+     node $template_dir/cdk-solution-helper/index
+     if [ "$?" = "1" ]; then
+     	echo "(cdk-solution-helper) ERROR: there is likely output above." 1>&2
+     	exit 1
+     fi
+ } || echo "${bold}Solution Helper skipped: ${normal}run_helper=false"
 
 
 
