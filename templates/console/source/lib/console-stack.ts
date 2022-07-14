@@ -1,6 +1,6 @@
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import * as cdk from 'aws-cdk-lib';
-import { CustomResource } from 'aws-cdk-lib';
+import {CustomResource, Stack} from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -10,9 +10,16 @@ import { Construct } from 'constructs';
 import * as path from 'path';
 import { CommonProps } from './cf-common/cf-common-stack';
 
-export class ConsoleStack extends cdk.Stack {
+export class ConsoleStack extends Stack {
   constructor(scope: Construct, id: string, props?: CommonProps) {
     super(scope, id, props);
+    new ConsoleConstruct(scope, id, props);
+  }
+}
+
+export class ConsoleConstruct extends Construct {
+  constructor(scope: Construct, id: string, props?: CommonProps) {
+    super(scope, id);
 
     // Create Dynamodb table to store extensions
     const cfExtensionsTable = new dynamodb.Table(this, 'CloudFrontExtensions', {

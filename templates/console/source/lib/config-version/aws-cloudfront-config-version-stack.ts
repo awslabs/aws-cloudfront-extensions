@@ -1,7 +1,6 @@
 import * as path from "path";
-import { aws_lambda as lambda } from "aws-cdk-lib";
+import {Aws, aws_lambda as lambda, StackProps} from "aws-cdk-lib";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
-import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import * as cdk from "aws-cdk-lib";
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import { aws_dynamodb as dynamodb } from "aws-cdk-lib";
@@ -22,13 +21,27 @@ import { Rule } from "aws-cdk-lib/aws-events";
 import targets = require("aws-cdk-lib/aws-events-targets");
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { MyCustomResource } from "./custom-resources/cloudfront-config-custom-resource";
+import {Construct} from "constructs";
+
 
 export class CloudFrontConfigVersionStack extends Stack {
-  constructor(scope: cdk.App, id: string, props?: CommonProps) {
-    super(scope, id, props);
 
+
+  constructor(scope: Construct, id: string, props?: CommonProps) {
+    super(scope, id, props);
     this.templateOptions.description =
       "(SO8150) - Cloudfront Config Version stack.";
+    new CloudFrontConfigVersionConstruct(this, id, props);
+  }
+}
+
+
+export class CloudFrontConfigVersionConstruct extends Construct {
+  public readonly configVersionDDBTableName: string;
+
+  constructor(scope: Stack, id: string, props?: CommonProps) {
+    super(scope, id);
+
 
     cdk.Tags.of(this).add("solution", "Cloudfront Extension Config Version", {
       includeResourceTypes: [
@@ -150,7 +163,7 @@ export class CloudFrontConfigVersionStack extends Stack {
       this,
       "lambda-powertools",
       "arn:aws:lambda:" +
-        this.region +
+        Aws.REGION +
         ":017000801446:layer:AWSLambdaPowertoolsPython:13"
     );
 
@@ -158,7 +171,7 @@ export class CloudFrontConfigVersionStack extends Stack {
     const git_layer = LayerVersion.fromLayerVersionArn(
       this,
       "lambda-git",
-      "arn:aws:lambda:" + this.region + ":553035198032:layer:git-lambda2:8"
+      "arn:aws:lambda:" + Aws.REGION + ":553035198032:layer:git-lambda2:8"
     );
 
     const cloudfrontConfigVersionExporter = new lambda.Function(
@@ -184,8 +197,8 @@ export class CloudFrontConfigVersionStack extends Stack {
             cloudfront_config_latestVersion_table.tableName,
           DDB_SNAPSHOT_TABLE_NAME: cloudfront_config_snapshot_table.tableName,
           S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
-          ACCOUNT_ID: this.account,
-          REGION_NAME: this.region,
+          ACCOUNT_ID: Aws.ACCOUNT_ID,
+          REGION_NAME: Aws.REGION,
         },
         logRetention: logs.RetentionDays.ONE_WEEK,
       }
@@ -224,8 +237,8 @@ export class CloudFrontConfigVersionStack extends Stack {
             cloudfront_config_latestVersion_table.tableName,
           DDB_SNAPSHOT_TABLE_NAME: cloudfront_config_snapshot_table.tableName,
           S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
-          ACCOUNT_ID: this.account,
-          REGION_NAME: this.region,
+          ACCOUNT_ID: Aws.ACCOUNT_ID,
+          REGION_NAME: Aws.REGION,
         },
         logRetention: logs.RetentionDays.ONE_WEEK,
       }
@@ -357,8 +370,8 @@ export class CloudFrontConfigVersionStack extends Stack {
             cloudfront_config_latestVersion_table.tableName,
           DDB_SNAPSHOT_TABLE_NAME: cloudfront_config_snapshot_table.tableName,
           S3_BUCKET: cloudfront_config_version_s3_bucket.bucketName,
-          ACCOUNT_ID: this.account,
-          REGION_NAME: this.region,
+          ACCOUNT_ID: Aws.ACCOUNT_ID,
+          REGION_NAME: Aws.REGION,
         },
         logRetention: logs.RetentionDays.ONE_WEEK,
       }
@@ -483,7 +496,7 @@ export class CloudFrontConfigVersionStack extends Stack {
 
     // Prints out the stack region to the terminal
     new cdk.CfnOutput(this, "Stack Region", {
-      value: this.region,
+      value: Aws.REGION,
     });
 
     new cdk.CfnOutput(this, "cloudfront_config_version_s3_bucket", {
@@ -493,6 +506,8 @@ export class CloudFrontConfigVersionStack extends Stack {
       value: cloudfront_config_version_table.tableName,
       exportName: "configVersionDDBTableName",
     });
+    this.configVersionDDBTableName =  cloudfront_config_version_table.tableName;
+
     new cdk.CfnOutput(this, "cloudfront_config_latest_version_dynamodb", {
       value: cloudfront_config_latestVersion_table.tableName,
     });

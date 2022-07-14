@@ -1,52 +1,38 @@
-import {Aws, aws_cognito as cognito, Stack} from "aws-cdk-lib";
+import {aws_cognito as cognito, Stack, StackProps} from "aws-cdk-lib";
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
 import * as cdk from 'aws-cdk-lib';
+import {Construct} from "constructs";
 
 //This stack is created to holding shared resources between cloudfront submodules like appsync and cognito user pool
 export interface CommonProps extends cdk.StackProps {
-    appsyncApi: appsync.GraphqlApi;
-    cognitoUserPool: cognito.UserPool
-    cognitoClient: cognito.UserPoolClient
+    appsyncApi?: appsync.GraphqlApi;
+    cognitoUserPool: cognito.UserPool;
+    cognitoClient: cognito.UserPoolClient;
 }
 
 export class CommonStack extends Stack {
+    constructor(scope: Construct, id: string, props: CommonProps) {
+        super(scope, id);
+        new CommonConstruct(this, id, props);
+    }
+}
+
+export class CommonConstruct extends Construct {
     public readonly appsyncApi: appsync.GraphqlApi;
-    public readonly cognitoUserPool: cognito.UserPool;
-    public readonly cognitoUserPoolClient: cognito.UserPoolClient;
 
-    constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
-        super(scope, id, props);
-        // construct a cognito for auth
-        this.cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
-            userPoolName: "CloudFrontExtCognito_UserPool",
-            selfSignUpEnabled: true,
-            autoVerify: {
-                email:true,
-            },
-            signInAliases: {
-                username: true,
-                email:true,
-            },
-            standardAttributes: {
-                email: {
-                    required: true,
-                    mutable: false,
-                }
-            }
-        });
-
-        this.cognitoUserPoolClient = this.cognitoUserPool.addClient('CloudFrontExtn_WebPortal');
+    constructor(scope: Stack, id: string, props: CommonProps) {
+        super(scope, id);
 
         // Creates the AppSync API
-        this.appsyncApi = new appsync.GraphqlApi(this, 'appsyncApi', {
+        this.appsyncApi = new appsync.GraphqlApi(scope, 'appsyncApi', {
             name: 'cloudfront-extension-appsync-api',
             schema: appsync.Schema.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
             authorizationConfig: {
                 defaultAuthorization: {
                     authorizationType: appsync.AuthorizationType.USER_POOL,
                     userPoolConfig: {
-                        userPool: this.cognitoUserPool,
+                        userPool: props.cognitoUserPool,
                     },
                 },
                 additionalAuthorizationModes: [
