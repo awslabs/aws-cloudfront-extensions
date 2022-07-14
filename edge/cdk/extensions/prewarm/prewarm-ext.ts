@@ -14,12 +14,19 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as kms from 'aws-cdk-lib/aws-kms';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import { CfnParameter } from 'aws-cdk-lib';
 
 
 export class PrewarmStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop";
+
+    const ShowSuccessUrls = new CfnParameter(this, 'ShowSuccessUrls', {
+      description: 'Show success url list in Prewarm status API (true or false)',
+      type: 'String',
+      default: 'false',
+    });
 
     const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -273,6 +280,7 @@ export class PrewarmStack extends cdk.Stack {
       memorySize: 256,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
+        SHOW_SUCC_URLS: ShowSuccessUrls.valueAsString,
       },
       logRetention: logs.RetentionDays.ONE_WEEK
     });

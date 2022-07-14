@@ -40,6 +40,10 @@ const SIDE_MENU_LIST = [
         name: "Certification",
         link: "/config/certification",
       },
+      {
+        name: "SSL Certification",
+        link: "/config/sslcertificate/list",
+      },
     ],
     open: true,
   },

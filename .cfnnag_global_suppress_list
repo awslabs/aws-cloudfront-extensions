@@ -20,6 +20,9 @@ RulesToSuppress:
   - id: W73
   - id: W49
   - id: W74
+  - id: W59
+  - id: F4
+    reason: Need iam * for function
 
     
 

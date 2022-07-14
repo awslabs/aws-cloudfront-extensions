@@ -40,6 +40,13 @@ import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import SSLJobList from "./pages/config/SSLJobList";
+import CertList from "pages/config/sslcertificate/CertList";
+import JobList from "pages/config/sslcertificate/JobList";
+import CreateGuide from "pages/config/sslcertificate/create/CreateGuide";
+import ImportGuide from "pages/config/sslcertificate/import/ImportGuide";
+import ImportStart from "pages/config/sslcertificate/import/ImportStart";
+import CreateStart from "pages/config/sslcertificate/create/CreateStart";
+import JobStatus from "pages/config/sslcertificate/status/JobStatus";
 
 const SignInRouter: React.FC = () => {
   return (
@@ -229,6 +236,69 @@ const SignInRouter: React.FC = () => {
                   element={
                     <Container>
                       <SSLJobList />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/sslcertificate/list"
+                  element={
+                    <Container>
+                      <CertList />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/sslcertificate/create/guide"
+                  element={
+                    <Container>
+                      <CreateGuide />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/sslcertificate/create/start"
+                  element={
+                    <Container>
+                      <CreateStart />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/sslcertificate/import/guide"
+                  element={
+                    <Container>
+                      <ImportGuide />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/sslcertificate/import/start"
+                  element={
+                    <Container>
+                      <ImportStart />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/jobs/list"
+                  element={
+                    <Container>
+                      <JobList />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/jobs/detail/:id/:status/:statusId"
+                  element={
+                    <Container>
+                      <JobStatus />
                     </Container>
                   }
                 />

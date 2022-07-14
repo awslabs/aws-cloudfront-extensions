@@ -1,15 +1,14 @@
-import * as cdk from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as path from 'path';
-import * as logs from 'aws-cdk-lib/aws-logs';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as cr from 'aws-cdk-lib/custom-resources';
-import { CloudFrontToS3 } from '@aws-solutions-constructs/aws-cloudfront-s3';
+import * as cdk from 'aws-cdk-lib';
 import { CustomResource } from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
-import { CommonProps } from './cf-common/cf-common-stack'
+import * as path from 'path';
+import { CommonProps } from './cf-common/cf-common-stack';
 
 export class ConsoleStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: CommonProps) {
