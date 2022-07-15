@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { BootstraplessStackSynthesizer } from "cdk-bootstrapless-synthesizer";
+import {BootstraplessStackSynthesizer, CompositeECRRepositoryAspect} from "cdk-bootstrapless-synthesizer";
 import {RootStack} from "../lib/root-stack";
+import {Aspects} from "aws-cdk-lib";
 
 
 const app = new cdk.App();
@@ -14,8 +15,17 @@ new RootStack(app, "CloudFrontExtnConsoleStack", {
     synthesizer: newSynthesizer()
 });
 
-app.synth();
+// below lines are required if your application has Docker assets
+if (process.env.USE_BSS) {
+  Aspects.of(app).add(new CompositeECRRepositoryAspect());
+}
 
 function newSynthesizer() {
   return process.env.USE_BSS ? new BootstraplessStackSynthesizer() : undefined;
 }
+
+app.synth();
+
+
+
+
