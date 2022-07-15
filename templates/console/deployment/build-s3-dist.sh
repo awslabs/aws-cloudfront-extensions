@@ -325,7 +325,11 @@ do_cmd npm install
 echo "------------------------------------------------------------------------------"
 echo "${bold}[Create] Templates${normal}"
 echo "------------------------------------------------------------------------------"
-
+# How to config https://github.com/wchaws/cdk-bootstrapless-synthesizer/blob/main/API.md
+export BSS_TEMPLATE_BUCKET_NAME="${SOLUTION_BUCKET}"
+export BSS_FILE_ASSET_BUCKET_NAME="${SOLUTION_BUCKET}-\${AWS::Region}"
+export BSS_FILE_ASSET_PREFIX="${SOLUTION_NAME}/${VERSION}/"
+export BSS_FILE_ASSET_REGION_SET="us-east-1,${BSS_FILE_ASSET_REGION_SET}"
 if fn_exists create_template_${template_format}; then
     create_template_${template_format}
 else
