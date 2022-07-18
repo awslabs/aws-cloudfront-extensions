@@ -1,5 +1,14 @@
 version: 0.2
 
+env:
+  shell: bash
+  exported-variables:
+    - BSS_IMAGE_ASSET_REPOSITORY_NAME
+    - BUILD_VERSION
+    - CN_ASSETS
+    - GLOBAL_ASSETS
+    - ECR_REPOS
+    - CN_ECR_REPOS
 phases:
   install:
     commands:
@@ -14,22 +23,30 @@ phases:
       - cdk --version
       - git config --global user.email "cloudfront-extns-helper@example.com"
       - git config --global user.name "cloudfront-extns-helper"
+      - export BSS_IMAGE_ASSET_REPOSITORY_NAME=$(echo "$SOLUTION_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
       - export BUILD_VERSION=2.0.0
       - |-
         if [ $(git tag -l "$BUILD_VERSION") ]; then
           git tag -d 2.0.0
         fi
-#      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
-#      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
+      - export CN_ASSETS='cn/'
+      - export GLOBAL_ASSETS='default/,custom-domain/'
   build:
     commands:
       # - cd templates/aws-cloudfront-waf/deployment/
       # - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
-      - cd templates/console/deployment/
-      - chmod +x ./build-s3-dist.sh && ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${BUILD_VERSION}
+      - chmod +x ${CODEBUILD_SRC_DIR}/templates/console/deployment/build-s3-dist.sh
+      - ${CODEBUILD_SRC_DIR}/templates/console/deployment/build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${BUILD_VERSION}
+      - mkdir -p ${CODEBUILD_SRC_DIR}/templates/console/deployment/open-source/ && touch ${CODEBUILD_SRC_DIR}/templates/console/deployment/open-source/.empty
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec_2.yml || true
+      - |-
+        set -euxo pipefail
+        __dir="${CODEBUILD_SRC_DIR}/templates/console/deployment"
+        function join_by { local IFS="$1"; shift; echo "$*"; }
+        export ECR_REPOS=$(join_by , `cat "${__dir}/ecr-repos"`)
+        export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
       - git tag -a 2.0.0 -m "${BUILD_NUMBER} ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 artifacts:
   files:
