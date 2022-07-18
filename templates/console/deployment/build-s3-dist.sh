@@ -106,9 +106,9 @@ echo "${BUILD_VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 
 title "install and build web project"
 
-run cd SRC_PATH/../../../portal
+run cd $SRC_PATH/../../../portal
 run npm install --legacy-peer-deps
-run PATH=$(npm bin):$PATH
+export PATH=$(npm bin):$PATH
 run npm run build
 
 title "cdk synth"
@@ -120,7 +120,7 @@ title "cdk synth"
 
 export PATH=$(npm bin):$PATH
 run cd ${SRC_PATH}
-echo $pwd
+echo $PWD
 run npm install
 # todo: ignore jest for now, because test not work
 # do_cmd npm run build       # build javascript from typescript to validate the code
