@@ -6,5 +6,7 @@
   "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS",
   "aws_cognito_region": "us-east-1",
   "aws_user_pools_id": "us-east-1_kxgREA7gU",
-  "aws_user_pools_web_client_id": "2ef1mu40t4ju1jvpgtttod6p4r"
+  "aws_user_pools_web_client_id": "2ef1mu40t4ju1jvpgtttod6p4r",
+  "aws_monitoring_url": "https://0faszk5843.execute-api.us-west-2.amazonaws.com/prod/",
+  "aws_monitoring_api_key": "KYQfXfcwoa1h6PmO978Kh5lP6LuxYgCI4hq54l6a"
 }
