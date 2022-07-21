@@ -12,7 +12,7 @@ edge/cdk/extensions/normalize-query-string/normalize-query-string-ext.ts
 edge/cdk/extensions/modify-response-header/modify-response-header-ext.ts
 edge/cdk/extensions/multiple-origin-IP-retry/multiple-origin-IP-retry-ext.ts
 edge/cdk/extensions/anti-hotlinking/anti-hotlinking-ext.ts
-templates/aws-cloudfront-monitoring/source/
-
+templates
+edge
 cdk.out
 docs
