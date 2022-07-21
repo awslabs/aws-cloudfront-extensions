@@ -13,6 +13,5 @@ edge/cdk/extensions/multiple-origin-IP-retry/multiple-origin-IP-retry-ext.ts
 edge/cdk/extensions/anti-hotlinking/anti-hotlinking-ext.ts
 
 templates
-edge
 cdk.out
 docs
