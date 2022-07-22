@@ -24,6 +24,7 @@ artifacts:
   files:
     - .git/**/*
     - deployment/**/*
+    - edge/cdk/deployment/**/*
     - docs/**/*
     - templates/aws-cloudfront-monitoring/deployment/**/*
     - buildspec.yml
