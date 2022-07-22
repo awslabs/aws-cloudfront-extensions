@@ -62,7 +62,7 @@ pushd ../extensions/prewarm/deployment
 sh build-s3-dist.sh
 popd
 
-run npm run synth -- --output ${CDK_OUT_PATH}
+# run npm run synth -- --output ${CDK_OUT_PATH}
 run npm run synth -- --app "npx ts-node --prefer-ts-exts extensions/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
 run ${__dir}/helper.py ${CDK_OUT_PATH}
 
