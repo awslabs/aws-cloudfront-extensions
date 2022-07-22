@@ -14,7 +14,8 @@ run() {
 
 __dir="$(cd "$(dirname $0)";pwd)"
 SRC_PATH="${__dir}/../extensions"
-CDK_OUT_PATH="${__dir}/cdk.out"
+CDK_OUT_PATH="${__dir}/../cdk.out"
+BUILD_PATH="${__dir}/.."
 
 if [ -z "$1" ] || [ -z "$2" ]; then
     echo "Parameters not enough"
@@ -63,7 +64,11 @@ sh build-s3-dist.sh
 popd
 
 # run npm run synth -- --output ${CDK_OUT_PATH}
-run npm run synth -- --app "npx ts-node --prefer-ts-exts extensions/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
+cd ${BUILD_PATH}
+# run npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm.ts"
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
+
+echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
 run ${__dir}/helper.py ${CDK_OUT_PATH}
 
 title "tips!"
