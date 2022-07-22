@@ -49,7 +49,7 @@ title "cdk synth"
 
 run cd ${SRC_PATH}
 run npm i
-run npm run test
+# run npm run test
 
 export USE_BSS=true
 # How to config https://github.com/wchaws/cdk-bootstrapless-synthesizer/blob/main/API.md
