@@ -1,6 +1,6 @@
 import * as glue from "@aws-cdk/aws-glue-alpha";
 import * as cdk from 'aws-cdk-lib';
-import { CfnParameter, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { CfnParameter, CustomResource, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import {
   EndpointType,
   LambdaRestApi,
@@ -19,6 +19,7 @@ import * as kms from "aws-cdk-lib/aws-kms";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -1156,6 +1157,33 @@ export class CloudFrontMonitoringStack extends Stack {
     });
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
+
+    // Custom resource to add partitions once the CloudFormation is completed
+    const crLambda = new lambda.Function(this, "AddPartRealTimeCR", {
+      description: "This lambda function add partitions for glue table.",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda.d/custom_resource')),
+      handler: "custom_resource.lambda_handler",
+      architecture: lambda.Architecture.ARM_64,
+      role: lambdaRole,
+      environment: {
+        LAMBDA_ARN: addPartition.functionArn,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(300),
+    });
+
+    crLambda.node.addDependency(addPartition)
+
+    const customResourceProvider = new cr.Provider(this, 'customResourceProviderRT', {
+      onEventHandler: crLambda,
+      logRetention: logs.RetentionDays.ONE_DAY,
+    });
+
+    new CustomResource(this, 'AddPartRealtimeCR', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::AddPartRealtime",
+    });
 
     new cdk.CfnOutput(this, 'S3 Bucket', { value: cloudfront_monitoring_s3_bucket.bucketName });
     new cdk.CfnOutput(this, 'DynamoDB Table', { value: cloudfront_metrics_table.tableName });
