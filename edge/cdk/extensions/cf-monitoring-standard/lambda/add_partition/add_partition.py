@@ -33,20 +33,14 @@ def lambda_handler(event, context):
             Name=TABLE_NAME
         )
     except Exception as error:
-        print("cannot fetch table as " + str(error))
+        log.error("Cannot fetch table as " + str(error))
         exit(1)
+
     # Parsing table info required to create partitions from table
     input_format = response2['Table']['StorageDescriptor']['InputFormat']
     output_format = response2['Table']['StorageDescriptor']['OutputFormat']
-    table_location = response2['Table']['StorageDescriptor']['Location']
     serde_info = response2['Table']['StorageDescriptor']['SerdeInfo']
-    partition_keys = response2['Table']['PartitionKeys']
-    print(input_format)
-    print(output_format)
-    print(table_location)
-    print(serde_info)
-    print(partition_keys)
-    
+
     # 00~23
     for hour in range(24): 
         create_dict = []

@@ -18,6 +18,8 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { Construct } from 'constructs';
 import * as path from 'path';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import { CustomResource } from 'aws-cdk-lib';
 
 
 export class CfLogStack extends cdk.Stack {
@@ -626,11 +628,37 @@ export class CfLogStack extends cdk.Stack {
       layers: [cloudfrontSharedLayer]
     });
 
+    // Custom resource to add partitions once the CloudFormation is completed
+    const crLambda = new lambda.Function(this, "AddPartNonRealTimeCR", {
+      description: "This lambda function add partitions for glue table.",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/custom_resource')),
+      handler: "custom_resource.lambda_handler",
+      architecture: lambda.Architecture.ARM_64,
+      role: partitionRole,
+      environment: {
+        LAMBDA_ARN: addPartition.functionArn,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(300),
+    });
+
+    const customResourceProvider = new cr.Provider(this, 'customResourceProvider', {
+      onEventHandler: crLambda,
+      logRetention: logs.RetentionDays.ONE_DAY,
+    });
+
+    new CustomResource(this, 'AddPartNonRealtimeCR', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::AddPartNonRealtime",
+    });
+
     addPartition.node.addDependency(glueDatabase);
     addPartition.node.addDependency(glueTable);
     addPartition.node.addDependency(cfLogBucket);
     deletePartition.node.addDependency(glueDatabase);
     deletePartition.node.addDependency(glueTable);
+    crLambda.node.addDependency(addPartition); 
 
     metricsCollectorBandwidthCdn.node.addDependency(cloudfrontMetricsTable);
     metricsCollectorBandwidthCdn.node.addDependency(glueDatabase);

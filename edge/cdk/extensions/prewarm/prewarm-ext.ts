@@ -28,6 +28,18 @@ export class PrewarmStack extends cdk.Stack {
       default: 'false',
     });
 
+    const instanceType = new CfnParameter(this, 'InstanceType', {
+      description: 'EC2 spot instance type to send pre-warm requests',
+      type: 'String',
+      default: 'm5dn.xlarge',
+    });
+
+    const threadNumber = new CfnParameter(this, 'ThreadNumber', {
+      description: 'Thread number to run in parallel in EC2',
+      type: 'String',
+      default: '4',
+    });
+
     const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -179,7 +191,7 @@ export class PrewarmStack extends cdk.Stack {
     const securityGroup = new ec2.SecurityGroup(this, 'PrewarmSG', { vpc });
     const prewarmAsg = new as.AutoScalingGroup(this, 'PrewarmASG',
       {
-        instanceType: new ec2.InstanceType("m5dn.xlarge"),
+        instanceType: new ec2.InstanceType(instanceType.valueAsString),
         machineImage: new ec2.AmazonLinuxImage({ generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2 }),
         vpc: vpc,
         role: asgRole,
@@ -206,7 +218,7 @@ export class PrewarmStack extends cdk.Stack {
     prewarmAsg.addUserData(
       'exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1',
       'pip3 install -r /etc/agent/requirements.txt',
-      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} 4`
+      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} ` + threadNumber.valueAsString 
     );
 
     const agentScaleOut = new as.StepScalingAction(this, 'PrewarmScaleOut', {
