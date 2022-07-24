@@ -12,11 +12,11 @@ phases:
       - cdk --version
   build:
     commands:
-      # - cd templates/aws-cloudfront-monitoring/deployment/
-      # - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
-      - cd edge/cdk/deployment
-      - echo "TEST==========="
+      - cd templates/aws-cloudfront-monitoring/deployment/
       - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
+      # - pushed edge/cdk/deployment
+      # - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
+      # - popd
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec.yml || true
