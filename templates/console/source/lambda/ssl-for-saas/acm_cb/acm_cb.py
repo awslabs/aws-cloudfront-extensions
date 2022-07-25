@@ -363,8 +363,8 @@ def lambda_handler(event, context):
     job_type = event['input']['acm_op']
     creationDate = int(time.time())
     certCreateStageStatus = 'INPROGRESS'
-    certValidationStageStatus = 'NOT STARTED'
-    distStageStatus = 'NOT STARTED'
+    certValidationStageStatus = 'NOTSTART'
+    distStageStatus = 'NOTSTART'
 
     body_without_pem = event['input']
     del body_without_pem['pemList']
@@ -393,7 +393,7 @@ def lambda_handler(event, context):
     update_job_field(JOB_INFO_TABLE_NAME,
                      job_token,
                      'certCreateStageStatus',
-                     'COMPLETED')
+                     'SUCCESS')
 
     update_job_field(JOB_INFO_TABLE_NAME,
                      job_token,

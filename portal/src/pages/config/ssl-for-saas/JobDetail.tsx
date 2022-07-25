@@ -25,9 +25,9 @@ const JobDetail: React.FC = () => {
     cloudfront_distribution_total_number: 0,
     job_input: "",
     certCreateStageStatus: "INPROGRESS",
-    certValidationStageStatus: "NOTSTARTED",
+    certValidationStageStatus: "NOTSTART",
     creationDate: "2022-01-01",
-    distStageStatus: "NOTSTARTED",
+    distStageStatus: "NOTSTART",
     jobType: "create",
   });
   const [loadingData, setLoadingData] = useState(false);

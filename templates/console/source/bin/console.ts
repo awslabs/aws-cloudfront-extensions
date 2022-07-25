@@ -13,15 +13,15 @@ const app = new cdk.App();
 // Main stack with shared components
 const commonStack = new CommonStack(app, `cf-common-stack`);
 
-// new WebPortalStack(app, `WebPortalStack`, {
-//   tags: {
-//     app: "WebPortal",
-//   },
-//   synthesizer: newSynthesizer(),
-//   appsyncApi: commonStack.appsyncApi,
-//   cognitoUserPool: commonStack.cognitoUserPool,
-//   cognitoClient: commonStack.cognitoUserPoolClient,
-// });
+new WebPortalStack(app, `WebPortalStack`, {
+  tags: {
+    app: "WebPortal",
+  },
+  synthesizer: newSynthesizer(),
+  appsyncApi: commonStack.appsyncApi,
+  cognitoUserPool: commonStack.cognitoUserPool,
+  cognitoClient: commonStack.cognitoUserPoolClient,
+});
 
 // Config version stack
 const configVersionStack = new CloudFrontConfigVersionStack(

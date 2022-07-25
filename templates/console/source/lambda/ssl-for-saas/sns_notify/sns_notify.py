@@ -63,7 +63,7 @@ def lambda_handler(event, context):
     update_job_field(JOB_INFO_TABLE_NAME,
                      job_token,
                      'distStageStatus',
-                     'COMPLETED')
+                     'SUCCESS')
 
     msg = []
     # iterate distribution list from event

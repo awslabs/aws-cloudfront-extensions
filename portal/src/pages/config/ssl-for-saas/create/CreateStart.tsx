@@ -168,14 +168,6 @@ const CreateStart: React.FC = () => {
     getDistributionList();
   }, []);
 
-  // const [certInAccountList, setCertInAccountList] = useState<CertificateType[]>(
-  //   []
-  // );
-  //
-  // useEffect(() => {
-  //   setCertInAccountList(CERT_IN_ACCOUNT_LIST);
-  // }, []);
-
   const generateCertCreateImportParam = (): any => {
     cnameInfo.existing_cf_info.distribution_id = selectDistributionId;
     cnameInfo.existing_cf_info.config_version_id = selectDistributionVersionId;
@@ -203,10 +195,6 @@ const CreateStart: React.FC = () => {
       const resData = await appSyncRequestMutation(certCreateOrImport, {
         input: certCreateOrImportInput,
       });
-      // const resData = await appSyncRequestMutation(
-      //   certCreateOrImport,
-      //     { input:certCreateOrImportInput }
-      // );
       console.info(resData);
     } catch (error) {
       console.error(error);

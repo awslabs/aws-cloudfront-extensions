@@ -364,8 +364,8 @@ def cert_create_or_import(input):
     job_type = body['acm_op']
     creationDate = int(time.time())
     certCreateStageStatus = 'INPROGRESS'
-    certValidationStageStatus = 'NOT STARTED'
-    distStageStatus = 'NO NEEDED' if (auto_creation == 'false') else 'NOT STARTED'
+    certValidationStageStatus = 'NOTSTART'
+    distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
 
 
 
@@ -413,7 +413,7 @@ def cert_create_or_import(input):
                 update_job_field(JOB_INFO_TABLE_NAME,
                                  raw_context.aws_request_id,
                                  'certCreateStageStatus',
-                                 'COMPLETED')
+                                 'SUCCESS')
                 update_job_field(JOB_INFO_TABLE_NAME,
                                  raw_context.aws_request_id,
                                  'certValidationStageStatus',
@@ -434,7 +434,7 @@ def cert_create_or_import(input):
                 update_job_field(JOB_INFO_TABLE_NAME,
                                      raw_context.aws_request_id,
                                      'certCreateStageStatus',
-                                     'COMPLETED')
+                                     'SUCCESS')
                 update_job_field(JOB_INFO_TABLE_NAME,
                              raw_context.aws_request_id,
                              'certValidationStageStatus',
@@ -470,11 +470,11 @@ def cert_create_or_import(input):
             update_job_field(JOB_INFO_TABLE_NAME,
                                  raw_context.aws_request_id,
                                  'certCreateStageStatus',
-                                 'COMPLETED')
+                                 'SUCCESS')
             update_job_field(JOB_INFO_TABLE_NAME,
                              raw_context.aws_request_id,
                              'certValidationStageStatus',
-                             'COMPLETED')
+                             'SUCCESS')
             update_job_field(JOB_INFO_TABLE_NAME,
                              raw_context.aws_request_id,
                              'cert_completed_number',
