@@ -9,6 +9,7 @@ import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import {StepFunctionRpTsConstruct} from "./ssl-for-saas/step_function_rp_ts-stack";
 import {ConsoleConstruct} from "./console-stack";
 import {aws_cognito as cognito, StackProps} from "aws-cdk-lib";
+import {SslForSaasNestedStack} from "./ssl-for-saas-stack";
 
 interface RootStackProps extends StackProps{
     synthesizer: any
@@ -18,8 +19,8 @@ export class RootStack extends cdk.Stack {
 
     constructor(app: Construct, id: string, props: RootStackProps) {
         super(app, id, props);
-
-                // construct a cognito for auth
+        this.templateOptions.description = "(SO8152-ui) - Cloudfront portal stack";
+        // construct a cognito for auth
         const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
             userPoolName: "CloudFrontExtCognito_UserPool",
             selfSignUpEnabled: true,
@@ -45,7 +46,6 @@ export class RootStack extends cdk.Stack {
         const commonConstruct = new CommonConstruct(this, `CfCommonConstruct`, {
             cognitoClient: cognitoUserPoolClient,
             cognitoUserPool: cognitoUserPool,
-
         });
 
         new PortalConstruct(this, "WebConsole", {
@@ -70,33 +70,34 @@ export class RootStack extends cdk.Stack {
                 },
                 synthesizer: props.synthesizer,
                 appsyncApi: commonConstruct.appsyncApi,
-                cognitoUserPool: cognitoUserPool,
-                cognitoClient: cognitoUserPoolClient
             }
         );
 
-        // SSL for SaaS stack
-        new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
-            /* If you don't specify 'env', this stack will be environment-agnostic.
-             * Account/Region-dependent features and context lookups will not work,
-             * but a single synthesized template can be deployed anywhere. */
+        // // SSL for SaaS stack
+        // new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
+        //     /* If you don't specify 'env', this stack will be environment-agnostic.
+        //      * Account/Region-dependent features and context lookups will not work,
+        //      * but a single synthesized template can be deployed anywhere. */
+        //
+        //     /* Uncomment the next line to specialize this stack for the AWS Account
+        //      * and Region that are implied by the current CLI configuration. */
+        //     // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+        //
+        //     /* Uncomment the next line if you know exactly what Account and Region you
+        //      * want to deploy the stack to. */
+        //     // env: { account: '123456789012', region: 'us-east-1' },
+        //
+        //     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+        //     synthesizer: props.synthesizer,
+        //     appsyncApi: commonConstruct.appsyncApi,
+        //     configVersionDDBTableName: configVersion.configVersionDDBTableName,
+        // });
 
-            /* Uncomment the next line to specialize this stack for the AWS Account
-             * and Region that are implied by the current CLI configuration. */
-            // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
-            /* Uncomment the next line if you know exactly what Account and Region you
-             * want to deploy the stack to. */
-            // env: { account: '123456789012', region: 'us-east-1' },
-
-            /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-            synthesizer: props.synthesizer,
-            appsyncApi: commonConstruct.appsyncApi,
-            cognitoUserPool: cognitoUserPool,
-            cognitoClient: cognitoUserPoolClient,
-            configVersionDDBTableName: configVersion.configVersionDDBTableName,
-            // configVersion_ddb_table_name: cdk.Fn.importValue('configVersionDDBTableName')
-        });
+        new SslForSaasNestedStack(this, "StepFunctionRpTsNestedStack", {
+                synthesizer: props.synthesizer,
+                appsyncApi: commonConstruct.appsyncApi,
+                configVersionDDBTableName: configVersion.configVersionDDBTableName,
+        })
 
         new ConsoleConstruct(this, "ConsoleConstruct", {
             tags: {
@@ -104,8 +105,6 @@ export class RootStack extends cdk.Stack {
             },
             synthesizer: props.synthesizer,
             appsyncApi: commonConstruct.appsyncApi,
-            cognitoUserPool: cognitoUserPool,
-            cognitoClient: cognitoUserPoolClient
         });
 
 
