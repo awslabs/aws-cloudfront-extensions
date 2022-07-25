@@ -6,9 +6,9 @@ import { SelectType, TablePanel } from "components/TablePanel";
 import Button from "components/Button";
 import { Pagination } from "@material-ui/lab";
 import TextInput from "components/TextInput";
-import { certification_info, Cloudfront_info } from "../../API";
-import { appSyncRequestQuery } from "../../assets/js/request";
-import { listCertifications, listDistribution } from "../../graphql/queries";
+import { certification_info, Cloudfront_info } from "../../../API";
+import { appSyncRequestQuery } from "../../../assets/js/request";
+import { listCertifications, listDistribution } from "../../../graphql/queries";
 
 const BreadCrunbList = [
   {
@@ -70,10 +70,34 @@ const CertificationList: React.FC = () => {
               <Button
                 btnType="primary"
                 onClick={() => {
+                  navigate("/config/certification/jobs");
+                }}
+              >
+                Show Job List
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
                   navigate("/config/certification/create");
                 }}
               >
-                Create or Import Certificates
+                Create&Import
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  navigate("/config/certification/createGuide");
+                }}
+              >
+                Request New Certificates
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  navigate("/config/certification/importGuide");
+                }}
+              >
+                Import Existing Certificates
               </Button>
             </div>
           }
@@ -119,19 +143,19 @@ const CertificationList: React.FC = () => {
               cell: (e: certification_info) => e.NotAfter,
             },
           ]}
-          filter={
-            <div>
-              <TextInput
-                value={searchParams}
-                isSearch={true}
-                placeholder={"Search all certifications"}
-                onChange={(event) => {
-                  console.info("event:", event);
-                  setSearchParams(event.target.value);
-                }}
-              />
-            </div>
-          }
+          // filter={
+          //   <div>
+          //     <TextInput
+          //       value={searchParams}
+          //       isSearch={true}
+          //       placeholder={"Search all certifications"}
+          //       onChange={(event) => {
+          //         console.info("event:", event);
+          //         setSearchParams(event.target.value);
+          //       }}
+          //     />
+          //   </div>
+          // }
           changeSelected={(item) => {
             console.info("select item:", item);
             // setSelectedItems(item);

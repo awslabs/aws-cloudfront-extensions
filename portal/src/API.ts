@@ -37,9 +37,8 @@ export type pemInput = {
 
 export type certOutput = {
   __typename: "certOutput",
-  status: string,
-  createdAt: string,
-  updatedAt: string,
+  body: string,
+  statusCode: string,
 };
 
 export type ExtensionResponse = {
@@ -150,13 +149,17 @@ export type certification_info = {
 
 export type SSLJob = {
   __typename: "SSLJob",
-  id: string,
   jobId: string,
-  cert_completed_number: string,
-  cert_total_number: string,
-  cloudfront_distribution_created_number: string,
-  cloudfront_distribution_total_number: string,
-  job_input: string,
+  cert_completed_number?: number | null,
+  cert_total_number?: number | null,
+  cloudfront_distribution_created_number?: number | null,
+  cloudfront_distribution_total_number?: number | null,
+  job_input?: string | null,
+  certCreateStageStatus?: string | null,
+  certValidationStageStatus?: string | null,
+  creationDate?: string | null,
+  distStageStatus?: string | null,
+  jobType?: string | null,
 };
 
 export type DeployExtensionMutationVariables = {
@@ -214,9 +217,8 @@ export type CertCreateOrImportMutation = {
   // SSL for SAAS
   certCreateOrImport?:  {
     __typename: "certOutput",
-    status: string,
-    createdAt: string,
-    updatedAt: string,
+    body: string,
+    statusCode: string,
   } | null,
 };
 
@@ -496,13 +498,17 @@ export type ListCertificationsQuery = {
 export type ListSSLJobsQuery = {
   listSSLJobs?:  Array< {
     __typename: "SSLJob",
-    id: string,
     jobId: string,
-    cert_completed_number: string,
-    cert_total_number: string,
-    cloudfront_distribution_created_number: string,
-    cloudfront_distribution_total_number: string,
-    job_input: string,
+    cert_completed_number?: number | null,
+    cert_total_number?: number | null,
+    cloudfront_distribution_created_number?: number | null,
+    cloudfront_distribution_total_number?: number | null,
+    job_input?: string | null,
+    certCreateStageStatus?: string | null,
+    certValidationStageStatus?: string | null,
+    creationDate?: string | null,
+    distStageStatus?: string | null,
+    jobType?: string | null,
   } | null > | null,
 };
 
@@ -513,12 +519,16 @@ export type GetJobInfoQueryVariables = {
 export type GetJobInfoQuery = {
   getJobInfo?:  {
     __typename: "SSLJob",
-    id: string,
     jobId: string,
-    cert_completed_number: string,
-    cert_total_number: string,
-    cloudfront_distribution_created_number: string,
-    cloudfront_distribution_total_number: string,
-    job_input: string,
+    cert_completed_number?: number | null,
+    cert_total_number?: number | null,
+    cloudfront_distribution_created_number?: number | null,
+    cloudfront_distribution_total_number?: number | null,
+    job_input?: string | null,
+    certCreateStageStatus?: string | null,
+    certValidationStageStatus?: string | null,
+    creationDate?: string | null,
+    distStageStatus?: string | null,
+    jobType?: string | null,
   } | null,
 };

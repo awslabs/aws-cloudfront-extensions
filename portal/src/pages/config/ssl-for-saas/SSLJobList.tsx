@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "components/Breadcrumb";
 import { SelectType, TablePanel } from "components/TablePanel";
 import Button from "components/Button";
 import { Pagination } from "@material-ui/lab";
 import TextInput from "components/TextInput";
-import { certification_info, Cloudfront_info, SSLJob } from "../../API";
-import { appSyncRequestQuery } from "../../assets/js/request";
+import { certification_info, Cloudfront_info, SSLJob } from "../../../API";
+import { appSyncRequestQuery } from "../../../assets/js/request";
 import {
   listCertifications,
   listDistribution,
   listSSLJobs,
-} from "../../graphql/queries";
+} from "../../../graphql/queries";
 
 const BreadCrunbList = [
   {
@@ -71,10 +71,34 @@ const SSLJobList: React.FC = () => {
               <Button
                 btnType="primary"
                 onClick={() => {
-                  navigate("/config/certification/create");
+                  navigate("/config/certification/list");
                 }}
               >
-                Create or Import Certificates
+                Show Certificate List
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  navigate("/config/certification/createGuide");
+                }}
+              >
+                Request New Certificates
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  navigate("/config/certification/createGuide");
+                }}
+              >
+                Request New Certificates
+              </Button>
+              <Button
+                btnType="primary"
+                onClick={() => {
+                  navigate("/config/certification/importGuide");
+                }}
+              >
+                Import Existing Certificates
               </Button>
             </div>
           }
@@ -82,42 +106,41 @@ const SSLJobList: React.FC = () => {
           items={jobList}
           columnDefinitions={[
             {
-              width: 80,
+              width: 350,
               id: "JobId",
-              header: "DomainName",
-              cell: (e: SSLJob) => e.id,
+              header: "jobId",
+              cell: (e: SSLJob) => {
+                return (
+                  <Link to={`/config/certification/job/${e.jobId}`}>
+                    {e.jobId}
+                  </Link>
+                );
+              },
               // sortingField: "alt",
             },
             {
-              width: 200,
-              id: "cert_completed_number",
-              header: "cert_completed_number",
-              cell: (e: SSLJob) => e.cert_completed_number,
-            },
-
-            {
               width: 80,
-              id: "cert_total_number",
-              header: "cert_total_number",
+              id: "jobType",
+              header: "jobType",
+              cell: (e: SSLJob) => e.jobType,
+            },
+            {
+              width: 50,
+              id: "cert_number",
+              header: "Total Certificates",
               cell: (e: SSLJob) => e.cert_total_number,
             },
             {
-              width: 160,
-              id: "cloudfront_distribution_created_number",
-              header: "cloudfront_distribution_created_number",
-              cell: (e: SSLJob) => e.cloudfront_distribution_created_number,
-            },
-            {
-              width: 160,
-              id: "cloudfront_distribution_total_number",
-              header: "cloudfront_distribution_total_number",
+              width: 80,
+              id: "cloudfront_distribution_number",
+              header: "Total Distributions",
               cell: (e: SSLJob) => e.cloudfront_distribution_total_number,
             },
             {
-              width: 160,
-              id: "job_input",
-              header: "job_input",
-              cell: (e: SSLJob) => e.job_input,
+              width: 130,
+              id: "creationDate",
+              header: "Created at",
+              cell: (e: SSLJob) => e.creationDate,
             },
           ]}
           // filter={

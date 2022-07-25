@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "components/Button";
 import FormItem from "components/FormItem";
 import HeaderPanel from "components/HeaderPanel";
@@ -12,10 +12,43 @@ import Switch from "components/Switch";
 import { useNavigate } from "react-router-dom";
 import TagList from "components/TagList";
 import Breadcrumb from "components/Breadcrumb";
+import { CNameInfo } from "../../certificate/Create";
+import {
+  appSyncRequestMutation,
+  appSyncRequestQuery,
+} from "../../../../assets/js/request";
+import {
+  listCloudfrontVersions,
+  listDistribution,
+} from "../../../../graphql/queries";
+import { Version } from "../../../../API";
+import { certCreateOrImport } from "../../../../graphql/mutations";
 
-enum ImportMethod {
-  CREATE = "CREATE",
+// enum ImportMethodType {
+//   CREATE = "CREATE",
+//   NONE = "NONE",
+// }
+const enum ImportMethod {
+  CREATE = "Create",
+  IMPORT = "Import",
   NONE = "NONE",
+}
+
+const enum ImportCertificate {
+  IMPORT_ONE = "ImportOne",
+  IMPORT_MULTI = "ImportMulti",
+}
+
+const enum CreateCertificate {
+  CREATE_ONE = "CreateOne",
+  CREATE_MULTI = "CreateMulti",
+}
+
+interface CertInfo {
+  name: string;
+  body: string;
+  privateKey: string;
+  chain: string;
 }
 
 const BreadCrunbList = [
@@ -32,7 +65,7 @@ const BreadCrunbList = [
   },
 ];
 
-const CreateStartMock: React.FC = () => {
+const CreateStart: React.FC = () => {
   const navigate = useNavigate();
   const [domainCertList, setDomainCertList] = useState([
     {
@@ -44,6 +77,141 @@ const CreateStartMock: React.FC = () => {
   const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
   const [createAsLess, setCreateAsLess] = useState(true);
   const [tagList, setTagList] = useState([{ key: "", value: "" }]);
+  const [aggregation, setAggregation] = useState(false);
+  const [checkCName, setCheckCName] = useState(false);
+  const [createAuto, setCreateAuto] = useState(true);
+  const [distributionList, setDistributionList] = useState<any[]>([]);
+  const [versionList, setVersionList] = useState<any[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
+  const [selectDistributionId, setSelectDistributionId] = useState<any>("");
+  const [selectDistributionVersionId, setSelectDistributionVersionId] =
+    useState<any>("1");
+  const [confirm, setConfirm] = useState("");
+
+  const [importCert, setImportCert] = useState<string>(
+    ImportCertificate.IMPORT_ONE
+  );
+  const [createCert, setCreateCert] = useState<string>(
+    CreateCertificate.CREATE_ONE
+  );
+  const [cnameInfo, setCnameInfo] = useState<CNameInfo>({
+    domainName: "",
+    sanList: [],
+    originsItemsDomainName: "",
+    existing_cf_info: {
+      distribution_id: "",
+      config_version_id: "",
+    },
+  });
+  const [certInfo, setCertInfo] = useState<CertInfo>({
+    name: "",
+    body: "",
+    privateKey: "",
+    chain: "",
+  });
+  const [s3FilePath, setS3FilePath] = useState("");
+
+  // Get Version List By Distribution
+  const getVersionListByDistribution = async () => {
+    try {
+      while (selectDistributionId === "") {
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      setVersionList([]);
+      const resData = await appSyncRequestQuery(listCloudfrontVersions, {
+        distribution_id: selectDistributionId,
+      });
+      const versionList: Version[] = resData.data.listCloudfrontVersions;
+      const tmpList = [];
+      for (const versionKey in versionList) {
+        tmpList.push({
+          name:
+            versionList[versionKey].versionId +
+            "\t|\t" +
+            versionList[versionKey].dateTime +
+            "\t|\t" +
+            versionList[versionKey].note,
+          value: versionList[versionKey].versionId,
+        });
+      }
+      setVersionList(tmpList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getVersionListByDistribution();
+  }, [selectDistributionId]);
+
+  // Get Distribution List
+  const getDistributionList = async () => {
+    try {
+      setDistributionList([]);
+      const resData = await appSyncRequestQuery(listDistribution);
+      const Cloudfront_info_list: any[] = resData.data.listDistribution;
+      const tmpList = [];
+      for (const cfdistlistKey in Cloudfront_info_list) {
+        tmpList.push({
+          name: Cloudfront_info_list[cfdistlistKey].id,
+          value: Cloudfront_info_list[cfdistlistKey].id,
+        });
+      }
+      setDistributionList(tmpList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getDistributionList();
+  }, []);
+
+  // const [certInAccountList, setCertInAccountList] = useState<CertificateType[]>(
+  //   []
+  // );
+  //
+  // useEffect(() => {
+  //   setCertInAccountList(CERT_IN_ACCOUNT_LIST);
+  // }, []);
+
+  const generateCertCreateImportParam = (): any => {
+    cnameInfo.existing_cf_info.distribution_id = selectDistributionId;
+    cnameInfo.existing_cf_info.config_version_id = selectDistributionVersionId;
+    const sslForSaasRequest = {
+      acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
+      auto_creation: createAuto ? "true" : "false",
+      dist_aggregate: aggregation ? "true" : "false",
+      enable_cname_check: checkCName ? "true" : "false",
+      cnameList: [cnameInfo],
+      pemList: [
+        {
+          CertPem: certInfo.body,
+          PrivateKeyPem: certInfo.privateKey,
+          ChainPem: certInfo.chain,
+          originsItemsDomainName: cnameInfo.originsItemsDomainName,
+        },
+      ],
+    };
+    return sslForSaasRequest;
+  };
+
+  // Get Version List By Distribution
+  const startCertRequest = async (certCreateOrImportInput: any) => {
+    try {
+      const resData = await appSyncRequestMutation(certCreateOrImport, {
+        input: certCreateOrImportInput,
+      });
+      // const resData = await appSyncRequestMutation(
+      //   certCreateOrImport,
+      //     { input:certCreateOrImportInput }
+      // );
+      console.info(resData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const changeDomainList = (index: number, value: string) => {
     const tmpList = JSON.parse(JSON.stringify(domainCertList));
@@ -242,4 +410,4 @@ const CreateStartMock: React.FC = () => {
   );
 };
 
-export default CreateStartMock;
+export default CreateStart;

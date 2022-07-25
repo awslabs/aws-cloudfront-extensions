@@ -37,11 +37,11 @@ const SIDE_MENU_LIST = [
         link: "/config/snapshot",
       },
       {
-        name: "Certification",
-        link: "/config/certification",
+        name: "SSL for SAAS",
+        link: "/config/certification/list",
       },
       {
-        name: "SSL Certification",
+        name: "SSL Certification(Mock UI)",
         link: "/config/sslcertificate/list",
       },
     ],

@@ -31,7 +31,7 @@ const IMPORT_STEP_LIST = [
   },
 ];
 
-const ImportGuideMock: React.FC = () => {
+const ImportGuide: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div>
@@ -69,4 +69,4 @@ const ImportGuideMock: React.FC = () => {
   );
 };
 
-export default ImportGuideMock;
+export default ImportGuide;

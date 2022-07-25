@@ -6,7 +6,7 @@ import json
 import time
 import requests
 from requests_aws4auth import AWS4Auth
-from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
+from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
 from requests import exceptions
@@ -261,6 +261,15 @@ def lambda_handler(event, context):
     # fetch taskToken from DynamoDB
     task_token = response['Items'][0]['taskToken']['S']
 
+    # fetch jobToken from DynamoDB
+    job_token = response['Items'][0]['jobToken']['S']
+
+    # update the job cert validation status to COMPLETED
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     job_token,
+                     'certValidationStageStatus',
+                     'COMPLETED')
+
     # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
     resp = dynamo_client.delete_item(
         TableName=callback_table,
@@ -312,15 +321,15 @@ def lambda_handler(event, context):
 
 
     # update the job info table for completed cloudfront number
-    response = get_job_info(JOB_INFO_TABLE_NAME, task_token)
+    response = get_job_info(JOB_INFO_TABLE_NAME, job_token)
 
     if 'Items' in response:
         ddb_record = response['Items'][0]
         cloudfront_distribution_created_number = ddb_record['cloudfront_distribution_created_number']
         new_number = int(cloudfront_distribution_created_number) + 1
-        update_job_cloudfront_distribution_created_number(JOB_INFO_TABLE_NAME, task_token, new_number)
+        update_job_cloudfront_distribution_created_number(JOB_INFO_TABLE_NAME, job_token, new_number)
     else:
-        logger.error(f"failed to get the job info of job_id:{task_token} ")
+        logger.error(f"failed to get the job info of job_id:{job_token} ")
 
     # return response in json format
     return {

@@ -8,24 +8,20 @@ import { StepFunctionRpTsStack } from "../lib/ssl-for-saas/step_function_rp_ts-s
 import { CommonStack } from "../lib/cf-common/cf-common-stack";
 import { WebPortalStack } from "../lib/web-portal/web_portal_stack";
 
-
 const app = new cdk.App();
 
 // Main stack with shared components
 const commonStack = new CommonStack(app, `cf-common-stack`);
 
-new WebPortalStack(
-    app,
-    `WebPortalStack`, {
-        tags: {
-            app: 'WebPortal',
-        },
-        synthesizer: newSynthesizer(),
-        appsyncApi: commonStack.appsyncApi,
-        cognitoUserPool: commonStack.cognitoUserPool,
-        cognitoClient: commonStack.cognitoUserPoolClient
-    }
-);
+// new WebPortalStack(app, `WebPortalStack`, {
+//   tags: {
+//     app: "WebPortal",
+//   },
+//   synthesizer: newSynthesizer(),
+//   appsyncApi: commonStack.appsyncApi,
+//   cognitoUserPool: commonStack.cognitoUserPool,
+//   cognitoClient: commonStack.cognitoUserPoolClient,
+// });
 
 // Config version stack
 const configVersionStack = new CloudFrontConfigVersionStack(
@@ -38,7 +34,7 @@ const configVersionStack = new CloudFrontConfigVersionStack(
     synthesizer: newSynthesizer(),
     appsyncApi: commonStack.appsyncApi,
     cognitoUserPool: commonStack.cognitoUserPool,
-    cognitoClient: commonStack.cognitoUserPoolClient
+    cognitoClient: commonStack.cognitoUserPoolClient,
   }
 );
 
@@ -60,7 +56,7 @@ new StepFunctionRpTsStack(app, "StepFunctionRpTsStack", {
   synthesizer: newSynthesizer(),
   appsyncApi: commonStack.appsyncApi,
   cognitoUserPool: commonStack.cognitoUserPool,
-  cognitoClient: commonStack.cognitoUserPoolClient
+  cognitoClient: commonStack.cognitoUserPoolClient,
   // configVersion_ddb_table_name: cdk.Fn.importValue('configVersionDDBTableName')
 });
 
@@ -71,7 +67,7 @@ new ConsoleStack(app, "ConsoleStack", {
   synthesizer: newSynthesizer(),
   appsyncApi: commonStack.appsyncApi,
   cognitoUserPool: commonStack.cognitoUserPool,
-  cognitoClient: commonStack.cognitoUserPoolClient
+  cognitoClient: commonStack.cognitoUserPoolClient,
 });
 
 // TODO: Add monitoring dashboard stack
