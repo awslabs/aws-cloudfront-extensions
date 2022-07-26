@@ -48,10 +48,13 @@ const enum CreateCertificate {
 }
 
 interface CertInfo {
-  name: string;
   body: string;
   privateKey: string;
   chain: string;
+  existing_cf_info: {
+    distribution_id: string;
+    config_version_id: string;
+  };
 }
 
 // interface CNameInfo {
@@ -74,7 +77,7 @@ const BreadCrunbList = [
     link: "/config/certification/list",
   },
   {
-    name: "Import existing ertificates",
+    name: "Import existing certificates",
   },
 ];
 
@@ -87,7 +90,7 @@ const ImportStart: React.FC = () => {
   ]);
   const [cloudFront, setCloudFront] = useState("");
   const [snapshot, setSnapshot] = useState([]);
-  const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
+  const [importMethod, setImportMethod] = useState<string>(ImportMethod.IMPORT);
   const [createAsLess, setCreateAsLess] = useState(true);
   const [tagList, setTagList] = useState([{ key: "", value: "" }]);
   const [aggregation, setAggregation] = useState(false);
@@ -131,10 +134,13 @@ const ImportStart: React.FC = () => {
   ]);
 
   const [certInfo, setCertInfo] = useState<CertInfo>({
-    name: "",
     body: "",
     privateKey: "",
     chain: "",
+    existing_cf_info: {
+      distribution_id: "",
+      config_version_id: "",
+    },
   });
   const [s3FilePath, setS3FilePath] = useState("");
 
@@ -201,13 +207,17 @@ const ImportStart: React.FC = () => {
       auto_creation: createAuto ? "true" : "false",
       dist_aggregate: aggregation ? "true" : "false",
       enable_cname_check: checkCName ? "true" : "false",
-      cnameList: cnameInfoList,
+      cnameList: [],
       pemList: [
         {
           CertPem: certInfo.body,
           PrivateKeyPem: certInfo.privateKey,
           ChainPem: certInfo.chain,
-          originsItemsDomainName: cnameInfo.originsItemsDomainName,
+          // originsItemsDomainName: cnameInfo.originsItemsDomainName,
+          existing_cf_info: {
+            distribution_id: certInfo.existing_cf_info.distribution_id,
+            config_version_id: certInfo.existing_cf_info.config_version_id,
+          },
         },
       ],
     };
@@ -301,17 +311,15 @@ const ImportStart: React.FC = () => {
     // console.info("CnameInfoList is " + JSON.stringify(tmpCnameInfoList));
   };
 
-  const updateCnameInfoWithDistributionIdVersion = (
+  const updateCertInfoWithDistributionIdVersion = (
     distributionId: string,
     version: string
   ) => {
     // traverse the cnameInfoList
-    for (const cnameInfo of cnameInfoList) {
-      // cnameInfo.existing_cf_info.distribution_id = distributionId;
-      cnameInfo.existing_cf_info.distribution_id = distributionId;
-      cnameInfo.existing_cf_info.config_version_id = version;
-    }
-    console.info(JSON.stringify(cnameInfoList));
+    // cnameInfo.existing_cf_info.distribution_id = distributionId;
+    certInfo.existing_cf_info.distribution_id = distributionId;
+    certInfo.existing_cf_info.config_version_id = version;
+    console.info(JSON.stringify(certInfo));
   };
 
   useEffect(() => {
@@ -319,7 +327,7 @@ const ImportStart: React.FC = () => {
   }, [domainCertList]);
 
   useEffect(() => {
-    updateCnameInfoWithDistributionIdVersion(
+    updateCertInfoWithDistributionIdVersion(
       selectDistributionId,
       selectDistributionVersionId
     );
@@ -358,20 +366,6 @@ const ImportStart: React.FC = () => {
             </FormItem>
             {importCert === ImportCertificate.IMPORT_ONE ? (
               <div>
-                <FormItem
-                  optionTitle="Certification name"
-                  optionDesc="Enter the name of the object that you want CloudFront to return when a viewer request points to your root URL."
-                >
-                  <TextInput
-                    placeholder="Certification name"
-                    value={certInfo.name}
-                    onChange={(event) => {
-                      setCertInfo((prev) => {
-                        return { ...prev, name: event.target.value };
-                      });
-                    }}
-                  />
-                </FormItem>
                 <FormItem
                   optionTitle="Certificate body"
                   optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
@@ -541,11 +535,16 @@ const ImportStart: React.FC = () => {
           {/*</HeaderPanel>*/}
 
           <div className="button-action text-right">
-            <Button btnType="text">Cancel</Button>
+            <Button
+              btnType="text"
+              onClick={() => navigate("/config/certification/list")}
+            >
+              Cancel
+            </Button>
             <Button
               btnType="primary"
               onClick={() => {
-                updateCnameInfoWithDistributionIdVersion(
+                updateCertInfoWithDistributionIdVersion(
                   selectDistributionId,
                   selectDistributionVersionId
                 );

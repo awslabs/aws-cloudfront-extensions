@@ -56,7 +56,7 @@ const CertificationList: React.FC = () => {
         <TablePanel
           loading={loadingData}
           title="Certification List"
-          selectType={SelectType.RADIO}
+          selectType={SelectType.NONE}
           actions={
             <div>
               <Button
@@ -107,7 +107,7 @@ const CertificationList: React.FC = () => {
             {
               width: 350,
               id: "DomainName",
-              header: "DomainName",
+              header: "CNAMEs",
               cell: (e: certification_info) => e.DomainName,
               // sortingField: "alt",
             },
@@ -127,7 +127,7 @@ const CertificationList: React.FC = () => {
             {
               width: 160,
               id: "Status",
-              header: "Status",
+              header: "SSL/TLS certificate status",
               cell: (e: certification_info) => e.Status,
             },
             {

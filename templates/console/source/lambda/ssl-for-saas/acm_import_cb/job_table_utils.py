@@ -70,3 +70,17 @@ def update_job_cloudfront_distribution_created_number(ddb_table_name, job_id, cu
         },
         ReturnValues="UPDATED_NEW"
     )
+
+def update_job_field(ddb_table_name,job_id, field_name, value):
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
+    response = ddb_table.update_item(
+        Key={
+            'jobId': job_id,
+        },
+        UpdateExpression=f"set {field_name}=:r",
+        ExpressionAttributeValues={
+            ':r': value
+        },
+        ReturnValues="UPDATED_NEW"
+    )

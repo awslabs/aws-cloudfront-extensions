@@ -57,7 +57,7 @@ const SSLJobList: React.FC = () => {
         <TablePanel
           loading={loadingData}
           title="SSL for SAAS Job List"
-          selectType={SelectType.RADIO}
+          selectType={SelectType.NONE}
           actions={
             <div>
               <Button

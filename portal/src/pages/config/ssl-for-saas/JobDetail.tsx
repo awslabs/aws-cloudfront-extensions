@@ -42,7 +42,7 @@ const JobDetail: React.FC = () => {
     },
     {
       name: "Certification Jobs",
-      link: "/config/jobs/list",
+      link: "/config/certification/jobs",
     },
     {
       name: jobId || "",

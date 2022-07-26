@@ -489,7 +489,12 @@ const CreateStart: React.FC = () => {
           {/*</HeaderPanel>*/}
 
           <div className="button-action text-right">
-            <Button btnType="text">Cancel</Button>
+            <Button
+              btnType="text"
+              onClick={() => navigate("/config/certification/list")}
+            >
+              Cancel
+            </Button>
             <Button
               btnType="primary"
               onClick={() => {

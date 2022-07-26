@@ -368,7 +368,6 @@ def cert_create_or_import(input):
     distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
 
 
-
     # remove the pemList from input body since PEM content is too large and not suitable for save in DDB
     body_without_pem = body
     del body_without_pem['pemList']
@@ -457,14 +456,6 @@ def cert_create_or_import(input):
                 certificate['SubjectAlternativeNames'] = _domainList
                 certificate['DomainName'] = _domainList[0] if _domainList else ''
 
-                # validation for certificate
-                if body['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                    logger.info("Domain name {} matches certificate domain name {}".format(
-                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                else:
-                    logger.error("Domain name {} does not match certificate domain name {}".format(
-                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                    continue
                 resp = import_certificate(certificate)
 
             update_job_field(JOB_INFO_TABLE_NAME,
