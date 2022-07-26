@@ -367,7 +367,8 @@ def lambda_handler(event, context):
     distStageStatus = 'NOTSTART'
 
     body_without_pem = event['input']
-    del body_without_pem['pemList']
+    if 'pemList' in body_without_pem:
+        del body_without_pem['pemList']
     create_job_info(JOB_INFO_TABLE_NAME,
                     job_token,
                     json.dumps(body_without_pem,indent=4),

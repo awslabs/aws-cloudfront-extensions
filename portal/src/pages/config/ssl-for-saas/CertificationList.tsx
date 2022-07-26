@@ -105,14 +105,14 @@ const CertificationList: React.FC = () => {
           items={certificationList}
           columnDefinitions={[
             {
-              width: 80,
+              width: 350,
               id: "DomainName",
               header: "DomainName",
               cell: (e: certification_info) => e.DomainName,
               // sortingField: "alt",
             },
             {
-              width: 200,
+              width: 300,
               id: "CertificateArn",
               header: "CertificateArn",
               cell: (e: certification_info) => e.CertificateArn,

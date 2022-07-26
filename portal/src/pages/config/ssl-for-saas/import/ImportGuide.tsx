@@ -13,7 +13,7 @@ const BreadCrunbList = [
   },
   {
     name: "Certification List",
-    link: "/config/sslcertificate/list",
+    link: "/config/certification/list",
   },
   {
     name: "Import existing ertificates",
@@ -57,7 +57,7 @@ const ImportGuide: React.FC = () => {
             <Button
               btnType="primary"
               onClick={() => {
-                navigate("/config/sslcertificate/import/start");
+                navigate("/config/certification/import/start");
               }}
             >
               Get Started

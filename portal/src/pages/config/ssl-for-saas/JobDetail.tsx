@@ -17,6 +17,9 @@ const JobDetail: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { jobId } = useParams();
+  const [certValidationPercentage, setCertValidationPercentage] =
+    useState<any>(0);
+  const [overallStatus, setOverallStatus] = useState("");
   const [jobInfo, setJobInfo] = useState<any>({
     jobId: jobId || "",
     cert_completed_number: 0,
@@ -70,6 +73,39 @@ const JobDetail: React.FC = () => {
     fetchJobInfo();
   }, []);
 
+  const getCertValidationPercentage = () => {
+    if (jobInfo.cloudfront_distribution_created_number > 0) {
+      setCertValidationPercentage(100);
+    } else {
+      setCertValidationPercentage(0);
+    }
+  };
+
+  useEffect(() => {
+    getCertValidationPercentage();
+  }, [jobInfo]);
+
+  const getOverallStatus = () => {
+    if (
+      jobInfo.certCreateStageStatus === "SUCCESS" &&
+      jobInfo.distStageStatus === "SUCCESS"
+    ) {
+      setOverallStatus("SUCCESS");
+    } else if (
+      jobInfo.certCreateStageStatus === "FAILED" ||
+      jobInfo.distStageStatus === "FAILED" ||
+      jobInfo.certValidationStageStatus === "FAILED"
+    ) {
+      setOverallStatus("FAILED");
+    } else {
+      setOverallStatus("INPROGRESS");
+    }
+  };
+
+  useEffect(() => {
+    getOverallStatus();
+  }, [jobInfo]);
+
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -91,7 +127,7 @@ const JobDetail: React.FC = () => {
                 className="ml-10"
                 btnType="primary"
                 onClick={() => {
-                  navigate("/config/jobs/list");
+                  navigate("/config/certification/jobs");
                 }}
               >
                 Back to Certificate Jobs
@@ -102,7 +138,9 @@ const JobDetail: React.FC = () => {
           <div className="flex value-label-span">
             <div>
               <ValueWithLabel label="Overall Job Status">
-                <div className={status?.toLocaleLowerCase()}>{status}</div>
+                <div className={overallStatus?.toLocaleLowerCase()}>
+                  {overallStatus}
+                </div>
               </ValueWithLabel>
             </div>
             <div className="flex-1 border-left-c">
@@ -162,7 +200,11 @@ const JobDetail: React.FC = () => {
                   isAuto
                   step={StatusTypeStep.RequestSSLCert}
                   status={jobInfo.certCreateStageStatus}
-                  progress={60}
+                  progress={
+                    (jobInfo.cert_completed_number /
+                      jobInfo.cert_total_number) *
+                    100
+                  }
                   progressTopText="Request ACM Certificates"
                   progressBottomText="The step will be completed if all SSL certificates were created"
                 />
@@ -174,8 +216,8 @@ const JobDetail: React.FC = () => {
                   isAuto={false}
                   step={StatusTypeStep.ValidateCert}
                   status={jobInfo.certValidationStageStatus}
-                  progress={0}
-                  progressTopText="Walidate certificate (manual)"
+                  progress={certValidationPercentage}
+                  progressTopText="Validate certificate (manual)"
                   progressBottomText="The step will be completed if all SSL certificates were issued"
                 />
                 <div>
@@ -186,7 +228,11 @@ const JobDetail: React.FC = () => {
                   isAuto
                   step={StatusTypeStep.CreateCloudFront}
                   status={jobInfo.distStageStatus}
-                  progress={0}
+                  progress={
+                    (jobInfo.cloudfront_distribution_created_number /
+                      jobInfo.cloudfront_distribution_total_number) *
+                    100
+                  }
                   progressTopText="Create CloudFront distribution"
                   progressBottomText="The step will be completed if all distributions were created"
                 />

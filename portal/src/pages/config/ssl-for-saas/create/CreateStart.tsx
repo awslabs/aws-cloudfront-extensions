@@ -23,14 +23,17 @@ import {
 } from "../../../../graphql/queries";
 import { Version } from "../../../../API";
 import { certCreateOrImport } from "../../../../graphql/mutations";
+import Modal from "../../../../components/Modal";
+import Swal from "sweetalert2";
+import TextInput from "../../../../components/TextInput";
 
 // enum ImportMethodType {
 //   CREATE = "CREATE",
 //   NONE = "NONE",
 // }
 const enum ImportMethod {
-  CREATE = "Create",
-  IMPORT = "Import",
+  CREATE = "create",
+  IMPORT = "import",
   NONE = "NONE",
 }
 
@@ -51,6 +54,16 @@ interface CertInfo {
   chain: string;
 }
 
+// interface CNameInfo {
+//   domainName: string;
+//   sanList: [];
+//   originsItemsDomainName: string;
+//   existing_cf_info: {
+//     distribution_id: string;
+//     config_version_id: string;
+//   };
+// }
+
 const BreadCrunbList = [
   {
     name: "CloudFront Extensions",
@@ -58,7 +71,7 @@ const BreadCrunbList = [
   },
   {
     name: "Certification List",
-    link: "/config/sslcertificate/list",
+    link: "/config/certification/list",
   },
   {
     name: "Create new certificates",
@@ -69,7 +82,7 @@ const CreateStart: React.FC = () => {
   const navigate = useNavigate();
   const [domainCertList, setDomainCertList] = useState([
     {
-      domain: "",
+      domainList: "",
     },
   ]);
   const [cloudFront, setCloudFront] = useState("");
@@ -79,7 +92,7 @@ const CreateStart: React.FC = () => {
   const [tagList, setTagList] = useState([{ key: "", value: "" }]);
   const [aggregation, setAggregation] = useState(false);
   const [checkCName, setCheckCName] = useState(false);
-  const [createAuto, setCreateAuto] = useState(true);
+  const [createAuto, setCreateAuto] = useState("true");
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [versionList, setVersionList] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState(false);
@@ -105,6 +118,18 @@ const CreateStart: React.FC = () => {
       config_version_id: "",
     },
   });
+  const [cnameInfoList, setCnameInfoList] = useState<[CNameInfo]>([
+    {
+      domainName: "",
+      sanList: [""],
+      originsItemsDomainName: "",
+      existing_cf_info: {
+        distribution_id: "",
+        config_version_id: "",
+      },
+    },
+  ]);
+
   const [certInfo, setCertInfo] = useState<CertInfo>({
     name: "",
     body: "",
@@ -176,7 +201,7 @@ const CreateStart: React.FC = () => {
       auto_creation: createAuto ? "true" : "false",
       dist_aggregate: aggregation ? "true" : "false",
       enable_cname_check: checkCName ? "true" : "false",
-      cnameList: [cnameInfo],
+      cnameList: cnameInfoList,
       pemList: [
         {
           CertPem: certInfo.body,
@@ -203,7 +228,7 @@ const CreateStart: React.FC = () => {
 
   const changeDomainList = (index: number, value: string) => {
     const tmpList = JSON.parse(JSON.stringify(domainCertList));
-    tmpList[index].domain = value;
+    tmpList[index].domainList = value;
     setDomainCertList(tmpList);
   };
 
@@ -212,7 +237,7 @@ const CreateStart: React.FC = () => {
       return [
         ...prev,
         {
-          domain: "",
+          domainList: "",
         },
       ];
     });
@@ -223,6 +248,82 @@ const CreateStart: React.FC = () => {
     tmpList.splice(index, 1);
     setDomainCertList(tmpList);
   };
+
+  const updateCnameInfoList = () => {
+    // traverse the domainCertList and assign the value to cnameInfoList
+    setCnameInfoList([
+      {
+        domainName: "",
+        sanList: [""],
+        originsItemsDomainName: "",
+        existing_cf_info: {
+          distribution_id: "",
+          config_version_id: "",
+        },
+      },
+    ]);
+    const tmpCnameInfoList: [CNameInfo] = [
+      {
+        domainName: "",
+        sanList: [""],
+        originsItemsDomainName: "",
+        existing_cf_info: {
+          distribution_id: "",
+          config_version_id: "",
+        },
+      },
+    ];
+    cnameInfoList.splice(0, 1);
+    tmpCnameInfoList.splice(0, 1);
+    for (let i = 0; i < domainCertList.length; i++) {
+      // first split the domainName with ","
+      const tmpCnameInfo = {
+        domainName: "",
+        sanList: [""],
+        originsItemsDomainName: "",
+        existing_cf_info: {
+          distribution_id: "",
+          config_version_id: "",
+        },
+      };
+
+      const splitDomainList = domainCertList[i].domainList.split(",");
+      // console.info("domainList is " + splitDomainList);
+      //assign the domain to CnameInfoList
+      tmpCnameInfo.domainName = splitDomainList[0].trim();
+      tmpCnameInfo.sanList = [];
+      for (let j = 0; j < splitDomainList.length; j++) {
+        tmpCnameInfo.sanList.push(splitDomainList[j].trim());
+      }
+      tmpCnameInfoList.push(tmpCnameInfo);
+    }
+    setCnameInfoList(tmpCnameInfoList);
+    // console.info("CnameInfoList is " + JSON.stringify(tmpCnameInfoList));
+  };
+
+  const updateCnameInfoWithDistributionIdVersion = (
+    distributionId: string,
+    version: string
+  ) => {
+    // traverse the cnameInfoList
+    for (const cnameInfo of cnameInfoList) {
+      // cnameInfo.existing_cf_info.distribution_id = distributionId;
+      cnameInfo.existing_cf_info.distribution_id = distributionId;
+      cnameInfo.existing_cf_info.config_version_id = version;
+    }
+    console.info(JSON.stringify(cnameInfoList));
+  };
+
+  useEffect(() => {
+    updateCnameInfoList();
+  }, [domainCertList]);
+
+  useEffect(() => {
+    updateCnameInfoWithDistributionIdVersion(
+      selectDistributionId,
+      selectDistributionVersionId
+    );
+  }, [selectDistributionId, selectDistributionVersionId]);
 
   return (
     <div>
@@ -245,7 +346,7 @@ const CreateStart: React.FC = () => {
                         <TextArea
                           placeholder="domain name, sanlist[0] ,sanlist[1], sanlist[2], ….sanlist[120]"
                           rows={2}
-                          value={element.domain}
+                          value={element.domainList}
                           onChange={(event) => {
                             changeDomainList(index, event.target.value);
                           }}
@@ -285,27 +386,27 @@ const CreateStart: React.FC = () => {
             <FormItem optionTitle="Import method" optionDesc="">
               <Tiles
                 name="importMethod"
-                value={importMethod}
+                value={createAuto}
                 onChange={(event) => {
-                  setImportMethod(event.target.value);
+                  setCreateAuto(event.target.value);
                 }}
                 items={[
                   {
                     label: "Do not create distributions",
                     description: "Only request certificates",
-                    value: ImportMethod.NONE,
+                    value: "false",
                   },
                   {
                     label: "Automatically create distributions",
                     description:
                       "Request certificates and then create distributions",
-                    value: ImportMethod.CREATE,
+                    value: "true",
                   },
                 ]}
               />
             </FormItem>
 
-            {importMethod === ImportMethod.CREATE ? (
+            {createAuto === "true" ? (
               <FormItem
                 optionTitle="Source distribution"
                 optionDesc="Apply the origin setting from an existing CloudFront distribution. It will use the "
@@ -313,19 +414,25 @@ const CreateStart: React.FC = () => {
                 <div>
                   <Select
                     placeholder="Choose a CloudFront distribution as source"
-                    optionList={CF_LIST}
-                    value={cloudFront}
+                    optionList={distributionList}
+                    value={selectDistributionId}
                     onChange={(event) => {
-                      setCloudFront(event.target.value);
+                      setSelectDistributionId(event.target.value);
+                      console.info(
+                        "distribution id is :" + selectDistributionId
+                      );
+                      setVersionList([]);
+                      setSelectDistributionVersionId("1");
+                      getVersionListByDistribution();
                     }}
                   />
-                  <MultiSelect
-                    className="mt-10"
-                    optionList={CF_SNAPSHOT_LIST}
-                    value={snapshot}
-                    placeholder="Choose the snapshot of the CloudFront distribution"
-                    onChange={(items) => {
-                      setSnapshot(items);
+                  <br />
+                  <Select
+                    optionList={versionList}
+                    value={selectDistributionVersionId}
+                    placeholder="Select version "
+                    onChange={(event) => {
+                      setSelectDistributionVersionId(event.target.value);
                     }}
                   />
                 </div>
@@ -339,60 +446,141 @@ const CreateStart: React.FC = () => {
             <Switch
               label="Create as less as distibutions as possible"
               desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"
-              isOn={createAsLess}
+              isOn={aggregation}
               handleToggle={() => {
-                setCreateAsLess(!createAsLess);
+                setAggregation(!aggregation);
               }}
             />
           </HeaderPanel>
 
-          <HeaderPanel
-            title="Tags"
-            desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."
-          >
-            <TagList
-              tagList={tagList}
-              addTag={() => {
-                setTagList((prev) => {
-                  const tmpList = JSON.parse(JSON.stringify(prev));
-                  tmpList.push({
-                    key: "",
-                    value: "",
-                  });
-                  return tmpList;
-                });
-              }}
-              removeTag={(index) => {
-                setTagList((prev) => {
-                  const tmpList = JSON.parse(JSON.stringify(prev));
-                  tmpList.splice(index, 1);
-                  return tmpList;
-                });
-              }}
-              onChange={(index, key, value) => {
-                setTagList((prev) => {
-                  const tmpList = JSON.parse(JSON.stringify(prev));
-                  tmpList[index].key = key;
-                  tmpList[index].value = value;
-                  // changeTags(tmpList);
-                  return tmpList;
-                });
-              }}
-            />
-          </HeaderPanel>
+          {/*<HeaderPanel*/}
+          {/*  title="Tags"*/}
+          {/*  desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."*/}
+          {/*>*/}
+          {/*  <TagList*/}
+          {/*    tagList={tagList}*/}
+          {/*    addTag={() => {*/}
+          {/*      setTagList((prev) => {*/}
+          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
+          {/*        tmpList.push({*/}
+          {/*          key: "",*/}
+          {/*          value: "",*/}
+          {/*        });*/}
+          {/*        return tmpList;*/}
+          {/*      });*/}
+          {/*    }}*/}
+          {/*    removeTag={(index) => {*/}
+          {/*      setTagList((prev) => {*/}
+          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
+          {/*        tmpList.splice(index, 1);*/}
+          {/*        return tmpList;*/}
+          {/*      });*/}
+          {/*    }}*/}
+          {/*    onChange={(index, key, value) => {*/}
+          {/*      setTagList((prev) => {*/}
+          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
+          {/*        tmpList[index].key = key;*/}
+          {/*        tmpList[index].value = value;*/}
+          {/*        // changeTags(tmpList);*/}
+          {/*        return tmpList;*/}
+          {/*      });*/}
+          {/*    }}*/}
+          {/*  />*/}
+          {/*</HeaderPanel>*/}
 
           <div className="button-action text-right">
             <Button btnType="text">Cancel</Button>
             <Button
               btnType="primary"
               onClick={() => {
-                navigate("/config/jobs/detail/NAFDS-11-AA/InProgress/1");
+                updateCnameInfoWithDistributionIdVersion(
+                  selectDistributionId,
+                  selectDistributionVersionId
+                );
+                const requestParam = generateCertCreateImportParam();
+                console.info(requestParam);
+                // startCertRequest(requestParam);
+                setOpenModal(true);
               }}
             >
               Start Job
             </Button>
           </div>
         </PagePanel>
+        <Modal
+          title="Confirm Certification Settings?"
+          isOpen={openModal}
+          fullWidth={true}
+          closeModal={() => {
+            setOpenModal(false);
+          }}
+          actions={
+            <div className="button-action no-pb text-right">
+              <Button
+                onClick={() => {
+                  setConfirm("");
+                  setOpenModal(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={confirm !== "Confirm"}
+                btnType="primary"
+                loading={loadingApply}
+                onClick={() => {
+                  // startWorkflow();
+                  setLoadingApply(true);
+                  const requestParam = generateCertCreateImportParam();
+                  console.info(requestParam);
+                  startCertRequest(requestParam);
+                  setLoadingApply(false);
+                  Swal.fire(
+                    "Cert create or import Sent",
+                    "Cert creation or import triggered",
+                    "success"
+                  );
+                  navigate("/config/certification/list");
+                }}
+              >
+                Apply
+              </Button>
+            </div>
+          }
+        >
+          <div className="gsui-modal-content">
+            <HeaderPanel title="Please confirm the SSL request parameters">
+              <FormItem
+                optionTitle="Current SSL for SAAS request parameters"
+                optionDesc=""
+              >
+                <div>
+                  <TextArea
+                    rows={20}
+                    placeholder={`www.example1.com\nwww.example2.com`}
+                    value={JSON.stringify(
+                      generateCertCreateImportParam(),
+                      null,
+                      4
+                    )}
+                    onChange={(event) => {
+                      //do nothing
+                    }}
+                  />
+                </div>
+              </FormItem>
+            </HeaderPanel>
+            <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
+              <TextInput
+                value={confirm}
+                placeholder="Confirm"
+                onChange={(event) => {
+                  setConfirm(event.target.value);
+                }}
+              />
+            </FormItem>
+          </div>
+        </Modal>
       </div>
     </div>
   );

@@ -79,10 +79,10 @@ const SSLJobList: React.FC = () => {
               <Button
                 btnType="primary"
                 onClick={() => {
-                  navigate("/config/certification/createGuide");
+                  navigate("/config/certification/create");
                 }}
               >
-                Request New Certificates
+                Create&Import
               </Button>
               <Button
                 btnType="primary"

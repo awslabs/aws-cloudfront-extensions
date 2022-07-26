@@ -14,7 +14,7 @@ const BreadCrunbList = [
   },
   {
     name: "Certification List",
-    link: "/config/sslcertificate/list",
+    link: "/config/certification/list",
   },
   {
     name: "Create new certificates",
