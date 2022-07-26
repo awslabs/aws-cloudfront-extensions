@@ -1,23 +1,36 @@
-import * as cdk from 'aws-cdk-lib';
-import {NestedStackProps} from "aws-cdk-lib";
+import * as cdk from "aws-cdk-lib";
 import {Construct} from "constructs";
+import {StackProps} from "aws-cdk-lib";
+import {CommonConstruct} from "./cf-common/cf-common-stack";
+import {CloudFrontConfigVersionConstruct} from "./config-version/aws-cloudfront-config-version-stack";
 import {StepFunctionRpTsConstruct} from "./ssl-for-saas/step_function_rp_ts-stack";
-import * as appsync from "@aws-cdk/aws-appsync-alpha";
-import {IStackSynthesizer} from "aws-cdk-lib/core/lib/stack-synthesizers";
 
-export interface SslForSaasProps extends  NestedStackProps {
-    appsyncApi?: appsync.GraphqlApi;
-    configVersionDDBTableName: string;
-    synthesizer: IStackSynthesizer;
-}
+export class SSLForSaasStack extends cdk.Stack {
 
-export class SslForSaasNestedStack extends cdk.NestedStack {
+    constructor(app: Construct, id: string, props: StackProps) {
+        super(app, id, props);
+        this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
 
-    constructor(scope: Construct, id: string, props: SslForSaasProps) {
-        super(scope, id, props);
+        // Main stack with shared components
+        const commonConstruct = new CommonConstruct(this, `CfCommonConstruct`, {
+            sslForSaasOnly: true
+        });
+
+        // Config version stack
+        const configVersion = new CloudFrontConfigVersionConstruct(
+            this,
+            "CloudFrontConfigVersionConstruct",
+            {
+                tags: {
+                    app: "CloudFrontConfigVersion",
+                },
+                synthesizer: props.synthesizer,
+                appsyncApi: commonConstruct.appsyncApi,
+            }
+        );
 
         // SSL for SaaS stack
-        new StepFunctionRpTsConstruct(scope, "StepFunctionRpTsConstruct", {
+        new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
             /* If you don't specify 'env', this stack will be environment-agnostic.
              * Account/Region-dependent features and context lookups will not work,
              * but a single synthesized template can be deployed anywhere. */
@@ -32,8 +45,8 @@ export class SslForSaasNestedStack extends cdk.NestedStack {
 
             /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
             synthesizer: props.synthesizer,
-            appsyncApi: props.appsyncApi,
-            configVersionDDBTableName: props.configVersionDDBTableName,
+            appsyncApi: commonConstruct.appsyncApi,
+            configVersionDDBTableName: configVersion.configVersionDDBTableName,
         });
     }
 }

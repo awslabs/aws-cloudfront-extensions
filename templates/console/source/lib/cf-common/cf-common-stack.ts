@@ -11,8 +11,9 @@ export interface CommonProps extends cdk.StackProps {
 }
 
 export interface CognitoProps extends CommonProps {
-    cognitoUserPool: cognito.UserPool;
-    cognitoClient: cognito.UserPoolClient;
+    sslForSaasOnly?: boolean;
+    cognitoUserPool?: cognito.UserPool;
+    cognitoClient?: cognito.UserPoolClient;
 }
 
 export class CommonStack extends Stack {
@@ -27,37 +28,45 @@ export class CommonConstruct extends Construct {
 
     constructor(scope: Stack, id: string, props: CognitoProps) {
         super(scope, id);
+        let config: appsync.AuthorizationConfig = {
+            defaultAuthorization: {
+                authorizationType: appsync.AuthorizationType.USER_POOL,
+                userPoolConfig: {
+                    userPool: props.cognitoUserPool!,
+                },
+            },
+            additionalAuthorizationModes: [
+                {
+                    authorizationType: appsync.AuthorizationType.API_KEY,
+                }
+            ],
+        }
+
+        if (props.sslForSaasOnly) {
+            config = {
+                defaultAuthorization: {
+                    authorizationType: appsync.AuthorizationType.API_KEY,
+                },
+            }
+        }
 
         // Creates the AppSync API
         this.appsyncApi = new appsync.GraphqlApi(scope, 'appsyncApi', {
             name: 'cloudfront-extension-appsync-api',
             schema: appsync.Schema.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
-            authorizationConfig: {
-                defaultAuthorization: {
-                    authorizationType: appsync.AuthorizationType.USER_POOL,
-                    userPoolConfig: {
-                        userPool: props.cognitoUserPool,
-                    },
-                },
-                additionalAuthorizationModes: [
-                    {
-                        authorizationType: appsync.AuthorizationType.API_KEY,
-                    }
-                ],
-            },
+            authorizationConfig: config,
             xrayEnabled: true,
         });
 
 
-
         // Prints out the AppSync GraphQL endpoint to the terminal
         new cdk.CfnOutput(this, "GraphQLAPIURL", {
-          value: this.appsyncApi.graphqlUrl
+            value: this.appsyncApi.graphqlUrl
         });
 
         // Prints out the AppSync GraphQL API key to the terminal
         new cdk.CfnOutput(this, "GraphQLAPIKey", {
-          value: this.appsyncApi.apiKey || ''
+            value: this.appsyncApi.apiKey || ''
         });
     }
 }
