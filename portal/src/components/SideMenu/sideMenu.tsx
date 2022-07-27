@@ -29,7 +29,7 @@ const SIDE_MENU_LIST = [
     link: "/config",
     subMenu: [
       {
-        name: "Version",
+        name: "ChangeLog",
         link: "/config/version",
       },
       {
@@ -41,7 +41,7 @@ const SIDE_MENU_LIST = [
         link: "/config/certification/list",
       },
       {
-        name: "SSL Certification(Mock UI)",
+        name: "SSL for SAAS(Mock UI)",
         link: "/config/sslcertificate/list",
       },
     ],

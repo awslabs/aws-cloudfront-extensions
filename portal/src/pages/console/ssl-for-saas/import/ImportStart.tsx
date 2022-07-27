@@ -12,7 +12,6 @@ import Switch from "components/Switch";
 import TagList from "components/TagList";
 import Button from "components/Button";
 import { useNavigate } from "react-router-dom";
-import { CNameInfo } from "../../certificate/Create";
 import {
   appSyncRequestMutation,
   appSyncRequestQuery,
@@ -55,6 +54,18 @@ interface CertInfo {
     distribution_id: string;
     config_version_id: string;
   };
+}
+
+interface ExistingCfInfo {
+  distribution_id: string;
+  config_version_id: string;
+}
+
+interface CNameInfo {
+  domainName: string;
+  sanList: string[];
+  originsItemsDomainName: string;
+  existing_cf_info: ExistingCfInfo;
 }
 
 // interface CNameInfo {
