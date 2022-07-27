@@ -12,7 +12,6 @@ import Switch from "components/Switch";
 import { useNavigate } from "react-router-dom";
 import TagList from "components/TagList";
 import Breadcrumb from "components/Breadcrumb";
-import { CNameInfo } from "../../certificate/Create";
 import {
   appSyncRequestMutation,
   appSyncRequestQuery,
@@ -54,15 +53,17 @@ interface CertInfo {
   chain: string;
 }
 
-// interface CNameInfo {
-//   domainName: string;
-//   sanList: [];
-//   originsItemsDomainName: string;
-//   existing_cf_info: {
-//     distribution_id: string;
-//     config_version_id: string;
-//   };
-// }
+interface ExistingCfInfo {
+  distribution_id: string;
+  config_version_id: string;
+}
+
+interface CNameInfo {
+  domainName: string;
+  sanList: string[];
+  originsItemsDomainName: string;
+  existing_cf_info: ExistingCfInfo;
+}
 
 const BreadCrunbList = [
   {
@@ -121,7 +122,7 @@ const CreateStart: React.FC = () => {
   const [cnameInfoList, setCnameInfoList] = useState<[CNameInfo]>([
     {
       domainName: "",
-      sanList: [""],
+      sanList: [],
       originsItemsDomainName: "",
       existing_cf_info: {
         distribution_id: "",
@@ -208,6 +209,10 @@ const CreateStart: React.FC = () => {
           PrivateKeyPem: certInfo.privateKey,
           ChainPem: certInfo.chain,
           originsItemsDomainName: cnameInfo.originsItemsDomainName,
+          existing_cf_info: {
+            distribution_id: cnameInfo.existing_cf_info.distribution_id,
+            config_version_id: cnameInfo.existing_cf_info.config_version_id,
+          },
         },
       ],
     };
@@ -254,7 +259,7 @@ const CreateStart: React.FC = () => {
     setCnameInfoList([
       {
         domainName: "",
-        sanList: [""],
+        sanList: [],
         originsItemsDomainName: "",
         existing_cf_info: {
           distribution_id: "",
@@ -265,7 +270,7 @@ const CreateStart: React.FC = () => {
     const tmpCnameInfoList: [CNameInfo] = [
       {
         domainName: "",
-        sanList: [""],
+        sanList: [],
         originsItemsDomainName: "",
         existing_cf_info: {
           distribution_id: "",

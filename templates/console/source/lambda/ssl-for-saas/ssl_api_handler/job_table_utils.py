@@ -3,14 +3,13 @@ import boto3
 import os
 import json
 import string
-from boto3.dynamodb.conditions import Key
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
 
 
 def create_job_info(ddb_table_name, job_id, job_input, cert_total_number, cloudfront_distribution_total_number,
-                    cert_completed_number, cloudfront_distribution_created_number):
+                    cert_completed_number, cloudfront_distribution_created_number, job_type, current_timestamp,certCreateStageStatus,certValidationStageStatus,distStageStatus):
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(ddb_table_name)
     logger.info(
@@ -18,7 +17,13 @@ def create_job_info(ddb_table_name, job_id, job_input, cert_total_number, cloudf
         f"job_input: {job_input}, cert_total_number:{cert_total_number}, "
         f"cloudfront_distribution_total_number:{cloudfront_distribution_total_number}, "
         f"cert_completed_number:{cert_completed_number},"
-        f"cloudfront_distribution_created_number:{cloudfront_distribution_created_number}")
+        f"cloudfront_distribution_created_number:{cloudfront_distribution_created_number}"
+        f"jobType:{job_type}"
+        f"creationDate: {current_timestamp}"
+        f"certCreateStageStatus: {certCreateStageStatus}"
+        f"certValidationStageStatus: {certValidationStageStatus}"
+        f"distStageStatus: {distStageStatus}"
+        )
     resp = ddb_table.put_item(
         Item={
             'jobId': job_id,
@@ -26,7 +31,12 @@ def create_job_info(ddb_table_name, job_id, job_input, cert_total_number, cloudf
             'cert_total_number': cert_total_number,
             'cloudfront_distribution_total_number': cloudfront_distribution_total_number,
             'cert_completed_number':  cert_completed_number,
-            'cloudfront_distribution_created_number': cloudfront_distribution_created_number
+            'cloudfront_distribution_created_number': cloudfront_distribution_created_number,
+            'jobType': job_type,
+            'creationDate': current_timestamp,
+            'certCreateStageStatus': certCreateStageStatus,
+            'certValidationStageStatus': certValidationStageStatus,
+            'distStageStatus': distStageStatus,
         }
     )
 
@@ -67,6 +77,20 @@ def update_job_cloudfront_distribution_created_number(ddb_table_name, job_id, cu
         UpdateExpression="set cloudfront_distribution_created_number=:r",
         ExpressionAttributeValues={
             ':r': current_number
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+
+def update_job_field(ddb_table_name,job_id, field_name, value):
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(ddb_table_name)
+    response = ddb_table.update_item(
+        Key={
+            'jobId': job_id,
+        },
+        UpdateExpression=f"set {field_name}=:r",
+        ExpressionAttributeValues={
+            ':r': value
         },
         ReturnValues="UPDATED_NEW"
     )
