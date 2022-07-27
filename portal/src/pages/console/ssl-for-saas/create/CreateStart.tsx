@@ -209,6 +209,10 @@ const CreateStart: React.FC = () => {
           PrivateKeyPem: certInfo.privateKey,
           ChainPem: certInfo.chain,
           originsItemsDomainName: cnameInfo.originsItemsDomainName,
+          existing_cf_info: {
+            distribution_id: cnameInfo.existing_cf_info.distribution_id,
+            config_version_id: cnameInfo.existing_cf_info.config_version_id,
+          },
         },
       ],
     };

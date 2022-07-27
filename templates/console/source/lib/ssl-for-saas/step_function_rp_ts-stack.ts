@@ -626,6 +626,18 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       apiKeyRequired: true,
     });
 
+    const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
+    list_ssl_jobs.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const get_ssl_job = ssl_api.addResource("get_ssl_job");
+    get_ssl_job.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, "ACM status check", {
       schedule: events.Schedule.expression("cron(*/5 * * * ? *)"),
