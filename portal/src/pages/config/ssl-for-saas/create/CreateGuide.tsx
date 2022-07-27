@@ -14,7 +14,7 @@ const BreadCrunbList = [
   },
   {
     name: "Certification List",
-    link: "/config/sslcertificate/list",
+    link: "/config/certification/list",
   },
   {
     name: "Create new certificates",
@@ -39,7 +39,7 @@ const GUIDE_STEP_LIST = [
   },
 ];
 
-const CreateGuideMock: React.FC = () => {
+const CreateGuide: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div>
@@ -70,7 +70,7 @@ const CreateGuideMock: React.FC = () => {
             <Button
               btnType="primary"
               onClick={() => {
-                navigate("/config/sslcertificate/create/start");
+                navigate("/config/certification/create/start");
               }}
             >
               Get Started
@@ -82,4 +82,4 @@ const CreateGuideMock: React.FC = () => {
   );
 };
 
-export default CreateGuideMock;
+export default CreateGuide;

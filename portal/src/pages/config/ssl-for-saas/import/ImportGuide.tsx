@@ -13,7 +13,7 @@ const BreadCrunbList = [
   },
   {
     name: "Certification List",
-    link: "/config/sslcertificate/list",
+    link: "/config/certification/list",
   },
   {
     name: "Import existing ertificates",
@@ -31,7 +31,7 @@ const IMPORT_STEP_LIST = [
   },
 ];
 
-const ImportGuideMock: React.FC = () => {
+const ImportGuide: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div>
@@ -57,7 +57,7 @@ const ImportGuideMock: React.FC = () => {
             <Button
               btnType="primary"
               onClick={() => {
-                navigate("/config/sslcertificate/import/start");
+                navigate("/config/certification/import/start");
               }}
             >
               Get Started
@@ -69,4 +69,4 @@ const ImportGuideMock: React.FC = () => {
   );
 };
 
-export default ImportGuideMock;
+export default ImportGuide;

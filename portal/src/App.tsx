@@ -18,9 +18,8 @@ import VersionDetail from "pages/config/Version/VersionDetail";
 import SaveVersion from "pages/config/Version/SaveVersion";
 import CompareVersion from "pages/config/Version/CompareVersion";
 import Button from "components/Button";
-import Certification from "pages/config/Certification";
-import Create from "pages/config/certificate/Create";
-import CertificationList from "pages/config/CertificationList";
+import Certification from "pages/config/ssl-for-saas/Certification";
+import CertificationList from "pages/config/ssl-for-saas/CertificationList";
 import CloudFront from "pages/monitor/CloudFront";
 import WAF from "pages/monitor/WAF";
 import { AmplifyConfigType } from "assets/js/type";
@@ -39,12 +38,19 @@ import CompareSnapshot from "./pages/config/Snapshot/CompareSnapshot";
 import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import SSLJobList from "./pages/config/ssl-for-saas/SSLJobList";
+import JobDetail from "./pages/config/ssl-for-saas/JobDetail";
 import CertList from "pages/config/sslcertificate/CertList";
 import JobList from "pages/config/sslcertificate/JobList";
-import CreateGuide from "pages/config/sslcertificate/create/CreateGuide";
-import ImportGuide from "pages/config/sslcertificate/import/ImportGuide";
-import ImportStart from "pages/config/sslcertificate/import/ImportStart";
-import CreateStart from "pages/config/sslcertificate/create/CreateStart";
+import CreateGuideMock from "pages/config/sslcertificate/create/CreateGuide";
+import ImportGuideMock from "pages/config/sslcertificate/import/ImportGuide";
+import ImportStartMock from "pages/config/sslcertificate/import/ImportStart";
+import CreateStartMock from "pages/config/sslcertificate/create/CreateStart";
+
+import CreateGuide from "pages/config/ssl-for-saas/create/CreateGuide";
+import ImportGuide from "pages/config/ssl-for-saas/import/ImportGuide";
+import ImportStart from "pages/config/ssl-for-saas/import/ImportStart";
+import CreateStart from "pages/config/ssl-for-saas/create/CreateStart";
 import JobStatus from "pages/config/sslcertificate/status/JobStatus";
 
 const SignInRouter: React.FC = () => {
@@ -223,10 +229,61 @@ const SignInRouter: React.FC = () => {
                 />
 
                 <Route
+                  path="/config/certification/createGuide"
+                  element={
+                    <Container>
+                      <CreateGuide />
+                    </Container>
+                  }
+                />
+                <Route
+                  path="/config/certification/create/start"
+                  element={
+                    <Container>
+                      <CreateStart />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/certification/importGuide"
+                  element={
+                    <Container>
+                      <ImportGuide />
+                    </Container>
+                  }
+                />
+
+                <Route
+                  path="/config/certification/import/start"
+                  element={
+                    <Container>
+                      <ImportStart />
+                    </Container>
+                  }
+                />
+
+                <Route
                   path="/config/certification/list"
                   element={
                     <Container>
                       <CertificationList />
+                    </Container>
+                  }
+                />
+                <Route
+                  path="/config/certification/jobs"
+                  element={
+                    <Container>
+                      <SSLJobList />
+                    </Container>
+                  }
+                />
+                <Route
+                  path="/config/certification/job/:jobId"
+                  element={
+                    <Container>
+                      <JobDetail />
                     </Container>
                   }
                 />
@@ -253,7 +310,7 @@ const SignInRouter: React.FC = () => {
                   path="/config/sslcertificate/create/start"
                   element={
                     <Container>
-                      <CreateStart />
+                      <CreateStartMock />
                     </Container>
                   }
                 />
@@ -262,7 +319,7 @@ const SignInRouter: React.FC = () => {
                   path="/config/sslcertificate/import/guide"
                   element={
                     <Container>
-                      <ImportGuide />
+                      <ImportGuideMock />
                     </Container>
                   }
                 />
@@ -271,7 +328,7 @@ const SignInRouter: React.FC = () => {
                   path="/config/sslcertificate/import/start"
                   element={
                     <Container>
-                      <ImportStart />
+                      <ImportStartMock />
                     </Container>
                   }
                 />

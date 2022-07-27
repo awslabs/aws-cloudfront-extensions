@@ -5,9 +5,11 @@ import boto3
 import os
 import json
 import re
+import time
 import subprocess
+import copy
 from datetime import datetime
-# from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.logging import correlation_paths
@@ -41,6 +43,8 @@ certificate = {
 FILE_FOLDER = '/tmp'
 PEM_FILE = FILE_FOLDER + "/cert.pem"
 _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
+
+raw_context = {}
 
 
 def check_generate_task_token(task_token):
@@ -343,6 +347,10 @@ def is_wildcard(sanList):
 @app.resolver(type_name="Mutation", field_name="certCreateOrImport")
 def cert_create_or_import(input):
     logger.info(input)
+    global raw_context
+
+    # will use request id as job_id
+    logger.info(raw_context.aws_request_id)
 
     # Get the parameters from the event
     body = input
@@ -351,7 +359,33 @@ def cert_create_or_import(input):
     auto_creation = body['auto_creation']
     domain_name_list = body['cnameList']
 
+    certTotalNumber = len(body['cnameList'])
+    pemTotalNumber = len(body['pemList'])
+    cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
+    job_type = body['acm_op']
+    creationDate = int(time.time())
+    certCreateStageStatus = 'INPROGRESS'
+    certValidationStageStatus = 'NOTSTART'
+    distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
+
+
+    # remove the pemList from input body since PEM content is too large and not suitable for save in DDB
+    body_without_pem = copy.deepcopy(body)
+    del body_without_pem['pemList']
+
     if auto_creation == "false":
+        create_job_info(JOB_INFO_TABLE_NAME,
+                        raw_context.aws_request_id,
+                        json.dumps(body_without_pem,indent=4),
+                        certTotalNumber if acm_op == "create" else pemTotalNumber,
+                        cloudfrontTotalNumber,
+                        0,
+                        0,
+                        job_type,
+                        creationDate,
+                        certCreateStageStatus,
+                        certValidationStageStatus,
+                        distStageStatus)
         if acm_op == "create":
             # aggregate certificate if dist_aggregate is true
             if dist_aggregate == "true":
@@ -376,7 +410,18 @@ def cert_create_or_import(input):
                             continue
                         resp = request_certificate(certificate)
                         logger.info('Certificate creation response: %s', resp)
-
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certCreateStageStatus',
+                                 'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certValidationStageStatus',
+                                 'INPROGRESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'cert_completed_number',
+                                 certTotalNumber)
             # otherwise, create certificate for each cname
             else:
                 for cname_index, cname_value in enumerate(domain_name_list):
@@ -386,6 +431,18 @@ def cert_create_or_import(input):
                     resp = request_certificate(certificate)
                     logger.info('Certificate creation response: %s', resp)
 
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                     raw_context.aws_request_id,
+                                     'certCreateStageStatus',
+                                     'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                             raw_context.aws_request_id,
+                             'certValidationStageStatus',
+                             'INPROGRESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'cert_completed_number',
+                                 certTotalNumber)
         # note dist_aggregate is ignored here, we don't aggregate imported certificate
         elif acm_op == "import":
             # iterate pemList array from event
@@ -400,38 +457,60 @@ def cert_create_or_import(input):
                 certificate['SubjectAlternativeNames'] = _domainList
                 certificate['DomainName'] = _domainList[0] if _domainList else ''
 
-                # validation for certificate
-                if body['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                    logger.info("Domain name {} matches certificate domain name {}".format(
-                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                else:
-                    logger.error("Domain name {} does not match certificate domain name {}".format(
-                        body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                    continue
                 resp = import_certificate(certificate)
+
+            update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certCreateStageStatus',
+                                 'SUCCESS')
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             raw_context.aws_request_id,
+                             'certValidationStageStatus',
+                             'SUCCESS')
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             raw_context.aws_request_id,
+                             'cert_completed_number',
+                             pemTotalNumber)
 
         # return {
         #     'statusCode': 200,
         #     'body': json.dumps('auto_creation is false, just created or imported the certs')
         # }
-        data = {'createdAt': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                'status': str('auto_creation is false, just created or imported the certs'),
-                'updatedAt': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')}
+        data = {'statusCode': 200,
+                 'body': raw_context.aws_request_id}
         return data
 
     # invoke step function to implement streamlined process of cert create/import and distribution create
     elif auto_creation == "true":
         # invoke existing step function
         logger.info('auto_creation is true, invoke step function with body %s', str(body))
+        body['aws_request_id'] = raw_context.aws_request_id
+        if acm_op == "import":
+            # iterate pemList array from event
+            gen_cnameInfo_list = []
+            for pem_index, pem_value in enumerate(body['pemList']):
+                convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+                _domainList = get_domain_list_from_cert()
+                _domainName = _domainList[0] if _domainList else ''
+                tmpCnameInfo = {}
+                tmpCnameInfo['domainName'] = _domainName
+                tmpCnameInfo['sanList'] = _domainList
+                tmpCnameInfo['originsItemsDomainName'] = ""
+                tmpCnameInfo['existing_cf_info'] = {
+                    "distribution_id": pem_value['existing_cf_info']['distribution_id'],
+                    "config_version_id": pem_value['existing_cf_info']['config_version_id'],
+                }
+                gen_cnameInfo_list.append(tmpCnameInfo)
+
+            body['cnameList'] = gen_cnameInfo_list
         resp = invoke_step_function(stepFunctionArn, body)
 
         # return {
         #     'statusCode': 200,
         #     'body': 'step function triggered with :' + str(resp['executionArn'])
         # }
-        data = {'createdAt': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                'status': str(resp),
-                'updatedAt': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')}
+        data = {'statusCode': 200,
+                'body': raw_context.aws_request_id}
         return data
     else:
         logger.info('auto_creation is not true or false')
@@ -440,9 +519,8 @@ def cert_create_or_import(input):
         #     'statusCode': 400,
         #     'body': json.dumps('auto_creation is not true or false')
         # }
-        data = {'createdAt': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                'status': "The input is not valid, auto_creation is not true or false",
-                'updatedAt': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')}
+        data = {'statusCode': 500,
+                'body': 'error: auto_creation is not true or false'}
         return data
 
 
@@ -486,8 +564,55 @@ def manager_certification_list():
 
     return result
 
+@app.resolver(type_name="Query", field_name="listSSLJobs")
+def manager_list_ssl_jobs():
+    # list data from dynamodb
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+    response = ddb_table.scan()
+    jobs = []
+    logger.info(f"SSL jobs list is : {response['Items']}")
+    # for job in response['Items']:
+    #     tmpJob = {}
+    #     tmpJob['id'] = job['jobId'],
+    #     tmpJob['jobId'] = job['jobId'],
+    #     tmpJob['cert_completed_number'] = str(job['cert_completed_number']),
+    #     tmpJob['cert_total_number'] = str(job['cert_total_number']),
+    #     tmpJob['cloudfront_distribution_created_number'] = str(job['cloudfront_distribution_created_number']),
+    #     tmpJob['cloudfront_distribution_total_number'] = str(job['cloudfront_distribution_total_number']),
+    #     tmpJob['job_input'] = job['job_input'],
+    #     tmpJob['jobType'] = job['jobType'],
+    #     tmpJob['creationDate'] = job['creationDate'],
+    #     tmpJob['certCreateStageStatus'] = job['certCreateStageStatus'],
+    #     tmpJob['certValidationStageStatus'] = job['certValidationStageStatus'],
+    #     tmpJob['distStageStatus'] = job['distStageStatus'],
+    #
+    #     jobs.append(tmpJob)
+
+    return response['Items']
+
+
+@app.resolver(type_name="Query", field_name="getJobInfo")
+def manager_get_ssl_job(jobId):
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            'jobId': jobId,
+        })
+    logger.info(response)
+    data = response['Item']
+    return data
+
+
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
 @tracer.capture_lambda_handler
 def lambda_handler(event, context):
+    global raw_event
+    raw_event = event
+    global raw_context
+    raw_context = context
     return app.resolve(event, context)

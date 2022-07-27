@@ -32,7 +32,7 @@ const BreadCrunbList = [
   },
 ];
 
-const CreateStart: React.FC = () => {
+const CreateStartMock: React.FC = () => {
   const navigate = useNavigate();
   const [domainCertList, setDomainCertList] = useState([
     {
@@ -242,4 +242,4 @@ const CreateStart: React.FC = () => {
   );
 };
 
-export default CreateStart;
+export default CreateStartMock;
