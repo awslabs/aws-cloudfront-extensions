@@ -1,3 +1,4 @@
+import copy
 import logging
 import uuid
 import boto3
@@ -338,7 +339,7 @@ def lambda_handler(event, context):
     certValidationStageStatus = 'NOTSTART'
     distStageStatus = 'NOTSTART'
 
-    body_without_pem = event['input']
+    body_without_pem = copy.deepcopy(event['input'])
     if 'pemList' in body_without_pem:
         del body_without_pem['pemList']
     create_job_info(JOB_INFO_TABLE_NAME,
@@ -370,8 +371,6 @@ def lambda_handler(event, context):
 
         if event['input']['enable_cname_check'] == 'true':
             check_domain_name(event, pem_index)
-        else:
-            logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(event['input'][pem_index]['domainName']))
 
         san_list_dynamo_db = [dict(zip(['S'], [x])) for x in _domainList]
         logger.info('index %s: sanList for DynamoDB: %s', pem_index, san_list_dynamo_db)

@@ -32,7 +32,8 @@ export type pemInput = {
   CertPem: string,
   PrivateKeyPem: string,
   ChainPem: string,
-  originsItemsDomainName: string,
+  originsItemsDomainName?: string | null,
+  existing_cf_info: existingCFInfo,
 };
 
 export type certOutput = {

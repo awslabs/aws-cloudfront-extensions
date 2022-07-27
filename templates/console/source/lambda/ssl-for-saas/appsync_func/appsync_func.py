@@ -7,6 +7,7 @@ import json
 import re
 import time
 import subprocess
+import copy
 from datetime import datetime
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
@@ -369,7 +370,7 @@ def cert_create_or_import(input):
 
 
     # remove the pemList from input body since PEM content is too large and not suitable for save in DDB
-    body_without_pem = body
+    body_without_pem = copy.deepcopy(body)
     del body_without_pem['pemList']
 
     if auto_creation == "false":
@@ -484,6 +485,24 @@ def cert_create_or_import(input):
         # invoke existing step function
         logger.info('auto_creation is true, invoke step function with body %s', str(body))
         body['aws_request_id'] = raw_context.aws_request_id
+        if acm_op == "import":
+            # iterate pemList array from event
+            gen_cnameInfo_list = []
+            for pem_index, pem_value in enumerate(body['pemList']):
+                convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+                _domainList = get_domain_list_from_cert()
+                _domainName = _domainList[0] if _domainList else ''
+                tmpCnameInfo = {}
+                tmpCnameInfo['domainName'] = _domainName
+                tmpCnameInfo['sanList'] = _domainList
+                tmpCnameInfo['originsItemsDomainName'] = ""
+                tmpCnameInfo['existing_cf_info'] = {
+                    "distribution_id": pem_value['existing_cf_info']['distribution_id'],
+                    "config_version_id": pem_value['existing_cf_info']['config_version_id'],
+                }
+                gen_cnameInfo_list.append(tmpCnameInfo)
+
+            body['cnameList'] = gen_cnameInfo_list
         resp = invoke_step_function(stepFunctionArn, body)
 
         # return {
