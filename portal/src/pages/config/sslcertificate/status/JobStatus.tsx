@@ -135,7 +135,7 @@ const JobStatus: React.FC = () => {
                   step={StatusTypeStep.ValidateCert}
                   status={StatusType.NotStarted}
                   progress={0}
-                  progressTopText="Walidate certificate (manual)"
+                  progressTopText="Validate certificate (manual)"
                   progressBottomText="The step will be completed if all SSL certificates were issued"
                 />
                 <div>

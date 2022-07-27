@@ -38,7 +38,7 @@ const BreadCrunbList = [
   },
 ];
 
-const ImportStart: React.FC = () => {
+const ImportStartMock: React.FC = () => {
   const navigate = useNavigate();
   const [importCert, setImportCert] = useState<string>(
     ImportCertificate.IMPORT_ONE
@@ -281,4 +281,4 @@ const ImportStart: React.FC = () => {
   );
 };
 
-export default ImportStart;
+export default ImportStartMock;
