@@ -112,7 +112,7 @@ const JobDetail: React.FC = () => {
       <div className="pb-50">
         <HeaderPanel
           title="Job overview"
-          desc="Viewing data from N.Virginia region"
+          desc={jobInfo.jobType}
           action={
             <div>
               <Button
