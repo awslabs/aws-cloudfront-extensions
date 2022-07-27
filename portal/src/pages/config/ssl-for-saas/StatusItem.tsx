@@ -12,7 +12,7 @@ export enum StatusTypeStep {
 }
 
 export enum StatusType {
-  NOTSTARTED = "NOTSTARTED",
+  NOTSTART = "NOTSTART",
   INPROGRESS = "INPROGRESS",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
@@ -20,7 +20,7 @@ export enum StatusType {
 }
 
 const StatusTextMap: any = {
-  NOTSTARTED: "Not Started",
+  NOTSTART: "Not Started",
   INPROGRESS: "In Progress",
   COMPLETED: "Success",
   FAILED: "Failed",
@@ -87,7 +87,7 @@ const StatusItem: React.FC<StatusItemProps> = (props: StatusItemProps) => {
             {status === StatusType.FAILED && (
               <HighlightOffIcon fontSize="small" />
             )}
-            {status === StatusType.NOTSTARTED && (
+            {status === StatusType.NOTSTART && (
               <RemoveCircleOutlineIcon fontSize="small" />
             )}
             {status === StatusType.NONEED && (

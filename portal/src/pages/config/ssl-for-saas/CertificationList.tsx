@@ -78,14 +78,6 @@ const CertificationList: React.FC = () => {
               <Button
                 btnType="primary"
                 onClick={() => {
-                  navigate("/config/certification/create");
-                }}
-              >
-                Create&Import
-              </Button>
-              <Button
-                btnType="primary"
-                onClick={() => {
                   navigate("/config/certification/createGuide");
                 }}
               >
