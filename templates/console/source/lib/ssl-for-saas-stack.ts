@@ -9,7 +9,7 @@ export class SSLForSaasStack extends cdk.Stack {
 
     constructor(app: Construct, id: string, props: StackProps) {
         super(app, id, props);
-        this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
+        this.templateOptions.description = "(SO8152-ssl) CloudFront Extensions - SSL";
 
         // Main stack with shared components
         const commonConstruct = new CommonConstruct(this, `CfCommonConstruct`, {

@@ -18,7 +18,7 @@ export class RootStack extends cdk.Stack {
 
     constructor(app: Construct, id: string, props: RootStackProps) {
         super(app, id, props);
-        this.templateOptions.description = "(SO8152-ssl) CloudFront Extensions - SSL";
+        this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
         // construct a cognito for auth
         const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
             userPoolName: "CloudFrontExtCognito_UserPool",
