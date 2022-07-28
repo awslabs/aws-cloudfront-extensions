@@ -502,16 +502,20 @@ const ImportStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          <HeaderPanel title="Advanced Settings">
-            <Switch
-              label="Create as less as distibutions as possible"
-              desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"
-              isOn={aggregation}
-              handleToggle={() => {
-                setAggregation(!aggregation);
-              }}
-            />
-          </HeaderPanel>
+          {createAuto === "true" ? (
+            <HeaderPanel title="Advanced Settings">
+              <Switch
+                label="Create as less as distibutions as possible"
+                desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"
+                isOn={aggregation}
+                handleToggle={() => {
+                  setAggregation(!aggregation);
+                }}
+              />
+            </HeaderPanel>
+          ) : (
+            ""
+          )}
 
           {/*<HeaderPanel*/}
           {/*  title="Tags"*/}
