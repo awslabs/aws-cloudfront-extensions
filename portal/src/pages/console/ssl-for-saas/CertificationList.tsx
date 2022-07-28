@@ -81,7 +81,7 @@ const CertificationList: React.FC = () => {
                   navigate("/config/certification/createGuide");
                 }}
               >
-                Request New Certificates
+                Create new certificates
               </Button>
               <Button
                 btnType="primary"
@@ -89,7 +89,7 @@ const CertificationList: React.FC = () => {
                   navigate("/config/certification/importGuide");
                 }}
               >
-                Import Existing Certificates
+                Import existing certificates
               </Button>
             </div>
           }
