@@ -364,7 +364,7 @@ def cert_create_or_import(input):
     pemTotalNumber = len(body['pemList'])
     cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
     job_type = body['acm_op']
-    creationDate = int(time.time())
+    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     certCreateStageStatus = 'INPROGRESS'
     certValidationStageStatus = 'NOTSTART'
     distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
@@ -562,6 +562,27 @@ def manager_certification_list():
 
         logger.info(tmp_acm)
         result.append(tmp_acm)
+
+    return result
+
+@app.resolver(type_name="Query", field_name="listCertificationsWithJobId")
+def manager_certification_list_with_jobId(jobId):
+    # first get distribution List from current account
+    acm_client = boto3.client('acm')
+    response = acm_client.list_certificates()
+
+    result = []
+    for acmItem in response['CertificateSummaryList']:
+
+        resp = acm_client.list_tags_for_certificate(
+            CertificateArn=acmItem['CertificateArn']
+        )
+        tagList = resp['Tags']
+        logger.info(tagList)
+
+        for tagItem in tagList:
+            if tagItem['Key'] == 'job_token' and tagItem['Value'] == jobId:
+                result.append( acmItem['CertificateArn'])
 
     return result
 

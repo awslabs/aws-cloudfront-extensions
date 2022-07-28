@@ -40,10 +40,10 @@ const SIDE_MENU_LIST = [
         name: "SSL for SAAS",
         link: "/config/certification/list",
       },
-      {
-        name: "SSL for SAAS(Mock UI)",
-        link: "/config/sslcertificate/list",
-      },
+      // {
+      //   name: "SSL for SAAS(Mock UI)",
+      //   link: "/config/sslcertificate/list",
+      // },
     ],
     open: true,
   },

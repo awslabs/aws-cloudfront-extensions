@@ -7,7 +7,8 @@ import json
 import re
 import random
 import string
-import time
+from datetime import datetime
+
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
@@ -361,7 +362,7 @@ def lambda_handler(event, context):
     certTotalNumber = len(event['input']['cnameList'])
     cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
     job_type = event['input']['acm_op']
-    creationDate = int(time.time())
+    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     certCreateStageStatus = 'INPROGRESS'
     certValidationStageStatus = 'NOTSTART'
     distStageStatus = 'NOTSTART'
