@@ -215,7 +215,7 @@ const ImportStart: React.FC = () => {
     cnameInfo.existing_cf_info.config_version_id = selectDistributionVersionId;
     const sslForSaasRequest = {
       acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
-      auto_creation: createAuto ? "true" : "false",
+      auto_creation: createAuto,
       dist_aggregate: aggregation ? "true" : "false",
       enable_cname_check: checkCName ? "true" : "false",
       cnameList: [],
@@ -242,6 +242,9 @@ const ImportStart: React.FC = () => {
         input: certCreateOrImportInput,
       });
       console.info(resData);
+      navigate(
+        "/config/certification/job/" + resData.data.certCreateOrImport.body
+      );
     } catch (error) {
       console.error(error);
     }
@@ -598,11 +601,10 @@ const ImportStart: React.FC = () => {
                   startCertRequest(requestParam);
                   setLoadingApply(false);
                   Swal.fire(
-                    "Cert create or import Sent",
-                    "Cert creation or import triggered",
+                    "Cert import Sent",
+                    "Cert import triggered",
                     "success"
                   );
-                  navigate("/config/certification/list");
                 }}
               >
                 Apply
