@@ -83,7 +83,7 @@ const Snapshot = () => {
             },
             {
               id: "cname",
-              header: "Cname",
+              header: "CNAME",
               cell: (e: Cloudfront_info) => {
                 if (e.aliases.Quantity == 0) {
                   return "";
@@ -98,7 +98,7 @@ const Snapshot = () => {
             },
             {
               id: "domain",
-              header: "Domain",
+              header: "Distribution domain name",
               cell: (e: Cloudfront_info) => e.domainName,
             },
             {

@@ -317,51 +317,62 @@ const SnapshotDetail: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
-        <HeaderPanel
-          title={
-            distributionId + "(" + (distributionAliases[0] || "No Cname") + ")"
-          }
-        >
+        {/*<HeaderPanel*/}
+        {/*  title={*/}
+        {/*    distributionId + "(" + (distributionAliases[0] || "No CNAME") + ")"*/}
+        {/*  }*/}
+        {/*>*/}
+        {/*  <div className="flex value-label-span">*/}
+        {/*    <div className="flex-1">*/}
+        {/*      <ValueWithLabel label="Applied Snapshot Name">*/}
+        {/*        <div>*/}
+        {/*          {bindingSnapShotName == ""*/}
+        {/*            ? "Not binding with any Snapshot"*/}
+        {/*            : bindingSnapShotName}*/}
+        {/*        </div>*/}
+        {/*      </ValueWithLabel>*/}
+        {/*    </div>*/}
+        {/*    <div className="flex-1 border-left-c">*/}
+        {/*      <ValueWithLabel label="Drifting from applied Snapshot?">*/}
+        {/*        <div>{isDrifting}</div>*/}
+        {/*      </ValueWithLabel>*/}
+        {/*      <ValueWithLabel label="Diff with applied Snapshot">*/}
+        {/*        <div>*/}
+        {/*          <Button*/}
+        {/*            btnType="primary"*/}
+        {/*            disabled={driftingCompareDisable}*/}
+        {/*            onClick={() => {*/}
+        {/*              const path =*/}
+        {/*                "/config/snapshot/detail/" +*/}
+        {/*                id +*/}
+        {/*                "/compare/" +*/}
+        {/*                bindingSnapShotName +*/}
+        {/*                "/" +*/}
+        {/*                "_LATEST_";*/}
+        {/*              navigate(path);*/}
+        {/*            }}*/}
+        {/*          >*/}
+        {/*            Compare with Applied Snapshot*/}
+        {/*          </Button>*/}
+        {/*        </div>*/}
+        {/*      </ValueWithLabel>*/}
+        {/*    </div>*/}
+        {/*  </div>*/}
+        {/*</HeaderPanel>*/}
+        <HeaderPanel title={distributionId}>
           <div className="flex value-label-span">
-            <div className="flex-1">
-              <ValueWithLabel label="Applied Snapshot Name">
-                <div>
-                  {bindingSnapShotName == ""
-                    ? "Not binding with any Snapshot"
-                    : bindingSnapShotName}
+            <ValueWithLabel label="CNAME">
+              <div>
+                <div className="flex-1">
+                  {distributionAliases[0] || "No CNAME"}
                 </div>
-              </ValueWithLabel>
-            </div>
-            <div className="flex-1 border-left-c">
-              <ValueWithLabel label="Drifting from applied Snapshot?">
-                <div>{isDrifting}</div>
-              </ValueWithLabel>
-              <ValueWithLabel label="Diff with applied Snapshot">
-                <div>
-                  <Button
-                    btnType="primary"
-                    disabled={driftingCompareDisable}
-                    onClick={() => {
-                      const path =
-                        "/config/snapshot/detail/" +
-                        id +
-                        "/compare/" +
-                        bindingSnapShotName +
-                        "/" +
-                        "_LATEST_";
-                      navigate(path);
-                    }}
-                  >
-                    Compare with Applied Snapshot
-                  </Button>
-                </div>
-              </ValueWithLabel>
-            </div>
+              </div>
+            </ValueWithLabel>
           </div>
         </HeaderPanel>
         <TablePanel
           loading={loadingData}
-          title="Snapshot list"
+          title="Snapshot List"
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
@@ -388,7 +399,7 @@ const SnapshotDetail: React.FC = () => {
                   { id: "compare", text: "Compare", disabled: compareDisabled },
                   {
                     id: "updateNote",
-                    text: "Update Snapshot Note",
+                    text: "Update Description",
                     disabled: saveDisabled,
                   },
                   {
@@ -492,7 +503,7 @@ const SnapshotDetail: React.FC = () => {
             {
               // width: 200,
               id: "tags",
-              header: "Snapshot Notes",
+              header: "Description",
               cell: (e: Snapshot) => e.note,
             },
           ]}
@@ -649,9 +660,9 @@ const SnapshotDetail: React.FC = () => {
               }}
             />
           </FormItem>
-          <FormItem optionTitle="Snapshot Note" optionDesc="">
+          <FormItem optionTitle="Description" optionDesc="">
             <TextArea
-              placeholder="Snapshot Note"
+              placeholder="Description"
               rows={2}
               value={snapShotNote || ""}
               onChange={(event) => {

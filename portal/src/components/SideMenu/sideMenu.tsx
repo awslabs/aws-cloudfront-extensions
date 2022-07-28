@@ -12,12 +12,6 @@ import { SIDE_BAR_OPEN_STORAGE_ID } from "../../reducer/appReducer";
 
 const SOLUSTION_NAME = "CloudFront Extensions";
 const SIDE_MENU_LIST = [
-  {
-    name: "Extensions repository",
-    link: "/extentions-repository",
-    subMenu: [],
-    open: true,
-  },
   // {
   //   name: "Deployment status",
   //   link: "/deployment-status",
@@ -25,19 +19,30 @@ const SIDE_MENU_LIST = [
   //   open: true,
   // },
   {
-    name: "Configuration",
-    link: "/config",
+    name: "Monitoring",
+    link: "/monitor",
     subMenu: [
       {
-        name: "ChangeLog",
-        link: "/config/version",
+        name: "CloudFront traffic",
+        link: "/monitor/cloudfront",
       },
+    ],
+    open: true,
+  },
+  {
+    name: "Distribution management",
+    link: "/config",
+    subMenu: [
       {
         name: "Snapshot",
         link: "/config/snapshot",
       },
       {
-        name: "SSL for SAAS",
+        name: "Change history",
+        link: "/config/version",
+      },
+      {
+        name: "Certificates",
         link: "/config/certification/list",
       },
       // {
@@ -48,16 +53,12 @@ const SIDE_MENU_LIST = [
     open: true,
   },
   {
-    name: "Monitoring",
-    link: "/monitor",
+    name: "Extensions",
+    link: "/extentions-repository",
     subMenu: [
       {
-        name: "CloudFront",
-        link: "/monitor/cloudfront",
-      },
-      {
-        name: "WAF",
-        link: "/monitor/waf",
+        name: "Repository",
+        link: "/extentions-repository",
       },
     ],
     open: true,

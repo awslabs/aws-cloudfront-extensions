@@ -336,7 +336,7 @@ const CreateStart: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Create a new certificate">
+        <PagePanel title="Create new certificates">
           <HeaderPanel title="Domain names (CNAMEs) for Certificates">
             <div>
               {domainCertList.map((element, index) => {
@@ -399,15 +399,15 @@ const CreateStart: React.FC = () => {
                 }}
                 items={[
                   {
-                    label: "Do not create distributions",
-                    description: "Only request certificates",
-                    value: "false",
-                  },
-                  {
                     label: "Automatically create distributions",
                     description:
                       "Request certificates and then create distributions",
                     value: "true",
+                  },
+                  {
+                    label: "Do not create distributions",
+                    description: "Only request certificates",
+                    value: "false",
                   },
                 ]}
               />

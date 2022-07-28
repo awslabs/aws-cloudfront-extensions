@@ -351,7 +351,7 @@ const ImportStart: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Import Existing SSL Certificate">
+        <PagePanel title="Import existing certificates">
           <HeaderPanel title="Certification details">
             <FormItem
               optionTitle="Import one or more Certification"
@@ -442,7 +442,7 @@ const ImportStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          <HeaderPanel title="CloudFront Distributions">
+          <HeaderPanel title="CloudFront distributions">
             <FormItem optionTitle="Import method" optionDesc="">
               <Tiles
                 name="importMethod"
@@ -452,15 +452,15 @@ const ImportStart: React.FC = () => {
                 }}
                 items={[
                   {
-                    label: "Do not create distributions",
-                    description: "Only request certificates",
-                    value: "false",
-                  },
-                  {
                     label: "Automatically create distributions",
                     description:
                       "Request certificates and then create distributions",
                     value: "true",
+                  },
+                  {
+                    label: "Do not create distributions",
+                    description: "Only request certificates",
+                    value: "false",
                   },
                 ]}
               />
