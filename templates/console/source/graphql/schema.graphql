@@ -127,6 +127,8 @@ type SSLJob {
     creationDate: String
     distStageStatus: String
     jobType: String
+    certList: [String]
+    distList: [String]
 }
 
 
@@ -215,6 +217,8 @@ type Query {
 
     # list certifications for
     listCertifications: [certification_info]
+
+    listCertificationsWithJobId(jobId: String): [String]
 
     listSSLJobs: [SSLJob]
 

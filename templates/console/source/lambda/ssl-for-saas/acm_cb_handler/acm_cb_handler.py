@@ -3,7 +3,7 @@ import uuid
 import boto3
 import os
 import json
-import time
+from datetime import datetime
 import requests
 from requests_aws4auth import AWS4Auth
 from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field

@@ -729,6 +729,13 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     appsyncFunc.createResolver({
       typeName: "Query",
+      fieldName: "listCertificationsWithJobId",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
       fieldName: "listSSLJobs",
       requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),

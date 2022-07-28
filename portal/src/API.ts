@@ -161,6 +161,8 @@ export type SSLJob = {
   creationDate?: string | null,
   distStageStatus?: string | null,
   jobType?: string | null,
+  certList?: Array< string | null > | null,
+  distList?: Array< string | null > | null,
 };
 
 export type DeployExtensionMutationVariables = {
@@ -496,6 +498,14 @@ export type ListCertificationsQuery = {
   } | null > | null,
 };
 
+export type ListCertificationsWithJobIdQueryVariables = {
+  jobId?: string | null,
+};
+
+export type ListCertificationsWithJobIdQuery = {
+  listCertificationsWithJobId?: Array< string | null > | null,
+};
+
 export type ListSSLJobsQuery = {
   listSSLJobs?:  Array< {
     __typename: "SSLJob",
@@ -510,6 +520,8 @@ export type ListSSLJobsQuery = {
     creationDate?: string | null,
     distStageStatus?: string | null,
     jobType?: string | null,
+    certList?: Array< string | null > | null,
+    distList?: Array< string | null > | null,
   } | null > | null,
 };
 
@@ -531,5 +543,7 @@ export type GetJobInfoQuery = {
     creationDate?: string | null,
     distStageStatus?: string | null,
     jobType?: string | null,
+    certList?: Array< string | null > | null,
+    distList?: Array< string | null > | null,
   } | null,
 };
