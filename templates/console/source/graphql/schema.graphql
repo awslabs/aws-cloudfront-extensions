@@ -221,5 +221,8 @@ type Mutation {
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
+
+    # Update monitoring domains
+    updateDomains(stack_name: String!, domains: [String]): String
 }
 

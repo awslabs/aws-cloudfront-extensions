@@ -32,6 +32,7 @@ export class CloudFrontMonitoringStack extends Stack {
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
       description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
       type: 'String',
+      default: '',
     })
 
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
@@ -842,6 +843,24 @@ export class CloudFrontMonitoringStack extends Stack {
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
         REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const updateDomainList = new lambda.Function(this, 'updateDomainList', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_manager.lambda_handler',
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/update_domain_list')),
+      architecture: lambda.Architecture.ARM_64,
+      role: lambdaRole,
+      environment: {
+        ACCOUNT_ID: this.account,
+        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        REGION_NAME: this.region,
+        STACK_NAME: this.stackName
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]

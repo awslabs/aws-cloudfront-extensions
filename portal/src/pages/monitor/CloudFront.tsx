@@ -1,14 +1,17 @@
 import { Cloudfront_info } from "API";
 import { AMPLIFY_CONFIG_JSON } from "assets/js/const";
-import { appSyncRequestQuery } from "assets/js/request";
+import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import FormItem from "components/FormItem";
 import HeaderPanel from "components/HeaderPanel";
 import { listDistribution } from "graphql/queries";
+import { updateDomains } from "graphql/mutations";
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import Select from "react-select";
+import Modal from "components/Modal";
+import MultiSelect from "components/MultiSelect";
 import moment from "moment";
 import { DeployExtensionObj } from "../deploy/Deploy";
 import { useSelector } from "react-redux";
@@ -65,15 +68,16 @@ const CloudFront: React.FC = () => {
     },
   };
 
-  // const maxDateRange = 31;
-  // const minDateDefault = Moment(Moment().subtract(6, "weeks")).toDate();
-  // const maxDateDefault = new Date();
   const { allowedMaxDays, combine, allowedRange, afterToday } = DateRangePicker;
-
   const [loadingData, setLoadingData] = useState(false);
-  const [cloudFrontList, setCloudFrontList] = useState<OptionType[]>([]);
+  const [cloudFrontList, setCloudFrontList] = useState<any[]>([]);
+  const [selectDistribution, setSelectDistribution] = useState<any>([]);
+  const [selectDistributionName, setSelectDistributionName] = useState<any>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [confirm, setConfirm] = useState("");
 
   const [cdnRequestData, setCdnRequestData] = useState([
     { Time: "", Value: 0 },
@@ -132,35 +136,61 @@ const CloudFront: React.FC = () => {
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
     try {
-      setLoadingData(true);
-      setCloudFrontList([]);
-      const resData = await appSyncRequestQuery(listDistribution, {
-        page: 1,
-        count: 10,
+      const resData = await appSyncRequestQuery(listDistribution);
+      const Cloudfront_info_list: any[] = resData.data.listDistribution;
+      const tmpDistributionList = [];
+      const tmpSelectedList = [];
+
+      const domainData = await appSyncRequestMutation(updateDomains, {
+        stack_name: "MonitoringStack",
+        domains: ["0"],
       });
-      const cfList: Cloudfront_info[] = resData.data?.listDistribution || [];
-      setLoadingData(false);
-      const tmpCFOptionList: OptionType[] = [];
-      tmpCFOptionList.push({
-        label: "sample",
-        value: "localhost",
-      });
-      if (cfList.length > 0) {
-        cfList.forEach((element) => {
-          tmpCFOptionList.push({
-            label: `${element.id}(${element.domainName})`,
-            value: element.domainName || "",
+      const domainList: string[] = [];
+      if (domainData.data.updateDomains.includes(",")) {
+        const domains = domainData.data.updateDomains.split(",");
+        for (const index in domains) {
+          domainList.push(domains[index].trim());
+        }
+      } else {
+        domainList.push(domainData.data.updateDomains.trim());
+      }
+
+      for (const cfdistlistKey in Cloudfront_info_list) {
+        const cname =
+          Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
+            ? ""
+            : " | " + Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
+        if (
+          domainList.includes(Cloudfront_info_list[cfdistlistKey].domainName)
+        ) {
+          tmpSelectedList.push({
+            label: Cloudfront_info_list[cfdistlistKey].domainName + cname,
+            name: Cloudfront_info_list[cfdistlistKey].domainName + cname,
+            value: Cloudfront_info_list[cfdistlistKey].domainName,
           });
+        }
+        tmpDistributionList.push({
+          label: Cloudfront_info_list[cfdistlistKey].domainName + cname,
+          name: Cloudfront_info_list[cfdistlistKey].domainName + cname,
+          value: Cloudfront_info_list[cfdistlistKey].domainName,
         });
       }
-      setCloudFrontList(tmpCFOptionList);
+      setCloudFrontList(tmpDistributionList);
+      setSelectDistribution(tmpSelectedList);
+
+      const selectList: any = [];
+      for (const index in tmpSelectedList) {
+        selectList.push(tmpSelectedList[index].name);
+      }
+      setSelectDistributionName(() => {
+        return selectList;
+      });
     } catch (error) {
-      setLoadingData(false);
       console.error(error);
     }
   };
 
-  const getChartData = async (domain?: string) => {
+  const getChartData = async (domain: string) => {
     let url2 =
       amplifyConfig.aws_monitoring_url +
       "/metric?StartTime=" +
@@ -169,9 +199,6 @@ const CloudFront: React.FC = () => {
       endDate +
       "&Metric=all&" +
       domain;
-    if (domain === "localhost") {
-      url2 = "http://localhost:8000/Response";
-    }
     try {
       const response = await fetch(url2, {
         headers: {
@@ -213,7 +240,7 @@ const CloudFront: React.FC = () => {
         }
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -332,6 +359,61 @@ const CloudFront: React.FC = () => {
     });
     return series;
   };
+
+  const selectAllDistributions = () => {
+    const selectList: any = [];
+    for (const index in cloudFrontList) {
+      selectList.push(cloudFrontList[index].value);
+    }
+    setSelectDistributionName(() => {
+      return selectList;
+    });
+    setSelectDistribution(() => {
+      return selectList;
+    });
+  };
+
+  useEffect(() => {}, [selectDistribution]);
+
+  useEffect(() => {}, [selectDistributionName]);
+
+  const selectNoneDistributions = async () => {
+    setSelectDistributionName([]);
+    setSelectDistribution([]);
+  };
+
+  const applyDomainList = async () => {
+    try {
+      setLoadingApply(true);
+      const resData = await appSyncRequestMutation(updateDomains, {
+        stack_name: "MonitoringStack",
+        domains: selectDistribution,
+      });
+      await getCloudfrontDistributionList();
+      setLoadingApply(false);
+      setOpenModal(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const selectDomainList = async () => {
+    try {
+      const resData = await appSyncRequestMutation(updateDomains, {
+        stack_name: "MonitoringStack",
+        domains: ["0"],
+      });
+      const selectList: any = [];
+      for (const index in selectDistribution) {
+        selectList.push(selectDistribution[index].value);
+      }
+      setSelectDistribution(() => {
+        return selectList;
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -339,7 +421,16 @@ const CloudFront: React.FC = () => {
         title="Monitoring"
         action={
           <div>
-            <Button>Download</Button>
+            <Button
+              btnType="primary"
+              onClick={() => {
+                setOpenModal(true);
+                // getCloudfrontDistributionList();
+                // selectDomainList();
+              }}
+            >
+              Update Domain List
+            </Button>
           </div>
         }
       >
@@ -355,9 +446,11 @@ const CloudFront: React.FC = () => {
             }}
           >
             <Select
-              options={cloudFrontList}
-              onChange={(event) => {
-                getChartData(event?.value);
+              options={selectDistribution}
+              onChange={(event: any) => {
+                if (event != null) {
+                  getChartData(event.value);
+                }
               }}
             />
             <DateRangePicker
@@ -947,6 +1040,73 @@ const CloudFront: React.FC = () => {
           </div>
         </div>
       </HeaderPanel>
+      <Modal
+        title="Update Domain List"
+        isOpen={openModal}
+        fullWidth={true}
+        closeModal={() => {
+          setOpenModal(false);
+        }}
+        actions={
+          <div className="button-action no-pb text-right">
+            <Button
+              onClick={() => {
+                setConfirm("");
+                setOpenModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              btnType="primary"
+              loading={loadingApply}
+              onClick={() => {
+                applyDomainList();
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        }
+      >
+        <div className="gsui-modal-content">
+          <FormItem
+            optionTitle="Distribution"
+            optionDesc="Distribution to apply configurations"
+          >
+            <div className="flex">
+              <div style={{ width: 800 }}>
+                <MultiSelect
+                  optionList={cloudFrontList}
+                  value={selectDistributionName}
+                  placeholder="Select distribution"
+                  onChange={(items) => {
+                    setSelectDistribution(items);
+                  }}
+                />
+              </div>
+              <div className="ml-5">
+                <Button
+                  onClick={() => {
+                    selectAllDistributions();
+                  }}
+                >
+                  Select All
+                </Button>
+              </div>
+              <div className="ml-5">
+                <Button
+                  onClick={() => {
+                    selectNoneDistributions();
+                  }}
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </FormItem>
+        </div>
+      </Modal>
     </div>
   );
 };

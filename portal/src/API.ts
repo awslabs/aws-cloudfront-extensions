@@ -209,6 +209,16 @@ export type CertCreateOrImportMutation = {
   } | null,
 };
 
+export type UpdateDomainsMutationVariables = {
+  stack_name: string,
+  domains?: Array< string | null > | null,
+};
+
+export type UpdateDomainsMutation = {
+  // Update monitoring domains
+  updateDomains?: string | null,
+};
+
 export type ListExtensionsQueryVariables = {
   page?: number | null,
   count?: number | null,

@@ -65,6 +65,28 @@ def sync_extensions():
     '''Get the latest extensions to local Dynamodb table'''
     return sync_ext(EXT_META_DATA_URL, DDB_TABLE_NAME)
 
+@app.resolver(type_name="Mutation", field_name="updateDomains")
+def update_domains(stack_name, domains):
+    
+    domain_list = ','.join(domains)
+    lambda_client = boto3.client('lambda')
+    functions_list = lambda_client.list_functions()['Functions']
+    for fcn in functions_list:
+        if 'Runtime' in fcn and 'FunctionName' in fcn and fcn['Runtime'] == 'python3.9' and fcn['FunctionName'].startswith(stack_name + '-metricsCollect'):
+            conf = lambda_client.get_function_configuration(
+                FunctionName=fcn['FunctionName'],
+            )
+            if(domain_list == '0'):
+                return conf['Environment']['Variables']['DOMAIN_LIST']
+            
+            conf['Environment']['Variables']['DOMAIN_LIST'] = domain_list
+            lambda_client.update_function_configuration(
+                    FunctionName=fcn['FunctionName'],
+                    Environment={
+                        'Variables': conf['Environment']['Variables']
+                    }
+                )
+    return domain_list
 
 @app.resolver(type_name="Query", field_name="queryByName")
 def query_ddb(name):
