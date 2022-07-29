@@ -6,11 +6,7 @@ import PagePanel from "components/PagePanel";
 import TextArea from "components/TextArea";
 import Tiles from "components/Tiles";
 import Select from "components/Select";
-import { CF_LIST, CF_SNAPSHOT_LIST } from "mock/data";
-import MultiSelect from "components/MultiSelect";
-import Switch from "components/Switch";
 import { useNavigate } from "react-router-dom";
-import TagList from "components/TagList";
 import Breadcrumb from "components/Breadcrumb";
 import {
   appSyncRequestMutation,
@@ -26,10 +22,6 @@ import Modal from "../../../../components/Modal";
 import Swal from "sweetalert2";
 import TextInput from "../../../../components/TextInput";
 
-// enum ImportMethodType {
-//   CREATE = "CREATE",
-//   NONE = "NONE",
-// }
 const enum ImportMethod {
   CREATE = "create",
   IMPORT = "import",
@@ -86,18 +78,14 @@ const CreateStart: React.FC = () => {
       domainList: "",
     },
   ]);
-  const [cloudFront, setCloudFront] = useState("");
   const [snapshot, setSnapshot] = useState([]);
   const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
-  const [createAsLess, setCreateAsLess] = useState(true);
-  const [tagList, setTagList] = useState([{ key: "", value: "" }]);
   const [aggregation, setAggregation] = useState(false);
   const [checkCName, setCheckCName] = useState(false);
   const [createAuto, setCreateAuto] = useState("true");
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [versionList, setVersionList] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
   const [loadingApply, setLoadingApply] = useState(false);
   const [selectDistributionId, setSelectDistributionId] = useState<any>("");
   const [selectDistributionVersionId, setSelectDistributionVersionId] =
@@ -449,20 +437,20 @@ const CreateStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          {createAuto === "true" ? (
-            <HeaderPanel title="Advanced Settings">
-              <Switch
-                label="Create as less as distibutions as possible"
-                desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"
-                isOn={aggregation}
-                handleToggle={() => {
-                  setAggregation(!aggregation);
-                }}
-              />
-            </HeaderPanel>
-          ) : (
-            ""
-          )}
+          {/*{createAuto === "true" ? (*/}
+          {/*  <HeaderPanel title="Advanced Settings">*/}
+          {/*    <Switch*/}
+          {/*      label="Create as less as distibutions as possible"*/}
+          {/*      desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"*/}
+          {/*      isOn={aggregation}*/}
+          {/*      handleToggle={() => {*/}
+          {/*        setAggregation(!aggregation);*/}
+          {/*      }}*/}
+          {/*    />*/}
+          {/*  </HeaderPanel>*/}
+          {/*) : (*/}
+          {/*  ""*/}
+          {/*)}*/}
 
           {/*<HeaderPanel*/}
           {/*  title="Tags"*/}
