@@ -633,7 +633,7 @@ def manager_cloudfront_arn_list_with_jobId(jobId):
                 ]
             },
         ],
-        ResourcesPerPage=500,
+        ResourcesPerPage=100,
         ResourceTypeFilters=[
             'cloudfront',
         ],

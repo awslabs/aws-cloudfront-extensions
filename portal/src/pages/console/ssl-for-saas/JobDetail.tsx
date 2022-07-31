@@ -367,7 +367,7 @@ const JobDetail: React.FC = () => {
             selectType={SelectType.NONE}
             actions={<div></div>}
             pagination={<div />}
-            items={certArnList}
+            items={cloudfrontArnList}
             columnDefinitions={[
               {
                 id: "Arn",
