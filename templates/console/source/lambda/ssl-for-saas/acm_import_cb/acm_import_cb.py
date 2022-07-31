@@ -370,8 +370,8 @@ def lambda_handler(event, context):
         certificate['SubjectAlternativeNames'] = _domainList
         certificate['DomainName'] = _domainList[0] if _domainList else ''
 
-        if event['input']['enable_cname_check'] == 'true':
-            check_domain_name(event, pem_index)
+        # if event['input']['enable_cname_check'] == 'true':
+        #     check_domain_name(event, pem_index)
 
         san_list_dynamo_db = [dict(zip(['S'], [x])) for x in _domainList]
         logger.info('index %s: sanList for DynamoDB: %s', pem_index, san_list_dynamo_db)

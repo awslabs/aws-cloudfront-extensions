@@ -220,6 +220,8 @@ type Query {
 
     listCertificationsWithJobId(jobId: String): [String]
 
+    listCloudFrontArnWithJobId(jobId: String): [String]
+
     listSSLJobs: [SSLJob]
 
     getJobInfo(jobId: String): SSLJob
@@ -243,5 +245,6 @@ type Mutation {
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
+
 }
 

@@ -9,6 +9,7 @@ import time
 import subprocess
 import copy
 from datetime import datetime
+from cerberus import Validator
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 from aws_lambda_powertools import Logger, Tracer
@@ -310,6 +311,42 @@ def is_wildcard(sanList):
     return None
 
 
+# validate the input
+def validate_input_parameters(input):
+    string_type = {'type': 'string'}
+    existing_cf_info_type = {
+        'distribution_id': {'type': 'string', 'required': True},
+        'config_version_id': {'type': 'string', 'required': False}
+    }
+    cnameInfo_type = {
+        'type': 'dict',
+        'schema': {
+            'domainName': { 'type': 'string', 'required': True },
+            'sanList': { 'type': 'list', 'schema': string_type, 'required': True },
+            'existing_cf_info': { 'type': 'dict', 'schema':existing_cf_info_type}
+        }
+    }
+    pemInfo = {
+        'type': 'dict',
+        'schema': {
+            'CertPem':{'type': 'string', 'required': True},
+            'PrivateKeyPem': {'type': 'string', 'required': True},
+            'ChainPem': {'type': 'string', 'required': True},
+            'existing_cf_info': { 'type': 'dict', 'schema': existing_cf_info_type}
+        }
+    }
+    schema = {
+        "acm_op" : {"type": "string"},
+        "auto_creation": {"type": "string"},
+        'cnameList': {'type': 'list', 'schema': cnameInfo_type, 'required': False},
+        'pemList': {'type': 'list', 'schema': pemInfo, 'required': False}
+    }
+    v = Validator(schema)
+    v.allow_unknown = True
+    if not v.validate(input):
+        # raise Exception('Invalid input with error: ' + str(v.errors))
+        raise Exception('Invalid input parameters: ' + json.dumps(v.errors))
+
 # {
 #   "acm_op": "create", # "import"
 #   "dist_aggregate": "false",
@@ -352,10 +389,17 @@ def cert_create_or_import():
     # will use request id as job_id
     logger.info(raw_context.aws_request_id)
 
+    # validate the input
+    validate_input_parameters(input)
+
     # Get the parameters from the event
     body: dict = app.current_event.json_body
     acm_op = body['acm_op']
-    dist_aggregate = body['dist_aggregate']
+    if 'dist_aggregate' in body:
+        dist_aggregate = body['dist_aggregate']
+    else:
+        dist_aggregate = 'false'
+
     auto_creation = body['auto_creation']
     domain_name_list = body['cnameList']
 
@@ -388,61 +432,29 @@ def cert_create_or_import():
                         distStageStatus)
         if acm_op == "create":
             # aggregate certificate if dist_aggregate is true
-            if dist_aggregate == "true":
-                wildcard_cert_dict = {}
-                for cname_index, cname_value in enumerate(domain_name_list):
-                    certificate['DomainName'] = cname_value['domainName']
-                    certificate['SubjectAlternativeNames'] = cname_value['sanList']
+            # if dist_aggregate == "true":
+            #     aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context)
+            # # otherwise, create certificate for each cname
+            # else:
+            for cname_index, cname_value in enumerate(domain_name_list):
+                certificate['DomainName'] = cname_value['domainName']
+                certificate['SubjectAlternativeNames'] = cname_value['sanList']
 
-                    # TBD, add cname_value['domainName'] to wildcard_cert_dict
-                    wildcardSan = is_wildcard(cname_value['sanList'])
-                    logger.info('wildcardSan: %s', wildcardSan)
-                    if wildcardSan:
-                        resp = request_certificate(certificate)
-                        logger.info('Certificate creation response: %s', resp)
-                        # update wildcard certificate dict
-                        wildcard_cert_dict[wildcardSan] = resp["CertificateArn"]
-                    else:
-                        parentCertArn = is_subset(cname_value['sanList'], wildcard_cert_dict)
-                        logger.info('parentCertArn: %s', parentCertArn)
-                        if parentCertArn:
-                            # don't create certificate if parent certificate exists
-                            continue
-                        resp = request_certificate(certificate)
-                        logger.info('Certificate creation response: %s', resp)
-                update_job_field(JOB_INFO_TABLE_NAME,
-                                 raw_context.aws_request_id,
-                                 'certCreateStageStatus',
-                                 'SUCCESS')
-                update_job_field(JOB_INFO_TABLE_NAME,
-                                 raw_context.aws_request_id,
-                                 'certValidationStageStatus',
-                                 'INPROGRESS')
-                update_job_field(JOB_INFO_TABLE_NAME,
-                                 raw_context.aws_request_id,
-                                 'cert_completed_number',
-                                 certTotalNumber)
-            # otherwise, create certificate for each cname
-            else:
-                for cname_index, cname_value in enumerate(domain_name_list):
-                    certificate['DomainName'] = cname_value['domainName']
-                    certificate['SubjectAlternativeNames'] = cname_value['sanList']
+                resp = request_certificate(certificate)
+                logger.info('Certificate creation response: %s', resp)
 
-                    resp = request_certificate(certificate)
-                    logger.info('Certificate creation response: %s', resp)
-
-                update_job_field(JOB_INFO_TABLE_NAME,
-                                     raw_context.aws_request_id,
-                                     'certCreateStageStatus',
-                                     'SUCCESS')
-                update_job_field(JOB_INFO_TABLE_NAME,
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             raw_context.aws_request_id,
+                             'certCreateStageStatus',
+                             'SUCCESS')
+            update_job_field(JOB_INFO_TABLE_NAME,
                              raw_context.aws_request_id,
                              'certValidationStageStatus',
                              'INPROGRESS')
-                update_job_field(JOB_INFO_TABLE_NAME,
-                                 raw_context.aws_request_id,
-                                 'cert_completed_number',
-                                 certTotalNumber)
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             raw_context.aws_request_id,
+                             'cert_completed_number',
+                             certTotalNumber)
         # note dist_aggregate is ignored here, we don't aggregate imported certificate
         elif acm_op == "import":
             # iterate pemList array from event
@@ -472,10 +484,6 @@ def cert_create_or_import():
                              'cert_completed_number',
                              pemTotalNumber)
 
-        # return {
-        #     'statusCode': 200,
-        #     'body': json.dumps('auto_creation is false, just created or imported the certs')
-        # }
         data = {'statusCode': 200,
                  'body': raw_context.aws_request_id}
         return data
@@ -495,7 +503,6 @@ def cert_create_or_import():
                 tmpCnameInfo = {}
                 tmpCnameInfo['domainName'] = _domainName
                 tmpCnameInfo['sanList'] = _domainList
-                tmpCnameInfo['originsItemsDomainName'] = ""
                 tmpCnameInfo['existing_cf_info'] = {
                     "distribution_id": pem_value['existing_cf_info']['distribution_id'],
                     "config_version_id": pem_value['existing_cf_info']['config_version_id'],
@@ -505,24 +512,50 @@ def cert_create_or_import():
             body['cnameList'] = gen_cnameInfo_list
         resp = invoke_step_function(stepFunctionArn, body)
 
-        # return {
-        #     'statusCode': 200,
-        #     'body': 'step function triggered with :' + str(resp['executionArn'])
-        # }
         data = {'statusCode': 200,
                 'body': raw_context.aws_request_id}
         return data
     else:
         logger.info('auto_creation is not true or false')
 
-        # return {
-        #     'statusCode': 400,
-        #     'body': json.dumps('auto_creation is not true or false')
-        # }
         data = {'statusCode': 500,
                 'body': 'error: auto_creation is not true or false'}
         return data
 
+def aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context):
+    wildcard_cert_dict = {}
+    for cname_index, cname_value in enumerate(domain_name_list):
+        certificate['DomainName'] = cname_value['domainName']
+        certificate['SubjectAlternativeNames'] = cname_value['sanList']
+
+        # TBD, add cname_value['domainName'] to wildcard_cert_dict
+        wildcardSan = is_wildcard(cname_value['sanList'])
+        logger.info('wildcardSan: %s', wildcardSan)
+        if wildcardSan:
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)
+            # update wildcard certificate dict
+            wildcard_cert_dict[wildcardSan] = resp["CertificateArn"]
+        else:
+            parentCertArn = is_subset(cname_value['sanList'], wildcard_cert_dict)
+            logger.info('parentCertArn: %s', parentCertArn)
+            if parentCertArn:
+                # don't create certificate if parent certificate exists
+                continue
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     raw_context.aws_request_id,
+                     'certCreateStageStatus',
+                     'SUCCESS')
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     raw_context.aws_request_id,
+                     'certValidationStageStatus',
+                     'INPROGRESS')
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     raw_context.aws_request_id,
+                     'cert_completed_number',
+                     certTotalNumber)
 
 # @app.resolver(type_name="Query", field_name="listCertifications")
 @app.get("/ssl_for_saas/cert_list")
@@ -574,8 +607,8 @@ def manager_certification_list_jobId():
     jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
 
     result = []
+    # filter only the certificates with jobId in job_token tag
     for acmItem in response['CertificateSummaryList']:
-
         resp = acm_client.list_tags_for_certificate(
             CertificateArn=acmItem['CertificateArn']
         )
@@ -595,25 +628,7 @@ def manager_list_ssl_jobs():
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
     response = ddb_table.scan()
-    jobs = []
     logger.info(f"SSL jobs list is : {response['Items']}")
-    # for job in response['Items']:
-    #     tmpJob = {}
-    #     tmpJob['id'] = job['jobId'],
-    #     tmpJob['jobId'] = job['jobId'],
-    #     tmpJob['cert_completed_number'] = str(job['cert_completed_number']),
-    #     tmpJob['cert_total_number'] = str(job['cert_total_number']),
-    #     tmpJob['cloudfront_distribution_created_number'] = str(job['cloudfront_distribution_created_number']),
-    #     tmpJob['cloudfront_distribution_total_number'] = str(job['cloudfront_distribution_total_number']),
-    #     tmpJob['job_input'] = job['job_input'],
-    #     tmpJob['jobType'] = job['jobType'],
-    #     tmpJob['creationDate'] = job['creationDate'],
-    #     tmpJob['certCreateStageStatus'] = job['certCreateStageStatus'],
-    #     tmpJob['certValidationStageStatus'] = job['certValidationStageStatus'],
-    #     tmpJob['distStageStatus'] = job['distStageStatus'],
-    #
-    #     jobs.append(tmpJob)
-
     return response['Items']
 
 

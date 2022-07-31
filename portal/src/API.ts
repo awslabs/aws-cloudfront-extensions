@@ -506,6 +506,14 @@ export type ListCertificationsWithJobIdQuery = {
   listCertificationsWithJobId?: Array< string | null > | null,
 };
 
+export type ListCloudFrontArnWithJobIdQueryVariables = {
+  jobId?: string | null,
+};
+
+export type ListCloudFrontArnWithJobIdQuery = {
+  listCloudFrontArnWithJobId?: Array< string | null > | null,
+};
+
 export type ListSSLJobsQuery = {
   listSSLJobs?:  Array< {
     __typename: "SSLJob",

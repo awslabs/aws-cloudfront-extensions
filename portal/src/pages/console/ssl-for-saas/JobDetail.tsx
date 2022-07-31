@@ -13,6 +13,7 @@ import { appSyncRequestQuery } from "../../../assets/js/request";
 import {
   getJobInfo,
   listCertificationsWithJobId,
+  listCloudFrontArnWithJobId,
 } from "../../../graphql/queries";
 import { SSLJob } from "../../../API";
 import Modal from "../../../components/Modal";
@@ -46,7 +47,9 @@ const JobDetail: React.FC = () => {
   });
   const [loadingData, setLoadingData] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [openCloudfrontModal, setOpenCloudfrontModal] = useState(false);
   const [certArnList, setCertArnList] = useState<any>([]);
+  const [cloudfrontArnList, setCloudFrontArnList] = useState<any>([]);
 
   const BreadCrunbList = [
     {
@@ -102,6 +105,25 @@ const JobDetail: React.FC = () => {
   };
   useEffect(() => {
     fetchCertList();
+  }, [jobId]);
+
+  // Get Distribution by job Id
+  const fetchCloudFrontList = async () => {
+    try {
+      setLoadingData(true);
+      const resData = await appSyncRequestQuery(listCloudFrontArnWithJobId, {
+        jobId: jobId,
+      });
+      const cloudfrontArnList: [string] =
+        resData.data.listCloudFrontArnWithJobId;
+      setCloudFrontArnList(cloudfrontArnList);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchCloudFrontList();
   }, [jobId]);
 
   const getCertValidationPercentage = () => {
@@ -206,7 +228,11 @@ const JobDetail: React.FC = () => {
                       jobInfo.cloudfront_distribution_total_number}
                   </div>
                   <div className="flex-1">
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        setOpenCloudfrontModal(true);
+                      }}
+                    >
                       View distributions created in this job
                       <span>
                         <OpenInNewIcon />
@@ -313,6 +339,44 @@ const JobDetail: React.FC = () => {
               console.info("select item:", item);
               // setSelectedItems(item);
               // setcnameList(MOCK_REPOSITORY_LIST);
+            }}
+          />
+        </Modal>
+        <Modal
+          title=""
+          isOpen={openCloudfrontModal}
+          fullWidth={true}
+          closeModal={() => {
+            setOpenCloudfrontModal(false);
+          }}
+          actions={
+            <div className="button-action no-pb text-right">
+              <Button
+                onClick={() => {
+                  setOpenCloudfrontModal(false);
+                }}
+              >
+                OK
+              </Button>
+            </div>
+          }
+        >
+          <TablePanel
+            // loading={loadingData}
+            title=""
+            selectType={SelectType.NONE}
+            actions={<div></div>}
+            pagination={<div />}
+            items={cloudfrontArnList}
+            columnDefinitions={[
+              {
+                id: "Arn",
+                header: "CloudFront Arn",
+                cell: (e: string) => e,
+              },
+            ]}
+            changeSelected={(item) => {
+              console.info("select item:", item);
             }}
           />
         </Modal>

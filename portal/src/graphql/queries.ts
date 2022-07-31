@@ -244,6 +244,11 @@ export const listCertificationsWithJobId = /* GraphQL */ `
     listCertificationsWithJobId(jobId: $jobId)
   }
 `;
+export const listCloudFrontArnWithJobId = /* GraphQL */ `
+  query ListCloudFrontArnWithJobId($jobId: String) {
+    listCloudFrontArnWithJobId(jobId: $jobId)
+  }
+`;
 export const listSSLJobs = /* GraphQL */ `
   query ListSSLJobs {
     listSSLJobs {
