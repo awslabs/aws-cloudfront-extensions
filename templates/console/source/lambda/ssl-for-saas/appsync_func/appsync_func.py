@@ -324,7 +324,7 @@ def validate_input_parameters(input):
         'schema': {
             'domainName': { 'type': 'string', 'required': True },
             'sanList': { 'type': 'list', 'schema': string_type, 'required': True },
-            'existing_cf_info': { 'type': 'dict', 'schema':existing_cf_info_type}
+            'existing_cf_info': { 'type': 'dict', 'schema': existing_cf_info_type, 'required': True}
         }
     }
     pemInfo = {
@@ -337,8 +337,8 @@ def validate_input_parameters(input):
         }
     }
     schema = {
-        "acm_op" : {"type": "string"},
-        "auto_creation": {"type": "string"},
+        "acm_op" : {"type": "string", 'required': True},
+        "auto_creation": {"type": "string", 'required': True},
         'cnameList': {'type': 'list', 'schema': cnameInfo_type, 'required': False},
         'pemList': {'type': 'list', 'schema': pemInfo, 'required': False}
     }
@@ -619,6 +619,30 @@ def manager_certification_list_with_jobId(jobId):
             if tagItem['Key'] == 'job_token' and tagItem['Value'] == jobId:
                 result.append( acmItem['CertificateArn'])
 
+    return result
+@app.resolver(type_name="Query", field_name="listCloudFrontArnWithJobId")
+def manager_cloudfront_arn_list_with_jobId(jobId):
+    # first get distribution List from current account
+    resource_client = boto3.client('resourcegroupstaggingapi')
+    response = resource_client.get_resources(
+        TagFilters=[
+            {
+                'Key': 'job_token',
+                'Values': [
+                    jobId,
+                ]
+            },
+        ],
+        ResourcesPerPage=500,
+        ResourceTypeFilters=[
+            'cloudfront',
+        ],
+    )
+
+    result = []
+    # filter only the certificates with jobId in job_token tag
+    for cloudfrontItem in response['ResourceTagMappingList']:
+        result.append( cloudfrontItem['ResourceARN'])
     return result
 
 @app.resolver(type_name="Query", field_name="listSSLJobs")

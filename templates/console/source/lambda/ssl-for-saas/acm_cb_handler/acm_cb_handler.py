@@ -158,6 +158,25 @@ def create_distribution(config):
     #         logger.info('Waiting for distribution to be deployed...')
     #         time.sleep(10)
 
+# create CloudFront distribution
+def create_distribution_with_tags(config):
+    """[summary]
+
+    Args:
+        certificate ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    # create a new distribution
+    logger.info('Creating distribution with config: %s', json.dumps(config))
+    resp = cf.create_distribution_with_tags(
+        DistributionConfigWithTags=config
+    )
+    logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s, with tags %s', resp['Distribution']['Id'],
+                resp['Distribution']['ARN'], resp['Distribution']['DomainName'], str(json.dumps(config['Tags'])))
+
+    return resp
 
 # scan dynamodb table for certificate
 @retry(wait=wait_fixed(3), stop=stop_after_attempt(5), retry=retry_if_exception_type(exceptions.Timeout))
@@ -237,7 +256,6 @@ def fetch_cloudfront_config(distribution_id):
 #       }
 #   }
 # }
-# TODO: Need to adding rainy day handling code
 def lambda_handler(event, context):
     """
     :param event:
@@ -316,8 +334,20 @@ def lambda_handler(event, context):
                                                           default_root_object, original_cf_distribution_id,
                                                           origins_items_domain_name, origins_items_id,
                                                           origins_items_origin_path, sub_domain_name_list)
+    tags = {
+        'Items': [
+            {
+                'Key': 'job_token',
+                'Value': job_token
+            },
+        ]
+    }
+    config_with_tag = {
+            'DistributionConfig': config,
+            'Tags': tags
+    }
 
-    resp = create_distribution(config)
+    resp = create_distribution_with_tags(config_with_tag)
 
 
     # update the job info table for completed cloudfront number
