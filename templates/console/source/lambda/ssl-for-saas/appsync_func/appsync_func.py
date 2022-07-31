@@ -343,6 +343,7 @@ def validate_input_parameters(input):
         'pemList': {'type': 'list', 'schema': pemInfo, 'required': False}
     }
     v = Validator(schema)
+    v.allow_unknown = True
     if not v.validate(input):
         # raise Exception('Invalid input with error: ' + str(v.errors))
         raise Exception('Invalid input parameters: ' + json.dumps(v.errors))

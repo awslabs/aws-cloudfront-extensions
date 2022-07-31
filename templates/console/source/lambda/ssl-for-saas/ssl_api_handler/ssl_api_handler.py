@@ -318,27 +318,34 @@ def validate_input_parameters(input):
         'distribution_id': {'type': 'string', 'required': True},
         'config_version_id': {'type': 'string', 'required': False}
     }
-    cnameInfo = {
-        'domainName': { 'type': 'string', 'required': True },
-        'sanList': { 'type': 'list', 'schema': string_type, 'required': True },
-        'existing_cf_info': { 'type': existing_cf_info_type}
+    cnameInfo_type = {
+        'type': 'dict',
+        'schema': {
+            'domainName': { 'type': 'string', 'required': True },
+            'sanList': { 'type': 'list', 'schema': string_type, 'required': True },
+            'existing_cf_info': { 'type': 'dict', 'schema':existing_cf_info_type}
+        }
     }
     pemInfo = {
-        'CertPem':{'type': 'string', 'required': True},
-        'PrivateKeyPem': {'type': 'string', 'required': True},
-        'ChainPem': {'type': 'string', 'required': True},
-        'existing_cf_info': { 'type': existing_cf_info_type}
+        'type': 'dict',
+        'schema': {
+            'CertPem':{'type': 'string', 'required': True},
+            'PrivateKeyPem': {'type': 'string', 'required': True},
+            'ChainPem': {'type': 'string', 'required': True},
+            'existing_cf_info': { 'type': 'dict', 'schema': existing_cf_info_type}
+        }
     }
     schema = {
-        'acm_op' : {'type': 'string'},
-        'auto_creation': {'type': 'string'},
-        'cnameList': {'type': 'list', 'schema': cnameInfo, 'required': True},
-        'pemList': {'type': 'list', 'schema': pemInfo, 'required': True},
+        "acm_op" : {"type": "string"},
+        "auto_creation": {"type": "string"},
+        'cnameList': {'type': 'list', 'schema': cnameInfo_type, 'required': False},
+        'pemList': {'type': 'list', 'schema': pemInfo, 'required': False}
     }
     v = Validator(schema)
+    v.allow_unknown = True
     if not v.validate(input):
-        raise Exception('Invalid input with error: ' + v.error)
-
+        # raise Exception('Invalid input with error: ' + str(v.errors))
+        raise Exception('Invalid input parameters: ' + json.dumps(v.errors))
 
 # {
 #   "acm_op": "create", # "import"
@@ -383,12 +390,16 @@ def cert_create_or_import():
     logger.info(raw_context.aws_request_id)
 
     # validate the input
-    # validate_input_parameters(input)
+    validate_input_parameters(input)
 
     # Get the parameters from the event
     body: dict = app.current_event.json_body
     acm_op = body['acm_op']
-    dist_aggregate = body['dist_aggregate']
+    if 'dist_aggregate' in body:
+        dist_aggregate = body['dist_aggregate']
+    else:
+        dist_aggregate = 'false'
+
     auto_creation = body['auto_creation']
     domain_name_list = body['cnameList']
 

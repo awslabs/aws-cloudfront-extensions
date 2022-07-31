@@ -178,7 +178,12 @@ const ImportStart: React.FC = () => {
       const tmpList = [];
       for (const cfdistlistKey in Cloudfront_info_list) {
         tmpList.push({
-          name: Cloudfront_info_list[cfdistlistKey].id,
+          name:
+            Cloudfront_info_list[cfdistlistKey].id +
+            " | " +
+            (Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
+              ? ""
+              : Cloudfront_info_list[cfdistlistKey].aliases.Items[0]),
           value: Cloudfront_info_list[cfdistlistKey].id,
         });
       }

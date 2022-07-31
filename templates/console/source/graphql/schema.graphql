@@ -243,5 +243,6 @@ type Mutation {
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
+
 }
 
