@@ -164,7 +164,7 @@ const JobDetail: React.FC = () => {
     fetchJobInfo();
     const refreshInterval = setInterval(() => {
       fetchJobInfo();
-    }, 5000);
+    }, 10000);
     return () => clearInterval(refreshInterval);
   }, []);
 
