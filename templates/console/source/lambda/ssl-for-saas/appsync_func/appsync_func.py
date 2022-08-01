@@ -392,136 +392,147 @@ def cert_create_or_import(input):
 
     # Get the parameters from the event
     body = input
+    try:
+        # validate the input
+        validate_input_parameters(input)
 
-    # validate the input
-    validate_input_parameters(input)
+        acm_op = body['acm_op']
+        if 'dist_aggregate' in body:
+            dist_aggregate = body['dist_aggregate']
+        else:
+            dist_aggregate = 'false'
 
-    acm_op = body['acm_op']
-    if 'dist_aggregate' in body:
-        dist_aggregate = body['dist_aggregate']
-    else:
-        dist_aggregate = 'false'
+        auto_creation = body['auto_creation']
+        domain_name_list = body['cnameList']
 
-    auto_creation = body['auto_creation']
-    domain_name_list = body['cnameList']
+        certTotalNumber = len(body['cnameList'])
+        pemTotalNumber = len(body['pemList'])
+        cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
+        job_type = body['acm_op']
+        creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        certCreateStageStatus = 'INPROGRESS'
+        certValidationStageStatus = 'NOTSTART'
+        distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
 
-    certTotalNumber = len(body['cnameList'])
-    pemTotalNumber = len(body['pemList'])
-    cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
-    job_type = body['acm_op']
-    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    certCreateStageStatus = 'INPROGRESS'
-    certValidationStageStatus = 'NOTSTART'
-    distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
+        # remove the pemList from input body since PEM content is too large and not suitable for save in DDB
+        body_without_pem = copy.deepcopy(body)
+        del body_without_pem['pemList']
 
-    # remove the pemList from input body since PEM content is too large and not suitable for save in DDB
-    body_without_pem = copy.deepcopy(body)
-    del body_without_pem['pemList']
+        if auto_creation == "false":
+            create_job_info(JOB_INFO_TABLE_NAME,
+                            raw_context.aws_request_id,
+                            json.dumps(body_without_pem,indent=4),
+                            certTotalNumber if acm_op == "create" else pemTotalNumber,
+                            cloudfrontTotalNumber,
+                            0,
+                            0,
+                            job_type,
+                            creationDate,
+                            certCreateStageStatus,
+                            certValidationStageStatus,
+                            distStageStatus)
+            if acm_op == "create":
+                # aggregate certificate if dist_aggregate is true
+                # if dist_aggregate == "true":
+                #     aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context)
+                # # otherwise, create certificate for each cname
+                # else:
+                for cname_index, cname_value in enumerate(domain_name_list):
+                    certificate['DomainName'] = cname_value['domainName']
+                    certificate['SubjectAlternativeNames'] = cname_value['sanList']
 
-    if auto_creation == "false":
-        create_job_info(JOB_INFO_TABLE_NAME,
-                        raw_context.aws_request_id,
-                        json.dumps(body_without_pem,indent=4),
-                        certTotalNumber if acm_op == "create" else pemTotalNumber,
-                        cloudfrontTotalNumber,
-                        0,
-                        0,
-                        job_type,
-                        creationDate,
-                        certCreateStageStatus,
-                        certValidationStageStatus,
-                        distStageStatus)
-        if acm_op == "create":
-            # aggregate certificate if dist_aggregate is true
-            # if dist_aggregate == "true":
-            #     aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context)
-            # # otherwise, create certificate for each cname
-            # else:
-            for cname_index, cname_value in enumerate(domain_name_list):
-                certificate['DomainName'] = cname_value['domainName']
-                certificate['SubjectAlternativeNames'] = cname_value['sanList']
+                    resp = request_certificate(certificate)
+                    logger.info('Certificate creation response: %s', resp)
 
-                resp = request_certificate(certificate)
-                logger.info('Certificate creation response: %s', resp)
-
-            update_job_field(JOB_INFO_TABLE_NAME,
-                             raw_context.aws_request_id,
-                             'certCreateStageStatus',
-                             'SUCCESS')
-            update_job_field(JOB_INFO_TABLE_NAME,
-                             raw_context.aws_request_id,
-                             'certValidationStageStatus',
-                             'INPROGRESS')
-            update_job_field(JOB_INFO_TABLE_NAME,
-                             raw_context.aws_request_id,
-                             'cert_completed_number',
-                             certTotalNumber)
-        # note dist_aggregate is ignored here, we don't aggregate imported certificate
-        elif acm_op == "import":
-            # iterate pemList array from event
-            for pem_index, pem_value in enumerate(body['pemList']):
-
-                certificate['CertPem'] = str.encode(pem_value['CertPem'])
-                certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
-                certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
-
-                convert_string_to_file(pem_value['CertPem'], PEM_FILE)
-                _domainList = get_domain_list_from_cert()
-                certificate['SubjectAlternativeNames'] = _domainList
-                certificate['DomainName'] = _domainList[0] if _domainList else ''
-
-                resp = import_certificate(certificate)
-
-            update_job_field(JOB_INFO_TABLE_NAME,
+                update_job_field(JOB_INFO_TABLE_NAME,
                                  raw_context.aws_request_id,
                                  'certCreateStageStatus',
                                  'SUCCESS')
-            update_job_field(JOB_INFO_TABLE_NAME,
-                             raw_context.aws_request_id,
-                             'certValidationStageStatus',
-                             'SUCCESS')
-            update_job_field(JOB_INFO_TABLE_NAME,
-                             raw_context.aws_request_id,
-                             'cert_completed_number',
-                             pemTotalNumber)
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certValidationStageStatus',
+                                 'INPROGRESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'cert_completed_number',
+                                 certTotalNumber)
+            # note dist_aggregate is ignored here, we don't aggregate imported certificate
+            elif acm_op == "import":
+                # iterate pemList array from event
+                for pem_index, pem_value in enumerate(body['pemList']):
 
-        data = {'statusCode': 200,
-                 'body': raw_context.aws_request_id}
-        return data
+                    certificate['CertPem'] = str.encode(pem_value['CertPem'])
+                    certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
+                    certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
 
-    # invoke step function to implement streamlined process of cert create/import and distribution create
-    elif auto_creation == "true":
-        # invoke existing step function
-        logger.info('auto_creation is true, invoke step function with body %s', str(body))
-        body['aws_request_id'] = raw_context.aws_request_id
-        if acm_op == "import":
-            # iterate pemList array from event
-            gen_cnameInfo_list = []
-            for pem_index, pem_value in enumerate(body['pemList']):
-                convert_string_to_file(pem_value['CertPem'], PEM_FILE)
-                _domainList = get_domain_list_from_cert()
-                _domainName = _domainList[0] if _domainList else ''
-                tmpCnameInfo = {}
-                tmpCnameInfo['domainName'] = _domainName
-                tmpCnameInfo['sanList'] = _domainList
-                tmpCnameInfo['existing_cf_info'] = {
-                    "distribution_id": pem_value['existing_cf_info']['distribution_id'],
-                    "config_version_id": pem_value['existing_cf_info']['config_version_id'],
-                }
-                gen_cnameInfo_list.append(tmpCnameInfo)
+                    convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+                    _domainList = get_domain_list_from_cert()
+                    certificate['SubjectAlternativeNames'] = _domainList
+                    certificate['DomainName'] = _domainList[0] if _domainList else ''
 
-            body['cnameList'] = gen_cnameInfo_list
-        resp = invoke_step_function(stepFunctionArn, body)
+                    resp = import_certificate(certificate)
 
-        data = {'statusCode': 200,
-                'body': raw_context.aws_request_id}
-        return data
-    else:
-        logger.info('auto_creation is not true or false')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                     raw_context.aws_request_id,
+                                     'certCreateStageStatus',
+                                     'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certValidationStageStatus',
+                                 'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'cert_completed_number',
+                                 pemTotalNumber)
 
-        data = {'statusCode': 500,
-                'body': 'error: auto_creation is not true or false'}
-        return data
+            data = {'statusCode': 200,
+                     'body': raw_context.aws_request_id}
+            return data
+
+        # invoke step function to implement streamlined process of cert create/import and distribution create
+        elif auto_creation == "true":
+            # invoke existing step function
+            logger.info('auto_creation is true, invoke step function with body %s', str(body))
+            body['aws_request_id'] = raw_context.aws_request_id
+            if acm_op == "import":
+                # iterate pemList array from event
+                gen_cnameInfo_list = []
+                for pem_index, pem_value in enumerate(body['pemList']):
+                    convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+                    _domainList = get_domain_list_from_cert()
+                    _domainName = _domainList[0] if _domainList else ''
+                    tmpCnameInfo = {}
+                    tmpCnameInfo['domainName'] = _domainName
+                    tmpCnameInfo['sanList'] = _domainList
+                    tmpCnameInfo['existing_cf_info'] = {
+                        "distribution_id": pem_value['existing_cf_info']['distribution_id'],
+                        "config_version_id": pem_value['existing_cf_info']['config_version_id'],
+                    }
+                    gen_cnameInfo_list.append(tmpCnameInfo)
+
+                body['cnameList'] = gen_cnameInfo_list
+            resp = invoke_step_function(stepFunctionArn, body)
+
+            data = {'statusCode': 200,
+                    'body': raw_context.aws_request_id}
+            return data
+        else:
+            logger.info('auto_creation is not true or false')
+
+            data = {'statusCode': 500,
+                    'body': 'error: auto_creation is not true or false'}
+            return data
+    except Exception as e:
+        logger.error("Exception occurred, just update the ddb table")
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         raw_context.aws_request_id,
+                         'certCreateStageStatus',
+                         'FAILED')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         raw_context.aws_request_id,
+                         'promptInfo',
+                         str(e))
+        raise e
 
 
 def aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context):
@@ -666,8 +677,17 @@ def manager_get_ssl_job(jobId):
             'jobId': jobId,
         })
     logger.info(response)
-    data = response['Item']
-    return data
+    if not 'Item' in response:
+       time.sleep(3)
+       response = ddb_table.get_item(
+           Key={
+               'jobId': jobId,
+           })
+       data = response['Item']
+       return data
+    else:
+       data = response['Item']
+       return data
 
 
 

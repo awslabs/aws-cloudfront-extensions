@@ -323,7 +323,7 @@ def validate_input_parameters(input):
         'schema': {
             'domainName': { 'type': 'string', 'required': True },
             'sanList': { 'type': 'list', 'schema': string_type, 'required': True },
-            'existing_cf_info': { 'type': 'dict', 'schema':existing_cf_info_type}
+            'existing_cf_info': { 'type': 'dict', 'schema': existing_cf_info_type, 'required': True}
         }
     }
     pemInfo = {
@@ -336,8 +336,8 @@ def validate_input_parameters(input):
         }
     }
     schema = {
-        "acm_op" : {"type": "string"},
-        "auto_creation": {"type": "string"},
+        "acm_op" : {"type": "string", 'required': True},
+        "auto_creation": {"type": "string", 'required': True},
         'cnameList': {'type': 'list', 'schema': cnameInfo_type, 'required': False},
         'pemList': {'type': 'list', 'schema': pemInfo, 'required': False}
     }
