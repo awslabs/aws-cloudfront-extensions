@@ -452,5 +452,6 @@ def construct_cloudfront_config_with_dist_id(certificate_arn, default_cache_beha
     # config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     config['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
     config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
-    config['ViewerCertificate']['Certificate'] = certificate_arn
+    config['ViewerCertificate']['MinimumProtocolVersion'] = 'TLSv1.2_2021'
+    config['ViewerCertificate']['SSLSupportMethod'] = 'sni-only'
     return config
