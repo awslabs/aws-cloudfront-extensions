@@ -160,6 +160,14 @@ const JobDetail: React.FC = () => {
     getOverallStatus();
   }, [jobInfo]);
 
+  useEffect(() => {
+    fetchJobInfo();
+    const refreshInterval = setInterval(() => {
+      fetchJobInfo();
+    }, 5000);
+    return () => clearInterval(refreshInterval);
+  }, []);
+
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
