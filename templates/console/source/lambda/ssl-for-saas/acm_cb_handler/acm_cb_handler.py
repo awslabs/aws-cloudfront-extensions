@@ -287,89 +287,99 @@ def lambda_handler(event, context):
                      job_token,
                      'certValidationStageStatus',
                      'SUCCESS')
+    try:
+        # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
+        resp = dynamo_client.delete_item(
+            TableName=callback_table,
+            Key={
+                'taskToken': {
+                    'S': task_token
+                },
+                'domainName': {
+                    'S': domain_name
+                }
+            }
+        )
 
-    # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
-    resp = dynamo_client.delete_item(
-        TableName=callback_table,
-        Key={
-            'taskToken': {
-                'S': task_token
-            },
-            'domainName': {
-                'S': domain_name
+        sub_domain_name_list = event['input']['sanList'] if event['input']['sanList'] else None
+        if 'originsItemsDomainName' in event['input']:
+            origins_items_domain_name = '%s' % event['input']['originsItemsDomainName'] if event['input'][
+                'originsItemsDomainName'] else None
+        else:
+            origins_items_domain_name = ''
+
+        # concatenate from OriginsItemsDomainName and random string
+        origins_items_id = '%s-%s' % (str(uuid.uuid4())[:8], origins_items_domain_name)
+        default_root_object = ''
+        origins_items_origin_path = ''
+        default_cache_behavior_target_origin_id = origins_items_id
+        certificate_arn = cert_arn
+
+        # customization configuration of CloudFront distribution
+        original_cf_distribution_id = event['input']['existing_cf_info']['distribution_id']
+        ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
+        if 'config_version_id' in event['input']['existing_cf_info']:
+
+            original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
+            config = construct_cloudfront_config_with_version(certificate_arn, ddb_table_name,
+                                                              default_cache_behavior_target_origin_id,
+                                                              default_root_object, original_cf_distribution_id,
+                                                              original_cf_distribution_version, origins_items_domain_name,
+                                                              origins_items_id,
+                                                              origins_items_origin_path, sub_domain_name_list)
+        else:
+            # Just fetch the config from source cloudfront distribution config
+            config = construct_cloudfront_config_with_dist_id(certificate_arn,
+                                                              default_cache_behavior_target_origin_id,
+                                                              default_root_object, original_cf_distribution_id,
+                                                              origins_items_domain_name, origins_items_id,
+                                                              origins_items_origin_path, sub_domain_name_list)
+        tags = {
+            'Items': [
+                {
+                    'Key': 'job_token',
+                    'Value': job_token
+                },
+            ]
+        }
+        config_with_tag = {
+                'DistributionConfig': config,
+                'Tags': tags
+        }
+
+        resp = create_distribution_with_tags(config_with_tag)
+
+        # update the job info table for completed cloudfront number
+        response = get_job_info(JOB_INFO_TABLE_NAME, job_token)
+
+        if 'Items' in response:
+            ddb_record = response['Items'][0]
+            cloudfront_distribution_created_number = ddb_record['cloudfront_distribution_created_number']
+            new_number = int(cloudfront_distribution_created_number) + 1
+            update_job_cloudfront_distribution_created_number(JOB_INFO_TABLE_NAME, job_token, new_number)
+        else:
+            logger.error(f"failed to get the job info of job_id:{job_token} ")
+
+        # return response in json format
+        return {
+            'statusCode': 200,
+            'body': {
+                'distributionId': resp['Distribution']['Id'],
+                'distributionArn': resp['Distribution']['ARN'],
+                'distributionDomainName': resp['Distribution']['DomainName']
             }
         }
-    )
-
-    sub_domain_name_list = event['input']['sanList'] if event['input']['sanList'] else None
-    if 'originsItemsDomainName' in event['input']:
-        origins_items_domain_name = '%s' % event['input']['originsItemsDomainName'] if event['input'][
-            'originsItemsDomainName'] else None
-    else:
-        origins_items_domain_name = ''
-
-    # concatenate from OriginsItemsDomainName and random string
-    origins_items_id = '%s-%s' % (str(uuid.uuid4())[:8], origins_items_domain_name)
-    default_root_object = ''
-    origins_items_origin_path = ''
-    default_cache_behavior_target_origin_id = origins_items_id
-    certificate_arn = cert_arn
-
-    # customization configuration of CloudFront distribution
-    original_cf_distribution_id = event['input']['existing_cf_info']['distribution_id']
-    ddb_table_name = os.getenv('CONFIG_VERSION_DDB_TABLE_NAME')
-    if 'config_version_id' in event['input']['existing_cf_info']:
-
-        original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
-        config = construct_cloudfront_config_with_version(certificate_arn, ddb_table_name,
-                                                          default_cache_behavior_target_origin_id,
-                                                          default_root_object, original_cf_distribution_id,
-                                                          original_cf_distribution_version, origins_items_domain_name,
-                                                          origins_items_id,
-                                                          origins_items_origin_path, sub_domain_name_list)
-    else:
-        # Just fetch the config from source cloudfront distribution config
-        config = construct_cloudfront_config_with_dist_id(certificate_arn,
-                                                          default_cache_behavior_target_origin_id,
-                                                          default_root_object, original_cf_distribution_id,
-                                                          origins_items_domain_name, origins_items_id,
-                                                          origins_items_origin_path, sub_domain_name_list)
-    tags = {
-        'Items': [
-            {
-                'Key': 'job_token',
-                'Value': job_token
-            },
-        ]
-    }
-    config_with_tag = {
-            'DistributionConfig': config,
-            'Tags': tags
-    }
-
-    resp = create_distribution_with_tags(config_with_tag)
-
-
-    # update the job info table for completed cloudfront number
-    response = get_job_info(JOB_INFO_TABLE_NAME, job_token)
-
-    if 'Items' in response:
-        ddb_record = response['Items'][0]
-        cloudfront_distribution_created_number = ddb_record['cloudfront_distribution_created_number']
-        new_number = int(cloudfront_distribution_created_number) + 1
-        update_job_cloudfront_distribution_created_number(JOB_INFO_TABLE_NAME, job_token, new_number)
-    else:
-        logger.error(f"failed to get the job info of job_id:{job_token} ")
-
-    # return response in json format
-    return {
-        'statusCode': 200,
-        'body': {
-            'distributionId': resp['Distribution']['Id'],
-            'distributionArn': resp['Distribution']['ARN'],
-            'distributionDomainName': resp['Distribution']['DomainName']
-        }
-    }
+    except Exception as e:
+        logger.error("Exception occurred, just update the ddb table")
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'distStageStatus',
+                         'FAILED')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'promptInfo',
+                         str(e))
+        raise e
 
 
 def construct_cloudfront_config_with_version(certificate_arn, ddb_table_name, default_cache_behavior_target_origin_id,
