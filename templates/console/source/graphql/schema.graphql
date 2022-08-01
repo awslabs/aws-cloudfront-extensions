@@ -129,6 +129,7 @@ type SSLJob {
     jobType: String
     certList: [String]
     distList: [String]
+    promptInfo: String
 }
 
 

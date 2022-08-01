@@ -265,6 +265,7 @@ export const listSSLJobs = /* GraphQL */ `
       jobType
       certList
       distList
+      promptInfo
     }
   }
 `;
@@ -284,6 +285,7 @@ export const getJobInfo = /* GraphQL */ `
       jobType
       certList
       distList
+      promptInfo
     }
   }
 `;

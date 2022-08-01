@@ -631,6 +631,7 @@ def manager_certification_list_with_jobId(jobId):
                 result.append( acmItem['CertificateArn'])
 
     return result
+
 @app.resolver(type_name="Query", field_name="listCloudFrontArnWithJobId")
 def manager_cloudfront_arn_list_with_jobId(jobId):
     # first get distribution List from current account
