@@ -44,6 +44,7 @@ const JobDetail: React.FC = () => {
     creationDate: "2022-01-01",
     distStageStatus: "NOTSTART",
     jobType: "create",
+    promptInfo: "",
   });
   const [loadingData, setLoadingData] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -267,7 +268,12 @@ const JobDetail: React.FC = () => {
                     100
                   }
                   progressTopText="Request ACM Certificates"
-                  progressBottomText="The step will be completed if all SSL certificates were created"
+                  // progressBottomText="The step will be completed if all SSL certificates were created"
+                  progressBottomText={
+                    jobInfo.certCreateStageStatus === "FAILED"
+                      ? jobInfo.promptInfo
+                      : "The step will be completed if all SSL certificates were created"
+                  }
                 />
                 <div>
                   <img className="ml-80 arrow-width" src={ArrowDown} />
@@ -295,7 +301,11 @@ const JobDetail: React.FC = () => {
                     100
                   }
                   progressTopText="Create CloudFront distribution"
-                  progressBottomText="The step will be completed if all distributions were created"
+                  progressBottomText={
+                    jobInfo.distStageStatus === "FAILED"
+                      ? jobInfo.promptInfo
+                      : "The step will be completed if all SSL certificates were created"
+                  }
                 />
               </div>
             }
