@@ -274,9 +274,7 @@ const JobDetail: React.FC = () => {
         <HeaderPanel
           title="Job Status"
           action={
-            <div>
-              <Button btnType="text">More resources</Button>
-            </div>
+            <div>{/*<Button btnType="text">More resources</Button>*/}</div>
           }
         >
           <div>
