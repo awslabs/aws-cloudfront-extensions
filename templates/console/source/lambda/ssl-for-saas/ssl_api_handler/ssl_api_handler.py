@@ -389,11 +389,13 @@ def cert_create_or_import():
     # will use request id as job_id
     logger.info(raw_context.aws_request_id)
     try:
-        # validate the input
-        validate_input_parameters(input)
 
         # Get the parameters from the event
         body: dict = app.current_event.json_body
+
+        # validate the input
+        validate_input_parameters(body)
+
         acm_op = body['acm_op']
         if 'dist_aggregate' in body:
             dist_aggregate = body['dist_aggregate']
@@ -674,6 +676,10 @@ def manager_list_ssl_jobs():
 @app.get("/ssl_for_saas/get_ssl_job")
 def manager_get_ssl_job():
     jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
+    if jobId == "":
+        data = {'statusCode': 400,
+                'body': 'error: get_ssl_job need none empty parameter jobId'}
+        return data
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
