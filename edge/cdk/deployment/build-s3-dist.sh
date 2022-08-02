@@ -49,7 +49,7 @@ echo "${VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 title "cdk synth"
 
 run cd ${SRC_PATH}
-run npm i
+run npm i --legacy-peer-deps
 # run npm run test
 
 export USE_BSS=true
