@@ -248,7 +248,11 @@ export class CloudFrontConfigVersionStack extends Stack {
         eventPattern: {
           source: ["aws.cloudfront"],
           detail: {
-            eventName: ["UpdateDistribution", "CreateDistribution"],
+            eventName: [
+              "UpdateDistribution",
+              "CreateDistribution",
+              "CreateDistributionWithTags",
+            ],
           },
         },
       }

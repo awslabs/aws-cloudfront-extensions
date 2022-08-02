@@ -106,7 +106,7 @@ const JobDetail: React.FC = () => {
   };
   useEffect(() => {
     fetchCertList();
-  }, [jobId]);
+  }, [jobId, jobInfo]);
 
   // Get Distribution by job Id
   const fetchCloudFrontList = async () => {
@@ -125,7 +125,7 @@ const JobDetail: React.FC = () => {
   };
   useEffect(() => {
     fetchCloudFrontList();
-  }, [jobId]);
+  }, [jobId, jobInfo]);
 
   const getCertValidationPercentage = () => {
     if (jobInfo.cloudfront_distribution_created_number > 0) {
@@ -168,6 +168,23 @@ const JobDetail: React.FC = () => {
     return () => clearInterval(refreshInterval);
   }, []);
 
+  const constructCloudfrontLink = (arn: string) => {
+    const tmpArr = arn.split("/");
+    return tmpArr[1];
+  };
+
+  const constructCertificateConsoleLink = (arn: string) => {
+    const tmpArr = arn.split(":");
+    const region = tmpArr[3];
+    const tmp = arn.split("/");
+    const certId = tmp[1];
+    return (
+      "https://us-east-1.console.aws.amazon.com/acm/home?region=" +
+      region +
+      "#/certificates/" +
+      certId
+    );
+  };
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -349,7 +366,17 @@ const JobDetail: React.FC = () => {
               {
                 id: "Arn",
                 header: "Cert Arn",
-                cell: (e: string) => e,
+                cell: (e: string) => {
+                  return (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={constructCertificateConsoleLink(e)}
+                    >
+                      {e}
+                    </a>
+                  );
+                },
                 // sortingField: "alt",
               },
             ]}
@@ -390,7 +417,20 @@ const JobDetail: React.FC = () => {
               {
                 id: "Arn",
                 header: "CloudFront Arn",
-                cell: (e: string) => e,
+                cell: (e: string) => {
+                  return (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`https://us-east-1.console.aws.amazon.com/cloudfront/v3/home#/distributions/${constructCloudfrontLink(
+                        e
+                      )}`}
+                    >
+                      {e}
+                    </a>
+                    // constructCloudfrontLink(e)
+                  );
+                },
               },
             ]}
             changeSelected={(item) => {

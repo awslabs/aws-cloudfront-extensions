@@ -172,9 +172,6 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
         TableName=table_name,
         FilterExpression="taskStatus = :ts",
         ExpressionAttributeValues={
-            # ':t': {
-            #     'S': task_type
-            # },
             ':ts': {
                 'S': task_status
             }
@@ -235,9 +232,8 @@ def query_update_metadata(acm_dcv_dict, item, table_name):
         resp = get_job_info(JOB_INFO_TABLE_NAME,job_token)
         if 'Items' in resp:
             ddb_record = resp['Items'][0]
-            cert_completed_number = ddb_record['cert_completed_number']
-            new_number = int(cert_completed_number) + num
-            update_job_cert_completed_number(JOB_INFO_TABLE_NAME,job_token,new_number)
+            cert_total_number = ddb_record['cert_total_number']
+            update_job_cert_completed_number(JOB_INFO_TABLE_NAME,job_token,cert_total_number)
         else:
             logger.error(f"failed to get the job info of job_id:{job_token} ")
 

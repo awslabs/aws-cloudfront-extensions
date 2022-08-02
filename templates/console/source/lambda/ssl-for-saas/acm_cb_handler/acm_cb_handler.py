@@ -366,7 +366,8 @@ def lambda_handler(event, context):
             'body': {
                 'distributionId': resp['Distribution']['Id'],
                 'distributionArn': resp['Distribution']['ARN'],
-                'distributionDomainName': resp['Distribution']['DomainName']
+                'distributionDomainName': resp['Distribution']['DomainName'],
+                'aliases': resp['Distribution']['DistributionConfig']['Aliases']
             }
         }
     except Exception as e:
