@@ -68,9 +68,10 @@ def lambda_handler(event, context):
     msg = []
     # iterate distribution list from event
     for record in event['input']['fn_acm_cb_handler_map']:
-        msg.append("Distribution domain name {} created, ARN: {}"
+        msg.append("Distribution domain name {} created, ARN: {}, aliases: {}"
                    .format(record['fn_acm_cb_handler']['Payload']['body']['distributionDomainName'],
-                           record['fn_acm_cb_handler']['Payload']['body']['distributionArn']
+                           record['fn_acm_cb_handler']['Payload']['body']['distributionArn'],
+                           record['fn_acm_cb_handler']['Payload']['body']['aliases']
                            )
                    )
 

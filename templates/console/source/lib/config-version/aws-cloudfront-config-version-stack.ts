@@ -261,7 +261,11 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         eventPattern: {
           source: ["aws.cloudfront"],
           detail: {
-            eventName: ["UpdateDistribution", "CreateDistribution"],
+            eventName: [
+              "UpdateDistribution",
+              "CreateDistribution",
+              "CreateDistributionWithTags",
+            ],
           },
         },
       }
