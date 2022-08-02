@@ -67,6 +67,7 @@ cd ${BUILD_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/true-client-ip/true-client-ip.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/redirect-by-country/redirect-by-country.ts" --output ${CDK_OUT_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/resize-image.ts" --output ${CDK_OUT_PATH}
 
 echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
 run ${__dir}/helper.py ${CDK_OUT_PATH}
