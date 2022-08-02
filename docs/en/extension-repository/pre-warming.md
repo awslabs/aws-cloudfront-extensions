@@ -15,8 +15,6 @@ The CloudFormation template provides the following components and workflows:
 4. Auto scaling group contains EC2 spot instances. Each instance sends requests to the edge locations and updates the prewarm status into DynamoDB table after consuming the messages from the SQS queue.
 5. StatusFetcher function gets the prewarm status from the DynamoDB table.
 
-### CloudFront Stage
-TBD
 
 ### Deployment on the web console (Recommended)
 

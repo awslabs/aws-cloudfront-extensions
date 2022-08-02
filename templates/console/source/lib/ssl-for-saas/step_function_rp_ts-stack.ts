@@ -94,8 +94,8 @@ export class StepFunctionRpTsConstruct extends Construct {
     );
 
     // create email subscription
-    const email_address = new CfnParameter(scope, "email-subs", {
-      description: "email address to be notified",
+    const email_address = new CfnParameter(scope, "EmailAddress", {
+      description: "Email address to receive SSL certificates notification",
       type: "String",
     });
     sns_topic.addSubscription(
