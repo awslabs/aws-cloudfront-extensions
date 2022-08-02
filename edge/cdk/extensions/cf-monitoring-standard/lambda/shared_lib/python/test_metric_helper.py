@@ -10,8 +10,8 @@ from moto.athena import athena_backends
 
 
 def test_assemble_query():
-    date_time_str_start = '2022-01-21 08:15:27'
-    date_time_str_end = '2022-01-21 08:15:27'
+    date_time_str_start = '2022-08-21 08:15:27'
+    date_time_str_end = '2022-08-21 08:15:27'
 
     result = assemble_query(date_time_str_start,date_time_str_end,"<<<QUERY STRING>>>")
     assert result == "<<<QUERY STRING>>>year = 2022 AND month = 1 AND day = 21 AND hour = 8"
@@ -99,8 +99,8 @@ def test_schedule_athena_query():
 
 @mock_athena
 def test_gen_detailed_by_interval():
-    date_time_str_start = '2022-01-21 08:15:27'
-    date_time_str_end = '2022-01-21 08:15:27'
+    date_time_str_start = '2022-08-21 08:15:27'
+    date_time_str_end = '2022-08-21 08:15:27'
     athena_client = boto3.client('athena', region_name='us-east-1')
     metric = 'request'
     db_name = "TESTDB"
