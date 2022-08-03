@@ -80,6 +80,7 @@ def main():
         for file in file_assets:
             source = file['source']
             src = os.path.join(dir_in, source['path'])
+            print('Handle each source file')
             if src.endswith('.nested.template.json'):
                 dst = os.path.abspath(os.path.join(REGIONAL_S3_ASSETS_PATH, file['_id']))
             elif src.endswith('template.json'):
