@@ -80,41 +80,41 @@ const CloudFront: React.FC = () => {
   const [confirm, setConfirm] = useState("");
 
   const [cdnRequestData, setCdnRequestData] = useState([
-    { Time: "", Value: 0 },
+    { Time: "", Value: null },
   ]);
   const [cdnRequestOriginData, setCdnRequestOriginData] = useState([
-    { Time: "", Value: 0 },
+    { Time: "", Value: null },
   ]);
   const [cdnStatusCodeData, setCdnStatusCodeData] = useState([
     { Time: "", Value: [{ StatusCode: 0, Count: 0 }] },
   ]);
   const [cdnStatusCodeOriginData, setCdnStatusCodeOriginData] = useState([
-    { Time: "", Value: [{ StatusCode: 0, Count: 0 }] },
+    { Time: "", Value: [{ StatusCode: 0, Count: null }] },
   ]);
-  const [cdnChrData, setCdnChrData] = useState([{ Time: "", Value: 0 }]);
-  const [cdnChrBandWithData, setCdnChrBandWithData] = useState([
-    { Time: "", Value: 0 },
+  const [cdnChrData, setCdnChrData] = useState([{ Time: "", Value: null }]);
+  const [cdnChrBandWidthData, setCdnChrBandWidthData] = useState([
+    { Time: "", Value: null },
   ]);
-  const [cdnBandWithData, setCdnBandWithData] = useState([
-    { Time: "", Value: 0 },
+  const [cdnBandWidthData, setCdnBandWidthData] = useState([
+    { Time: "", Value: null },
   ]);
-  const [cdnBandWithOriginData, setCdnBandWithOriginData] = useState([
-    { Time: "", Value: 0 },
+  const [cdnBandWidthOriginData, setCdnBandWidthOriginData] = useState([
+    { Time: "", Value: null },
   ]);
   const [cdnDownloadSpeedData, setCdnDownloadSpeedData] = useState([
-    { Time: "", Value: 0 },
+    { Time: "", Value: null },
   ]);
   const [cdnDownloadSpeedOriginData, setCdnDownloadSpeedOriginData] = useState([
-    { Time: "", Value: 0 },
+    { Time: "", Value: null },
   ]);
   const [cdnTopNUrlRequestsData, setCdnTopNUrlRequestsData] = useState([
-    { Time: "", Value: [{ Path: "", Count: 0 }] },
+    { Time: "", Value: [{ Path: "", Count: null }] },
   ]);
   const [cdnTopNUrlSizeData, setCdnTopNUrlSizeData] = useState([
-    { Time: "", Value: [{ Path: "", Size: 0 }] },
+    { Time: "", Value: [{ Path: "", Size: null }] },
   ]);
   const [cdnDownstreamTrafficData, setCdnDownstreamTrafficData] = useState([
-    { Time: "", Value: 0 },
+    { Time: "", Value: null },
   ]);
   const amplifyConfig: AmplifyConfigType = useSelector(
     (state: AppStateProps) => state.amplifyConfig
@@ -131,7 +131,7 @@ const CloudFront: React.FC = () => {
     setValue(newValue);
   };
 
-  console.log("aws_monitoring_url:" + amplifyConfig.aws_monitoring_url);
+  // console.log("aws_monitoring_url:" + amplifyConfig.aws_monitoring_url);
 
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
@@ -191,7 +191,7 @@ const CloudFront: React.FC = () => {
   };
 
   const getChartData = async (domain: string) => {
-    let url2 =
+    const url2 =
       amplifyConfig.aws_monitoring_url +
       "/metric?StartTime=" +
       startDate +
@@ -220,12 +220,12 @@ const CloudFront: React.FC = () => {
             setCdnStatusCodeOriginData(item.DetailData);
           } else if (item.Metric == "chr") {
             setCdnChrData(item.DetailData);
-          } else if (item.Metric == "chrBandWith") {
-            setCdnChrBandWithData(item.DetailData);
+          } else if (item.Metric == "chrBandWidth") {
+            setCdnChrBandWidthData(item.DetailData);
           } else if (item.Metric == "bandwidth") {
-            setCdnBandWithData(item.DetailData);
+            setCdnBandWidthData(item.DetailData);
           } else if (item.Metric == "bandwidthOrigin") {
-            setCdnBandWithOriginData(item.DetailData);
+            setCdnBandWidthOriginData(item.DetailData);
           } else if (item.Metric == "downloadSpeed") {
             setCdnDownloadSpeedData(item.DetailData);
           } else if (item.Metric == "downloadSpeedOrigin") {
@@ -248,18 +248,36 @@ const CloudFront: React.FC = () => {
     getCloudfrontDistributionList();
   }, []);
 
-  const getCdnStatusCode = (num: number) => {
-    const status: number | null[] = [];
+  const getCdnStatusCode = () => {
+    const status: number[] = [];
     cdnStatusCodeData.map(function (element) {
-      let code = null;
       element.Value.map(function (obj) {
-        if (obj.StatusCode == num) {
-          code = obj.Count;
+        if (!status.includes(obj.StatusCode)) {
+          status.push(obj.StatusCode);
         }
       });
-      status.push(code);
     });
-    return status;
+    const series: { name: string; data: any[] }[] = [];
+    status.map(function (code) {
+      const data: any[] = [];
+      cdnStatusCodeData.map(function (element) {
+        let found = false;
+        element.Value.map(function (obj) {
+          if (code === obj.StatusCode) {
+            data.push(obj.Count);
+            found = true;
+          }
+        });
+        if (!found) {
+          data.push(null);
+        }
+      });
+      series.push({
+        name: code + "",
+        data: data,
+      });
+    });
+    return series;
   };
 
   const getCdnStatusCodeOrigin = () => {
@@ -373,9 +391,9 @@ const CloudFront: React.FC = () => {
     });
   };
 
-  useEffect(() => {}, [selectDistribution]);
+  // useEffect(() => {}, [selectDistribution]);
 
-  useEffect(() => {}, [selectDistributionName]);
+  // useEffect(() => {}, [selectDistributionName]);
 
   const selectNoneDistributions = async () => {
     setSelectDistributionName([]);
@@ -474,8 +492,10 @@ const CloudFront: React.FC = () => {
             <Chart
               options={{
                 xaxis: {
-                  type: "datetime",
                   categories: cdnRequestData.map((element) => element.Time),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
                   text: "Request",
@@ -497,10 +517,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[
@@ -520,6 +541,9 @@ const CloudFront: React.FC = () => {
                   categories: cdnRequestOriginData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
                   text: "Request Origin",
@@ -541,10 +565,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[
@@ -564,6 +589,16 @@ const CloudFront: React.FC = () => {
               options={{
                 xaxis: {
                   categories: cdnStatusCodeData.map((element) => element.Time),
+                  labels: {
+                    show: false,
+                  },
+                },
+                legend: {
+                  position: "top",
+                  horizontalAlign: "right",
+                  floating: true,
+                  offsetY: -25,
+                  offsetX: -5,
                 },
                 title: {
                   text: "Status Code",
@@ -585,26 +620,14 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
-              series={[
-                {
-                  name: "200",
-                  data: getCdnStatusCode(200),
-                },
-                {
-                  name: "400",
-                  data: getCdnStatusCode(400),
-                },
-                {
-                  name: "404",
-                  data: getCdnStatusCode(404),
-                },
-              ]}
+              series={getCdnStatusCode()}
               type="line"
               width="450"
             />
@@ -616,6 +639,16 @@ const CloudFront: React.FC = () => {
                   categories: cdnStatusCodeOriginData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
+                },
+                legend: {
+                  position: "top",
+                  horizontalAlign: "right",
+                  floating: true,
+                  offsetY: -25,
+                  offsetX: -5,
                 },
                 title: {
                   text: "Status Code Origin",
@@ -637,10 +670,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={getCdnStatusCodeOrigin()}
@@ -653,9 +687,12 @@ const CloudFront: React.FC = () => {
               options={{
                 xaxis: {
                   categories: cdnChrData.map((element) => element.Time),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
-                  text: "CHR",
+                  text: "Cache Hit Rate",
                 },
                 chart: {
                   height: 450,
@@ -674,10 +711,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[
@@ -696,100 +734,15 @@ const CloudFront: React.FC = () => {
             <Chart
               options={{
                 xaxis: {
-                  categories: cdnChrBandWithData.map((element) => element.Time),
-                },
-                title: {
-                  text: "CHR BandWith",
-                },
-                chart: {
-                  height: 450,
-                  type: "line",
-                  zoom: {
-                    enabled: false,
-                  },
-                  animations: {
-                    enabled: false,
-                  },
-                  toolbar: {
-                    show: false,
-                    tools: {
-                      download: false,
-                    },
-                  },
-                },
-                dataLabels: {
-                  enabled: true,
-                },
-                stroke: {
-                  width: 2,
-                },
-              }}
-              series={[
-                {
-                  name: "Value",
-                  data: cdnChrBandWithData.map(function (item) {
-                    return item.Value;
-                  }),
-                },
-              ]}
-              type="line"
-              width="450"
-            />
-          </div>
-          <div className="chart-item">
-            <Chart
-              options={{
-                xaxis: {
-                  categories: cdnBandWithData.map((element) => element.Time),
-                },
-                title: {
-                  text: "BandWith",
-                },
-                chart: {
-                  height: 450,
-                  type: "line",
-                  zoom: {
-                    enabled: false,
-                  },
-                  animations: {
-                    enabled: false,
-                  },
-                  toolbar: {
-                    show: false,
-                    tools: {
-                      download: false,
-                    },
-                  },
-                },
-                dataLabels: {
-                  enabled: true,
-                },
-                stroke: {
-                  width: 2,
-                },
-              }}
-              series={[
-                {
-                  name: "Value",
-                  data: cdnBandWithData.map(function (item) {
-                    return item.Value;
-                  }),
-                },
-              ]}
-              type="line"
-              width="450"
-            />
-          </div>
-          <div className="chart-item">
-            <Chart
-              options={{
-                xaxis: {
-                  categories: cdnBandWithOriginData.map(
+                  categories: cdnChrBandWidthData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
-                  text: "BandWith Origin",
+                  text: "Cache Hit Rate BandWidth",
                 },
                 chart: {
                   height: 450,
@@ -808,16 +761,115 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[
                 {
                   name: "Value",
-                  data: cdnBandWithOriginData.map(function (item) {
+                  data: cdnChrBandWidthData.map(function (item) {
+                    return item.Value;
+                  }),
+                },
+              ]}
+              type="line"
+              width="450"
+            />
+          </div>
+          <div className="chart-item">
+            <Chart
+              options={{
+                xaxis: {
+                  categories: cdnBandWidthData.map((element) => element.Time),
+                  labels: {
+                    show: false,
+                  },
+                },
+                title: {
+                  text: "BandWidth",
+                },
+                chart: {
+                  height: 450,
+                  type: "line",
+                  zoom: {
+                    enabled: false,
+                  },
+                  animations: {
+                    enabled: false,
+                  },
+                  toolbar: {
+                    show: false,
+                    tools: {
+                      download: false,
+                    },
+                  },
+                },
+                dataLabels: {
+                  enabled: false,
+                },
+                stroke: {
+                  width: 2,
+                  curve: "smooth",
+                },
+              }}
+              series={[
+                {
+                  name: "Value",
+                  data: cdnBandWidthData.map(function (item) {
+                    return item.Value;
+                  }),
+                },
+              ]}
+              type="line"
+              width="450"
+            />
+          </div>
+          <div className="chart-item">
+            <Chart
+              options={{
+                xaxis: {
+                  categories: cdnBandWidthOriginData.map(
+                    (element) => element.Time
+                  ),
+                  labels: {
+                    show: false,
+                  },
+                },
+                title: {
+                  text: "BandWidth Origin",
+                },
+                chart: {
+                  height: 450,
+                  type: "line",
+                  zoom: {
+                    enabled: false,
+                  },
+                  animations: {
+                    enabled: false,
+                  },
+                  toolbar: {
+                    show: false,
+                    tools: {
+                      download: false,
+                    },
+                  },
+                },
+                dataLabels: {
+                  enabled: false,
+                },
+                stroke: {
+                  width: 2,
+                  curve: "smooth",
+                },
+              }}
+              series={[
+                {
+                  name: "Value",
+                  data: cdnBandWidthOriginData.map(function (item) {
                     return item.Value;
                   }),
                 },
@@ -833,6 +885,9 @@ const CloudFront: React.FC = () => {
                   categories: cdnDownloadSpeedData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
                   text: "Download Speed",
@@ -854,10 +909,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[
@@ -879,6 +935,9 @@ const CloudFront: React.FC = () => {
                   categories: cdnDownloadSpeedOriginData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
                   text: "Download Speed Origin",
@@ -900,10 +959,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[
@@ -925,9 +985,19 @@ const CloudFront: React.FC = () => {
                   categories: cdnTopNUrlRequestsData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
+                },
+                legend: {
+                  position: "top",
+                  horizontalAlign: "right",
+                  floating: true,
+                  offsetY: -25,
+                  offsetX: -5,
                 },
                 title: {
-                  text: "Top NUrl Requests",
+                  text: "Top N Url Requests",
                 },
                 chart: {
                   height: 450,
@@ -946,10 +1016,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={getCdnTopNUrlRequestsData()}
@@ -962,9 +1033,12 @@ const CloudFront: React.FC = () => {
               options={{
                 xaxis: {
                   categories: cdnTopNUrlSizeData.map((element) => element.Time),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
-                  text: "Top NUrl Size",
+                  text: "Top N Url Size",
                 },
                 chart: {
                   height: 450,
@@ -983,10 +1057,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={getCdnTopNUrlSizeData()}
@@ -999,6 +1074,9 @@ const CloudFront: React.FC = () => {
                   categories: cdnDownstreamTrafficData.map(
                     (element) => element.Time
                   ),
+                  labels: {
+                    show: false,
+                  },
                 },
                 title: {
                   text: "Downstream Traffic",
@@ -1020,10 +1098,11 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 dataLabels: {
-                  enabled: true,
+                  enabled: false,
                 },
                 stroke: {
                   width: 2,
+                  curve: "smooth",
                 },
               }}
               series={[

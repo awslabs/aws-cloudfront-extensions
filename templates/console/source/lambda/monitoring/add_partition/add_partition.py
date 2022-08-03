@@ -84,8 +84,10 @@ def lambda_handler(event, context):
             )
             log.info(json.dumps(create_partition_response))
     except Exception as error:
-        print("cannot fetch table as " + str(error))
-        exit(1)
+        return {
+            'statusCode': 200,
+            'body': "cannot fetch table as " + str(error)
+        }
     return {
         'statusCode': 200,
         'body': create_partition_response

@@ -72,11 +72,11 @@ def update_domains(stack_name, domains):
     lambda_client = boto3.client('lambda')
     functions_list = lambda_client.list_functions()['Functions']
     for fcn in functions_list:
-        if 'Runtime' in fcn and 'FunctionName' in fcn and fcn['Runtime'] == 'python3.9' and fcn['FunctionName'].startswith(stack_name + '-metricsCollect'):
+        if 'FunctionName' in fcn and fcn['FunctionName'].startswith(stack_name + '-metricsCollect'):
             conf = lambda_client.get_function_configuration(
                 FunctionName=fcn['FunctionName'],
             )
-            if(domain_list == '0'):
+            if domain_list == '0':
                 return conf['Environment']['Variables']['DOMAIN_LIST']
             
             conf['Environment']['Variables']['DOMAIN_LIST'] = domain_list
