@@ -531,7 +531,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -581,7 +581,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -629,7 +629,7 @@ const CloudFront: React.FC = () => {
               }}
               series={getCdnStatusCode()}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -679,7 +679,7 @@ const CloudFront: React.FC = () => {
               }}
               series={getCdnStatusCodeOrigin()}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -727,7 +727,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -777,7 +777,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -825,7 +825,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -875,7 +875,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -925,7 +925,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -975,7 +975,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -1025,7 +1025,7 @@ const CloudFront: React.FC = () => {
               }}
               series={getCdnTopNUrlRequestsData()}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
           <div className="chart-item">
@@ -1114,7 +1114,7 @@ const CloudFront: React.FC = () => {
                 },
               ]}
               type="line"
-              width="450"
+              width="90%"
             />
           </div>
         </div>
