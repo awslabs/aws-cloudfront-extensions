@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { aws_s3 as s3 } from "aws-cdk-lib";
+import { Stack } from "aws-cdk-lib";
 import { aws_iam as iam } from "aws-cdk-lib";
 import { aws_stepfunctions as _step } from "aws-cdk-lib";
 import { aws_stepfunctions_tasks as _task } from "aws-cdk-lib";
@@ -10,19 +10,30 @@ import { aws_dynamodb as dynamodb } from "aws-cdk-lib";
 import { aws_events as events } from "aws-cdk-lib";
 import { aws_events_targets as targets } from "aws-cdk-lib";
 import { aws_apigateway as _apigw } from "aws-cdk-lib";
-import { aws_appsync as _appsync } from "aws-cdk-lib";
 import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
 import { CfnParameter } from "aws-cdk-lib";
 import { Duration } from "aws-cdk-lib";
-import { StateMachine } from "aws-cdk-lib/aws-stepfunctions";
-import { AppsyncFunction } from "@aws-cdk/aws-appsync-alpha";
+
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
-import { AuthorizationType, EndpointType } from "aws-cdk-lib/aws-apigateway";
+import { EndpointType } from "aws-cdk-lib/aws-apigateway";
+import {Construct} from "constructs";
 
-export class StepFunctionRpTsStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: CommonProps) {
-    super(scope, id, props);
+export interface StepFunctionProps extends CommonProps {
+    configVersionDDBTableName: string;
+}
+
+export class StepFunctionRpTsStack extends Stack {
+
+    constructor(scope: Construct, id: string, props?: StepFunctionProps) {
+        super(scope, id, props);
+        new StepFunctionRpTsConstruct(scope, id, props);
+    }
+}
+
+export class StepFunctionRpTsConstruct extends Construct {
+  constructor(scope: Construct, id: string, props?: StepFunctionProps) {
+    super(scope, id);
 
     //check appsync is existed in props
     if (props == null) {
@@ -83,8 +94,8 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     );
 
     // create email subscription
-    const email_address = new CfnParameter(this, "email-subs", {
-      description: "email address to be notified",
+    const email_address = new CfnParameter(scope, "EmailAddress", {
+      description: "Email address to receive SSL certificates notification",
       type: "String",
     });
     sns_topic.addSubscription(
@@ -240,10 +251,11 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSNSFullAccess"),
       ],
     });
+    const configVersionDDBTableName = props.configVersionDDBTableName;
 
     // lambda function to handle acm import operation
     const fn_acm_import_cb = new _lambda.DockerImageFunction(
-      this,
+      scope,
       "acm_import_callback",
       {
         code: _lambda.DockerImageCode.fromImageAsset(
@@ -255,9 +267,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
           JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
-          CONFIG_VERSION_DDB_TABLE_NAME: cdk.Fn.importValue(
-            "configVersionDDBTableName"
-          ),
+          CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
         },
         timeout: Duration.seconds(900),
         role: _fn_acm_import_cb_role,
@@ -266,7 +276,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     );
 
     // lambda function to handle acm create operation
-    const fn_acm_cb = new _lambda.DockerImageFunction(this, "acm_callback", {
+    const fn_acm_cb = new _lambda.DockerImageFunction(scope, "acm_callback", {
       code: _lambda.DockerImageCode.fromImageAsset(
         path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb")
       ),
@@ -276,9 +286,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
         JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
         JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
         TASK_TYPE: "placeholder",
-        CONFIG_VERSION_DDB_TABLE_NAME: cdk.Fn.importValue(
-          "configVersionDDBTableName"
-        ),
+        CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
       },
       timeout: Duration.seconds(900),
       role: _fn_acm_cb_role,
@@ -287,7 +295,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
 
     // lambda function to create cloudfront distribution after certification been verified and issued
     const fn_acm_cb_handler = new _lambda.DockerImageFunction(
-      this,
+      scope,
       "acm_callback_handler",
       {
         code: _lambda.DockerImageCode.fromImageAsset(
@@ -301,9 +309,7 @@ export class StepFunctionRpTsStack extends cdk.Stack {
           TASK_TYPE: "placeholder",
           GRAPHQL_API_URL: props.appsyncApi.graphqlUrl,
           GRAPHQL_API_KEY: props.appsyncApi.apiKey || "",
-          CONFIG_VERSION_DDB_TABLE_NAME: cdk.Fn.importValue(
-            "configVersionDDBTableName"
-          ),
+          CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
         },
         timeout: Duration.seconds(900),
         role: _fn_acm_cb_handler_role,
@@ -626,6 +632,18 @@ export class StepFunctionRpTsStack extends cdk.Stack {
       apiKeyRequired: true,
     });
 
+    const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
+    list_ssl_jobs.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const get_ssl_job = ssl_api.addResource("get_ssl_job");
+    get_ssl_job.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, "ACM status check", {
       schedule: events.Schedule.expression("cron(*/5 * * * ? *)"),
@@ -711,6 +729,34 @@ export class StepFunctionRpTsStack extends cdk.Stack {
     appsyncFunc.createResolver({
       typeName: "Query",
       fieldName: "listCertifications",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listCertificationsWithJobId",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listCloudFrontArnWithJobId",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listSSLJobs",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "getJobInfo",
       requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
     });

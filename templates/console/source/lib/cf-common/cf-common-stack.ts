@@ -1,73 +1,72 @@
-import {Aws, aws_cognito as cognito, Stack} from "aws-cdk-lib";
+import {aws_cognito as cognito, Stack} from "aws-cdk-lib";
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
 import * as cdk from 'aws-cdk-lib';
+import {Construct} from "constructs";
 
 //This stack is created to holding shared resources between cloudfront submodules like appsync and cognito user pool
 export interface CommonProps extends cdk.StackProps {
-    appsyncApi: appsync.GraphqlApi;
-    cognitoUserPool: cognito.UserPool
-    cognitoClient: cognito.UserPoolClient
+    appsyncApi?: appsync.GraphqlApi;
+
+}
+
+export interface CognitoProps extends CommonProps {
+    sslForSaasOnly?: boolean;
+    cognitoUserPool?: cognito.UserPool;
+    cognitoClient?: cognito.UserPoolClient;
 }
 
 export class CommonStack extends Stack {
+    constructor(scope: Construct, id: string, props: CognitoProps) {
+        super(scope, id);
+        new CommonConstruct(this, id, props);
+    }
+}
+
+export class CommonConstruct extends Construct {
     public readonly appsyncApi: appsync.GraphqlApi;
-    public readonly cognitoUserPool: cognito.UserPool;
-    public readonly cognitoUserPoolClient: cognito.UserPoolClient;
 
-    constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
-        super(scope, id, props);
-        // construct a cognito for auth
-        this.cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
-            userPoolName: "CloudFrontExtCognito_UserPool",
-            selfSignUpEnabled: true,
-            autoVerify: {
-                email:true,
+    constructor(scope: Stack, id: string, props: CognitoProps) {
+        super(scope, id);
+        let config: appsync.AuthorizationConfig = {
+            defaultAuthorization: {
+                authorizationType: appsync.AuthorizationType.USER_POOL,
+                userPoolConfig: {
+                    userPool: props.cognitoUserPool!,
+                },
             },
-            signInAliases: {
-                username: true,
-                email:true,
-            },
-            standardAttributes: {
-                email: {
-                    required: true,
-                    mutable: false,
+            additionalAuthorizationModes: [
+                {
+                    authorizationType: appsync.AuthorizationType.API_KEY,
                 }
-            }
-        });
+            ],
+        }
 
-        this.cognitoUserPoolClient = this.cognitoUserPool.addClient('CloudFrontExtn_WebPortal');
+        if (props.sslForSaasOnly) {
+            config = {
+                defaultAuthorization: {
+                    authorizationType: appsync.AuthorizationType.API_KEY,
+                },
+            }
+        }
 
         // Creates the AppSync API
-        this.appsyncApi = new appsync.GraphqlApi(this, 'appsyncApi', {
+        this.appsyncApi = new appsync.GraphqlApi(scope, 'appsyncApi', {
             name: 'cloudfront-extension-appsync-api',
             schema: appsync.Schema.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
-            authorizationConfig: {
-                defaultAuthorization: {
-                    authorizationType: appsync.AuthorizationType.USER_POOL,
-                    userPoolConfig: {
-                        userPool: this.cognitoUserPool,
-                    },
-                },
-                additionalAuthorizationModes: [
-                    {
-                        authorizationType: appsync.AuthorizationType.API_KEY,
-                    }
-                ],
-            },
+            authorizationConfig: config,
             xrayEnabled: true,
         });
 
 
-
         // Prints out the AppSync GraphQL endpoint to the terminal
         new cdk.CfnOutput(this, "GraphQLAPIURL", {
-          value: this.appsyncApi.graphqlUrl
+            value: this.appsyncApi.graphqlUrl
         });
 
         // Prints out the AppSync GraphQL API key to the terminal
         new cdk.CfnOutput(this, "GraphQLAPIKey", {
-          value: this.appsyncApi.apiKey || ''
+            value: this.appsyncApi.apiKey || ''
         });
     }
 }

@@ -210,3 +210,4 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/osx,node,linux,windows
 
 !react-app-env.d.ts
+/bin/

@@ -73,6 +73,38 @@ def query_certificate_status(task_token):
                                 resp['Certificate']['Status'])
     return cert_status
 
+# query job_id specific taskToken
+def query_certificate_job_id(task_token):
+    """_summary_
+
+    Args:
+        task_token (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    resp = acm.list_certificates()
+    logger.info('certificates summary: %s', json.dumps(resp))
+    # True if all certificates with specified tag(token_id) are Issued
+    cert_status = 'notIssued'
+
+    # status union
+    status_union = set()
+    # iterate all certificates
+    for certificate in resp['CertificateSummaryList']:
+        # select certificates with tag 'token_id'
+        tags = acm.list_tags_for_certificate(
+            CertificateArn=certificate['CertificateArn']
+        )
+        logger.info('certificate tags: %s', json.dumps(tags))
+        # iterate all tags and check if tag 'token_id' is present
+        for tag in tags['Tags']:
+            if tag['Key'] == 'task_token' and tag['Value'] == task_token:
+                for inside_tag in tags['Tags']:
+                    if inside_tag['Key'] =='job_token':
+                        return inside_tag['Value']
+
+
 
 def _set_task_success(token, output):
     sf_client.send_task_success(
@@ -140,9 +172,6 @@ def fetch_acm_status_from_waiting_list(table_name, task_type, task_status):
         TableName=table_name,
         FilterExpression="taskStatus = :ts",
         ExpressionAttributeValues={
-            # ':t': {
-            #     'S': task_type
-            # },
             ':ts': {
                 'S': task_status
             }
@@ -181,8 +210,9 @@ def query_update_metadata(acm_dcv_dict, item, table_name):
                 _update_acm_metadata_task_status(table_name, task_token, domainName, 'CERT_ISSUED')
             _set_task_success(item['taskToken']['S'], {'status': 'SUCCEEDED'})
             currentNum = jobStatusDict.get(task_token,0)
-            jobStatusDict.setdefault(task_token, currentNum);
-            jobStatusDict.update({task_token: currentNum+1})
+            job_token = query_certificate_job_id(task_token[:128])
+            jobStatusDict.setdefault(job_token, currentNum);
+            jobStatusDict.update({job_token: currentNum+1})
             # update all certs in acm_dcv_dict, validate transient status are:
             # TASK_TOKEN_TAGGED | CERT_ISSUED | CERT_FAILED
         elif resp == 'certNotIssued':
@@ -202,9 +232,8 @@ def query_update_metadata(acm_dcv_dict, item, table_name):
         resp = get_job_info(JOB_INFO_TABLE_NAME,job_token)
         if 'Items' in resp:
             ddb_record = resp['Items'][0]
-            cert_completed_number = ddb_record['cert_completed_number']
-            new_number = int(cert_completed_number) + num
-            update_job_cert_completed_number(JOB_INFO_TABLE_NAME,job_token,new_number)
+            cert_total_number = ddb_record['cert_total_number']
+            update_job_cert_completed_number(JOB_INFO_TABLE_NAME,job_token,cert_total_number)
         else:
             logger.error(f"failed to get the job info of job_id:{job_token} ")
 

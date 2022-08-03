@@ -1,0 +1,47 @@
+INHERIT: ./mkdocs.base.yml
+docs_dir: en
+site_dir: ./site/en
+theme:
+  language: en
+nav:
+
+  - Welcome: index.md
+  - Cost: cost.md
+  - Architecture overview: architecture.md
+  - Security: security.md
+  - Design considerations: regions.md
+  - Deploy the solution: deployment.md
+  - Monitoring: 
+      - Overview: monitoring/overview.md
+      - Non-real time monitoring with Amazon S3 Standard Logs: monitoring/non-real-time-monitoring.md
+      - Real time monitoring with Amazon Kinesis: monitoring/real-time-monitoring.md
+  - Distribution management: 
+      - Snapshot: 
+          - Overview: distribution-management/snapshot/overview.md
+          - Publish a snapshot: distribution-management/snapshot/publish-snapshot.md
+          - Apply a snapshot to other CloudFront distributions: distribution-management/snapshot/apply-snapshot.md
+          - Compare two snapshots: distribution-management/snapshot/compare-snapshot.md
+          - Delete a snapshot: distribution-management/snapshot/delete-snapshot.md
+      - SSL certificates: 
+          - Overview: distribution-management/ssl-certificates/overview.md
+          - Create new certificates: distribution-management/ssl-certificates/create-new-certificates.md
+          - Import existing certificates: distribution-management/ssl-certificates/import-existing-certificates.md
+          - List SSL certificates: distribution-management/ssl-certificates/list-certificates.md
+          - DNS validation process with your DNS Provider: distribution-management/ssl-certificates/dns-validation-process.md
+          - Adding CloudFront record for CNAME with your DNS Provider: distribution-management/ssl-certificates/add-record-for-cname.md 
+          - Clean up resources: distribution-management/ssl-certificates/clean-up-resources.md
+  - Extensions repository: 
+      - Overview: extension-repository/overview.md
+      - True Client IP: extension-repository/true-client-ip.md
+      - Pre-warming: extension-repository/pre-warming.md
+      - Redirect by Country: extension-repository/redirect-by-country.md
+      - More Extensions in Serverless Application Repository (SAR): extension-repository/more-extension-in-sar.md 
+  - API reference guide: 
+      - Monitoring: api-reference-guide/monitoring.md
+      - Extension repository: api-reference-guide/extension-repository.md
+  - Additional resources: additional-resources.md
+  - Uninstall the solution: uninstall.md
+  - Source code: source.md
+  - Revisions: revisions.md
+  - Notices: notices.md
+

@@ -1,3 +1,4 @@
+import copy
 import logging
 import uuid
 import boto3
@@ -7,7 +8,9 @@ import subprocess
 import re
 import random
 import string
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
+from datetime import datetime
+
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -181,7 +184,7 @@ def get_domain_list_from_cert():
         logger.error('error validating certificate: %s', e)
     return domainList
 
-def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn):
+def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn, jobToken):
     """_summary_
 
     Args:
@@ -219,10 +222,31 @@ def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken
                 },
                 'certArn': {
                     'S': certArn
-                }
+                },
+                'jobToken': {
+                    'S': jobToken
+                },
             }
         )
     logger.info('Domain metadata creation response: %s', resp)
+
+def _tag_job_certificate(certArn, jobToken):
+    """[summary]
+
+    Args:
+        certificate ([type]): [description]
+        jobToken ([type]): [description]
+    """
+    logger.info('Tagging certificate %s with task_token %s', certArn, jobToken)
+    acm.add_tags_to_certificate(
+        CertificateArn=certArn,
+        Tags=[
+            {
+                'Key': 'job_token',
+                'Value': jobToken
+            }
+        ]
+    )
 
 def _tag_certificate(certArn, taskToken):
     """[summary]
@@ -302,50 +326,99 @@ def lambda_handler(event, context):
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
     task_token = event['task_token']
-    domain_name_list = event['input']['cnameList']
+    job_token = event['input']['aws_request_id']
+    domain_name_list = event['input']['pemList']
+    auto_creation = event['input']['auto_creation']
 
     task_token = check_generate_task_token(task_token)
 
-    validate_source_cloudfront_dist(domain_name_list)
+    certTotalNumber = len(event['input']['pemList'])
+    cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
+    job_type = event['input']['acm_op']
+    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    certCreateStageStatus = 'INPROGRESS'
+    certValidationStageStatus = 'NOTSTART'
+    distStageStatus = 'NOTSTART'
 
-    # iterate pemList array from event
-    for pem_index, pem_value in enumerate(event['input']['pemList']):
-        cert_UUid = str(uuid.uuid4())
-        certificate['CertPem'] = str.encode(pem_value['CertPem'])
-        certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
-        certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
+    body_without_pem = copy.deepcopy(event['input'])
+    if 'pemList' in body_without_pem:
+        del body_without_pem['pemList']
+    create_job_info(JOB_INFO_TABLE_NAME,
+                    job_token,
+                    json.dumps(body_without_pem,indent=4),
+                    certTotalNumber,
+                    cloudfrontTotalNumber,
+                    0,
+                    0,
+                    job_type,
+                    creationDate,
+                    certCreateStageStatus,
+                    certValidationStageStatus,
+                    distStageStatus)
 
-        convert_string_to_file(pem_value['CertPem'], PEM_FILE)
-        _domainList = get_domain_list_from_cert()
-        certificate['SubjectAlternativeNames'] = _domainList
-        certificate['DomainName'] = _domainList[0] if _domainList else ''
+    try:
+        validate_source_cloudfront_dist(domain_name_list)
 
-        if event['input']['enable_cname_check'] == 'true':
-            check_domain_name(event, pem_index)
-        else:
-            logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(event['input']['cnameList'][pem_index]['domainName']))
+        # iterate pemList array from event
+        for pem_index, pem_value in enumerate(event['input']['pemList']):
+            cert_UUid = str(uuid.uuid4())
+            certificate['CertPem'] = str.encode(pem_value['CertPem'])
+            certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
+            certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
 
-        san_list_dynamo_db = [dict(zip(['S'], [x])) for x in _domainList]
-        logger.info('index %s: sanList for DynamoDB: %s', pem_index, san_list_dynamo_db)
+            convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+            _domainList = get_domain_list_from_cert()
+            certificate['SubjectAlternativeNames'] = _domainList
+            certificate['DomainName'] = _domainList[0] if _domainList else ''
 
-        resp = import_certificate(certificate)
+            # if event['input']['enable_cname_check'] == 'true':
+            #     check_domain_name(event, pem_index)
 
-        _create_acm_metadata(callback_table,
-                             certificate['DomainName'],
-                             san_list_dynamo_db,
-                             cert_UUid,
-                             task_token,
-                             task_type,
-                             'TASK_TOKEN_TAGGED',
-                             resp['CertificateArn'])
+            san_list_dynamo_db = [dict(zip(['S'], [x])) for x in _domainList]
+            logger.info('index %s: sanList for DynamoDB: %s', pem_index, san_list_dynamo_db)
 
-        # tag acm certificate with task_token, slice task token to fit length of 128
-        _tag_certificate(resp['CertificateArn'], task_token[:128])
+            resp = import_certificate(certificate)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps('step to acm import callback complete')
-    }
+            _create_acm_metadata(callback_table,
+                                 certificate['DomainName'],
+                                 san_list_dynamo_db,
+                                 cert_UUid,
+                                 task_token,
+                                 task_type,
+                                 'TASK_TOKEN_TAGGED',
+                                 resp['CertificateArn'],
+                                 job_token)
+
+            # tag acm certificate with task_token, slice task token to fit length of 128
+            _tag_certificate(resp['CertificateArn'], task_token[:128])
+
+            _tag_job_certificate(resp['CertificateArn'], job_token)
+
+        update_job_field(JOB_INFO_TABLE_NAME,
+                             job_token,
+                             'certCreateStageStatus',
+                             'SUCCESS')
+
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certValidationStageStatus',
+                         'INPROGRESS')
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps('step to acm import callback complete')
+        }
+    except Exception as e:
+        logger.error("Exception occurred, just update the ddb table")
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certCreateStageStatus',
+                         'FAILED')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'promptInfo',
+                         str(e))
+        raise e
 
 
 def check_domain_name(event, pem_index):

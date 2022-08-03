@@ -16,7 +16,7 @@ import * as cdk from "aws-cdk-lib";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import {CommonProps} from "../cf-common/cf-common-stack";
 
-export interface PortalProps {
+export interface PortalProps extends CommonProps{
  readonly aws_api_key?: string;
  readonly aws_project_region?: string;
  readonly aws_appsync_graphqlEndpoint?: string;
@@ -30,27 +30,17 @@ export interface PortalProps {
 
 export class WebPortalStack extends Stack {
 
-      constructor(scope: cdk.App, id: string, props?: CommonProps) {
+      constructor(scope: cdk.App, id: string, props: PortalProps) {
           super(scope, id, props);
 
-          new PortalStack(this, "WebConsole", {
-              aws_api_key: props?.appsyncApi.apiKey,
-              aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
-              aws_appsync_graphqlEndpoint: props?.appsyncApi.graphqlUrl,
-              aws_appsync_region: this.region,
-              aws_project_region: this.region,
-              aws_user_pools_id: props?.cognitoUserPool.userPoolId,
-              aws_user_pools_web_client_id: props?.cognitoClient.userPoolClientId,
-              aws_cognito_region: this.region,
-              build_time: new Date().getTime() + "",
-          });
-      };
+          new PortalConstruct(this, "WebConsole", props);
+      }
 }
 
 /**
  * Stack to provision Portal assets and CloudFront Distribution
  */
-export class PortalStack extends Construct {
+export class PortalConstruct extends Construct {
 
     constructor(scope: Construct, id: string, props: PortalProps) {
         super(scope, id);

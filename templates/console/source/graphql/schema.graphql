@@ -111,9 +111,25 @@ type pem {
 }
 
 type certOutput {
-    status: String!
-    createdAt: AWSDateTime!
-    updatedAt: AWSDateTime!
+    body: String!
+    statusCode: String!
+}
+
+type SSLJob {
+    jobId: String!
+    cert_completed_number: Int
+    cert_total_number: Int
+    cloudfront_distribution_created_number: Int
+    cloudfront_distribution_total_number: Int
+    job_input: String
+    certCreateStageStatus: String
+    certValidationStageStatus: String
+    creationDate: String
+    distStageStatus: String
+    jobType: String
+    certList: [String]
+    distList: [String]
+    promptInfo: String
 }
 
 
@@ -132,7 +148,8 @@ input pemInput {
     CertPem: String!
     PrivateKeyPem: String!
     ChainPem: String!
-    originsItemsDomainName: String!
+    originsItemsDomainName: String
+    existing_cf_info: existingCFInfo!
 }
 
 input certInput {
@@ -201,6 +218,14 @@ type Query {
 
     # list certifications for
     listCertifications: [certification_info]
+
+    listCertificationsWithJobId(jobId: String): [String]
+
+    listCloudFrontArnWithJobId(jobId: String): [String]
+
+    listSSLJobs: [SSLJob]
+
+    getJobInfo(jobId: String): SSLJob
 }
 
 type Mutation {
@@ -222,7 +247,10 @@ type Mutation {
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
 
+<<<<<<< HEAD
     # Update monitoring domains
     updateDomains(stack_name: String!, domains: [String]): String
+=======
+>>>>>>> refs/heads/mainline
 }
 

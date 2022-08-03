@@ -8,7 +8,7 @@ FROM public.ecr.aws/lambda/python:3.8
 # RUN cd openssl-1.1.1k && make && make install
 RUN yum update -y && yum install -y openssl
 
-COPY *.py ${LAMBDA_TASK_ROOT}
+COPY *.py ${LAMBDA_TASK_ROOT}/
 #COPY ../common_libs/*.py ${LAMBDA_TASK_ROOT}
 
 # COPY requirements.txt  .

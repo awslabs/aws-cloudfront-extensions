@@ -40,36 +40,9 @@ export class CloudFrontMonitoringStack extends Stack {
       default: 120,
     })
 
-    const deployStage = new CfnParameter(this, 'deployStage', {
-      description: 'stageName of the deployment, this allow multiple deployment into one account',
-      type: 'String',
-      default: 'prod',
-      allowedValues: ['dev', 'beta', 'gamma', 'preprod', 'prod']
-    })
-
-    cdk.Tags.of(this).add('stage', deployStage.valueAsString, {
-      includeResourceTypes: [
-        'AWS::Lambda::Function',
-        'AWS::S3::Bucket',
-        'AWS::DynamoDB::Table',
-        'AWS::ECS::Cluster',
-        'AWS::ECS::TaskDefinition',
-        'AWS::ECS::TaskSet',
-        'AWS::ApiGatewayV2::Api',
-        'AWS::ApiGatewayV2::Integration',
-        'AWS::ApiGatewayV2::Stage',
-        'AWS::ApiGateway::RestApi',
-        'AWS::ApiGateway::Method',
-        'AWS::SNS::Topic',
-        'AWS::IAM::Role',
-        'AWS::IAM::Policy'
-      ],
-    });
-
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
-      serverAccessLogsPrefix: 'accessLogBucketAccessLog' + '-' + deployStage.valueAsString,
     });
 
     const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
@@ -77,7 +50,6 @@ export class CloudFrontMonitoringStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       serverAccessLogsBucket: accessLogBucket,
-      serverAccessLogsPrefix: 'dataBucketAccessLog' + '-' + deployStage.valueAsString,
       lifecycleRules: [
         {
           enabled: true,
@@ -982,7 +954,7 @@ export class CloudFrontMonitoringStack extends Stack {
 
     //Policy to allow client to call this restful api
     const api_client_policy = new ManagedPolicy(this, "CFMetricAPIClientPolicy", {
-      description: "policy for client to call stage:" + deployStage.valueAsString,
+      description: "policy for client to call restful api",
       statements: [
         new iam.PolicyStatement({
           resources: [rest_api.arnForExecuteApi()],

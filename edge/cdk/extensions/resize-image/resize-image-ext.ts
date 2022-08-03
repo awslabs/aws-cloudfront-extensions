@@ -62,7 +62,7 @@ export class ResizeImageStack extends cdk.Stack {
     });
 
     const s3BucketName = new cdk.CfnParameter(this, 'S3BucketName', {
-      description: 'CloudFront stage on which the function is deployed',
+      description: 'S3 bucket name to store the images',
       type: 'String',
     }); 
 

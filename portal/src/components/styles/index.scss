@@ -472,8 +472,11 @@
       &.inprogress {
         background-color: #0073bb;
       }
-      &.notstarted {
+      &.notstart {
         background-color: #7f7f7f;
+      }
+      &.noneed {
+        background-color: #888888;
       }
       &.failed {
         background-color: #d13212;

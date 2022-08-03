@@ -1,29 +1,32 @@
 import logging
+from time import sleep
 import uuid
 import boto3
 import os
 import json
-import subprocess
-import urllib
 import re
+import time
+import subprocess
+import copy
+from datetime import datetime
+from cerberus import Validator
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
+
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
-
-app = APIGatewayRestResolver()
-
-# certificate need to create in region us-east-1 for cloudfront to use
-acm = boto3.client('acm', region_name='us-east-1')
-step_function = boto3.client('stepfunctions')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
+
+tracer = Tracer(service="ssl_for_saas_appsync_resolver")
+logger = Logger(service="ssl_for_saas_appsync_resolver")
+acm = boto3.client('acm', region_name='us-east-1')
+stepFunctionArn = os.environ.get('STEP_FUNCTION_ARN')
 JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
 JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
-logger = logging.getLogger('boto3')
-logger.setLevel(logging.INFO)
+app = APIGatewayRestResolver()
 
-stepFunctionArn = os.environ.get('STEP_FUNCTION_ARN')
+step_function = boto3.client('stepfunctions')
 
 # add execution path
 os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
@@ -41,6 +44,17 @@ FILE_FOLDER = '/tmp'
 PEM_FILE = FILE_FOLDER + "/cert.pem"
 _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
 
+raw_context = {}
+
+
+def check_generate_task_token(task_token):
+    if not task_token:
+        logger.error("Task token not found in event")
+        # generate a random string as task_token
+        task_token = ''.join(random.choices(string.ascii_lowercase, k=128))
+    else:
+        logger.info("Task token {}".format(task_token))
+    return task_token
 
 def _tag_certificate(certArn, taskToken):
     """[summary]
@@ -127,7 +141,7 @@ def isValidCertificate(certificate):
     """[summary]
     Args:
         certificate ([type]): [description]
-    
+
     Returns:
         [type]: [description]
     """
@@ -145,7 +159,7 @@ def convert_string_to_file(string, file_name):
     Args:
         string ([type]): [description]
         file_name ([type]): [description]
-    
+
     Returns:
         [type]: [description]
     """
@@ -157,7 +171,7 @@ def convert_string_to_file(string, file_name):
 # get domain name from certificate
 def get_domain_list_from_cert():
     """[summary]
-    Validate certificate created by certbot with command below:
+    Validate cerfiticate created by certbot with command below:
     Args:
         certificate ([type]): refer to https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/CNAMEs.html#alternate-domain-names-requirements for certificate requirement
 
@@ -174,6 +188,7 @@ def get_domain_list_from_cert():
         resp = resp.split('\n')
         resp = [x for x in resp if 'DNS:' in x]
         resp = resp[0].split(',')
+        # resp = ['DNS:*.ssl2.keyi.solutions.aws.a2z.org.cn, DNS:ssl3.keyi.solutions.aws.a2z.org.cn']
 
         # iterate all DNS names
         for x in resp:
@@ -196,7 +211,7 @@ def import_certificate(certificate):
     """[summary]
     Import cerfiticate created by certbot with command below:
     sudo certbot certonly --manual --preferred-challenges dns -d "*.apex.keyi.solutions.aws.a2z.org.cn"
-    
+
     And upload to ACM with commands below:
     sudo aws acm import-certificate --certificate fileb:///etc/letsencrypt/live/ssl1.keyi.solutions.aws.a2z.org.cn/cert.pem --certificate-chain fileb:///etc/letsencrypt/live/ssl1.keyi.solutions.aws.a2z.org.cn/chain.pem --private-key fileb:///etc/letsencrypt/live/ssl1.keyi.solutions.aws.a2z.org.cn/privkey.pem --region us-east-1
 
@@ -234,7 +249,7 @@ def invoke_step_function(arn, input):
     """[summary]
     Args:
         input ([type]): [description]
-    
+
     Returns:
         [type]: [description]
     """
@@ -258,7 +273,7 @@ def is_subset(sanList, wildcardSanDict):
     Args:
         sanList ([type]): [description]
         existingSanList ([type]): [description]
-    
+
     Returns:
         [type]: [description]
     """
@@ -282,7 +297,7 @@ def is_wildcard(sanList):
     """[summary]
     Args:
         sanList ([type]): [description]
-    
+
     Returns:
         [type]: [description]
     """
@@ -296,8 +311,268 @@ def is_wildcard(sanList):
     return None
 
 
+# validate the input
+def validate_input_parameters(input):
+    string_type = {'type': 'string'}
+    existing_cf_info_type = {
+        'distribution_id': {'type': 'string', 'required': True},
+        'config_version_id': {'type': 'string', 'required': False}
+    }
+    cnameInfo_type = {
+        'type': 'dict',
+        'schema': {
+            'domainName': { 'type': 'string', 'required': True },
+            'sanList': { 'type': 'list', 'schema': string_type, 'required': True },
+            'existing_cf_info': { 'type': 'dict', 'schema': existing_cf_info_type, 'required': True}
+        }
+    }
+    pemInfo = {
+        'type': 'dict',
+        'schema': {
+            'CertPem':{'type': 'string', 'required': True},
+            'PrivateKeyPem': {'type': 'string', 'required': True},
+            'ChainPem': {'type': 'string', 'required': True},
+            'existing_cf_info': { 'type': 'dict', 'schema': existing_cf_info_type}
+        }
+    }
+    schema = {
+        "acm_op" : {"type": "string", 'required': True},
+        "auto_creation": {"type": "string", 'required': True},
+        'cnameList': {'type': 'list', 'schema': cnameInfo_type, 'required': False},
+        'pemList': {'type': 'list', 'schema': pemInfo, 'required': False}
+    }
+    v = Validator(schema)
+    v.allow_unknown = True
+    if not v.validate(input):
+        # raise Exception('Invalid input with error: ' + str(v.errors))
+        raise Exception('Invalid input parameters: ' + json.dumps(v.errors))
+
+# {
+#   "acm_op": "create", # "import"
+#   "dist_aggregate": "false",
+#   "auto_creation": "true",
+#   "cnameList": [
+#     {
+#         "domainName": "cdn2.risetron.cn",
+#         "sanList": [
+#             "cdn3.risetron.cn"
+#         ],
+#         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#     },
+#     {
+#         "domainName": "cdn3.risetron.cn",
+#         "sanList": [
+#             "cdn4.risetron.cn"
+#         ],
+#         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
+#     }
+#   ],
+#   "pemList": [
+#     {
+#         "CertPem": "xx",
+#         "PrivateKeyPem": "xx",
+#         "ChainPem": "xx"
+#     },
+#     {
+#         "CertPem": "xx",
+#         "PrivateKeyPem": "xx",
+#         "ChainPem": "xx"
+#     }
+#   ]
+#
+
+# @app.resolver(type_name="Mutation", field_name="certCreateOrImport")
+@app.post("/ssl_for_saas")
+def cert_create_or_import():
+    global raw_context
+
+    # will use request id as job_id
+    logger.info(raw_context.aws_request_id)
+    try:
+
+        # Get the parameters from the event
+        body: dict = app.current_event.json_body
+
+        # validate the input
+        validate_input_parameters(body)
+
+        acm_op = body['acm_op']
+        if 'dist_aggregate' in body:
+            dist_aggregate = body['dist_aggregate']
+        else:
+            dist_aggregate = 'false'
+
+        auto_creation = body['auto_creation']
+        domain_name_list = body['cnameList']
+
+        certTotalNumber = len(body['cnameList'])
+        pemTotalNumber = len(body['pemList'])
+        cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
+        job_type = body['acm_op']
+        creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        certCreateStageStatus = 'INPROGRESS'
+        certValidationStageStatus = 'NOTSTART'
+        distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
+
+        # remove the pemList from input body since PEM content is too large and not suitable for save in DDB
+        body_without_pem = copy.deepcopy(body)
+        del body_without_pem['pemList']
+
+        if auto_creation == "false":
+            create_job_info(JOB_INFO_TABLE_NAME,
+                            raw_context.aws_request_id,
+                            json.dumps(body_without_pem,indent=4),
+                            certTotalNumber if acm_op == "create" else pemTotalNumber,
+                            cloudfrontTotalNumber,
+                            0,
+                            0,
+                            job_type,
+                            creationDate,
+                            certCreateStageStatus,
+                            certValidationStageStatus,
+                            distStageStatus)
+            if acm_op == "create":
+                # aggregate certificate if dist_aggregate is true
+                # if dist_aggregate == "true":
+                #     aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context)
+                # # otherwise, create certificate for each cname
+                # else:
+                for cname_index, cname_value in enumerate(domain_name_list):
+                    certificate['DomainName'] = cname_value['domainName']
+                    certificate['SubjectAlternativeNames'] = cname_value['sanList']
+
+                    resp = request_certificate(certificate)
+                    logger.info('Certificate creation response: %s', resp)
+
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certCreateStageStatus',
+                                 'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certValidationStageStatus',
+                                 'INPROGRESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'cert_completed_number',
+                                 certTotalNumber)
+            # note dist_aggregate is ignored here, we don't aggregate imported certificate
+            elif acm_op == "import":
+                # iterate pemList array from event
+                for pem_index, pem_value in enumerate(body['pemList']):
+
+                    certificate['CertPem'] = str.encode(pem_value['CertPem'])
+                    certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
+                    certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
+
+                    convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+                    _domainList = get_domain_list_from_cert()
+                    certificate['SubjectAlternativeNames'] = _domainList
+                    certificate['DomainName'] = _domainList[0] if _domainList else ''
+
+                    resp = import_certificate(certificate)
+
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                     raw_context.aws_request_id,
+                                     'certCreateStageStatus',
+                                     'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'certValidationStageStatus',
+                                 'SUCCESS')
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'cert_completed_number',
+                                 pemTotalNumber)
+
+            data = {'statusCode': 200,
+                     'body': raw_context.aws_request_id}
+            return data
+
+        # invoke step function to implement streamlined process of cert create/import and distribution create
+        elif auto_creation == "true":
+            # invoke existing step function
+            logger.info('auto_creation is true, invoke step function with body %s', str(body))
+            body['aws_request_id'] = raw_context.aws_request_id
+            if acm_op == "import":
+                # iterate pemList array from event
+                gen_cnameInfo_list = []
+                for pem_index, pem_value in enumerate(body['pemList']):
+                    convert_string_to_file(pem_value['CertPem'], PEM_FILE)
+                    _domainList = get_domain_list_from_cert()
+                    _domainName = _domainList[0] if _domainList else ''
+                    tmpCnameInfo = {}
+                    tmpCnameInfo['domainName'] = _domainName
+                    tmpCnameInfo['sanList'] = _domainList
+                    tmpCnameInfo['existing_cf_info'] = {
+                        "distribution_id": pem_value['existing_cf_info']['distribution_id'],
+                        "config_version_id": pem_value['existing_cf_info']['config_version_id'],
+                    }
+                    gen_cnameInfo_list.append(tmpCnameInfo)
+
+                body['cnameList'] = gen_cnameInfo_list
+            resp = invoke_step_function(stepFunctionArn, body)
+
+            data = {'statusCode': 200,
+                    'body': raw_context.aws_request_id}
+            return data
+        else:
+            logger.info('auto_creation is not true or false')
+
+            data = {'statusCode': 500,
+                    'body': 'error: auto_creation is not true or false'}
+            return data
+    except Exception as e:
+        logger.error("Exception occurred, just update the ddb table")
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         raw_context.aws_request_id,
+                         'certCreateStageStatus',
+                         'FAILED')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         raw_context.aws_request_id,
+                         'promptInfo',
+                         str(e))
+        raise e
+
+
+def aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context):
+    wildcard_cert_dict = {}
+    for cname_index, cname_value in enumerate(domain_name_list):
+        certificate['DomainName'] = cname_value['domainName']
+        certificate['SubjectAlternativeNames'] = cname_value['sanList']
+
+        # TBD, add cname_value['domainName'] to wildcard_cert_dict
+        wildcardSan = is_wildcard(cname_value['sanList'])
+        logger.info('wildcardSan: %s', wildcardSan)
+        if wildcardSan:
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)
+            # update wildcard certificate dict
+            wildcard_cert_dict[wildcardSan] = resp["CertificateArn"]
+        else:
+            parentCertArn = is_subset(cname_value['sanList'], wildcard_cert_dict)
+            logger.info('parentCertArn: %s', parentCertArn)
+            if parentCertArn:
+                # don't create certificate if parent certificate exists
+                continue
+            resp = request_certificate(certificate)
+            logger.info('Certificate creation response: %s', resp)
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     raw_context.aws_request_id,
+                     'certCreateStageStatus',
+                     'SUCCESS')
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     raw_context.aws_request_id,
+                     'certValidationStageStatus',
+                     'INPROGRESS')
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     raw_context.aws_request_id,
+                     'cert_completed_number',
+                     certTotalNumber)
+
+# @app.resolver(type_name="Query", field_name="listCertifications")
 @app.get("/ssl_for_saas/cert_list")
-def cf_ssl_for_saas():
+def manager_certification_list():
     # first get distribution List from current account
     acm_client = boto3.client('acm')
     response = acm_client.list_certificates()
@@ -336,155 +611,101 @@ def cf_ssl_for_saas():
 
     return result
 
+# @app.resolver(type_name="Query", field_name="listCertificationsWithJobId")
+@app.get("/ssl_for_saas/list_ssl_certification_with_jobId")
+def manager_certification_list_jobId():
+    # first get distribution List from current account
+    acm_client = boto3.client('acm')
+    response = acm_client.list_certificates()
+    jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
 
-# {
-#   "acm_op": "create",
-#   "dist_aggregate": "false",
-#   "auto_creation": "true",
-#   "enable_cname_check": "true",
-#   "cnameList": [
-#     {
-#         "domainName": "cdn2.risetron.cn",
-#         "sanList": [
-#             "cdn3.risetron.cn"
-#         ],
-#         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
-#     },
-#     {
-#         "domainName": "cdn3.risetron.cn",
-#         "sanList": [
-#             "cdn4.risetron.cn"
-#         ],
-#         "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
-#     }
-#   ],
-#   "pemList": [
-#     {
-#         "CertPem": "xx",
-#         "PrivateKeyPem": "xx",
-#         "ChainPem": "xx"
-#     },
-#     {
-#         "CertPem": "xx",
-#         "PrivateKeyPem": "xx",
-#         "ChainPem": "xx"
-#     }
-#   ]
-# }
-@app.post("/ssl_for_saas")
-def cf_ssl_for_saas():
-    """
-    :param event:
-    :param context:
-    """
-    body: dict = app.current_event.json_body
-    logger.info("Received event: " + json.dumps(body))
+    result = []
+    # filter only the certificates with jobId in job_token tag
+    for acmItem in response['CertificateSummaryList']:
+        resp = acm_client.list_tags_for_certificate(
+            CertificateArn=acmItem['CertificateArn']
+        )
+        tagList = resp['Tags']
+        logger.info(tagList)
 
-    # Get the parameters from the event
-    acm_op = body['acm_op']
-    dist_aggregate = body['dist_aggregate']
-    auto_creation = body['auto_creation']
-    domain_name_list = body['cnameList']
-    enable_cname_check = body['enable_cname_check']
+        for tagItem in tagList:
+            if tagItem['Key'] == 'job_token' and tagItem['Value'] == jobId:
+                result.append( acmItem['CertificateArn'])
 
-    if auto_creation == "false":
-        if acm_op == "create":
-            create_acm_cert(dist_aggregate, domain_name_list)
+    return result
 
-        # note dist_aggregate is ignored here, we don't aggregate imported certificate
-        elif acm_op == "import":
-            import_acm_cert(body, enable_cname_check)
+# @app.resolver(type_name="Query", field_name="listCloudFrontArnWithJobId")
+@app.get("/ssl_for_saas/list_cloudfront_arn_with_jobId")
+def manager_cloudfront_arn_list_with_jobId():
+    jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
+    # first get distribution List from current account
+    resource_client = boto3.client('resourcegroupstaggingapi')
+    response = resource_client.get_resources(
+        TagFilters=[
+            {
+                'Key': 'job_token',
+                'Values': [
+                    jobId,
+                ]
+            },
+        ],
+        ResourcesPerPage=100,
+        ResourceTypeFilters=[
+            'cloudfront',
+        ],
+    )
 
-        return {
-            'statusCode': 200,
-            'body': json.dumps('Certificate Create/Import Successfully without invoke step function')
-        }
-    elif auto_creation == "true":
-        # invoke existing step function
-        logger.info('auto_creation is true, invoke step function')
-        resp = invoke_step_function(stepFunctionArn, body)
-        logger.info(resp)
-        return {
-            'statusCode': 200,
-            'body': json.dumps(resp['executionArn'])
-        }
+    result = []
+    # filter only the certificates with jobId in job_token tag
+    for cloudfrontItem in response['ResourceTagMappingList']:
+        result.append( cloudfrontItem['ResourceARN'])
+    return result
+
+# @app.resolver(type_name="Query", field_name="listSSLJobs")
+@app.get("/ssl_for_saas/list_ssl_jobs")
+def manager_list_ssl_jobs():
+    # list data from dynamodb
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+    response = ddb_table.scan()
+    logger.info(f"SSL jobs list is : {response['Items']}")
+    return response['Items']
+
+
+# @app.resolver(type_name="Query", field_name="get_ssl_job")
+@app.get("/ssl_for_saas/get_ssl_job")
+def manager_get_ssl_job():
+    jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
+    if jobId == "":
+        data = {'statusCode': 400,
+                'body': 'error: get_ssl_job need none empty parameter jobId'}
+        return data
+    # get specific cloudfront distributions version info
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            'jobId': jobId,
+        })
+    logger.info(response)
+    if not 'Item' in response:
+       time.sleep(3)
+       response = ddb_table.get_item(
+           Key={
+               'jobId': jobId,
+           })
+       data = response['Item']
+       return data
     else:
-        logger.info('auto_creation is not true or false')
-        return {
-            'statusCode': 400,
-            'body': 'auto_creation is not true or false'
-        }
+       data = response['Item']
+       return data
+
 
 
 def lambda_handler(event, context):
+    global raw_event
+    raw_event = event
+    global raw_context
+    raw_context = context
     return app.resolve(event, context)
-
-
-def create_acm_cert(dist_aggregate, domain_name_list):
-    # aggregate certificate if dist_aggregate is true
-    if dist_aggregate == "true":
-        request_aggregate_cert(domain_name_list)
-
-    # otherwise, create certificate for each cname
-    else:
-        for cname_index, cname_value in enumerate(domain_name_list):
-            certificate['DomainName'] = cname_value['domainName']
-            certificate['SubjectAlternativeNames'] = cname_value['sanList']
-
-            resp = request_certificate(certificate)
-            logger.info('Certificate creation response: %s', resp)
-
-
-def import_acm_cert(body, enable_cname_check):
-    # iterate pemList array from event
-    for pem_index, pem_value in enumerate(body['pemList']):
-
-        certificate['CertPem'] = str.encode(pem_value['CertPem'])
-        certificate['PrivateKeyPem'] = str.encode(pem_value['PrivateKeyPem'])
-        certificate['ChainPem'] = str.encode(pem_value['ChainPem'])
-
-        convert_string_to_file(pem_value['CertPem'], PEM_FILE)
-        _domainList = get_domain_list_from_cert()
-        certificate['SubjectAlternativeNames'] = _domainList
-        certificate['DomainName'] = _domainList[0] if _domainList else ''
-
-        # validation for certificate
-        if enable_cname_check == 'true':
-            if body['cnameList'][pem_index]['domainName'] == certificate['DomainName']:
-                logger.info("Domain name {} matches certificate domain name {}".format(
-                    body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-            else:
-                logger.info('enable_cname_check is true, checking domain name')
-                logger.error("Domain name {} does not match certificate domain name {}".format(
-                    body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                raise Exception("Domain name {} does not match certificate domain name {}".format(
-                    body['cnameList'][pem_index]['domainName'], certificate['DomainName']))
-                continue
-        else:
-            logger.info('enable_cname_check is false, ignoring the cname check for domain {}'.format(
-                body['cnameList'][pem_index]['domainName']))
-        resp = import_certificate(certificate)
-
-
-def request_aggregate_cert(domain_name_list):
-    wildcard_cert_dict = {}
-    for cname_index, cname_value in enumerate(domain_name_list):
-        certificate['DomainName'] = cname_value['domainName']
-        certificate['SubjectAlternativeNames'] = cname_value['sanList']
-
-        # TBD, add cname_value['domainName'] to wildcard_cert_dict
-        wildcard_san = is_wildcard(cname_value['sanList'])
-        logger.info('wildcard_san: %s', wildcard_san)
-        if wildcard_san:
-            resp = request_certificate(certificate)
-            logger.info('Certificate creation response: %s', resp)
-            # update wildcard certificate dict
-            wildcard_cert_dict[wildcard_san] = resp["CertificateArn"]
-        else:
-            parent_cert_arn = is_subset(cname_value['sanList'], wildcard_cert_dict)
-            logger.info('parent_cert_arn: %s', parent_cert_arn)
-            if parent_cert_arn:
-                # don't create certificate if parent certificate exists
-                continue
-            resp = request_certificate(certificate)
-            logger.info('Certificate creation response: %s', resp)

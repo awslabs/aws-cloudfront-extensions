@@ -8,18 +8,15 @@ phases:
       python: 3.8
   pre_build:
     commands:
-#      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
-#      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
       - npm install -g aws-cdk
       - cdk --version
-      - git clone https://github.com/awslabs/aws-cloudfront-extensions.git /tmp/repo
-      - rsync -av /tmp/repo/ ${CODEBUILD_SRC_DIR}/ --exclude=buildspec.yml
   build:
     commands:
-      # - cd templates/aws-cloudfront-waf/deployment/
-      # - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
       - cd templates/aws-cloudfront-monitoring/deployment/
       - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
+      # - pushed edge/cdk/deployment
+      # - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
+      # - popd
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec.yml || true
@@ -27,6 +24,7 @@ artifacts:
   files:
     - .git/**/*
     - deployment/**/*
+    - edge/cdk/deployment/**/*
     - docs/**/*
     - templates/aws-cloudfront-monitoring/deployment/**/*
     - buildspec.yml

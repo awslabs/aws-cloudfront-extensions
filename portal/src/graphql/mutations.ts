@@ -46,9 +46,8 @@ export const deleteSnapshot = /* GraphQL */ `
 export const certCreateOrImport = /* GraphQL */ `
   mutation CertCreateOrImport($input: certInput) {
     certCreateOrImport(input: $input) {
-      status
-      createdAt
-      updatedAt
+      body
+      statusCode
     }
   }
 `;

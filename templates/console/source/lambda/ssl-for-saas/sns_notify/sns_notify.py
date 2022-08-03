@@ -3,7 +3,7 @@ import uuid
 import boto3
 import os
 import json
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -58,12 +58,20 @@ def lambda_handler(event, context):
     #     }
     # }
 
+    # Update the job info table to mark the cloudfront distribution creation succeed
+    job_token = event['input']['aws_request_id']
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     job_token,
+                     'distStageStatus',
+                     'SUCCESS')
+
     msg = []
     # iterate distribution list from event
     for record in event['input']['fn_acm_cb_handler_map']:
-        msg.append("Distribution domain name {} created, ARN: {}"
+        msg.append("Distribution domain name {} created, ARN: {}, aliases: {}"
                    .format(record['fn_acm_cb_handler']['Payload']['body']['distributionDomainName'],
-                           record['fn_acm_cb_handler']['Payload']['body']['distributionArn']
+                           record['fn_acm_cb_handler']['Payload']['body']['distributionArn'],
+                           record['fn_acm_cb_handler']['Payload']['body']['aliases']
                            )
                    )
 

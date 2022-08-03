@@ -7,7 +7,9 @@ import json
 import re
 import random
 import string
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
+from datetime import datetime
+
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
 from requests import exceptions
@@ -52,6 +54,24 @@ def _tag_certificate(certArn, taskToken):
             {
                 'Key': 'task_token',
                 'Value': taskToken
+            }
+        ]
+    )
+
+def _tag_job_certificate(certArn, jobToken):
+    """[summary]
+
+    Args:
+        certificate ([type]): [description]
+        jobToken ([type]): [description]
+    """
+    logger.info('Tagging certificate %s with task_token %s', certArn, jobToken)
+    acm.add_tags_to_certificate(
+        CertificateArn=certArn,
+        Tags=[
+            {
+                'Key': 'job_token',
+                'Value': jobToken
             }
         ]
     )
@@ -118,7 +138,7 @@ def request_certificate(certificate):
     return resp
 
 
-def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn):
+def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn, jobToken):
     """_summary_
 
     Args:
@@ -156,7 +176,10 @@ def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken
             },
             'certArn': {
                 'S': certArn
-            }
+            },
+            'jobToken': {
+                'S': jobToken
+            },
         }
     )
     logger.info('Domain metadata creation response: %s', resp)
@@ -228,7 +251,7 @@ def fetch_dcv_value(certArn):
 
 
 # common cert operations
-def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_UUid, task_token, task_type, snsMsg):
+def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_UUid, task_token, task_type, snsMsg, job_token):
     """_summary_
 
     Args:
@@ -239,6 +262,7 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
         task_token (_type_): _description_
         task_type (_type_): _description_
         snsMsg (_type_): _description_
+        job_token (_type_): _description_
     """
 
     resp = request_certificate(certificate)
@@ -251,10 +275,13 @@ def _common_cert_operations(callback_table, certificate, sanListDynamoDB, cert_U
                          task_token,
                          task_type,
                          'TASK_TOKEN_TAGGED',
-                         resp['CertificateArn'])
+                         resp['CertificateArn'],
+                         job_token)
 
     # tag acm certificate with task_token, slice task token to fit length of 128
     _tag_certificate(resp['CertificateArn'], task_token[:128])
+
+    _tag_job_certificate(resp['CertificateArn'], job_token)
 
     resp_detail = fetch_dcv_value(resp['CertificateArn'])
 
@@ -322,6 +349,7 @@ def lambda_handler(event, context):
     callback_table = os.getenv('CALLBACK_TABLE')
     task_type = os.getenv('TASK_TYPE')
     task_token = event['task_token']
+    job_token = event['input']['aws_request_id']
     dist_aggregate = event['input']['dist_aggregate']
     domain_name_list = event['input']['cnameList']
 
@@ -333,25 +361,65 @@ def lambda_handler(event, context):
 
     certTotalNumber = len(event['input']['cnameList'])
     cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
+    job_type = event['input']['acm_op']
+    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    certCreateStageStatus = 'INPROGRESS'
+    certValidationStageStatus = 'NOTSTART'
+    distStageStatus = 'NOTSTART'
 
-    create_job_info(JOB_INFO_TABLE_NAME,task_token,json.dumps(event['input'],indent=4), certTotalNumber,
-                            cloudfrontTotalNumber, 0, 0)
+    body_without_pem = event['input']
+    if 'pemList' in body_without_pem:
+        del body_without_pem['pemList']
+    create_job_info(JOB_INFO_TABLE_NAME,
+                    job_token,
+                    json.dumps(body_without_pem,indent=4),
+                    certTotalNumber,
+                    cloudfrontTotalNumber,
+                    0,
+                    0,
+                    job_type,
+                    creationDate,
+                    certCreateStageStatus,
+                    certValidationStageStatus,
+                    distStageStatus)
 
-    if 'true' == auto_creation:
-        validate_source_cloudfront_dist(domain_name_list)
+    try:
+        if 'true' == auto_creation:
+            validate_source_cloudfront_dist(domain_name_list)
 
-    # aggregate certificate if dist_aggregate is true
-    if dist_aggregate == "true":
-        aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type)
-    else:
-        none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type)
+        # aggregate certificate if dist_aggregate is true
+        if dist_aggregate == "true":
+            aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token)
+        else:
+            none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token)
 
-    notify_sns_subscriber(sns_msg)
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certCreateStageStatus',
+                         'SUCCESS')
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps('step to acm create callback complete')
-    }
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certValidationStageStatus',
+                         'INPROGRESS')
+
+        notify_sns_subscriber(sns_msg)
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps('step to acm create callback complete')
+        }
+    except Exception as e:
+        logger.error("Exception occurred, just update the ddb table")
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certCreateStageStatus',
+                         'FAILED')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'promptInfo',
+                         str(e))
+        raise e
 
 
 def check_generate_task_token(task_token):
@@ -382,7 +450,7 @@ def notify_sns_subscriber(sns_msg):
     )
 
 
-def none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type):
+def none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token):
     for cname_index, cname_value in enumerate(domain_name_list):
         cert_UUid = str(uuid.uuid4())
         certificate['DomainName'] = cname_value['domainName']
@@ -391,10 +459,10 @@ def none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, ta
         logger.info('index %s: sanList for DynamoDB: %s', cname_index, san_list_dynamo_db)
 
         _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token, task_type,
-                                sns_msg)
+                                sns_msg, job_token)
 
 
-def aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type):
+def aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token):
     wildcard_cert_dict = {}
     for cname_index, cname_value in enumerate(domain_name_list):
         cert_UUid = str(uuid.uuid4())
@@ -409,7 +477,7 @@ def aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_t
         if wildcardSan:
             ############### TBD, wrapper needed
             resp = _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token,
-                                           task_type, sns_msg)
+                                           task_type, sns_msg, job_token)
             ###############
 
             # update wildcard certificate dict
@@ -433,7 +501,7 @@ def aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_t
             else:
                 ############### TBD, wrapper needed
                 _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token,
-                                        task_type, sns_msg)
+                                        task_type, sns_msg, job_token)
                 ###############
 
 
