@@ -92,8 +92,6 @@ npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/re
 # echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
 # run ${__dir}/helper.py ${CDK_OUT_PATH}
 cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}
-cp -r ${CDK_OUT_PATH}/* ${REGIONAL_S3_ASSETS_PATH} 
-
 
 export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_ASSET_ACCOUNT_ID}
 export BSS_FILE_ASSET_REGION_SET="$REGIONS"
