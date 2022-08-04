@@ -644,6 +644,22 @@ export class StepFunctionRpTsConstruct extends Construct {
       apiKeyRequired: true,
     });
 
+    const list_cloudfront_arn_with_jobId = ssl_api.addResource(
+      "list_cloudfront_arn_with_jobId"
+    );
+    list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const list_ssl_certification_with_jobId = ssl_api.addResource(
+      "list_ssl_certification_with_jobId"
+    );
+    list_ssl_certification_with_jobId.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, "ACM status check", {
       schedule: events.Schedule.expression("cron(*/5 * * * ? *)"),

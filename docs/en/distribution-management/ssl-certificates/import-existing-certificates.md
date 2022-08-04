@@ -16,22 +16,24 @@ When you starts an Import Certificate Job, the solution starts a workflow in AWS
 
 !!! Important "Important"
 
-    Currently, the solution only supports importing one certificate in a job.
-
+    Currently, the solution only supports importing one certificate in a job on the Web UI. But user can use api to import multiple certificates through our api. Please refer to the api documentation.
 
 1. Log in to the web console.
 2. In the left sidebar, under **Configuration**, select **SSL Certification**. 
 3. Choose **Import Existing Certificates**.
 4. Choose **Import One Certificate**.
 5. Enter Certificate name, Certificate body, Certificate Private Body, and Certificate chain.
-6. (Optional) Choose *Automatically create distributions*, select a snapshot of a distribution that you want copy the config from. 
-7. (Optional): Turn on switch if you’d like the solution to aggregate certificate. for example, if you have domain list *.example.com, 1xxx.example.com (http://1.example.com/), 2xxx.example.com. The certificate will only contain *.example.com (http://example.com/). [Suggest to remove, it is difficult for users to understand the logic behind. ]
+
+[//]: # (6. &#40;Optional&#41; Choose *Automatically create distributions*, select a snapshot of a distribution that you want copy the config from. )
+
+[//]: # (7. &#40;Optional&#41;: Turn on switch if you’d like the solution to aggregate certificate. for example, if you have domain list *.example.com, 1xxx.example.com &#40;http://1.example.com/&#41;, 2xxx.example.com. The certificate will only contain *.example.com &#40;http://example.com/&#41;. [Suggest to remove, it is difficult for users to understand the logic behind. ])
 8. Click **Add new tag** to add a Tag for the resource (certificate, CloudFront Distributions) that will be created.
 9. Click **Start job**.
+10. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
 
 ## View import certificate job status
 
-Once the import job started, you will be redirected to a page where you can view the status of the job. For import certificate job, there are two steps in AWS Step Function workflow. After all steps are completed, the job will finished with success. If one of the steps failed, the job will fail. 
+Once the import job started, you will be redirected to a page where you can view the status of the job. For import certificate job, there are two steps in AWS Step Function workflow. After all steps are completed, the job will finish with success. If one of the steps failed, the job will fail. 
 
 * Step1 will be completed once all certificates were created in ACM. It usually takes less than a minute.
 * Step2 will be completed once all expected distributions were created in CloudFront.
