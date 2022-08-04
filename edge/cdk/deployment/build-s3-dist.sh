@@ -79,19 +79,6 @@ export BSS_IMAGE_ASSET_TAG_PREFIX="${BUILD_VERSION}-"
 # run mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS}
 # export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${CN_ASSETS}"
 
-pushd ${SRC_PATH}/prewarm/deployment
-sh build-s3-dist.sh
-popd
-
-run cd ${BUILD_PATH}
-npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
-npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/true-client-ip/true-client-ip.ts" --output ${CDK_OUT_PATH}
-npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/redirect-by-country/redirect-by-country.ts" --output ${CDK_OUT_PATH}
-npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/resize-image.ts" --output ${CDK_OUT_PATH}
-
-# echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
-# run ${__dir}/helper.py ${CDK_OUT_PATH}
-cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}
 
 export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_ASSET_ACCOUNT_ID}
 export BSS_FILE_ASSET_REGION_SET="$REGIONS"
@@ -106,7 +93,27 @@ fi
 IFS=',' read -r -a prefixes <<< "$GLOBAL_ASSETS"
 mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
 
+echo "TESTTTTTTTTTTT"
+echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[0]}"
+echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[1]}"
+
+
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[0]}"
+
+pushd ${SRC_PATH}/prewarm/deployment
+sh build-s3-dist.sh
+popd
+
+run cd ${BUILD_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/true-client-ip/true-client-ip.ts" --output ${CDK_OUT_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/redirect-by-country/redirect-by-country.ts" --output ${CDK_OUT_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/resize-image.ts" --output ${CDK_OUT_PATH}
+
+# echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
+# run ${__dir}/helper.py ${CDK_OUT_PATH}
+cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}
+
 run npx cdk synth -c EnableDashboardCustomDomain=true --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]} -q 2>/dev/null
 mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
