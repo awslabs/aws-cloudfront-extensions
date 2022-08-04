@@ -80,13 +80,13 @@ def main():
         for file in file_assets:
             source = file['source']
             src = os.path.join(dir_in, source['path'])
-            # if src.endswith('.nested.template.json'):
-            #     dst = os.path.abspath(os.path.join(REGIONAL_S3_ASSETS_PATH, file['_id']))
-            # elif src.endswith('template.json'):
-            #     dst = os.path.abspath(os.path.join(GLOBAL_S3_ASSETS_PATH, file['_id'].replace('.json', '')))
-            # else:
-            #     dst = os.path.abspath(os.path.join(REGIONAL_S3_ASSETS_PATH, file['_id']))
-            dst = os.path.abspath(os.path.join(REGIONAL_S3_ASSETS_PATH, file['_id']))
+            print('Handle each source file')
+            if src.endswith('.nested.template.json'):
+                dst = os.path.abspath(os.path.join(REGIONAL_S3_ASSETS_PATH, file['_id']))
+            elif src.endswith('template.json'):
+                dst = os.path.abspath(os.path.join(GLOBAL_S3_ASSETS_PATH, file['_id'].replace('.json', '')))
+            else:
+                dst = os.path.abspath(os.path.join(REGIONAL_S3_ASSETS_PATH, file['_id']))
             if source['packaging'] == 'zip':
                 zip(src, dst)
             elif source['packaging'] == 'file':
