@@ -92,6 +92,7 @@ fi
 
 IFS=',' read -r -a prefixes <<< "$GLOBAL_ASSETS"
 mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
+mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 
 echo "TESTTTTTTTTTTT"
 echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[0]}"
@@ -113,8 +114,5 @@ npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/re
 # echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
 # run ${__dir}/helper.py ${CDK_OUT_PATH}
 cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}
-
-run npx cdk synth -c EnableDashboardCustomDomain=true --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]} -q 2>/dev/null
-mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
-export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
-run npx cdk synth --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]} -q 2>/dev/null
+cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
+cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
