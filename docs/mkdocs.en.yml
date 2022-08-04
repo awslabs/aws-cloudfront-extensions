@@ -39,6 +39,7 @@ nav:
   - API reference guide: 
       - Monitoring: api-reference-guide/monitoring.md
       - Extension repository: api-reference-guide/extension-repository.md
+      - Distribution Management: api-reference-guide/distribution-management.md
   - Additional resources: additional-resources.md
   - Uninstall the solution: uninstall.md
   - Source code: source.md

@@ -684,24 +684,29 @@ def manager_get_ssl_job():
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
 
-    response = ddb_table.get_item(
-        Key={
-            'jobId': jobId,
-        })
-    logger.info(response)
-    if not 'Item' in response:
-       time.sleep(3)
-       response = ddb_table.get_item(
-           Key={
-               'jobId': jobId,
-           })
-       data = response['Item']
-       return data
-    else:
-       data = response['Item']
-       return data
-
-
+    try:
+        response = ddb_table.get_item(
+            Key={
+                'jobId': jobId,
+            })
+        logger.info(response)
+        if not 'Item' in response:
+           time.sleep(3)
+           response = ddb_table.get_item(
+               Key={
+                   'jobId': jobId,
+               })
+           data = response['Item']
+           return data
+        else:
+           data = response['Item']
+           return data
+    except Exception as e:
+        response = {
+            'statusCode': 500,
+            'body': "Can not found job info with id:" + jobId
+        }
+        return response
 
 def lambda_handler(event, context):
     global raw_event

@@ -14,7 +14,7 @@ If you do not know where the email was sent to, you can check it in CloudFormati
 
 If you want to update the email, you need to update the email parameter in the CloudFormation stack. 
 
-## Adding CNAMEs in Route53
+## Adding CNAMEs record for DCV validation in Route53
 
 1. Sign in to the AWS Management Console and access the [Route 53 console](https://console.aws.amazon.com/route53/).
 2. In the navigation pane, choose **Hosted zones**.
@@ -27,7 +27,7 @@ If you want to update the email, you need to update the email parameter in the C
 5. Choose **Create record**.
 6. Enter the name and value in Create record form with type CNAME.
 
-## Adding CNAMEs in GoDaddy
+## Adding CNAMEs record for DCV validation in GoDaddy
 
 1. Log in to [GoDaddy](https://www.godaddy.com/). 
 2. In the **Domains** menu,* select **All Domains**.
@@ -36,9 +36,8 @@ If you want to update the email, you need to update the email parameter in the C
 
 ![godaddy-cloudfront](../../../images/godaddy-cloudfront.png)
 
-## Add CloudFront distribution
 
-Once CloudFront distribution was created, the domain owner need to manually add the CloudFront distribution as a CNAME for the website domain, so that when the someone access the website, the DNS provider will redirect the access to CloudFront distribution. 
+
 
 
 
