@@ -9,7 +9,7 @@ LAMBDA_ARN = os.environ['LAMBDA_ARN']
 lambda_client = boto3.client('lambda')
 log = logging.getLogger()
 log.setLevel('INFO')
-
+log.setLevel('DEBUG')
 
 def lambda_handler(event, context):
     request_type = event['RequestType'].upper() if (

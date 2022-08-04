@@ -3,6 +3,7 @@ import boto3
 import os
 import json
 import string
+from boto3.dynamodb.conditions import Key
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
@@ -37,6 +38,9 @@ def create_job_info(ddb_table_name, job_id, job_input, cert_total_number, cloudf
             'certCreateStageStatus': certCreateStageStatus,
             'certValidationStageStatus': certValidationStageStatus,
             'distStageStatus': distStageStatus,
+            'certList' : [],
+            'distList' : [],
+            'promptInfo' : ''
         }
     )
 

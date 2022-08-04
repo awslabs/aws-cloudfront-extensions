@@ -79,7 +79,7 @@ const SaveSnapshot: React.FC = () => {
                   }}
                 />
               </FormItem>
-              <FormItem optionTitle="Note" optionDesc="">
+              <FormItem optionTitle="Description" optionDesc="">
                 <TextArea
                   placeholder="beta testing"
                   rows={2}

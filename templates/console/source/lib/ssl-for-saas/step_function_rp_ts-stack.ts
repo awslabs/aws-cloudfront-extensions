@@ -94,8 +94,8 @@ export class StepFunctionRpTsConstruct extends Construct {
     );
 
     // create email subscription
-    const email_address = new CfnParameter(scope, "email-subs", {
-      description: "email address to be notified",
+    const email_address = new CfnParameter(scope, "EmailAddress", {
+      description: "Email address to receive SSL certificates notification",
       type: "String",
     });
     sns_topic.addSubscription(
@@ -729,6 +729,20 @@ export class StepFunctionRpTsConstruct extends Construct {
     appsyncFunc.createResolver({
       typeName: "Query",
       fieldName: "listCertifications",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listCertificationsWithJobId",
+      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+    });
+
+    appsyncFunc.createResolver({
+      typeName: "Query",
+      fieldName: "listCloudFrontArnWithJobId",
       requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
       responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
     });

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import HeaderPanel from "components/HeaderPanel";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ValueWithLabel from "components/ValueWithLabel";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { useDispatch } from "react-redux";
@@ -10,8 +10,20 @@ import { ActionType } from "reducer/appReducer";
 import ArrowDown from "assets/images/config/arrowDown.png";
 import StatusItem, { StatusType, StatusTypeStep } from "./StatusItem";
 import { appSyncRequestQuery } from "../../../assets/js/request";
-import { getJobInfo } from "../../../graphql/queries";
+import {
+  getJobInfo,
+  listCertificationsWithJobId,
+  listCloudFrontArnWithJobId,
+} from "../../../graphql/queries";
 import { SSLJob } from "../../../API";
+import Modal from "../../../components/Modal";
+import Swal from "sweetalert2";
+import FormItem from "../../../components/FormItem";
+import TextArea from "../../../components/TextArea";
+import TextInput from "../../../components/TextInput";
+import { SelectType, TablePanel } from "../../../components/TablePanel";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import { Pagination } from "@material-ui/lab";
 
 const JobDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -32,8 +44,13 @@ const JobDetail: React.FC = () => {
     creationDate: "2022-01-01",
     distStageStatus: "NOTSTART",
     jobType: "create",
+    promptInfo: "",
   });
   const [loadingData, setLoadingData] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [openCloudfrontModal, setOpenCloudfrontModal] = useState(false);
+  const [certArnList, setCertArnList] = useState<any>([]);
+  const [cloudfrontArnList, setCloudFrontArnList] = useState<any>([]);
 
   const BreadCrunbList = [
     {
@@ -73,6 +90,43 @@ const JobDetail: React.FC = () => {
     fetchJobInfo();
   }, []);
 
+  // Get Version List By Distribution
+  const fetchCertList = async () => {
+    try {
+      setLoadingData(true);
+      const resData = await appSyncRequestQuery(listCertificationsWithJobId, {
+        jobId: jobId,
+      });
+      const certList: [string] = resData.data.listCertificationsWithJobId;
+      setCertArnList(certList);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchCertList();
+  }, [jobId, jobInfo]);
+
+  // Get Distribution by job Id
+  const fetchCloudFrontList = async () => {
+    try {
+      setLoadingData(true);
+      const resData = await appSyncRequestQuery(listCloudFrontArnWithJobId, {
+        jobId: jobId,
+      });
+      const cloudfrontArnList: [string] =
+        resData.data.listCloudFrontArnWithJobId;
+      setCloudFrontArnList(cloudfrontArnList);
+    } catch (error) {
+      setLoadingData(false);
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchCloudFrontList();
+  }, [jobId, jobInfo]);
+
   const getCertValidationPercentage = () => {
     if (jobInfo.cloudfront_distribution_created_number > 0) {
       setCertValidationPercentage(100);
@@ -106,6 +160,31 @@ const JobDetail: React.FC = () => {
     getOverallStatus();
   }, [jobInfo]);
 
+  useEffect(() => {
+    fetchJobInfo();
+    const refreshInterval = setInterval(() => {
+      fetchJobInfo();
+    }, 10000);
+    return () => clearInterval(refreshInterval);
+  }, []);
+
+  const constructCloudfrontLink = (arn: string) => {
+    const tmpArr = arn.split("/");
+    return tmpArr[1];
+  };
+
+  const constructCertificateConsoleLink = (arn: string) => {
+    const tmpArr = arn.split(":");
+    const region = tmpArr[3];
+    const tmp = arn.split("/");
+    const certId = tmp[1];
+    return (
+      "https://us-east-1.console.aws.amazon.com/acm/home?region=" +
+      region +
+      "#/certificates/" +
+      certId
+    );
+  };
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -152,7 +231,11 @@ const JobDetail: React.FC = () => {
                       jobInfo.cert_total_number}
                   </div>
                   <div className="flex-1">
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        setOpenModal(true);
+                      }}
+                    >
                       View SSL certificates created in this job
                       <span>
                         <OpenInNewIcon />
@@ -171,7 +254,11 @@ const JobDetail: React.FC = () => {
                       jobInfo.cloudfront_distribution_total_number}
                   </div>
                   <div className="flex-1">
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        setOpenCloudfrontModal(true);
+                      }}
+                    >
                       View distributions created in this job
                       <span>
                         <OpenInNewIcon />
@@ -187,9 +274,7 @@ const JobDetail: React.FC = () => {
         <HeaderPanel
           title="Job Status"
           action={
-            <div>
-              <Button btnType="text">More resources</Button>
-            </div>
+            <div>{/*<Button btnType="text">More resources</Button>*/}</div>
           }
         >
           <div>
@@ -206,7 +291,12 @@ const JobDetail: React.FC = () => {
                     100
                   }
                   progressTopText="Request ACM Certificates"
-                  progressBottomText="The step will be completed if all SSL certificates were created"
+                  // progressBottomText="The step will be completed if all SSL certificates were created"
+                  progressBottomText={
+                    jobInfo.certCreateStageStatus === "FAILED"
+                      ? jobInfo.promptInfo
+                      : "The step will be completed if all SSL certificates were created"
+                  }
                 />
                 <div>
                   <img className="ml-80 arrow-width" src={ArrowDown} />
@@ -234,12 +324,118 @@ const JobDetail: React.FC = () => {
                     100
                   }
                   progressTopText="Create CloudFront distribution"
-                  progressBottomText="The step will be completed if all distributions were created"
+                  progressBottomText={
+                    jobInfo.distStageStatus === "FAILED"
+                      ? jobInfo.promptInfo
+                      : "The step will be completed if all SSL certificates were created"
+                  }
                 />
               </div>
             }
           </div>
         </HeaderPanel>
+        <Modal
+          title=""
+          isOpen={openModal}
+          fullWidth={true}
+          closeModal={() => {
+            setOpenModal(false);
+          }}
+          actions={
+            <div className="button-action no-pb text-right">
+              <Button
+                onClick={() => {
+                  setOpenModal(false);
+                }}
+              >
+                OK
+              </Button>
+            </div>
+          }
+        >
+          <TablePanel
+            // loading={loadingData}
+            title=""
+            selectType={SelectType.NONE}
+            actions={<div></div>}
+            pagination={<div />}
+            items={certArnList}
+            columnDefinitions={[
+              {
+                id: "Arn",
+                header: "Cert Arn",
+                cell: (e: string) => {
+                  return (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={constructCertificateConsoleLink(e)}
+                    >
+                      {e}
+                    </a>
+                  );
+                },
+                // sortingField: "alt",
+              },
+            ]}
+            changeSelected={(item) => {
+              console.info("select item:", item);
+              // setSelectedItems(item);
+              // setcnameList(MOCK_REPOSITORY_LIST);
+            }}
+          />
+        </Modal>
+        <Modal
+          title=""
+          isOpen={openCloudfrontModal}
+          fullWidth={true}
+          closeModal={() => {
+            setOpenCloudfrontModal(false);
+          }}
+          actions={
+            <div className="button-action no-pb text-right">
+              <Button
+                onClick={() => {
+                  setOpenCloudfrontModal(false);
+                }}
+              >
+                OK
+              </Button>
+            </div>
+          }
+        >
+          <TablePanel
+            // loading={loadingData}
+            title=""
+            selectType={SelectType.NONE}
+            actions={<div></div>}
+            pagination={<div />}
+            items={cloudfrontArnList}
+            columnDefinitions={[
+              {
+                id: "Arn",
+                header: "CloudFront Arn",
+                cell: (e: string) => {
+                  return (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`https://us-east-1.console.aws.amazon.com/cloudfront/v3/home#/distributions/${constructCloudfrontLink(
+                        e
+                      )}`}
+                    >
+                      {e}
+                    </a>
+                    // constructCloudfrontLink(e)
+                  );
+                },
+              },
+            ]}
+            changeSelected={(item) => {
+              console.info("select item:", item);
+            }}
+          />
+        </Modal>
       </div>
     </div>
   );

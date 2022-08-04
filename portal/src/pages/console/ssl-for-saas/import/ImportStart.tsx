@@ -6,10 +6,6 @@ import FormItem from "components/FormItem";
 import Tiles from "components/Tiles";
 import TextArea from "components/TextArea";
 import Select from "components/Select";
-import MultiSelect from "components/MultiSelect";
-import { CF_LIST, CF_SNAPSHOT_LIST } from "mock/data";
-import Switch from "components/Switch";
-import TagList from "components/TagList";
 import Button from "components/Button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -26,10 +22,6 @@ import Modal from "../../../../components/Modal";
 import Swal from "sweetalert2";
 import TextInput from "../../../../components/TextInput";
 
-// enum ImportMethodType {
-//   CREATE = "CREATE",
-//   NONE = "NONE",
-// }
 const enum ImportMethod {
   CREATE = "create",
   IMPORT = "import",
@@ -39,11 +31,6 @@ const enum ImportMethod {
 const enum ImportCertificate {
   IMPORT_ONE = "ImportOne",
   IMPORT_MULTI = "ImportMulti",
-}
-
-const enum CreateCertificate {
-  CREATE_ONE = "CreateOne",
-  CREATE_MULTI = "CreateMulti",
 }
 
 interface CertInfo {
@@ -99,18 +86,14 @@ const ImportStart: React.FC = () => {
       domainList: "",
     },
   ]);
-  const [cloudFront, setCloudFront] = useState("");
   const [snapshot, setSnapshot] = useState([]);
   const [importMethod, setImportMethod] = useState<string>(ImportMethod.IMPORT);
-  const [createAsLess, setCreateAsLess] = useState(true);
-  const [tagList, setTagList] = useState([{ key: "", value: "" }]);
   const [aggregation, setAggregation] = useState(false);
   const [checkCName, setCheckCName] = useState(false);
   const [createAuto, setCreateAuto] = useState("true");
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [versionList, setVersionList] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
   const [loadingApply, setLoadingApply] = useState(false);
   const [selectDistributionId, setSelectDistributionId] = useState<any>("");
   const [selectDistributionVersionId, setSelectDistributionVersionId] =
@@ -120,9 +103,7 @@ const ImportStart: React.FC = () => {
   const [importCert, setImportCert] = useState<string>(
     ImportCertificate.IMPORT_ONE
   );
-  // const [createCert, setCreateCert] = useState<string>(
-  //   CreateCertificate.CREATE_ONE
-  // );
+
   const [cnameInfo, setCnameInfo] = useState<CNameInfo>({
     domainName: "",
     sanList: [],
@@ -197,7 +178,12 @@ const ImportStart: React.FC = () => {
       const tmpList = [];
       for (const cfdistlistKey in Cloudfront_info_list) {
         tmpList.push({
-          name: Cloudfront_info_list[cfdistlistKey].id,
+          name:
+            Cloudfront_info_list[cfdistlistKey].id +
+            " | " +
+            (Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
+              ? ""
+              : Cloudfront_info_list[cfdistlistKey].aliases.Items[0]),
           value: Cloudfront_info_list[cfdistlistKey].id,
         });
       }
@@ -351,7 +337,7 @@ const ImportStart: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Import Existing SSL Certificate">
+        <PagePanel title="Import existing certificates">
           <HeaderPanel title="Certification details">
             <FormItem
               optionTitle="Import one or more Certification"
@@ -428,21 +414,22 @@ const ImportStart: React.FC = () => {
               </div>
             ) : (
               <FormItem
-                optionTitle="Certification file path"
-                optionDesc="S3 bucket path"
+                optionTitle="Will be comming in later releases"
+                optionDesc=""
+                // optionDesc="S3 bucket path"
               >
-                <TextInput
-                  placeholder="s3://auth-at-edge-origin-public-348167721134/js/"
-                  value={s3FilePath}
-                  onChange={(event) => {
-                    setS3FilePath(event.target.value);
-                  }}
-                />
+                {/*<TextInput*/}
+                {/*  placeholder="s3://auth-at-edge-origin-public-348167721134/js/"*/}
+                {/*  value={s3FilePath}*/}
+                {/*  onChange={(event) => {*/}
+                {/*    setS3FilePath(event.target.value);*/}
+                {/*  }}*/}
+                {/*/>*/}
               </FormItem>
             )}
           </HeaderPanel>
 
-          <HeaderPanel title="CloudFront Distributions">
+          <HeaderPanel title="CloudFront distributions">
             <FormItem optionTitle="Import method" optionDesc="">
               <Tiles
                 name="importMethod"
@@ -452,15 +439,15 @@ const ImportStart: React.FC = () => {
                 }}
                 items={[
                   {
-                    label: "Do not create distributions",
-                    description: "Only request certificates",
-                    value: "false",
-                  },
-                  {
                     label: "Automatically create distributions",
                     description:
                       "Request certificates and then create distributions",
                     value: "true",
+                  },
+                  {
+                    label: "Do not create distributions",
+                    description: "Only request certificates",
+                    value: "false",
                   },
                 ]}
               />
@@ -502,16 +489,20 @@ const ImportStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          <HeaderPanel title="Advanced Settings">
-            <Switch
-              label="Create as less as distibutions as possible"
-              desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"
-              isOn={aggregation}
-              handleToggle={() => {
-                setAggregation(!aggregation);
-              }}
-            />
-          </HeaderPanel>
+          {/*{createAuto === "true" ? (*/}
+          {/*  <HeaderPanel title="Advanced Settings">*/}
+          {/*    <Switch*/}
+          {/*      label="Create as less as distibutions as possible"*/}
+          {/*      desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"*/}
+          {/*      isOn={aggregation}*/}
+          {/*      handleToggle={() => {*/}
+          {/*        setAggregation(!aggregation);*/}
+          {/*      }}*/}
+          {/*    />*/}
+          {/*  </HeaderPanel>*/}
+          {/*) : (*/}
+          {/*  ""*/}
+          {/*)}*/}
 
           {/*<HeaderPanel*/}
           {/*  title="Tags"*/}
@@ -557,6 +548,7 @@ const ImportStart: React.FC = () => {
             </Button>
             <Button
               btnType="primary"
+              disabled={importCert === ImportCertificate.IMPORT_MULTI}
               onClick={() => {
                 updateCertInfoWithDistributionIdVersion(
                   selectDistributionId,

@@ -127,6 +127,9 @@ type SSLJob {
     creationDate: String
     distStageStatus: String
     jobType: String
+    certList: [String]
+    distList: [String]
+    promptInfo: String
 }
 
 
@@ -216,6 +219,10 @@ type Query {
     # list certifications for
     listCertifications: [certification_info]
 
+    listCertificationsWithJobId(jobId: String): [String]
+
+    listCloudFrontArnWithJobId(jobId: String): [String]
+
     listSSLJobs: [SSLJob]
 
     getJobInfo(jobId: String): SSLJob
@@ -239,5 +246,11 @@ type Mutation {
 
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
+
+<<<<<<< HEAD
+    # Update monitoring domains
+    updateDomains(stack_name: String!, domains: [String]): String
+=======
+>>>>>>> refs/heads/mainline
 }
 

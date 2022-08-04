@@ -51,3 +51,8 @@ export const certCreateOrImport = /* GraphQL */ `
     }
   }
 `;
+export const updateDomains = /* GraphQL */ `
+  mutation UpdateDomains($stack_name: String!, $domains: [String]) {
+    updateDomains(stack_name: $stack_name, domains: $domains)
+  }
+`;

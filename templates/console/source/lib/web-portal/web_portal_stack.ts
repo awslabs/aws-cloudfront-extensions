@@ -25,6 +25,8 @@ export interface PortalProps extends CommonProps{
  readonly aws_cognito_region?: string;
  readonly aws_user_pools_id?: string;
  readonly aws_user_pools_web_client_id?: string;
+ readonly aws_monitoring_url?: string;
+ readonly aws_monitoring_api_key?: string;
  readonly build_time?: string;
 }
 

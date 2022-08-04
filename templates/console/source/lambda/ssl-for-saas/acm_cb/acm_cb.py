@@ -7,7 +7,8 @@ import json
 import re
 import random
 import string
-import time
+from datetime import datetime
+
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
@@ -361,7 +362,7 @@ def lambda_handler(event, context):
     certTotalNumber = len(event['input']['cnameList'])
     cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
     job_type = event['input']['acm_op']
-    creationDate = int(time.time())
+    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     certCreateStageStatus = 'INPROGRESS'
     certValidationStageStatus = 'NOTSTART'
     distStageStatus = 'NOTSTART'
@@ -382,31 +383,43 @@ def lambda_handler(event, context):
                     certValidationStageStatus,
                     distStageStatus)
 
-    if 'true' == auto_creation:
-        validate_source_cloudfront_dist(domain_name_list)
+    try:
+        if 'true' == auto_creation:
+            validate_source_cloudfront_dist(domain_name_list)
 
-    # aggregate certificate if dist_aggregate is true
-    if dist_aggregate == "true":
-        aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token)
-    else:
-        none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token)
+        # aggregate certificate if dist_aggregate is true
+        if dist_aggregate == "true":
+            aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token)
+        else:
+            none_agregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_type, job_token)
 
-    update_job_field(JOB_INFO_TABLE_NAME,
-                     job_token,
-                     'certCreateStageStatus',
-                     'SUCCESS')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certCreateStageStatus',
+                         'SUCCESS')
 
-    update_job_field(JOB_INFO_TABLE_NAME,
-                     job_token,
-                     'certValidationStageStatus',
-                     'INPROGRESS')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certValidationStageStatus',
+                         'INPROGRESS')
 
-    notify_sns_subscriber(sns_msg)
+        notify_sns_subscriber(sns_msg)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps('step to acm create callback complete')
-    }
+        return {
+            'statusCode': 200,
+            'body': json.dumps('step to acm create callback complete')
+        }
+    except Exception as e:
+        logger.error("Exception occurred, just update the ddb table")
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'certCreateStageStatus',
+                         'FAILED')
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
+                         'promptInfo',
+                         str(e))
+        raise e
 
 
 def check_generate_task_token(task_token):

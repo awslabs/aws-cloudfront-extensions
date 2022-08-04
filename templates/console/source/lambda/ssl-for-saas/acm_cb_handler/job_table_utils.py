@@ -38,6 +38,9 @@ def create_job_info(ddb_table_name, job_id, job_input, cert_total_number, cloudf
             'certCreateStageStatus': certCreateStageStatus,
             'certValidationStageStatus': certValidationStageStatus,
             'distStageStatus': distStageStatus,
+            'certList' : [],
+            'distList' : [],
+            'promptInfo' : ''
         }
     )
 

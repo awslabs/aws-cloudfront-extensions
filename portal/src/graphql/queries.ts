@@ -239,6 +239,16 @@ export const listCertifications = /* GraphQL */ `
     }
   }
 `;
+export const listCertificationsWithJobId = /* GraphQL */ `
+  query ListCertificationsWithJobId($jobId: String) {
+    listCertificationsWithJobId(jobId: $jobId)
+  }
+`;
+export const listCloudFrontArnWithJobId = /* GraphQL */ `
+  query ListCloudFrontArnWithJobId($jobId: String) {
+    listCloudFrontArnWithJobId(jobId: $jobId)
+  }
+`;
 export const listSSLJobs = /* GraphQL */ `
   query ListSSLJobs {
     listSSLJobs {
@@ -253,6 +263,9 @@ export const listSSLJobs = /* GraphQL */ `
       creationDate
       distStageStatus
       jobType
+      certList
+      distList
+      promptInfo
     }
   }
 `;
@@ -270,6 +283,9 @@ export const getJobInfo = /* GraphQL */ `
       creationDate
       distStageStatus
       jobType
+      certList
+      distList
+      promptInfo
     }
   }
 `;
