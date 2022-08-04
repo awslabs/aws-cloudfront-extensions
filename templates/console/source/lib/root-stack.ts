@@ -8,6 +8,7 @@ import {
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import {StepFunctionRpTsConstruct} from "./ssl-for-saas/step_function_rp_ts-stack";
 import {ConsoleConstruct} from "./console-stack";
+import {CloudFrontMonitoringStack} from "./monitoring/cloudfront-monitoring-stack";
 import {aws_cognito as cognito, StackProps} from "aws-cdk-lib";
 
 interface RootStackProps extends StackProps{
@@ -48,6 +49,15 @@ export class RootStack extends cdk.Stack {
             cognitoUserPool: cognitoUserPool,
         });
 
+        // Monitoring dashboard stack
+        const realtimeMonitoringStack = new CloudFrontMonitoringStack(app, "MonitoringStack", {
+            tags: {
+                app: "MonitoringStack",
+            },
+            synthesizer: props.synthesizer,
+            appsyncApi: commonConstruct.appsyncApi,
+        });
+
         new PortalConstruct(this, "WebConsole", {
               aws_api_key: commonConstruct?.appsyncApi.apiKey,
               aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
@@ -57,6 +67,8 @@ export class RootStack extends cdk.Stack {
               aws_user_pools_id: cognitoUserPool.userPoolId,
               aws_user_pools_web_client_id: cognitoUserPoolClient.userPoolClientId,
               aws_cognito_region: this.region,
+              aws_monitoring_url: realtimeMonitoringStack.monitoringUrl,
+              aws_monitoring_api_key: realtimeMonitoringStack.monitoringApiKey,
               build_time: new Date().getTime() + "",
           });
 
@@ -100,10 +112,6 @@ export class RootStack extends cdk.Stack {
             synthesizer: props.synthesizer,
             appsyncApi: commonConstruct.appsyncApi,
         });
-
-
-        // TODO: Add monitoring dashboard stack
-        // new monitoringDashboardStack(app, 'MonitoringDashboardStack', {});
 
     }
 }

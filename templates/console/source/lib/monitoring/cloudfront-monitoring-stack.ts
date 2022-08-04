@@ -24,9 +24,13 @@ import * as path from 'path';
 import { CommonProps } from '../cf-common/cf-common-stack';
 
 export class CloudFrontMonitoringStack extends Stack {
+  
+  public readonly monitoringUrl: string;
+
+  public readonly monitoringApiKey: string;
+
   constructor(scope: Construct, id: string, props?: CommonProps) {
     super(scope, id, props);
-
     this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
 
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
@@ -1176,6 +1180,9 @@ export class CloudFrontMonitoringStack extends Stack {
     });
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
+
+    this.monitoringUrl = `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${deployStage.valueAsString}`,
+    this.monitoringApiKey = apiKey.keyArn;
 
     new cdk.CfnOutput(this, 'S3 Bucket', { value: cloudfront_monitoring_s3_bucket.bucketName });
     new cdk.CfnOutput(this, 'DynamoDB Table', { value: cloudfront_metrics_table.tableName });

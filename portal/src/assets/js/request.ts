@@ -28,6 +28,8 @@ interface AmplifyConfigType {
   aws_user_pools_id: string;
   aws_user_pools_web_client_id: string;
   aws_cloudfront_url: string;
+  aws_monitoring_url: string;
+  aws_monitoring_api_key: string;
 }
 
 const buildAppsyncLink = () => {
