@@ -101,6 +101,7 @@ echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[1]}"
 
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[0]}"
 
+title "build prewarm dependencies"
 pushd ${SRC_PATH}/prewarm/deployment
 sh build-s3-dist.sh
 popd
@@ -115,8 +116,9 @@ ls ${GLOBAL_S3_ASSETS_PATH}
 ls ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
 ls ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 
+title "copy artifacts"
 # echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
 # run ${__dir}/helper.py ${CDK_OUT_PATH}
 cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}
-cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
-cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
+# cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
+# cp -r ${CDK_OUT_PATH}/* ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
