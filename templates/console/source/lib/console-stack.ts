@@ -222,7 +222,7 @@ export class ConsoleConstruct extends Construct {
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/custom_resource.zip')),
       handler: "custom_resource.lambda_handler",
       role: extDeployerRole,
-      memorySize: 512,
+      memorySize: 256,
       timeout: cdk.Duration.seconds(300),
       environment: {
         DDB_TABLE_NAME: cfExtensionsTable.tableName,

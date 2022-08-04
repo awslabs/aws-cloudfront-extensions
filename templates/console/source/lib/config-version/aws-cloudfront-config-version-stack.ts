@@ -182,7 +182,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         runtime: lambda.Runtime.PYTHON_3_9,
         handler: "cf_config_version_exporter.lambda_handler",
         layers: [powertools_layer, git_layer],
-        memorySize: 1024,
+        memorySize: 256,
         timeout: cdk.Duration.seconds(900),
         code: lambda.Code.fromAsset(
           path.join(
@@ -222,7 +222,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         runtime: lambda.Runtime.PYTHON_3_9,
         layers: [powertools_layer, git_layer],
         handler: "cf_config_version_manager.lambda_handler",
-        memorySize: 1024,
+        memorySize: 256,
         timeout: cdk.Duration.seconds(900),
         code: lambda.Code.fromAsset(
           path.join(
@@ -471,7 +471,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         runtime: lambda.Runtime.PYTHON_3_9,
         layers: [powertools_layer, git_layer],
         handler: "cf_config_version_manager_graphql.lambda_handler",
-        memorySize: 1024,
+        memorySize: 256,
         timeout: cdk.Duration.seconds(900),
         code: lambda.Code.fromAsset(
           path.join(
