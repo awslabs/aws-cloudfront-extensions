@@ -15,6 +15,7 @@ nav:
       - Overview: monitoring/overview.md
       - Non-real time monitoring with Amazon S3 Standard Logs: monitoring/non-real-time-monitoring.md
       - Real time monitoring with Amazon Kinesis: monitoring/real-time-monitoring.md
+      - Metrics Dashboard: monitoring/metrics-dashboard.md
   - Distribution management: 
       - Snapshot: 
           - Overview: distribution-management/snapshot/overview.md
