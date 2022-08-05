@@ -495,7 +495,8 @@ def aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_t
                                      task_token,
                                      task_type,
                                      'TASK_TOKEN_TAGGED',
-                                     parentCertArn)
+                                     parentCertArn,
+                                     job_token)
 
                 continue
             else:
