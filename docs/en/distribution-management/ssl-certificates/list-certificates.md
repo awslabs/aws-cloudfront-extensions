@@ -9,6 +9,7 @@ To list SSL certificates on the web console, do the following:
 1. Log in to the web console.
 2. In the left sidebar, under **Configuration**, select **SSL Certification**. 
 3. View the listed SSL certificates. 
-4. (Optional) In the search box, you can search for SSL certificates by CNAME.
+
+[//]: # (4. &#40;Optional&#41; In the search box, you can search for SSL certificates by CNAME.)
 
 You can also get the SSL Certificate List via APIs. For more information, see *API Reference Guide*.

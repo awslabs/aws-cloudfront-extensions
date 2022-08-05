@@ -38,6 +38,11 @@ phases:
       - chmod +x ${CODEBUILD_SRC_DIR}/templates/console/deployment/build-s3-dist.sh
       - ${CODEBUILD_SRC_DIR}/templates/console/deployment/build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${BUILD_VERSION}
       - mkdir -p ${CODEBUILD_SRC_DIR}/templates/console/deployment/open-source/ && touch ${CODEBUILD_SRC_DIR}/templates/console/deployment/open-source/.empty
+      - cd ${CODEBUILD_SRC_DIR}/edge/cdk/deployment
+      - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${BUILD_VERSION}
+      - cp -r ${CODEBUILD_SRC_DIR}/edge/cdk/deployment/global-s3-assets/* ${CODEBUILD_SRC_DIR}/templates/console/deployment/global-s3-assets/default/
+      - cp -r ${CODEBUILD_SRC_DIR}/edge/cdk/deployment/global-s3-assets/* ${CODEBUILD_SRC_DIR}/templates/console/deployment/global-s3-assets/custom-domain/
+      - ls -LR ${CODEBUILD_SRC_DIR}/templates/console/deployment/
   post_build:
     commands:
       - aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec_2.yml || true
@@ -54,6 +59,7 @@ artifacts:
     - deployment/**/*
     - docs/**/*
     - templates/console/deployment/**/*
+    - edge/cdk/deployment/**/*
     - buildspec_2.yml
     - buildspec.yml
     - CHANGELOG.md

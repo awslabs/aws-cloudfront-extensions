@@ -182,7 +182,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         runtime: lambda.Runtime.PYTHON_3_9,
         handler: "cf_config_version_exporter.lambda_handler",
         layers: [powertools_layer, git_layer],
-        memorySize: 1024,
+        memorySize: 256,
         timeout: cdk.Duration.seconds(900),
         code: lambda.Code.fromAsset(
           path.join(
@@ -222,7 +222,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         runtime: lambda.Runtime.PYTHON_3_9,
         layers: [powertools_layer, git_layer],
         handler: "cf_config_version_manager.lambda_handler",
-        memorySize: 1024,
+        memorySize: 256,
         timeout: cdk.Duration.seconds(900),
         code: lambda.Code.fromAsset(
           path.join(
@@ -275,81 +275,193 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       new targets.LambdaFunction(cloudfrontConfigVersionExporter)
     );
 
-    const rest_api = new LambdaRestApi(
+    const snapshot_rest_api = new LambdaRestApi(
       this,
-      "cloudfront_config_version_restfulApi",
+      "cloudfront_config_snapshot_restfulApi",
       {
         handler: cloudfrontConfigVersionManager,
-        description: "restful api to get the cloudfront config diff",
+        description: "restful api to manage cloudfront snapshot changes",
         proxy: false,
-        restApiName: "CloudfrontConfigManager",
+        restApiName: "CloudfrontSnapshotManager",
         endpointConfiguration: {
           types: [EndpointType.EDGE],
         },
       }
     );
 
-    const config_diff_proxy = rest_api.root.addResource("cf_config_manager");
-    config_diff_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
-    });
+    // const version_rest_api = new LambdaRestApi(
+    //   this,
+    //   "cloudfront_config_version_restfulApi",
+    //   {
+    //     handler: cloudfrontConfigVersionManager,
+    //     description: "restful api to manage cloudfront configuration changes",
+    //     proxy: false,
+    //     restApiName: "CloudfrontVersionManager",
+    //     endpointConfiguration: {
+    //       types: [EndpointType.EDGE],
+    //     },
+    //   }
+    // );
 
-    const diff_proxy = config_diff_proxy.addResource("diff");
-    diff_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
-    });
-    const versionList_proxy = config_diff_proxy.addResource("versions");
-    versionList_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
-    });
+    // const config_diff_proxy = rest_api.root.addResource("cf_config_manager");
+    // config_diff_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
 
-    const apply_config_proxy = config_diff_proxy.addResource("apply_config");
-    apply_config_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
-    });
+    // const version_proxy = version_rest_api.root.addResource("version");
 
-    const apply_snapshot_proxy =
-      config_diff_proxy.addResource("apply_snapshot");
+    // const get_distribution_cname_proxy = version_proxy.addResource(
+    //   "get_distribution_cname"
+    // );
+    // get_distribution_cname_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+    //
+    // const diff_proxy = version_proxy.addResource("diff");
+    // diff_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+    //
+    // const versionList_proxy = version_proxy.addResource("list_versions");
+    // versionList_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+    //
+    // // const apply_config_proxy = version_proxy.addResource("apply_config");
+    // // apply_config_proxy.addMethod("GET", undefined, {
+    // //   authorizationType: AuthorizationType.IAM,
+    // //   apiKeyRequired: true,
+    // // });
+    //
+    // const config_tag_update_proxy =
+    //   version_proxy.addResource("config_tag_update");
+    // config_tag_update_proxy.addMethod("POST", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+    //
+    // const cf_list_proxy = version_proxy.addResource("cf_list");
+    // cf_list_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+    //
+    // const config_link_path = version_proxy.addResource("config_link");
+    // const config_link_proxy = config_link_path.addResource("{versionId}");
+    // config_link_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+    //
+    // const config_content_path = version_proxy.addResource("config_content");
+    // const config_content_proxy = config_content_path.addResource("{versionId}");
+    // config_content_proxy.addMethod("GET", undefined, {
+    //   // authorizationType: AuthorizationType.IAM,
+    //   apiKeyRequired: true,
+    // });
+
+    const snapshot_proxy = snapshot_rest_api.root.addResource("snapshot");
+
+    const apply_snapshot_proxy = snapshot_proxy.addResource("apply_snapshot");
     apply_snapshot_proxy.addMethod("POST", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const diff_cloudfront_snapshot_proxy = snapshot_proxy.addResource(
+      "diff_cloudfront_snapshot"
+    );
+    diff_cloudfront_snapshot_proxy.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const config_snapshot_tag_update_proxy = snapshot_proxy.addResource(
+      "config_snapshot_tag_update"
+    );
+    config_snapshot_tag_update_proxy.addMethod("POST", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const get_applied_snapshot_name_proxy = snapshot_proxy.addResource(
+      "get_applied_snapshot_name"
+    );
+    get_applied_snapshot_name_proxy.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const get_snapshot_link_proxy =
+      snapshot_proxy.addResource("get_snapshot_link");
+    get_snapshot_link_proxy.addMethod("GET", undefined, {
       authorizationType: AuthorizationType.IAM,
     });
 
-    const config_tag_update_proxy =
-      config_diff_proxy.addResource("config_tag_update");
-    config_tag_update_proxy.addMethod("POST", undefined, {
-      authorizationType: AuthorizationType.IAM,
+    const list_snapshots_proxy = snapshot_proxy.addResource("list_snapshots");
+    list_snapshots_proxy.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
     });
 
-    const cf_list_proxy = config_diff_proxy.addResource("cf_list");
-    cf_list_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
+    const create_snapshot_proxy = snapshot_proxy.addResource("create_snapshot");
+    create_snapshot_proxy.addMethod("POST", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
     });
 
-    const config_link_path = versionList_proxy.addResource("config_link");
-    const config_link_proxy = config_link_path.addResource("{version_id}");
-    config_link_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
-    });
-
-    const config_content_path = versionList_proxy.addResource("config_content");
-    const config_content_proxy =
-      config_content_path.addResource("{version_id}");
-    config_content_proxy.addMethod("GET", undefined, {
-      authorizationType: AuthorizationType.IAM,
+    const delete_snapshot_proxy = snapshot_proxy.addResource("delete_snapshot");
+    delete_snapshot_proxy.addMethod("POST", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
     });
 
     //Policy to allow client to call this restful api
-    const api_client_policy = new ManagedPolicy(this, "captcha_client_policy", {
-      managedPolicyName: "cf_config_diff_client_policy",
-      description: "policy for client to call cf config diff",
-      statements: [
-        new iam.PolicyStatement({
-          resources: [rest_api.arnForExecuteApi()],
-          actions: ["execute-api:Invoke"],
-          effect: iam.Effect.ALLOW,
-        }),
-      ],
+    // const version_api_client_policy = new ManagedPolicy(
+    //   this,
+    //   "version_client_policy",
+    //   {
+    //     managedPolicyName: "cf_config_version_client_policy",
+    //     description: "policy for client to call cf version",
+    //     statements: [
+    //       new iam.PolicyStatement({
+    //         resources: [version_rest_api.arnForExecuteApi()],
+    //         actions: ["execute-api:Invoke"],
+    //         effect: iam.Effect.ALLOW,
+    //       }),
+    //     ],
+    //   }
+    // );
+
+    const usagePlan = snapshot_rest_api.addUsagePlan("Snapshot_api_UsagePlan", {
+      description: "Snapshot api usage plan",
     });
+    const apiKey = snapshot_rest_api.addApiKey("Snapshot_api_ApiKey");
+    usagePlan.addApiKey(apiKey);
+    usagePlan.addApiStage({
+      stage: snapshot_rest_api.deploymentStage,
+    });
+
+    //Policy to allow client to call this restful api
+    const snapshot_client_policy = new ManagedPolicy(
+      this,
+      "snapshot_client_policy",
+      {
+        managedPolicyName: "cf_config_snapshot_client_policy",
+        description: "policy for client to call cf snapshot",
+        statements: [
+          new iam.PolicyStatement({
+            resources: [snapshot_rest_api.arnForExecuteApi()],
+            actions: ["execute-api:Invoke"],
+            effect: iam.Effect.ALLOW,
+          }),
+        ],
+      }
+    );
 
     const cloudfrontConfigVersionManager_graphql = new lambda.Function(
       this,
@@ -359,7 +471,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         runtime: lambda.Runtime.PYTHON_3_9,
         layers: [powertools_layer, git_layer],
         handler: "cf_config_version_manager_graphql.lambda_handler",
-        memorySize: 1024,
+        memorySize: 256,
         timeout: cdk.Duration.seconds(900),
         code: lambda.Code.fromAsset(
           path.join(
@@ -518,14 +630,24 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     new cdk.CfnOutput(this, "cloudfront_config_exporter", {
       value: cloudfrontConfigVersionExporter.functionName,
     });
-    new cdk.CfnOutput(this, "cloudfront_config_diff", {
-      value: cloudfrontConfigVersionManager.functionName,
+    // new cdk.CfnOutput(this, "cloudfront_config_diff", {
+    //   value: cloudfrontConfigVersionManager.functionName,
+    // });
+    // new cdk.CfnOutput(this, "cloudfront_version_rest_api", {
+    //   value: version_rest_api.restApiName,
+    // });
+    new cdk.CfnOutput(this, "cloudfront_snapshot_rest_api", {
+      value: snapshot_rest_api.restApiName,
     });
-    new cdk.CfnOutput(this, "cloudfront_config_rest_api", {
-      value: rest_api.restApiName,
+    // new cdk.CfnOutput(this, "api-gateway_version_policy", {
+    //   value: version_api_client_policy.managedPolicyName,
+    // });
+    new cdk.CfnOutput(this, "api-gateway_snapshot_policy", {
+      value: snapshot_client_policy.managedPolicyName,
     });
-    new cdk.CfnOutput(this, "api-gateway_policy", {
-      value: api_client_policy.managedPolicyName,
+
+    new cdk.CfnOutput(this, "Snapshot API key", {
+      value: apiKey.keyArn,
     });
   }
 }
