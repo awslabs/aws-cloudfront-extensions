@@ -321,7 +321,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'add_partition.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/add_partition')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/add_partition')),
       architecture: lambda.Architecture.ARM_64,
       role: partitionRole,
       environment: {
@@ -338,7 +338,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'delete_partition.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/delete_partition')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/delete_partition')),
       architecture: lambda.Architecture.ARM_64,
       role: partitionRole,
       environment: {
@@ -351,7 +351,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
 
     const partitionS3 = new S3ToLambda(this, 'PartitionS3Logs', {
       lambdaFunctionProps: {
-        code: lambda.Code.fromAsset(path.join(__dirname, './lambda/partition_s3_logs')),
+        code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/partition_s3_logs')),
         runtime: lambda.Runtime.PYTHON_3_9,
         handler: 'partition_s3_logs.lambda_handler',
         memorySize: 256,
@@ -370,7 +370,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_bandwidth_cdn.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_bandwidth_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_bandwidth_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -392,7 +392,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_bandwidth_origin.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_bandwidth_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_bandwidth_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -414,7 +414,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_chr_bandwidth.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_chr_bandwidth')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_chr_bandwidth')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -436,7 +436,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_chr_request.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_chr_request')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_chr_request')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -458,7 +458,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_request_cdn.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_request_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_request_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -480,7 +480,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_request_origin.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_request_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_request_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -502,7 +502,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_status_code_cdn.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_status_code_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_status_code_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -524,7 +524,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_status_code_origin.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_status_code_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_status_code_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -546,7 +546,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_top_url_request.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_top_url_request')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_top_url_request')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -568,7 +568,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_top_url_traffic.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_top_url_traffic')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_top_url_traffic')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -590,7 +590,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_traffic.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_collector_traffic')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_traffic')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -612,7 +612,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_manager.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(60),
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/metric_manager')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_manager')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -632,7 +632,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     const crLambda = new lambda.Function(this, "AddPartNonRealTimeCR", {
       description: "This lambda function add partitions for glue table.",
       runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset(path.join(__dirname, './lambda/custom_resource')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/custom_resource')),
       handler: "custom_resource.lambda_handler",
       architecture: lambda.Architecture.ARM_64,
       role: partitionRole,
