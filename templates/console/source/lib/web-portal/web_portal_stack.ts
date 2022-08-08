@@ -82,7 +82,7 @@ export class PortalConstruct extends Construct {
             value: portalUrl,
         });
         const configFn = 'aws-exports.json';
-        // upload static web assets
+        // Upload static web assets
         const bucketFile = new s3d.BucketDeployment(this, "DeployWebAssets", {
           sources: [
             s3d.Source.asset(path.join(__dirname, "../../../../../portal/build")),

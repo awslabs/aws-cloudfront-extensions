@@ -126,7 +126,12 @@ export class PrewarmStack extends cdk.Stack {
             "sqs:SendMessage",
             "sqs:GetQueueAttributes",
             "sqs:SetQueueAttributes",
-          ]
+          ],
+          conditions: {
+            Bool: {
+              "aws:SecureTransport": true,
+            },
+          },
         })
       ]
     });

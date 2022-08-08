@@ -1,8 +1,8 @@
-import {aws_cognito as cognito, Stack} from "aws-cdk-lib";
+import { aws_cognito as cognito, Stack } from "aws-cdk-lib";
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import path from "path";
 import * as cdk from 'aws-cdk-lib';
-import {Construct} from "constructs";
+import { Construct } from "constructs";
 
 //This stack is created to holding shared resources between cloudfront submodules like appsync and cognito user pool
 export interface CommonProps extends cdk.StackProps {
@@ -55,7 +55,10 @@ export class CommonConstruct extends Construct {
             name: 'cloudfront-extension-appsync-api',
             schema: appsync.Schema.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
             authorizationConfig: config,
-            xrayEnabled: true,
+            logConfig: {
+                fieldLogLevel: appsync.FieldLogLevel.ALL,
+                excludeVerboseContent: true
+            },
         });
 
 
