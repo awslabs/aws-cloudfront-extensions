@@ -159,6 +159,45 @@ You can view the status of the stack in the CloudFormation Console in the Status
 To see details for the stack resources, choose the **Outputs** tab. 
 
 
+## Pre-warming
+ 
+**Time to deploy**: Approximately 10 minutes
+
+### Deployment overview
+
+Use the following steps to deploy this solution on AWS.
+
+- Launch the CloudFormation template into your AWS account.
+- Review the template parameters, and adjust them if necessary.
+
+### Deployment steps
+
+1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/Prewarm.template) as a starting point for your own implementation.
+
+      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/Prewarm.template)
+
+
+2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
+
+3. Under Parameters, review the parameters for the template, and modify them as necessary.
+
+      | Parameter | Default value | Description |
+      |-----------|---------------|---------|
+      | ShowSuccessUrls | false | Show success url list in Prewarm status API (true or false). |
+      | InstanceType | m6g.large | EC2 spot instance type to send pre-warm requests. |
+      | ThreadNumber | 6 | Thread number to run in parallel in EC2. |
+  
+
+4. Choose **Next**.
+5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
+6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.
+7. Choose **Create** to deploy the stack. 
+
+You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 10 minutes.
+
+To see details for the stack resources, choose the **Outputs** tab. 
+
+
 ## Lambda@Edge & CloudFront Functions collection
 
 **Time to deploy**: Approximately 3 minutes

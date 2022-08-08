@@ -20,5 +20,10 @@ The CloudFormation template provides the following components and workflows:
 
 The steps to deploy the extensions from the web console are similar. For more information, refer to the section [True Client IP](true-client-ip.md).
 
+### Deployment via CloudFormation
+
+For more information, refer to the section [Deployment](../deployment.md).
+
+
 
 

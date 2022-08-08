@@ -84,7 +84,7 @@ def manager_version_diff(distribution_id: str = "", version1: str = "", version2
 @app.resolver(type_name="Query", field_name="diffCloudfrontConfigSnapshot")
 def manager_snapshot_diff(distribution_id: str = "", snapshot1: str = "", snapshot2: str = ""):
     dist_id = distribution_id
-    if snapshot1 == "" or snapshot2 == "":
+    if dist_id == "" or snapshot1 == "" or snapshot2 == "":
         raise Exception("Snapshot name can not be empty")
 
     # first get the version id from snapshot id

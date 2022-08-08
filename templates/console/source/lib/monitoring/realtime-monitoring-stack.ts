@@ -1,6 +1,6 @@
 import * as glue from "@aws-cdk/aws-glue-alpha";
 import * as cdk from 'aws-cdk-lib';
-import { CfnParameter, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { CfnParameter, CustomResource, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import {
   EndpointType,
   LambdaRestApi,
@@ -19,24 +19,24 @@ import * as kms from "aws-cdk-lib/aws-kms";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { CommonProps } from '../cf-common/cf-common-stack';
 
-export class CloudFrontMonitoringStack extends Stack {
-  
+export class CloudFrontMonitoringStack extends cdk.NestedStack {
+
   public readonly monitoringUrl: string;
 
   public readonly monitoringApiKey: string;
 
-  constructor(scope: Construct, id: string, props?: CommonProps) {
+  constructor(scope: Construct, id: string, props?: cdk.NestedStackProps) {
     super(scope, id, props);
-    this.templateOptions.description = "(SO8150) - Cloudfront monitoring stack.";
+
+    this.templateOptions.description = "(SO8150) - Cloudfront Realime monitoring stack";
 
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
       description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
       type: 'String',
-      default: '',
     })
 
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
@@ -45,36 +45,9 @@ export class CloudFrontMonitoringStack extends Stack {
       default: 120,
     })
 
-    const deployStage = new CfnParameter(this, 'deployStage', {
-      description: 'stageName of the deployment, this allow multiple deployment into one account',
-      type: 'String',
-      default: 'prod',
-      allowedValues: ['dev', 'beta', 'gamma', 'preprod', 'prod']
-    })
-
-    cdk.Tags.of(this).add('stage', deployStage.valueAsString, {
-      includeResourceTypes: [
-        'AWS::Lambda::Function',
-        'AWS::S3::Bucket',
-        'AWS::DynamoDB::Table',
-        'AWS::ECS::Cluster',
-        'AWS::ECS::TaskDefinition',
-        'AWS::ECS::TaskSet',
-        'AWS::ApiGatewayV2::Api',
-        'AWS::ApiGatewayV2::Integration',
-        'AWS::ApiGatewayV2::Stage',
-        'AWS::ApiGateway::RestApi',
-        'AWS::ApiGateway::Method',
-        'AWS::SNS::Topic',
-        'AWS::IAM::Role',
-        'AWS::IAM::Policy'
-      ],
-    });
-
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
-      serverAccessLogsPrefix: 'accessLogBucketAccessLog' + '-' + deployStage.valueAsString,
     });
 
     const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
@@ -82,7 +55,6 @@ export class CloudFrontMonitoringStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       serverAccessLogsBucket: accessLogBucket,
-      serverAccessLogsPrefix: 'dataBucketAccessLog' + '-' + deployStage.valueAsString,
       lifecycleRules: [
         {
           enabled: true,
@@ -512,7 +484,7 @@ export class CloudFrontMonitoringStack extends Stack {
       compatibleRuntimes: [
         lambda.Runtime.PYTHON_3_9,
       ],
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/shared_lib')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/shared_lib')),
       description: 'shared lib for all other lambda functions to use',
     });
 
@@ -522,7 +494,7 @@ export class CloudFrontMonitoringStack extends Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/add_partition')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/add_partition')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
@@ -543,7 +515,7 @@ export class CloudFrontMonitoringStack extends Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/delete_partition')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/delete_partition')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
@@ -563,7 +535,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_bandwidth_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_bandwidth_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_bandwidth_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -584,7 +556,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_bandwidth_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_bandwidth_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_bandwidth_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -605,7 +577,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_chr_bandwidth.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_chr_bandwidth')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_chr_bandwidth')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -626,7 +598,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_chr_request.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_chr_request')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_chr_request')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -647,7 +619,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_download_speed_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_download_speed_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_download_speed_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -668,7 +640,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_download_speed_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_download_speed_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_download_speed_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -689,7 +661,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_request_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_request_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_request_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -710,7 +682,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_request_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_request_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_request_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -731,7 +703,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_status_code_cdn.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_status_code_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_status_code_cdn')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -752,7 +724,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_status_code_origin.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_status_code_origin')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_status_code_origin')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -773,7 +745,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_top_url_request.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_top_url_request')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_top_url_request')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -794,7 +766,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_top_url_traffic.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_top_url_traffic')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_top_url_traffic')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -815,7 +787,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_collector_traffic.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_collector_traffic')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_traffic')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -836,7 +808,7 @@ export class CloudFrontMonitoringStack extends Stack {
       handler: 'metric_manager.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_manager')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_manager')),
       architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
@@ -847,24 +819,6 @@ export class CloudFrontMonitoringStack extends Stack {
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: CloudFrontDomainList.valueAsString,
         REGION_NAME: this.region
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
-
-    const updateDomainList = new lambda.Function(this, 'updateDomainList', {
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_manager.lambda_handler',
-      memorySize: 256,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/update_domain_list')),
-      architecture: lambda.Architecture.ARM_64,
-      role: lambdaRole,
-      environment: {
-        ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
-        REGION_NAME: this.region,
-        STACK_NAME: this.stackName
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -1005,7 +959,7 @@ export class CloudFrontMonitoringStack extends Stack {
 
     //Policy to allow client to call this restful api
     const api_client_policy = new ManagedPolicy(this, "CFMetricAPIClientPolicy", {
-      description: "policy for client to call stage:" + deployStage.valueAsString,
+      description: "policy for client to call restful api",
       statements: [
         new iam.PolicyStatement({
           resources: [rest_api.arnForExecuteApi()],
@@ -1181,8 +1135,35 @@ export class CloudFrontMonitoringStack extends Stack {
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
 
-    this.monitoringUrl = `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${deployStage.valueAsString}`,
+    this.monitoringUrl = `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${rest_api.deploymentStage.stageName}`;
     this.monitoringApiKey = apiKey.keyArn;
+
+    // Custom resource to add partitions once the CloudFormation is completed
+    const crLambda = new lambda.Function(this, "AddPartRealTimeCR", {
+      description: "This lambda function add partitions for glue table.",
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/custom_resource')),
+      handler: "custom_resource.lambda_handler",
+      architecture: lambda.Architecture.ARM_64,
+      role: lambdaRole,
+      environment: {
+        LAMBDA_ARN: addPartition.functionArn,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(300),
+    });
+
+    crLambda.node.addDependency(addPartition)
+
+    const customResourceProvider = new cr.Provider(this, 'customResourceProviderRT', {
+      onEventHandler: crLambda,
+      logRetention: logs.RetentionDays.ONE_DAY,
+    });
+
+    new CustomResource(this, 'AddPartRealtimeCR', {
+      serviceToken: customResourceProvider.serviceToken,
+      resourceType: "Custom::AddPartRealtime",
+    });
 
     new cdk.CfnOutput(this, 'S3 Bucket', { value: cloudfront_monitoring_s3_bucket.bucketName });
     new cdk.CfnOutput(this, 'DynamoDB Table', { value: cloudfront_metrics_table.tableName });

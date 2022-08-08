@@ -31,13 +31,13 @@ export class PrewarmStack extends cdk.Stack {
     const instanceType = new CfnParameter(this, 'InstanceType', {
       description: 'EC2 spot instance type to send pre-warm requests',
       type: 'String',
-      default: 'm5dn.xlarge',
+      default: 'm6g.large',
     });
 
     const threadNumber = new CfnParameter(this, 'ThreadNumber', {
       description: 'Thread number to run in parallel in EC2',
       type: 'String',
-      default: '4',
+      default: '6',
     });
 
     const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
@@ -126,7 +126,12 @@ export class PrewarmStack extends cdk.Stack {
             "sqs:SendMessage",
             "sqs:GetQueueAttributes",
             "sqs:SetQueueAttributes",
-          ]
+          ],
+          conditions: {
+            Bool: {
+              "aws:SecureTransport": true,
+            },
+          },
         })
       ]
     });
@@ -218,8 +223,11 @@ export class PrewarmStack extends cdk.Stack {
     prewarmAsg.addUserData(
       'exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1',
       'pip3 install -r /etc/agent/requirements.txt',
-      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} ` + threadNumber.valueAsString 
+      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} ` + threadNumber.valueAsString
+      
     );
+    // `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} 10`
+    // `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} ` + threadNumber.valueAsString
 
     const agentScaleOut = new as.StepScalingAction(this, 'PrewarmScaleOut', {
       autoScalingGroup: prewarmAsg,

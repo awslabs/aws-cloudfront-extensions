@@ -13,6 +13,7 @@ import { aws_apigateway as _apigw } from "aws-cdk-lib";
 import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
 import { CfnParameter } from "aws-cdk-lib";
 import { Duration } from "aws-cdk-lib";
+import { aws_kms as kms } from "aws-cdk-lib";
 
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
@@ -83,15 +84,53 @@ export class StepFunctionRpTsConstruct extends Construct {
       }
     );
 
+    const snsKey = new kms.Key(this, "KmsMasterKey", {
+      enableKeyRotation: true,
+      policy: new iam.PolicyDocument({
+        assignSids: true,
+        statements: [
+          new iam.PolicyStatement({
+            actions: ["kms:GenerateDataKey*", "kms:Decrypt", "kms:Encrypt"],
+            resources: ["*"],
+            effect: iam.Effect.ALLOW,
+            principals: [
+              new iam.ServicePrincipal("sns.amazonaws.com"),
+              new iam.ServicePrincipal("cloudwatch.amazonaws.com"),
+              new iam.ServicePrincipal("events.amazonaws.com"),
+            ],
+          }),
+          new iam.PolicyStatement({
+            actions: [
+              "kms:Create*",
+              "kms:Describe*",
+              "kms:Enable*",
+              "kms:List*",
+              "kms:Put*",
+              "kms:Update*",
+              "kms:Revoke*",
+              "kms:Disable*",
+              "kms:Get*",
+              "kms:Delete*",
+              "kms:ScheduleKeyDeletion",
+              "kms:CancelKeyDeletion",
+              "kms:GenerateDataKey",
+              "kms:TagResource",
+              "kms:UntagResource",
+            ],
+            resources: ["*"],
+            effect: iam.Effect.ALLOW,
+            principals: [new iam.AccountRootPrincipal()],
+          }),
+        ],
+      }),
+    });
+
     // create sns topic
-    const sns_topic = new sns.Topic(
-      this,
-      "CloudFront_Distribution_Notification",
-      {
-        displayName: "SNS Topic",
-        topicName: "CloudFront_Distribution_Notification",
-      }
-    );
+    const sns_topic = new sns.Topic(this, "CloudFront_Distribution_Notification", {
+      displayName: "SNS Topic",
+      topicName: "CloudFront_Distribution_Notification",
+      masterKey: snsKey,
+    });
 
     // create email subscription
     const email_address = new CfnParameter(scope, "EmailAddress", {
@@ -640,6 +679,22 @@ export class StepFunctionRpTsConstruct extends Construct {
 
     const get_ssl_job = ssl_api.addResource("get_ssl_job");
     get_ssl_job.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const list_cloudfront_arn_with_jobId = ssl_api.addResource(
+      "list_cloudfront_arn_with_jobId"
+    );
+    list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const list_ssl_certification_with_jobId = ssl_api.addResource(
+      "list_ssl_certification_with_jobId"
+    );
+    list_ssl_certification_with_jobId.addMethod("GET", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
     });

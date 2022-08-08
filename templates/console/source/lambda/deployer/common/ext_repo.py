@@ -10,7 +10,6 @@ dynamodb_client = boto3.resource('dynamodb', region_name=region)
 
 log = logging.getLogger()
 log.setLevel('INFO')
-log.setLevel('DEBUG')
 
 result_msg = {
     'SUCCESS': 'The extensions have been updated',
