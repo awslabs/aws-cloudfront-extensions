@@ -3,7 +3,7 @@ You are responsible for the cost of the AWS services used while running this sol
 
 ##  CloudFront configuration snapshot
  
-As of August 2022, if the configuration of CloudFront distributions are changed 30 times and create 10 snapshots, the estimated cost of using this solution is $22.40 per month in the US East (N. Virginia) Region (excludes free tier).
+As of August 2022, if the configuration of CloudFront distributions are changed 30 times and create 10 snapshots, the estimated cost of using this solution is $0.63 per month in the US East (N. Virginia) Region (excludes free tier).
 
 |  Service  | Dimensions | Cost/Month | 
 |  ----  | ----  | ----  |  

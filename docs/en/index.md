@@ -2,7 +2,7 @@ CloudFront Extensions is an out-of-box solution for advanced Amazon CloudFront u
 
 The solution has the following major features:
 
-- **Monitoring**: You can monitor CDN traffic such as cache hit ratio, bandwidth, and status code on the web console dashboard or retrieve them via API calls.
+- **Monitoring**: You can monitor CloudFront traffic such as cache hit ratio, bandwidth, and status code on the web console dashboard or retrieve them via API calls.
 
 - **Distribution management**: You can save one specific CloudFront distribution configuration as a snapshot, compare different snapshots and apply a snapshot to other distributions; audit all CloudFront distribution changes which will be saved automatically; automate the process from requesting new certificate or importing existing SSL certificates to CloudFront distributions.
 

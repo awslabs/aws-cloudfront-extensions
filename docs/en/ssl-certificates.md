@@ -10,7 +10,7 @@ Before you create or import certificates, make sure you meet the [Prerequisites]
 
 The solution will create one or multiple certificates in ACM and create the associated distributions in CloudFront. 
 
-![create-certificate-job](../../images/create-certificate-job.png)
+![create-certificate-job](../images/create-certificate-job.png)
 
 ### How does it work
 
@@ -22,7 +22,7 @@ When you start a Create Certificates Job, the solution starts a workflow in AWS 
 
 3. Create new CloudFront distributions: Once all certificates were issued by ACM, the solution will automatically create CloudFront distributions. After all distributions were created, the solution will send an SNS message to the designated email address or HTTP endpoint. After this step, the domain owners are expected to add new CloudFront distribution to map to CNAME. For more information, see *Instruction - Adding CloudFront record for CNAME with your DNS Provider*.
 
-![certificate-workflow](../../images/certificate-workflow.png)
+![certificate-workflow](../images/certificate-workflow.png)
 
 ### Schedule a job for creating new certificates
 
@@ -57,7 +57,7 @@ If the job failed, refer to [Clean up resources](clean-up-resources.md) to clean
 
 The solution will automatically import one or multiple your existing issued certificates in ACM and create associated distributions in CloudFront. 
 
-![import-certificate-job](../../images/import-certificate-job.png)
+![import-certificate-job](../images/import-certificate-job.png)
 
 ### How does it work
 
@@ -71,7 +71,7 @@ When you starts an Import Certificate Job, the solution starts a workflow in AWS
 
 ### Schedule a job for importing existing certificates
 
-!!! Important "Important"
+!!! Important
 
     CloudFront Extension solution Version 2.0 only supports importing one certificate in a job.
 
@@ -99,7 +99,7 @@ If the job failed, refer to [Clean up resources](clean-up-resources.md) to clean
 
 ## List SSL certificates
 
-!!! Important "Important"
+!!! Important
 
     One CNAME could be mapped to multiple SSL Certificates. However, when creating CloudFront distributions, you cannot have two distributions map to one CNAME (the alternative domain name). 
 

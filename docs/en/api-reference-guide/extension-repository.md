@@ -15,13 +15,13 @@
 
 - Request body parameters
 
-url_list: The list of urls for prewarm.
-cf_domain: CloudFront domain name which ends with [cloudfront.net] (http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
-region: The region for prewarm. You can specify 3 types of value.
+  url_list: The list of urls for prewarm.
+  cf_domain: CloudFront domain name which ends with [cloudfront.net] (http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
+  region: The region for prewarm. You can specify 3 types of value.
 
-* all: prewarm in all regions
-* pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list
-* region code: pre-warm in a specific region, the available regions are:
+  * all: prewarm in all regions
+  * pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list
+  * region code: pre-warm in a specific region, the available regions are:
     * apac: Asia-Pacific
     * au: Australia
     * ca: Canada
@@ -40,7 +40,7 @@ region: The region for prewarm. You can specify 3 types of value.
 
 - Response parameters
 
-`requestID`: The request ID, which you can use in PrewarmStatus API to get the prewarm status.
+  `requestID`: The request ID, which you can use in PrewarmStatus API to get the prewarm status.
 
 ## Operation ID: PrewarmStatus 
 - HTTP request method: `GET`
@@ -54,7 +54,7 @@ region: The region for prewarm. You can specify 3 types of value.
 
 - Request body parameters
 
-`requestID`: a unique ID for each request.
+  `requestID`: a unique ID for each request.
 
 - Response
 
@@ -71,19 +71,19 @@ region: The region for prewarm. You can specify 3 types of value.
 ```
 - Response parameters
 
-`status`: the overall prewarm status
+  `status`: the overall prewarm status
 
-`total`: total url count to pre-warm
+  `total`: total url count to pre-warm
 
-`completed`: the count of urls which are prewarmed
+  `completed`: the count of urls which are prewarmed
 
-`inProgress`: the count of urls which are being prewarmed
+  `inProgress`: the count of urls which are being prewarmed
 
-`failedUrl`: the list of urls which are failed to prewarm
+  `failedUrl`: the list of urls which are failed to prewarm
 
-`inProgressUrl`: the list of urls which are being prewarmed
+  `inProgressUrl`: the list of urls which are being prewarmed
 
-`successUrl`: the list of urls which are successfully prewarmed
+  `successUrl`: the list of urls which are successfully prewarmed
 
 
 
