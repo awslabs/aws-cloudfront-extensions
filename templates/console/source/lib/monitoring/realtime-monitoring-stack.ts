@@ -23,11 +23,7 @@ import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
-export class CloudFrontMonitoringStack extends cdk.NestedStack {
-
-  public readonly monitoringUrl: string;
-
-  public readonly monitoringApiKey: string;
+export class RealtimeMonitoringStack extends cdk.NestedStack {
 
   constructor(scope: Construct, id: string, props?: cdk.NestedStackProps) {
     super(scope, id, props);
@@ -37,6 +33,7 @@ export class CloudFrontMonitoringStack extends cdk.NestedStack {
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
       description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
       type: 'String',
+      default: '',
     })
 
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
@@ -1135,9 +1132,6 @@ export class CloudFrontMonitoringStack extends cdk.NestedStack {
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
 
-    this.monitoringUrl = `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${rest_api.deploymentStage.stageName}`;
-    this.monitoringApiKey = apiKey.keyArn;
-
     // Custom resource to add partitions once the CloudFormation is completed
     const crLambda = new lambda.Function(this, "AddPartRealTimeCR", {
       description: "This lambda function add partitions for glue table.",
@@ -1169,6 +1163,13 @@ export class CloudFrontMonitoringStack extends cdk.NestedStack {
     new cdk.CfnOutput(this, 'DynamoDB Table', { value: cloudfront_metrics_table.tableName });
     new cdk.CfnOutput(this, 'API Gateway Policy', { value: api_client_policy.managedPolicyName });
     new cdk.CfnOutput(this, 'Glue Table', { value: 'cloudfront_realtime_log' });
-    new cdk.CfnOutput(this, "API Key", { value: apiKey.keyArn });
+    new cdk.CfnOutput(this, "API Key", { 
+      value: apiKey.keyArn, 
+      exportName: 'monitoringApiKey' 
+    });
+    new cdk.CfnOutput(this, "Monitoring Url", {
+      value: `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${rest_api.deploymentStage.stageName}`,
+      exportName: 'monitoringUrl'
+    });
   }
 }

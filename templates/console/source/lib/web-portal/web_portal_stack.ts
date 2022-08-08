@@ -1,5 +1,5 @@
-import {Construct} from "constructs";
-import {CloudFrontToS3} from "@aws-solutions-constructs/aws-cloudfront-s3";
+import { Construct } from "constructs";
+import { CloudFrontToS3 } from "@aws-solutions-constructs/aws-cloudfront-s3";
 import {
     Aws,
     aws_cloudfront as cloudfront,
@@ -9,34 +9,35 @@ import {
     Stack,
 } from "aws-cdk-lib";
 import * as path from "path";
-import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from "aws-cdk-lib/custom-resources";
-import {RetentionDays} from "aws-cdk-lib/aws-logs";
-import {PolicyStatement} from "aws-cdk-lib/aws-iam";
+import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
+import { RetentionDays } from "aws-cdk-lib/aws-logs";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import * as cdk from "aws-cdk-lib";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
-import {CommonProps} from "../cf-common/cf-common-stack";
+import { CommonProps } from "../cf-common/cf-common-stack";
 
-export interface PortalProps extends CommonProps{
- readonly aws_api_key?: string;
- readonly aws_project_region?: string;
- readonly aws_appsync_graphqlEndpoint?: string;
- readonly aws_appsync_region?: string;
- readonly aws_appsync_authenticationType?: string;
- readonly aws_cognito_region?: string;
- readonly aws_user_pools_id?: string;
- readonly aws_user_pools_web_client_id?: string;
- readonly aws_monitoring_url?: string;
- readonly aws_monitoring_api_key?: string;
- readonly build_time?: string;
+export interface PortalProps extends CommonProps {
+    readonly aws_api_key?: string;
+    readonly aws_project_region?: string;
+    readonly aws_appsync_graphqlEndpoint?: string;
+    readonly aws_appsync_region?: string;
+    readonly aws_appsync_authenticationType?: string;
+    readonly aws_cognito_region?: string;
+    readonly aws_user_pools_id?: string;
+    readonly aws_user_pools_web_client_id?: string;
+    readonly aws_monitoring_url?: string;
+    readonly aws_monitoring_api_key?: string;
+    readonly aws_monitoring_stack_name?: string;
+    readonly build_time?: string;
 }
 
 export class WebPortalStack extends Stack {
 
-      constructor(scope: cdk.App, id: string, props: PortalProps) {
-          super(scope, id, props);
+    constructor(scope: cdk.App, id: string, props: PortalProps) {
+        super(scope, id, props);
 
-          new PortalConstruct(this, "WebConsole", props);
-      }
+        new PortalConstruct(this, "WebConsole", props);
+    }
 }
 
 /**
@@ -64,11 +65,11 @@ export class PortalConstruct extends Construct {
                 enableLogging: true, //Enable access logging for the distribution.
                 comment: `${Aws.STACK_NAME} - Web Console Distribution (${Aws.REGION})`,
                 errorResponses: [
-                  {
-                    httpStatus: 403,
-                    responseHttpStatus: 200,
-                    responsePagePath: "/index.html",
-                  },
+                    {
+                        httpStatus: 403,
+                        responseHttpStatus: 200,
+                        responsePagePath: "/index.html",
+                    },
                 ],
             },
             insertHttpSecurityHeaders: false,
@@ -84,11 +85,11 @@ export class PortalConstruct extends Construct {
         const configFn = 'aws-exports.json';
         // Upload static web assets
         const bucketFile = new s3d.BucketDeployment(this, "DeployWebAssets", {
-          sources: [
-            s3d.Source.asset(path.join(__dirname, "../../../../../portal/build")),
-          ],
-          destinationBucket: portalBucket,
-          prune: false,
+            sources: [
+                s3d.Source.asset(path.join(__dirname, "../../../../../portal/build")),
+            ],
+            destinationBucket: portalBucket,
+            prune: false,
         });
         new cdk.CfnOutput(this, "export.json", {
             value: portalBucket.bucketName,

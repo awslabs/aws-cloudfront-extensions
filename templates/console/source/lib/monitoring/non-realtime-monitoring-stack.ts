@@ -23,6 +23,7 @@ import { CustomResource } from 'aws-cdk-lib';
 
 
 export class NonRealtimeMonitoringStack extends cdk.NestedStack {
+
   constructor(scope: Construct, id: string, props?: cdk.NestedStackProps) {
     super(scope, id, props);
     this.templateOptions.description = "(SO8150) - Cloudfront Non-Realtime monitoring stack";
@@ -30,6 +31,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
       description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
       type: 'String',
+      default: '',
     });
     const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
       description: 'Max number of days to keep cloudfront realtime logs in S3',
@@ -811,8 +813,14 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     new cdk.CfnOutput(this, 'S3 bucket to store CloudFront logs', { value: cfLogBucket.bucketName });
     new cdk.CfnOutput(this, 'Dynamodb table', { value: cloudfrontMetricsTable.tableName });
     new cdk.CfnOutput(this, 'Glue table', { value: glueTableName });
-    new cdk.CfnOutput(this, "API Key", { value: apiKey.keyArn });
-
+    new cdk.CfnOutput(this, "API Key", { 
+      value: apiKey.keyArn, 
+      exportName: 'monitoringApiKey' 
+    });
+    new cdk.CfnOutput(this, "Monitoring Url", {
+      value: `https://${metricApi.restApiId}.execute-api.${this.region}.amazonaws.com/${metricApi.deploymentStage.stageName}`,
+      exportName: 'monitoringUrl'
+    });
   }
 
 }

@@ -1,13 +1,21 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import {BootstraplessStackSynthesizer, CompositeECRRepositoryAspect} from "cdk-bootstrapless-synthesizer";
+import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from "cdk-bootstrapless-synthesizer";
 import { RootStack } from "../lib/root-stack";
 import { Aspects } from "aws-cdk-lib";
-import {SSLForSaasStack} from "../lib/ssl-for-saas-stack";
+import { SSLForSaasStack } from "../lib/ssl-for-saas-stack";
+import { MonitoringStack } from "../lib/monitoring/root-monitoring-stack";
 
 
 const app = new cdk.App();
+
+new MonitoringStack(app, "MonitoringStack", {
+    tags: {
+        app: "MonitoringStack",
+    },
+    synthesizer: newSynthesizer()
+});
 
 new RootStack(app, "CloudFrontExtnConsoleStack", {
     tags: {
@@ -15,7 +23,6 @@ new RootStack(app, "CloudFrontExtnConsoleStack", {
     },
     synthesizer: newSynthesizer()
 });
-
 
 new SSLForSaasStack(app, "SslForSaasApiStack", {
     tags: {

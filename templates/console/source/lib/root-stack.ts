@@ -8,7 +8,8 @@ import {
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { StepFunctionRpTsConstruct } from "./ssl-for-saas/step_function_rp_ts-stack";
 import { ConsoleConstruct } from "./console-stack";
-import { CloudFrontMonitoringStack } from "./monitoring/realtime-monitoring-stack";
+import { RealtimeMonitoringStack } from "./monitoring/realtime-monitoring-stack";
+import { NonRealtimeMonitoringStack } from "./monitoring/non-realtime-monitoring-stack";
 import { aws_cognito as cognito, StackProps } from "aws-cdk-lib";
 
 interface RootStackProps extends StackProps {
@@ -20,29 +21,6 @@ export class RootStack extends cdk.Stack {
     constructor(app: Construct, id: string, props: RootStackProps) {
         super(app, id, props);
         this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
-
-        const nonRealTimeMonitoring = new cdk.CfnParameter(this, 'NonRealTimeMonitoring', {
-            description: 'Set it to true to get monitoring metrics by analyzing CloudFront standard log, set it to false to get the metrics by analyzing CloudFront real-time log.',
-            type: 'String',
-            allowedValues: ['true', 'false'],
-            default: 'true',
-        })
-
-        const nonRealTimeMonitoringCondition = new cdk.CfnCondition(
-            this,
-            'NonRealTimeMonitoringCondition',
-            {
-                expression: cdk.Fn.conditionEquals(nonRealTimeMonitoring, 'true')
-            }
-        )
-
-        const realtimeMonitoringCondition = new cdk.CfnCondition(
-            this,
-            'RealTimeMonitoringCondition',
-            {
-                expression: cdk.Fn.conditionEquals(nonRealTimeMonitoring, 'false')
-            }
-        )
 
         // construct a cognito for auth
         const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
@@ -73,17 +51,10 @@ export class RootStack extends cdk.Stack {
             cognitoUserPool: cognitoUserPool,
         });
 
-        // Monitoring API
-        const realtimeMonitoring = new CloudFrontMonitoringStack(this, 'Realtime', {});
-        (realtimeMonitoring.nestedStackResource as cdk.CfnStack).cfnOptions.condition = realtimeMonitoringCondition;
+        const monitoringUrl = cdk.Fn.importValue('monitoringUrl') as string;
+        const monitoringApiKey = cdk.Fn.importValue('monitoringApiKey') as string;
 
-        const nonRealtimeMonitoring = new CloudFrontMonitoringStack(this, 'NonRealtime', {});
-        (realtimeMonitoring.nestedStackResource as cdk.CfnStack).cfnOptions.condition = nonRealTimeMonitoringCondition;
-
-        const monitoringUrl = (cdk.Fn.conditionIf(realtimeMonitoringCondition.logicalId, realtimeMonitoring.monitoringUrl, nonRealtimeMonitoring.monitoringUrl) as unknown) as string;
-        const monitoringApiKey = (cdk.Fn.conditionIf(realtimeMonitoringCondition.logicalId, realtimeMonitoring.monitoringUrl, nonRealtimeMonitoring.monitoringUrl) as unknown) as string;
-
-        new PortalConstruct(this, "WebConsole", {
+        const webConsole = new PortalConstruct(this, "WebConsole", {
             aws_api_key: commonConstruct?.appsyncApi.apiKey,
             aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
             aws_appsync_graphqlEndpoint: commonConstruct?.appsyncApi.graphqlUrl,
@@ -94,6 +65,7 @@ export class RootStack extends cdk.Stack {
             aws_cognito_region: this.region,
             aws_monitoring_url: monitoringUrl,
             aws_monitoring_api_key: monitoringApiKey,
+            aws_monitoring_stack_name: 'MonitoringStack',
             build_time: new Date().getTime() + "",
         });
 

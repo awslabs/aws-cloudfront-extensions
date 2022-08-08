@@ -9,4 +9,5 @@ export interface AmplifyConfigType {
   aws_user_pools_web_client_id: string;
   aws_monitoring_url: string;
   aws_monitoring_api_key: string;
+  aws_monitoring_stack_name: string;
 }

@@ -30,6 +30,7 @@ interface AmplifyConfigType {
   aws_cloudfront_url: string;
   aws_monitoring_url: string;
   aws_monitoring_api_key: string;
+  aws_monitoring_stack_name: string;
 }
 
 const buildAppsyncLink = () => {
@@ -58,8 +59,8 @@ const buildAppsyncLink = () => {
       authType === AppSyncAuthType.API_KEY
         ? undefined
         : authType === AppSyncAuthType.OPEN_ID
-        ? getOIDCUser()?.id_token
-        : async () => (await Auth.currentSession()).getIdToken().getJwtToken(),
+          ? getOIDCUser()?.id_token
+          : async () => (await Auth.currentSession()).getIdToken().getJwtToken(),
   };
 
   const httpLink: any = createHttpLink({ uri: url });

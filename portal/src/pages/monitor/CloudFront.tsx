@@ -131,8 +131,6 @@ const CloudFront: React.FC = () => {
     setValue(newValue);
   };
 
-  // console.log("aws_monitoring_url:" + amplifyConfig.aws_monitoring_url);
-
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
     try {
@@ -140,10 +138,9 @@ const CloudFront: React.FC = () => {
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpDistributionList = [];
       const tmpSelectedList = [];
-
       const domainData = await appSyncRequestMutation(updateDomains, {
-        stack_name: "MonitoringStack",
-        domains: ["0"],
+        stack_name: amplifyConfig.aws_monitoring_stack_name,
+        domains: "*",
       });
       const domainList: string[] = [];
       if (domainData.data.updateDomains.includes(",")) {
@@ -197,7 +194,7 @@ const CloudFront: React.FC = () => {
       startDate +
       "&EndTime=" +
       endDate +
-      "&Metric=all&" +
+      "&Metric=all" +
       domain;
     try {
       const response = await fetch(url2, {
@@ -404,7 +401,7 @@ const CloudFront: React.FC = () => {
     try {
       setLoadingApply(true);
       const resData = await appSyncRequestMutation(updateDomains, {
-        stack_name: "MonitoringStack",
+        stack_name: amplifyConfig.aws_monitoring_stack_name,
         domains: selectDistribution,
       });
       await getCloudfrontDistributionList();
@@ -473,6 +470,7 @@ const CloudFront: React.FC = () => {
             />
             <DateRangePicker
               format="yyyy-MM-dd hh:mm"
+              defaultValue={[new Date(), new Date()]}
               disabledDate={afterToday?.()}
               onChange={(range) => {
                 if (range != null) {

@@ -1,6 +1,6 @@
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import * as cdk from 'aws-cdk-lib';
-import {CustomResource, Stack} from 'aws-cdk-lib';
+import { CustomResource, Stack } from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -55,13 +55,7 @@ export class ConsoleConstruct extends Construct {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*`,
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`,
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*:*`,
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*`,
-            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`
-          ],
+          resources: ['*'],
           actions: [
             "lambda:*"
           ],
@@ -182,6 +176,13 @@ export class ConsoleConstruct extends Construct {
       deployerLambdaDs.createResolver({
         typeName: "Mutation",
         fieldName: "syncExtensions",
+        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
+        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
+      });
+
+      deployerLambdaDs.createResolver({
+        typeName: "Mutation",
+        fieldName: "updateDomains",
         requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
         responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
       });
