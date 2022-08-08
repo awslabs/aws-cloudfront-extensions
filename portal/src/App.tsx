@@ -53,7 +53,7 @@ import JobStatus from "pages/console/sslcertificate_mockUI/status/JobStatus";
 
 const SignInRouter: React.FC = () => {
   return (
-    <Authenticator signUpAttributes={["email"]}>
+    <Authenticator hideSignUp>
       {({ signOut, user }) => {
         return (
           <>
