@@ -247,10 +247,7 @@ type Mutation {
     # SSL for SAAS
     certCreateOrImport(input: certInput): certOutput
 
-<<<<<<< HEAD
     # Update monitoring domains
     updateDomains(stack_name: String!, domains: [String]): String
-=======
->>>>>>> refs/heads/mainline
 }
 
