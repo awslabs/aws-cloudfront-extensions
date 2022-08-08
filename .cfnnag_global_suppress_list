@@ -33,3 +33,4 @@ RulesToSuppress:
   - id: W40
   - id: W33
   - id: W5
+  - id: W35
