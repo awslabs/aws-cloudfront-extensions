@@ -17,7 +17,7 @@
     "id": "snapshot2",
     "distribution_id": "E20GR9AX7K798K",
     "snapshot_name": "snapshot2",
-    "note": "测试一下这个功能",
+    "note": "test note",
     "dateTime": "2022-06-30-12-10-16",
     "config_link": "s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json",
     "s3_bucket": "cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i",

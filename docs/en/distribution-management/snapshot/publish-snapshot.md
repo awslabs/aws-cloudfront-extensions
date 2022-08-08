@@ -1,4 +1,4 @@
-Before you can use a snapshot, you must create a snapshot first.
+Before using a snapshot, you must create a snapshot.
 
 1. Log in to the web console.
 2. In the left sidebar, under **Configuration**, select **Snapshot**. 

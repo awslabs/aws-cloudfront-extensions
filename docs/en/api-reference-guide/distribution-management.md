@@ -17,13 +17,3 @@
 - [apply_snapshot](snapshot/apply-snapshot.md)
 - [config_snapshot_tag_update](snapshot/config_snapshot_tag_update.md)
 
-{%
-include "include-call-url.md"
-%}
-
-## Tools
-- API Explorer
-- Postman
-- cURL
-- Python
-- Java

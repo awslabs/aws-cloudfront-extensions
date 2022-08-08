@@ -1,4 +1,4 @@
-If you do not need a snapshot any more, you can choose to delete it.
+If you do not need a snapshot any more, you can delete it.
 
 1. Log in to the web console.
 2. In the left sidebar, under **Configuration**, select **Snapshot**. 
