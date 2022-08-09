@@ -25,9 +25,9 @@ Use the following steps to deploy this solution on AWS.
 
       | Parameter | Default value | Description |
       |-----------|---------------|---------|
-      | CloudFrontDomainList | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | NonRealTimeMonitoring | true | Set it to true to get monitoring metrics by analyzing CloudFront standard log, set it to false to get the metrics by analyzing CloudFront real-time log. |
       | EmailAddress | - | Email address to receive SSL certificates notification. |
+      | Monitoring | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. |
+      | CloudFrontDomainList | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
       | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket. |
       | DeleteLog | false | Delete original CloudFront standard logs in S3 bucket (true or false). |
       | UseStartTime | false | Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time. |
@@ -67,7 +67,8 @@ Use the following steps to deploy this solution on AWS.
 
       | Parameter | Default value | Description |
       |-----------|---------------|---------|
-      | EmailAddress | - | Email address to receive SSL certificates notification. |
+      
+
   
 
 4. Choose **Next**.
@@ -79,123 +80,6 @@ You can view the status of the stack in the CloudFormation Console in the Status
 
 To see details for the stack resources, choose the **Outputs** tab. 
 
-
-## CloudFront Non-real-time Log Monitoring API
- 
-**Time to deploy**: Approximately 15 minutes
-
-### Deployment overview
-
-Use the following steps to deploy this solution on AWS.
-
-- Launch the CloudFormation template into your AWS account.
-- Review the template parameters, and adjust them if necessary.
-
-### Deployment steps
-
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CFMonitoringNonRealTime.template) as a starting point for your own implementation.
-
-      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CFMonitoringNonRealTime.template)
-
-
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
-
-3. Under Parameters, review the parameters for the template, and modify them as necessary.
-
-      | Parameter | Default value | Description |
-      |-----------|---------------|---------|
-      | CloudFrontDomainList | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket. |
-      | DeleteLog | false | Delete original CloudFront standard logs in S3 bucket (true or false). |
-      | UseStartTime | false | Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time. |
-  
-
-4. Choose **Next**.
-5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.
-7. Choose **Create** to deploy the stack. 
-
-You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
-
-To see details for the stack resources, choose the **Outputs** tab. 
-
-
-
-## CloudFront Real-time Log Monitoring API
- 
-**Time to deploy**: Approximately 15 minutes
-
-### Deployment overview
-
-Use the following steps to deploy this solution on AWS.
-
-- Launch the CloudFormation template into your AWS account.
-- Review the template parameters, and adjust them if necessary.
-
-### Deployment steps
-
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template) as a starting point for your own implementation.
-
-      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template)
-
-
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
-
-3. Under Parameters, review the parameters for the template, and modify them as necessary.
-
-      | Parameter | Default value | Description |
-      |-----------|---------------|---------|
-      | CloudFrontDomainList | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket. |
-  
-
-4. Choose **Next**.
-5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.
-7. Choose **Create** to deploy the stack. 
-
-You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
-
-To see details for the stack resources, choose the **Outputs** tab. 
-
-
-## Pre-warming
- 
-**Time to deploy**: Approximately 10 minutes
-
-### Deployment overview
-
-Use the following steps to deploy this solution on AWS.
-
-- Launch the CloudFormation template into your AWS account.
-- Review the template parameters, and adjust them if necessary.
-
-### Deployment steps
-
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/Prewarm.template) as a starting point for your own implementation.
-
-      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/Prewarm.template)
-
-
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
-
-3. Under Parameters, review the parameters for the template, and modify them as necessary.
-
-      | Parameter | Default value | Description |
-      |-----------|---------------|---------|
-      | ShowSuccessUrls | false | Show success url list in Prewarm status API (true or false). |
-      | InstanceType | m6g.large | EC2 spot instance type to send pre-warm requests. |
-      | ThreadNumber | 6 | Thread number to run in parallel in EC2. |
-  
-
-4. Choose **Next**.
-5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.
-7. Choose **Create** to deploy the stack. 
-
-You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 10 minutes.
-
-To see details for the stack resources, choose the **Outputs** tab. 
 
 
 ## Lambda@Edge & CloudFront Functions collection
@@ -254,51 +138,4 @@ For more information about Lambda@Edge and CloudFront functions, see [Welcome](i
 3. Search **aws-cloudfront-extensions** to display all extensions, and choose an application (for example, serving-based-on-device) and click **Deploy**.
 4. On the application detail page, check **I acknowledge that this app creates custom IAM roles**.
 5. Choose **Deploy**. After the deployment is completed, it will redirect to Lambda application page, and you can deploy it to Lambda@Edge.
-
-
-## CloudFront security automations with AWS WAF and AWS Shield
- 
-**Time to deploy**: Approximately 15 minutes
-
-### Deployment overview
-
-Use the following steps to deploy this solution on AWS. 
-
-- Launch the CloudFormation template into your AWS account.
-- Review the template parameters, and adjust them if necessary.
-
-### Deployment steps
-
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template) as a starting point for your own implementation.
-
-      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template)
-
-
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
-
-3. Under Parameters, review the parameters for the template, and modify them as necessary. 
-
-      | Parameter | Default value | Description |
-      |-----------|---------------|---------|
-      |WAFBlockPeriod| 240 | The period (in minutes) to block applicable IP addresses. |
-      | WAFScope | CLOUDFRONT | Specifies whether this is for an AWS CloudFront distribution. |
-      | appAccessLogBucket | access-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store Cloud Front access logs for your CloudFront distribution. |
-      | errorThreshold | 50 | The maximum acceptable bad requests per minute per IP. |
-      | requestThreshold | 100 | The maximum acceptable requests per FIVE-minute period per IP address. |
-      | wafLogBucketName |waf-log-bucket-cloudfront | The name for the Amazon S3 bucket where you want to store WAF access logs. |
-      
-         !!! note "Note"
-           
-            If the parameter WAFScope uses the default value CLOUDFRONT, you must create your WAFv2 resources in the US East (N. Virginia) Region, us-east-1.
-
-
-4. Choose **Next**. 
-5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**. 
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required. 
-7. Choose **Create** to deploy the stack. 
-
-You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
-
-To see details for the stack resources, choose the **Outputs** tab. 
-
 
