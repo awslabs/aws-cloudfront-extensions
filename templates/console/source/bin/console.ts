@@ -4,7 +4,6 @@ import * as cdk from "aws-cdk-lib";
 import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from "cdk-bootstrapless-synthesizer";
 import { RootStack } from "../lib/root-stack";
 import { Aspects } from "aws-cdk-lib";
-import { SSLForSaasStack } from "../lib/ssl-for-saas-stack";
 import { MonitoringStack } from "../lib/monitoring/root-monitoring-stack";
 
 
@@ -23,13 +22,6 @@ new RootStack(app, "CloudFrontExtnConsoleStack", {
     },
     synthesizer: newSynthesizer()
 });
-
-new SSLForSaasStack(app, "SslForSaasApiStack", {
-    tags: {
-        app: "SslForSaasApiStack",
-    },
-    synthesizer: newSynthesizer()
-})
 
 // below lines are required if your application has Docker assets
 if (process.env.USE_BSS) {
