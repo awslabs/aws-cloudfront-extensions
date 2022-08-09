@@ -9,12 +9,12 @@ import { MonitoringStack } from "../lib/monitoring/root-monitoring-stack";
 
 const app = new cdk.App();
 
-new MonitoringStack(app, "MonitoringStack", {
-    tags: {
-        app: "MonitoringStack",
-    },
-    synthesizer: newSynthesizer()
-});
+// new MonitoringStack(app, "MonitoringStack", {
+//     tags: {
+//         app: "MonitoringStack",
+//     },
+//     synthesizer: newSynthesizer()
+// });
 
 new RootStack(app, "CloudFrontExtnConsoleStack", {
     tags: {
