@@ -25,7 +25,7 @@ export class RootStack extends cdk.Stack {
         // construct a cognito for auth
         const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
             userPoolName: "CloudFrontExtCognito_UserPool",
-            selfSignUpEnabled: true,
+            selfSignUpEnabled: false,
             autoVerify: {
                 email: true,
             },
@@ -38,8 +38,38 @@ export class RootStack extends cdk.Stack {
                     required: true,
                     mutable: false,
                 }
-            }
+            },
         });
+
+        const consoleAdminUserName = new cdk.CfnParameter(this, "ConsoleAdminUserName", {
+            type: "String",
+            description: "the default username for the web console"
+        })
+
+        const consoleAdminUserEmail = new cdk.CfnParameter(this, "ConsoleAdminEmail", {
+            type: "String",
+            description: "the default user email for the web console"
+        })
+
+        new cognito.CfnUserPoolUser(this, 'WebConsoleDefaultUser', {
+          userPoolId: cognitoUserPool.userPoolId,
+          // the properties below are optional
+          desiredDeliveryMediums: ['EMAIL'],
+          forceAliasCreation: true,
+          userAttributes: [{
+            name: 'email_verified',
+            value: 'True',
+          }, {
+              name: 'email',
+              value: consoleAdminUserEmail.valueAsString
+          }],
+          username: consoleAdminUserName.valueAsString,
+        });
+
+        const cfnUserPool = cognitoUserPool.node.defaultChild as cognito.CfnUserPool
+        cfnUserPool.userPoolAddOns = {
+            advancedSecurityMode: 'ENFORCED'
+        }
 
         const cognitoUserPoolClient = cognitoUserPool.addClient('CloudFrontExtn_WebPortal');
 
