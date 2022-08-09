@@ -232,19 +232,19 @@ const Repository: React.FC = () => {
               cell: (e: Extension) => e.updateDate,
             },
           ]}
-          filter={
-            <div>
-              <TextInput
-                value={searchParams}
-                isSearch={true}
-                placeholder={"Search all extentions"}
-                onChange={(event) => {
-                  console.info("event:", event);
-                  setSearchParams(event.target.value);
-                }}
-              />
-            </div>
-          }
+          // filter={
+          //   <div>
+          //     <TextInput
+          //       value={searchParams}
+          //       isSearch={true}
+          //       placeholder={"Search all extentions"}
+          //       onChange={(event) => {
+          //         console.info("event:", event);
+          //         setSearchParams(event.target.value);
+          //       }}
+          //     />
+          //   </div>
+          // }
           changeSelected={(item) => {
             if (item.length > 0) {
               setSelectedExtension(item[0]);
