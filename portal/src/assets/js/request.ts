@@ -59,8 +59,8 @@ const buildAppsyncLink = () => {
       authType === AppSyncAuthType.API_KEY
         ? undefined
         : authType === AppSyncAuthType.OPEN_ID
-          ? getOIDCUser()?.id_token
-          : async () => (await Auth.currentSession()).getIdToken().getJwtToken(),
+        ? getOIDCUser()?.id_token
+        : async () => (await Auth.currentSession()).getIdToken().getJwtToken(),
   };
 
   const httpLink: any = createHttpLink({ uri: url });
