@@ -54,15 +54,16 @@ rm -rf $lambda_build_dist_dir
 echo "mkdir -p $lambda_build_dist_dir"
 mkdir -p $lambda_build_dist_dir
 
-echo "find $lambda_source_dir -iname \"dist\" -type d -exec rm -r \"{}\" \; 2> /dev/null"
-find "$lambda_source_dir" -iname "dist" -type d -exec rm -r "{}" \; 2> /dev/null
 echo "find ../ -type f -name 'package-lock.json' -delete"
 find "$lambda_source_dir" -type f -name 'package-lock.json' -delete
 echo "find ../ -type f -name '.DS_Store' -delete"
 find "$lambda_source_dir" -type f -name '.DS_Store' -delete
-echo "find $lambda_source_dir -iname \"package\" -type d -exec rm -r \"{}\" \; 2> /dev/null"
-find "$lambda_source_dir" -iname "package" -type d -exec rm -r "{}" \; 2> /dev/null
-
+# echo "find $lambda_source_dir -iname \"package\" -type d -exec rm -r \"{}\" \; 2> /dev/null"
+# find "$lambda_source_dir" -iname "package" -type d -exec rm -r "{}" \; 2> /dev/null
+rm -rf $lambda_source_dir/deployer/common
+rm -rf $lambda_source_dir/custom_resource/common
+rm -rf $lambda_source_dir/deployer/package
+rm -rf $lambda_source_dir/custom_resource/package
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Extensions repository deployer"

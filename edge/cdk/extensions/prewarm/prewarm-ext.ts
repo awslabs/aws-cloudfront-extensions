@@ -63,6 +63,18 @@ export class PrewarmStack extends cdk.Stack {
       },
     });
 
+    messageQueue.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.DENY,
+        principals: [new iam.AnyPrincipal()],
+        actions: ["sqs:*"],
+        resources: ["*"],
+        conditions: {
+          Bool: { "aws:SecureTransport": "false" }
+        }
+      })
+    );
+
     const prewarmRole = new iam.Role(this, 'PrewarmRole', {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
@@ -127,11 +139,6 @@ export class PrewarmStack extends cdk.Stack {
             "sqs:GetQueueAttributes",
             "sqs:SetQueueAttributes",
           ],
-          conditions: {
-            Bool: {
-              "aws:SecureTransport": true,
-            },
-          },
         })
       ]
     });

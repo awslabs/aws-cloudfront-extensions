@@ -140,6 +140,15 @@ export class StepFunctionRpTsConstruct extends Construct {
     sns_topic.addSubscription(
       new subs.EmailSubscription(email_address.valueAsString)
     );
+    sns_topic.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.DENY,
+        principals: [new iam.AnyPrincipal()],
+        resources: [sns_topic.topicArn],
+        actions: ['sns:Publish'],
+        conditions: { Bool: { 'aws:SecureTransport': 'false' } }
+      })
+    );
 
     // create another lambda subscription to handle DCV as provided in sample code, TBD
 

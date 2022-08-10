@@ -2,21 +2,21 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from "cdk-bootstrapless-synthesizer";
-import { RootStack } from "../lib/root-stack";
+import { ConsoleStack } from "../lib/console-stack";
 import { Aspects } from "aws-cdk-lib";
 import { MonitoringStack } from "../lib/monitoring/root-monitoring-stack";
 
 
 const app = new cdk.App();
 
-new MonitoringStack(app, "MonitoringStack", {
-    tags: {
-        app: "MonitoringStack",
-    },
-    synthesizer: newSynthesizer()
-});
+// new MonitoringStack(app, "MonitoringStack", {
+//     tags: {
+//         app: "MonitoringStack",
+//     },
+//     synthesizer: newSynthesizer()
+// });
 
-new RootStack(app, "CloudFrontExtnConsoleStack", {
+new ConsoleStack(app, "CloudFrontExtnConsoleStack", {
     tags: {
         app: "CloudFrontExtnConsoleStack",
     },

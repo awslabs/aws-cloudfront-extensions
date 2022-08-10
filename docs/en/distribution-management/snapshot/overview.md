@@ -7,12 +7,21 @@ When you create a snapshot, the solution automatically exports the current distr
 
 ### How to work with snapshots?
 
-You can perform the following operations on snapshots:
+You can perform the following operations on snapshots on web console:
 
-- [create_snapshot](create_snapshot.md)
-- [delete_snapshot](delete_snapshot.md)
-- [list_snapshots](list_snapshots.md)
-- [diff_cloudfront_snapshot](diff_cloudfront_snapshot.md)
-- [get_snapshot_link](get_snapshot_link.md)
-- [apply_snapshot](apply-snapshot.md)
-- [config_snapshot_tag_update](config_snapshot_tag_update.md)
+- [Compare snapshot](./compare-snapshot.md)
+- [Apply snapshot](./apply-snapshot.md)
+- [Publish snapshot](./publish-snapshot.md)
+- [Delete snapshot](./delete-snapshot.md)
+
+
+You can also perform the following operations on snapshots via API:
+
+- [create_snapshot](../../api-reference-guide/snapshot/create_snapshot.md)
+- [delete_snapshot](../../api-reference-guide/snapshot/delete_snapshot.md)
+- [list_snapshots](../../api-reference-guide/snapshot/list_snapshots.md)
+- [diff_cloudfront_snapshot](../../api-reference-guide/snapshot/diff_cloudfront_snapshot.md)
+- [get_snapshot_link](../../api-reference-guide/snapshot/get_snapshot_link.md)
+- [apply_snapshot](../../api-reference-guide/snapshot/apply-snapshot.md)
+- [config_snapshot_tag_update](../../api-reference-guide/snapshot/config_snapshot_tag_update.md)
+

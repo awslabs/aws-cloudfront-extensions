@@ -1,254 +1,170 @@
-import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import * as cdk from 'aws-cdk-lib';
-import { CustomResource, Stack } from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as logs from 'aws-cdk-lib/aws-logs';
-import * as cr from 'aws-cdk-lib/custom-resources';
-import { Construct } from 'constructs';
-import * as path from 'path';
-import { CommonProps } from './cf-common/cf-common-stack';
+import { Construct } from "constructs";
+import { CommonConstruct } from "./cf-common/cf-common-stack";
+import { PortalConstruct } from "./web-portal/web_portal_stack";
+import {
+    CloudFrontConfigVersionConstruct,
+} from "./config-version/aws-cloudfront-config-version-stack";
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
+import { StepFunctionRpTsConstruct } from "./ssl-for-saas/step_function_rp_ts-stack";
+import { RepoConstruct } from "./repo/repo-stack";
+import { aws_cognito as cognito, StackProps } from "aws-cdk-lib";
+import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from "aws-cdk-lib/custom-resources";
 
-export class ConsoleStack extends Stack {
-  constructor(scope: Construct, id: string, props?: CommonProps) {
-    super(scope, id, props);
-    new ConsoleConstruct(scope, id, props);
-  }
+interface ConsoleStackProps extends StackProps {
+    synthesizer: any
 }
 
-export class ConsoleConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: CommonProps) {
-    super(scope, id);
+export class ConsoleStack extends cdk.Stack {
 
-    // Create Dynamodb table to store extensions
-    const cfExtensionsTable = new dynamodb.Table(this, 'CloudFrontExtensions', {
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      partitionKey: { name: 'name', type: dynamodb.AttributeType.STRING },
-      pointInTimeRecovery: true,
-    });
+    constructor(app: Construct, id: string, props: ConsoleStackProps) {
+        super(app, id, props);
+        this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
 
-    // Extensions repository role
-    const extDeployerRole = new iam.Role(this, 'ExtDeployerRole', {
-      assumedBy: new iam.CompositePrincipal(
-        new iam.ServicePrincipal("lambda.amazonaws.com"),
-        new iam.ServicePrincipal("appsync.amazonaws.com"),
-      ),
-    });
+        // Construct a cognito for auth
+        const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
+            userPoolName: "CloudFrontExtCognito_UserPool",
+            selfSignUpEnabled: false,
+            autoVerify: {
+                email: true,
+            },
+            signInAliases: {
+                username: true,
+                email: true,
+            },
+            standardAttributes: {
+                email: {
+                    required: true,
+                    mutable: false,
+                }
+            },
+        });
 
-    // Extensions repository policy to access DynamoDB
-    const extDDBPolicy = new iam.Policy(this, 'ExtDDBPolicy', {
-      statements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: [cfExtensionsTable.tableArn],
-          actions: [
-            "dynamodb:*"
-          ]
+        const consoleAdminUserName = new cdk.CfnParameter(this, "ConsoleAdminUserName", {
+            type: "String",
+            description: "the default username for the web console"
         })
-      ]
-    });
 
-    // Extensions repository policy to access Lambda
-    const extLambdaPolicy = new iam.Policy(this, 'ExtLambdaPolicy', {
-      statements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: ['*'],
-          actions: [
-            "lambda:*"
-          ],
-        }),
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: [
-            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*`,
-            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*:log-stream:*`
-          ],
-          actions: [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-          ],
-        }),
-      ]
-    });
-
-    const extIAMPolicy = new iam.Policy(this, 'ExtIAMPolicy', {
-      statements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: ['*'],
-          actions: [
-            "iam:GetRole",
-            "iam:ListRoles",
-            "iam:CreateRole",
-            "iam:DeleteRole",
-            "iam:PassRole",
-            "iam:AttachRolePolicy",
-            "iam:DetachRolePolicy",
-            "iam:CreateServiceLinkedRole",
-            "iam:PutRolePolicy",
-            "iam:DeleteRolePolicy",
-          ]
+        const consoleAdminUserEmail = new cdk.CfnParameter(this, "ConsoleAdminEmail", {
+            type: "String",
+            description: "the default user email for the web console"
         })
-      ]
-    });
 
-    // Policy to deploy a SAR application
-    const extDeploymentPolicy = new iam.Policy(this, 'extDeploymentPolicy', {
-      statements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: ['*'],
-          actions: [
-            "cloudformation:*",
-            "ssm:GetParameters",
-            "serverlessrepo:CreateCloudFormationTemplate",
-            "serverlessrepo:GetCloudFormationTemplate",
-            "serverlessrepo:CreateCloudFormationChangeSet",
-            "s3:GetObject"
-          ]
+        const consoleAdminUserPassword = new cdk.CfnParameter(this, "ConsoleAdminPassword", {
+            type: "String",
+            description: "the default user password for the web console",
+            allowedPattern: "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,16}$",
+            constraintDescription: "Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9)",
+            minLength: 8,
+            maxLength: 32,
         })
-      ]
-    });
 
-    extDeployerRole.attachInlinePolicy(extDDBPolicy);
-    extDeployerRole.attachInlinePolicy(extLambdaPolicy);
-    extDeployerRole.attachInlinePolicy(extIAMPolicy);
-    extDeployerRole.attachInlinePolicy(extDeploymentPolicy);
+        const user = new cognito.CfnUserPoolUser(this, 'WebConsoleDefaultUser', {
+          userPoolId: cognitoUserPool.userPoolId,
+          // Properties below are optional
+          desiredDeliveryMediums: ['EMAIL'],
+          forceAliasCreation: true,
+          messageAction: 'SUPPRESS',
+          userAttributes: [{
+            name: 'email_verified',
+            value: 'True',
+          }, {
+              name: 'email',
+              value: consoleAdminUserEmail.valueAsString
+          }],
+          username: consoleAdminUserName.valueAsString,
+        });
 
-    // Deployer API in extensions repository
-    // const extDeployerApi = new appsync.GraphqlApi(this, 'ExtDeployerApi', {
-    //   name: 'ext-deploy-api',
-    //   schema: appsync.Schema.fromAsset(path.join(__dirname, '../graphql/schema.graphql')),
-    //   authorizationConfig: {
-    //     defaultAuthorization: {
-    //       authorizationType: appsync.AuthorizationType.IAM,
-    //     },
-    //   },
-    //   xrayEnabled: true,
-    // });
-    if (props && props.appsyncApi) {
-      const extDeployerApi = props?.appsyncApi;
+        // Force the password for the user, since new users created are in FORCE_PASSWORD_CHANGE status by default, such new user has no way to change it though
+        // Refer to API details on https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminSetUserPassword.html
+        const adminSetUserPassword = new AwsCustomResource(this, 'AwsCustomResource-ForcePassword', {
+            onCreate: {
+                service: 'CognitoIdentityServiceProvider',
+                action: 'adminSetUserPassword',
+                parameters: {
+                    UserPoolId: cognitoUserPool.userPoolId,
+                    Username: user.username,
+                    Password: consoleAdminUserPassword.valueAsString,
+                    Permanent: true,
+                },
+                physicalResourceId: PhysicalResourceId.of(`AwsCustomResource-ForcePassword-${user.username}`),
+            },
+            policy: AwsCustomResourcePolicy.fromSdkCalls({resources: AwsCustomResourcePolicy.ANY_RESOURCE}),
+            installLatestAwsSdk: true,
+        });
 
-      // AWS Lambda Powertools
-      const powertools_layer = lambda.LayerVersion.fromLayerVersionArn(
-        this,
-        `PowertoolLayer`,
-        `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
-      );
+        const cfnUserPool = cognitoUserPool.node.defaultChild as cognito.CfnUserPool
+        cfnUserPool.userPoolAddOns = {
+            advancedSecurityMode: 'ENFORCED'
+        }
 
-      // Deployer lambda in extensions repository
-      const extDeployerLambda = new lambda.Function(this, 'ExtDeployerLambda', {
-        runtime: lambda.Runtime.PYTHON_3_9,
-        handler: 'deployer.lambda_handler',
-        timeout: cdk.Duration.seconds(300),
-        code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/deployer.zip')),
-        role: extDeployerRole,
-        memorySize: 512,
-        environment: {
-          DDB_TABLE_NAME: cfExtensionsTable.tableName,
-          EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
-        },
-        logRetention: logs.RetentionDays.ONE_WEEK,
-        layers: [powertools_layer]
-      });
+        const cognitoUserPoolClient = cognitoUserPool.addClient('CloudFrontExtn_WebPortal');
 
-      // Set Deployer Lambda function as a data source for Deployer API
-      const deployerLambdaDs = extDeployerApi.addLambdaDataSource('lambdaDatasource', extDeployerLambda);
 
-      deployerLambdaDs.createResolver({
-        typeName: "Query",
-        fieldName: "listExtensions",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+        // Main stack with shared components
+        const commonConstruct = new CommonConstruct(this, `CfCommonConstruct`, {
+            sslForSaasOnly: false,
+            cognitoClient: cognitoUserPoolClient,
+            cognitoUserPool: cognitoUserPool,
+        });
 
-      deployerLambdaDs.createResolver({
-        typeName: "Query",
-        fieldName: "queryByName",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+        // const monitoringUrl = cdk.Fn.importValue('monitoringUrl') as string;
+        // const monitoringApiKey = cdk.Fn.importValue('monitoringApiKey') as string;
 
-      deployerLambdaDs.createResolver({
-        typeName: "Mutation",
-        fieldName: "syncExtensions",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+        const webConsole = new PortalConstruct(this, "WebConsole", {
+            aws_api_key: commonConstruct?.appsyncApi.apiKey,
+            aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
+            aws_appsync_graphqlEndpoint: commonConstruct?.appsyncApi.graphqlUrl,
+            aws_appsync_region: this.region,
+            aws_project_region: this.region,
+            aws_user_pools_id: cognitoUserPool.userPoolId,
+            aws_user_pools_web_client_id: cognitoUserPoolClient.userPoolClientId,
+            aws_cognito_region: this.region,
+            // aws_monitoring_url: monitoringUrl,
+            // aws_monitoring_api_key: monitoringApiKey,
+            aws_monitoring_stack_name: 'MonitoringStack',
+            build_time: new Date().getTime() + "",
+        });
 
-      deployerLambdaDs.createResolver({
-        typeName: "Mutation",
-        fieldName: "updateDomains",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+        // Config version stack
+        const configVersion = new CloudFrontConfigVersionConstruct(
+            this,
+            "CloudFrontConfigVersionConstruct",
+            {
+                tags: {
+                    app: "CloudFrontConfigVersion",
+                },
+                synthesizer: props.synthesizer,
+                appsyncApi: commonConstruct.appsyncApi,
+            }
+        );
 
-      deployerLambdaDs.createResolver({
-        typeName: "Mutation",
-        fieldName: "deployExtension",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+        new RepoConstruct(this, "RepoConstruct", {
+            tags: {
+                app: "CloudFrontExtensionsRepo",
+            },
+            synthesizer: props.synthesizer,
+            appsyncApi: commonConstruct.appsyncApi,
+        });
 
-      deployerLambdaDs.createResolver({
-        typeName: "Query",
-        fieldName: "listCloudFrontDistWithId",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+        // SSL for SaaS stack
+        new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
+            /* If you don't specify 'env', this stack will be environment-agnostic.
+             * Account/Region-dependent features and context lookups will not work,
+             * but a single synthesized template can be deployed anywhere. */
 
-      deployerLambdaDs.createResolver({
-        typeName: "Query",
-        fieldName: "checkSyncStatus",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+            /* Uncomment the next line to specialize this stack for the AWS Account
+             * and Region that are implied by the current CLI configuration. */
+            // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 
-      deployerLambdaDs.createResolver({
-        typeName: "Query",
-        fieldName: "behaviorById",
-        requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-        responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-      });
+            /* Uncomment the next line if you know exactly what Account and Region you
+             * want to deploy the stack to. */
+            // env: { account: '123456789012', region: 'us-east-1' },
+
+            /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+            synthesizer: props.synthesizer,
+            appsyncApi: commonConstruct.appsyncApi,
+            configVersionDDBTableName: configVersion.configVersionDDBTableName,
+        });
     }
-
-    // Custom resource to sync extensions once the CloudFormation is completed
-    const customResourceLambda = new lambda.Function(this, "SyncExtensions", {
-      description: "This lambda function sync the latest extensions to your AWS account.",
-      runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/common/lambda-assets/custom_resource.zip')),
-      handler: "custom_resource.lambda_handler",
-      role: extDeployerRole,
-      memorySize: 256,
-      timeout: cdk.Duration.seconds(300),
-      environment: {
-        DDB_TABLE_NAME: cfExtensionsTable.tableName,
-        EXT_META_DATA_URL: 'https://aws-cloudfront-ext-metadata.s3.amazonaws.com/metadata.csv'
-      }
-    });
-
-    customResourceLambda.node.addDependency(cfExtensionsTable)
-
-    const customResourceProvider = new cr.Provider(this, 'customResourceProvider', {
-      onEventHandler: customResourceLambda,
-      logRetention: logs.RetentionDays.ONE_DAY,
-    });
-
-    new CustomResource(this, 'SyncExtensionsCustomResource', {
-      serviceToken: customResourceProvider.serviceToken,
-      resourceType: "Custom::SyncExtensions",
-    });
-
-
-    // Output
-    new cdk.CfnOutput(this, 'CloudFront Extensions DynamoDB table', {
-      value: cfExtensionsTable.tableName
-    });
-
-
-  }
 }

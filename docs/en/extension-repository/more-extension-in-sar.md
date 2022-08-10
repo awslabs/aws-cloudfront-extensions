@@ -9,6 +9,8 @@ As for Lambda@Edge functions, you can also find and configure them by searching 
 4. On the application detail page, check **I acknowledge that this app creates custom IAM roles**.
 5. Choose **Deploy**. After the deployment is completed, it will redirect to Lambda application page, and you can deploy it to Lambda@Edge.
 
+Please refer to [deployment](../deployment.md#lambdaedge) for more details.
+
 
 
 
