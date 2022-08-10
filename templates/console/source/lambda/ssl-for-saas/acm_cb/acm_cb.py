@@ -437,15 +437,15 @@ def notify_sns_subscriber(sns_msg):
     # make it a code url due to sns raw format, TBD make it a official repo url
     sample_route53_code = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
     sample_godaddy_code = 'https://gist.github.com/guming3d/56e2f0517aa47fc87289fd21ff97dcee'
-    message_to_be_published = {
-        'CNAME value need to add into DNS hostzone to finish DCV': str(sns_msg),
-        'Sample Script (Python)': sample_route53_code,
-        'Sample Script for Godaddy (Python)': sample_godaddy_code
-    }
+    message_to_be_published = '''
+           CNAME value need to add into DNS hostzone to finish DCV: {} \n
+           Sample Script (Python): {} \n
+           Sample Script for Godaddy (Python): {}
+       '''.format(str(sns_msg), sample_route53_code, sample_godaddy_code)
     # notify to sns topic for distribution event
     sns_client.publish(
         TopicArn=snsTopicArn,
-        Message=str(message_to_be_published),
+        Message=message_to_be_published,
         Subject='Domain Name Need to Do DCV (Domain Control Validation)'
     )
 
