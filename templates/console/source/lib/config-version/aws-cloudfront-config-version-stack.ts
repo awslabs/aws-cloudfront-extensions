@@ -611,10 +611,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     );
 
     // Prints out the stack region to the terminal
-    new cdk.CfnOutput(this, "Stack Region", {
-      value: Aws.REGION,
-    });
-
     new cdk.CfnOutput(this, "cloudfront_config_version_s3_bucket", {
       value: cloudfront_config_version_s3_bucket.bucketName,
     });
@@ -627,9 +623,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     new cdk.CfnOutput(this, "cloudfront_config_latest_version_dynamodb", {
       value: cloudfront_config_latestVersion_table.tableName,
     });
-    new cdk.CfnOutput(this, "cloudfront_config_exporter", {
-      value: cloudfrontConfigVersionExporter.functionName,
-    });
+
     // new cdk.CfnOutput(this, "cloudfront_config_diff", {
     //   value: cloudfrontConfigVersionManager.functionName,
     // });
@@ -638,12 +632,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     // });
     new cdk.CfnOutput(this, "cloudfront_snapshot_rest_api", {
       value: snapshot_rest_api.restApiName,
-    });
-    // new cdk.CfnOutput(this, "api-gateway_version_policy", {
-    //   value: version_api_client_policy.managedPolicyName,
-    // });
-    new cdk.CfnOutput(this, "api-gateway_snapshot_policy", {
-      value: snapshot_client_policy.managedPolicyName,
     });
 
     new cdk.CfnOutput(this, "Snapshot API key", {
