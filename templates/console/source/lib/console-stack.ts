@@ -40,19 +40,19 @@ export class ConsoleStack extends cdk.Stack {
             },
         });
 
-        const consoleAdminUserName = new cdk.CfnParameter(this, "ConsoleAdminUserName", {
+        const consoleAdminUserName = new cdk.CfnParameter(this, "InitialUserName", {
             type: "String",
-            description: "the default username for the web console"
+            description: "The initial username for the web console"
         })
 
-        const consoleAdminUserEmail = new cdk.CfnParameter(this, "ConsoleAdminEmail", {
+        const consoleAdminUserEmail = new cdk.CfnParameter(this, "InitialUserEmail", {
             type: "String",
-            description: "the default user email for the web console"
+            description: "The initial user email for the web console"
         })
 
-        const consoleAdminUserPassword = new cdk.CfnParameter(this, "ConsoleAdminPassword", {
+        const consoleAdminUserPassword = new cdk.CfnParameter(this, "InitialUserPassword", {
             type: "String",
-            description: "the default user password for the web console",
+            description: "the initial user password for the web console",
             allowedPattern: "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,16}$",
             constraintDescription: "Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9)",
             minLength: 8,

@@ -504,12 +504,6 @@ def aggregate_dist(callback_table, domain_name_list, sns_msg, task_token, task_t
                 _common_cert_operations(callback_table, certificate, san_list_dynamo_db, cert_UUid, task_token,
                                         task_type, sns_msg, job_token)
                 ###############
-{
-    'domainName': 'cloudfront-extn0.alvindaiyan.top',
-    'sanList': ['cloudfront-extn0.alvindaiyan.top'],
-    'originsItemsDomainName': '',
-    'existing_cf_info': {'distribution_id': 'EYW9OUAYJUDIO', 'config_version_id': '1'}
-}
 
 
 def validate_source_cloudfront_dist(domain_name_list):
