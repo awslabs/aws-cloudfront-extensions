@@ -104,6 +104,7 @@ export class RepoConstruct extends Construct {
           resources: ['*'],
           actions: [
             "cloudformation:*",
+            "cloudfront:*",
             "ssm:GetParameters",
             "serverlessrepo:CreateCloudFormationTemplate",
             "serverlessrepo:GetCloudFormationTemplate",
