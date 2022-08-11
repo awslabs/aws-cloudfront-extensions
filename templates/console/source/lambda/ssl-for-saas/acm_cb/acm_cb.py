@@ -436,10 +436,10 @@ def notify_sns_subscriber(sns_msg):
     logger.info("deliver message: %s to sns topic arn: %s", str(sns_msg), snsTopicArn)
     # make it a code url due to sns raw format, TBD make it a official repo url
     sample_route53_code = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
-    sample_godaddy_code = 'https://gist.github.com/guming3d/56e2f0517aa47fc87289fd21ff97dcee'
+    sample_godaddy_code = 'https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93'
     message_to_be_published = '''
            CNAME value need to add into DNS hostzone to finish DCV: {} \n
-           Sample Script (Python): {} \n
+           Sample Script for Route53 (Python): {} \n
            Sample Script for Godaddy (Python): {}
        '''.format(str(sns_msg), sample_route53_code, sample_godaddy_code)
     # notify to sns topic for distribution event
