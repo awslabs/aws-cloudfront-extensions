@@ -1,7 +1,7 @@
 import * as glue from "@aws-cdk/aws-glue-alpha";
 import { S3ToLambda } from '@aws-solutions-constructs/aws-s3-lambda';
 import * as cdk from 'aws-cdk-lib';
-import { CfnParameter, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { CfnParameter, CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   EndpointType,
   LambdaRestApi,
@@ -10,44 +10,58 @@ import {
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
+import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { CfnTable } from 'aws-cdk-lib/aws-glue';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { CompositePrincipal, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
-import { Construct } from 'constructs';
-import * as path from 'path';
 import * as cr from 'aws-cdk-lib/custom-resources';
-import { CustomResource } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { randomBytes } from 'crypto';
+import * as path from 'path';
 
+export interface MonitoringProps extends cdk.NestedStackProps {
+  nonRealTimeMonitoring: string,
+  domainList: string,
+  logKeepingDays: number,
+  deleteLogNonRealtime: string,
+  useStartTimeNonRealtime: string
+  portalBucket: cdk.aws_s3.Bucket
+}
 
 export class NonRealtimeMonitoringStack extends cdk.NestedStack {
 
-  constructor(scope: Construct, id: string, props?: cdk.NestedStackProps) {
-    super(scope, id, props);
-    this.templateOptions.description = "(SO8150) - Cloudfront Non-Realtime monitoring stack";
+  readonly monitroingUrl: string;
+  readonly secretValue: string;
 
-    const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
-      description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
-      type: 'String',
-      default: '',
-    });
-    const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
-      description: 'Max number of days to keep cloudfront realtime logs in S3',
-      type: 'Number',
-      default: 120,
-    });
-    const DeleteLog = new CfnParameter(this, 'DeleteLog', {
-      description: 'Delete original CloudFront standard logs in S3 bucket (true or false)',
-      type: 'String',
-      default: 'false',
-    });
-    const UseStartTime = new CfnParameter(this, 'UseStartTime', {
-      description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time',
-      type: 'String',
-      default: 'false',
-    });
+  constructor(scope: Construct, id: string, props: MonitoringProps) {
+    super(scope, id, props);
+    this.monitroingUrl = '';
+    this.secretValue = '';
+    this.templateOptions.description = "(SO8150) - Cloudfront Non-Realtime monitoring stack";
+    
+    // const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
+    //   description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
+    //   type: 'String',
+    //   default: '',
+    // });
+    // const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
+    //   description: 'Max number of days to keep cloudfront realtime logs in S3',
+    //   type: 'Number',
+    //   default: 120,
+    // });
+    // const DeleteLog = new CfnParameter(this, 'DeleteLog', {
+    //   description: 'Delete original CloudFront standard logs in S3 bucket (true or false)',
+    //   type: 'String',
+    //   default: 'false',
+    // });
+    // const UseStartTime = new CfnParameter(this, 'UseStartTime', {
+    //   description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time',
+    //   type: 'String',
+    //   default: 'false',
+    // });
 
     const glueTableName = "cloudfront_standard_log";
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
@@ -65,7 +79,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       lifecycleRules: [
         {
           enabled: true,
-          expiration: Duration.days(CloudFrontLogKeepingDays.valueAsNumber),
+          expiration: Duration.days(props.logKeepingDays),
         },
       ]
     });
@@ -361,7 +375,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         role: partitionRole,
         timeout: cdk.Duration.seconds(900),
         environment: {
-          DELETE_LOG: DeleteLog.valueAsString,
+          DELETE_LOG: props.deleteLogNonRealtime,
         },
       },
       existingBucketObj: cfLogBucket,
@@ -381,9 +395,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -403,9 +417,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -425,9 +439,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -447,9 +461,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -469,9 +483,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -491,9 +505,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -513,9 +527,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -535,9 +549,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -557,9 +571,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -579,9 +593,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -601,9 +615,9 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region,
-        USE_START_TIME: UseStartTime.valueAsString,
+        USE_START_TIME: props.useStartTimeNonRealtime,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -623,7 +637,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         GLUE_TABLE_NAME: glueTableName,
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
-        DOMAIN_LIST: CloudFrontDomainList.valueAsString,
+        DOMAIN_LIST: props.domainList,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -755,11 +769,16 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     const usagePlan = metricApi.addUsagePlan('CFMonitoringUsagePlan', {
       description: 'CF monitoring usage plan',
     });
-    const apiKey = metricApi.addApiKey('CFMonitoringApiKey');
+
+    this.secretValue = randomBytes(16).toString('base64');
+    const apiKey = metricApi.addApiKey('CFMonitoringApiKey', {
+      value: this.secretValue,
+    });
     usagePlan.addApiKey(apiKey);
     usagePlan.addApiStage({
       stage: metricApi.deploymentStage,
     });
+    this.monitroingUrl = `https://${metricApi.restApiId}.execute-api.${this.region}.amazonaws.com/${metricApi.deploymentStage.stageName}`;
 
     const cloudfront5MinutesRuleFirst = new Rule(this, 'CFStandardLogs_5_minutes_rule_1', {
       schedule: Schedule.expression("cron(0/5 * * * ? *)"),
@@ -810,15 +829,42 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopTraffic);
     cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopRequest);
 
+    const configFn = 'aws-monitoring-exports.json';
+    const configLambda = new AwsCustomResource(this, 'monitoringConfig', {
+      logRetention: logs.RetentionDays.ONE_DAY,
+      onUpdate: {
+        action: 'putObject',
+        parameters: {
+          Body: JSON.stringify({
+            'aws_monitoring_url': this.monitroingUrl,
+            'aws_monitoring_api_key': this.secretValue,
+            'aws_monitoring_stack_name': 'MonitoringStack'
+          }),
+          Bucket: props.portalBucket.bucketName,
+          CacheControl: 'max-age=0, no-cache, no-store, must-revalidate',
+          ContentType: 'application/json',
+          Key: configFn,
+        },
+        service: 'S3',
+        physicalResourceId: PhysicalResourceId.of('config'),
+      },
+      policy: AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          actions: ['s3:PutObject'],
+          resources: [props.portalBucket.arnForObjects(configFn)]
+        })
+      ])
+    });
+
     new cdk.CfnOutput(this, 'S3 bucket to store CloudFront logs', { value: cfLogBucket.bucketName });
     new cdk.CfnOutput(this, 'Dynamodb table', { value: cloudfrontMetricsTable.tableName });
     new cdk.CfnOutput(this, 'Glue table', { value: glueTableName });
-    new cdk.CfnOutput(this, "API Key", { 
-      value: apiKey.keyArn, 
-      exportName: 'monitoringApiKey' 
+    new cdk.CfnOutput(this, "API Key ARN", {
+      value: apiKey.keyArn,
+      exportName: 'monitoringApiKeyArn'
     });
     new cdk.CfnOutput(this, "Monitoring Url", {
-      value: `https://${metricApi.restApiId}.execute-api.${this.region}.amazonaws.com/${metricApi.deploymentStage.stageName}`,
+      value: this.monitroingUrl,
       exportName: 'monitoringUrl'
     });
   }

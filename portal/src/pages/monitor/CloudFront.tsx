@@ -195,6 +195,7 @@ const CloudFront: React.FC = () => {
       "&EndTime=" +
       endDate +
       "&Metric=all" +
+      "&Domain=" +
       domain;
     try {
       const response = await fetch(url2, {
