@@ -9,69 +9,72 @@ import { useSelector, useDispatch } from "react-redux";
 import { ActionType } from "../../reducer/appReducer";
 import { AppStateProps } from "../../reducer/appReducer";
 import { SIDE_BAR_OPEN_STORAGE_ID } from "../../reducer/appReducer";
-
-const SOLUSTION_NAME = "CloudFront Extensions";
-const SIDE_MENU_LIST = [
-  // {
-  //   name: "Deployment status",
-  //   link: "/deployment-status",
-  //   subMenu: [],
-  //   open: true,
-  // },
-  {
-    name: "Monitoring",
-    link: "/monitor",
-    subMenu: [
-      {
-        name: "CloudFront traffic",
-        link: "/monitor/cloudfront",
-      },
-    ],
-    open: true,
-  },
-  {
-    name: "Distribution management",
-    link: "/config",
-    subMenu: [
-      {
-        name: "Snapshot",
-        link: "/config/snapshot",
-      },
-      {
-        name: "Change history",
-        link: "/config/version",
-      },
-      {
-        name: "Certificates",
-        link: "/config/certification/list",
-      },
-      // {
-      //   name: "SSL for SAAS(Mock UI)",
-      //   link: "/config/sslcertificate/list",
-      // },
-    ],
-    open: true,
-  },
-  {
-    name: "Extensions",
-    link: "/extentions-repository",
-    subMenu: [
-      {
-        name: "Repository",
-        link: "/extentions-repository",
-      },
-    ],
-    open: true,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const SideMenu: React.FC = () => {
   const openMenu: boolean = useSelector(
     (state: AppStateProps) => state.openSideMenu
   );
-  const [sideMenuList, setSideMenuList] = useState(SIDE_MENU_LIST);
+  const { t } = useTranslation();
+
   const dispatch = useDispatch();
   const location = useLocation();
+
+  const SIDE_MENU_LIST = [
+    // {
+    //   name: "Deployment status",
+    //   link: "/deployment-status",
+    //   subMenu: [],
+    //   open: true,
+    // },
+    {
+      name: "menu.monitoring",
+      link: "/monitor",
+      subMenu: [
+        {
+          name: "menu.cloudFrontTraffic",
+          link: "/monitor/cloudfront",
+        },
+      ],
+      open: true,
+    },
+    {
+      name: "menu.distributionMgmt",
+      link: "/config",
+      subMenu: [
+        {
+          name: "menu.snapshot",
+          link: "/config/snapshot",
+        },
+        {
+          name: "menu.changeHistory",
+          link: "/config/version",
+        },
+        {
+          name: "menu.certificates",
+          link: "/config/certification/list",
+        },
+        // {
+        //   name: "SSL for SAAS(Mock UI)",
+        //   link: "/config/sslcertificate/list",
+        // },
+      ],
+      open: true,
+    },
+    {
+      name: "menu.extensions",
+      link: "/extentions-repository",
+      subMenu: [
+        {
+          name: "menu.repository",
+          link: "/extentions-repository",
+        },
+      ],
+      open: true,
+    },
+  ];
+  const [sideMenuList, setSideMenuList] = useState(SIDE_MENU_LIST);
+
   return (
     <div
       className="gsui-side-menu"
@@ -99,7 +102,7 @@ export const SideMenu: React.FC = () => {
               className="close-icon"
             />
             <div className="head-title">
-              <a href="/">{SOLUSTION_NAME}</a>
+              <a href="/">{t("name")}</a>
             </div>
             {sideMenuList.map((element, index) => {
               return (
@@ -120,7 +123,7 @@ export const SideMenu: React.FC = () => {
                           className={element.open ? "" : "reverse-90"}
                         />
                       </i>
-                      {element.name}
+                      {t(element.name)}
                     </div>
                   ) : (
                     <div
@@ -128,7 +131,7 @@ export const SideMenu: React.FC = () => {
                         location.pathname === element.link ? "active" : ""
                       }
                     >
-                      <Link to={element.link}>{element.name}</Link>
+                      <Link to={element.link}>{t(element.name)}</Link>
                     </div>
                   )}
                   {element.subMenu &&
@@ -145,7 +148,7 @@ export const SideMenu: React.FC = () => {
                                   : ""
                               }
                             >
-                              <Link to={subItem.link}>{subItem.name}</Link>
+                              <Link to={subItem.link}>{t(subItem.name)}</Link>
                             </div>
                           );
                         })}
@@ -157,7 +160,7 @@ export const SideMenu: React.FC = () => {
 
             <div className="external-link">
               <div>
-                <ExtLink to="/">Documentation</ExtLink>
+                <ExtLink to="/">{t("menu.doc")}</ExtLink>
               </div>
             </div>
           </div>

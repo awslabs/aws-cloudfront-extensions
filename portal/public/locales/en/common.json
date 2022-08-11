@@ -1,0 +1,48 @@
+{
+  "name": "CloudFront Extensions",
+  "header": {
+    "name": "AWS Solutions",
+    "welcome": "Welcome",
+    "logout": "Sign Out"
+  },
+  "menu": {
+    "monitoring": "Monitoring",
+    "cloudFrontTraffic": "CloudFront traffic",
+    "distributionMgmt": "Distribution management",
+    "snapshot": "Snapshot",
+    "changeHistory": "Change history",
+    "certificates": "Certificates",
+    "extensions": "Extensions",
+    "repository": "Repository",
+    "doc": "Documentation"
+  },
+  "bottom": {
+    "copy": "Amazon Web Services, Inc. or its affiliates. All rights reserved.",
+    "feedback": "Feedback",
+    "privacy": "Privacy Policy",
+    "use": "Terms of Use"
+  },
+  "button": {
+    "getStarted": "Get Started",
+    "add": "Add",
+    "viewDetail": "View details",
+    "remove": "Remove",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "create": "Create",
+    "previous": "Previous",
+    "next": "Next",
+    "edit": "Edit",
+    "save": "Save",
+    "copy": "Copy",
+    "enable": "Enable"
+  },
+  "status": {
+    "error": "Error"
+  },
+  "yes": "Yes",
+  "no": "No",
+  "loading": "loading...",
+  "noData": "No Data",
+  "info": "Info"
+}

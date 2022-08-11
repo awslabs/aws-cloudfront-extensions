@@ -1,0 +1,48 @@
+{
+  "name": "CloudFront Extensions",
+  "header": {
+    "name": "亚马逊云科技解决方案",
+    "welcome": "欢迎您",
+    "logout": "退出登录"
+  },
+  "menu": {
+    "monitoring": "监控",
+    "cloudFrontTraffic": "CloudFront 流量",
+    "distributionMgmt": "Distribution management",
+    "snapshot": "快照",
+    "changeHistory": "变更历史",
+    "certificates": "证书",
+    "extensions": "Extensions",
+    "repository": "Repository",
+    "doc": "文档"
+  },
+  "bottom": {
+    "copy": "Amazon Web Services, Inc. 或其子公司.保留所有权利.",
+    "feedback": "反馈",
+    "privacy": "隐私政策",
+    "use": "使用条款"
+  },
+  "button": {
+    "getStarted": "开始",
+    "add": "添加",
+    "viewDetail": "查看详情",
+    "remove": "移除",
+    "delete": "删除",
+    "cancel": "取消",
+    "create": "创建",
+    "previous": "上一步",
+    "next": "下一步",
+    "edit": "编辑",
+    "save": "保存",
+    "copy": "复制",
+    "enable": "启用"
+  },
+  "status": {
+    "error": "Error"
+  },
+  "yes": "Yes",
+  "no": "No",
+  "loading": "loading...",
+  "noData": "No Data",
+  "info": "Info"
+}

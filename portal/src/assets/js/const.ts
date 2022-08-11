@@ -12,3 +12,10 @@ export const StageListMap: any = {
     { name: "origin-response", value: "origin-response" },
   ],
 };
+
+export const EN_LANGUAGE_LIST = ["en", "en_US", "en_GB"];
+export const ZH_LANGUAGE_LIST = ["zh", "zh_CN", "zh_TW"];
+
+export const GITHUB_LINK =
+  "https://github.com/awslabs/cloudfront-extesion-plus";
+export const URL_FEEDBACK = GITHUB_LINK + "/issues";

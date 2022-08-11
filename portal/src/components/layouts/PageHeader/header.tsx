@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface SigninProps {
   signOut?: any;
@@ -6,14 +7,14 @@ interface SigninProps {
 }
 
 const LHeader: React.FC<SigninProps> = (props: SigninProps) => {
-  console.log(props.user);
+  const { t } = useTranslation();
   return (
     <header className="gsui-header">
-      <div className="logo">AWS Solutions</div>
+      <div className="logo">{t("header.name")}</div>
       <div className="user">
-        Welcome, {props.user.attributes.email} (
+        {t("header.welcome")}, {props.user.attributes.email} (
         <span className="cp sign-out" onClick={props.signOut}>
-          Sign Out
+          {t("header.logout")}
         </span>
         )
       </div>
