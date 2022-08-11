@@ -23,6 +23,10 @@
     "axios": "^0.26.1",
     "classnames": "^2.3.1",
     "deep-equal": "^2.0.5",
+    "i18next": "^21.9.0",
+    "i18next-browser-languagedetector": "^6.1.4",
+    "i18next-http-backend": "^1.4.1",
+    "moment": "^2.29.1",
     "node-sass": "^7.0.1",
     "oidc-client-ts": "^2.0.2",
     "react": "^17.0.2",
@@ -30,6 +34,7 @@
     "react-copy-to-clipboard": "^5.0.4",
     "react-diff-viewer": "^3.1.1",
     "react-dom": "^17.0.2",
+    "react-i18next": "^11.18.3",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.2",
     "react-scripts": "5.0.0",
@@ -37,8 +42,7 @@
     "rsuite": "^5.15.1",
     "sweetalert2": "^11.4.8",
     "typescript": "^4.6.2",
-    "web-vitals": "^2.1.4",
-    "moment": "^2.29.1"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",

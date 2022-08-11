@@ -1,0 +1,39 @@
+{
+  "category": "Networking & Content Delivery",
+  "title": "CloudFront Extensions",
+  "subTitle": "Use Amazon CloudFront conveniently in different scenarios",
+  "desc": "CloudFront Extensions includes rich set of featured Lambda@Edge, CloudFront Functions, CDK templates for various user scenarios and an out-of-box monitoring solution.",
+  "benifits": {
+    "title": "Benefits and features",
+    "beft1": "CloudFront best practices",
+    "beft1Desc": "You can find the code implementation of most common Amazon CloudFront use cases. All solutions and applications included are vetted by Amazon Web Services.",
+    "beft2": "Easy one-click deployment",
+    "beft2Desc": "You can easily deploy CloudFront applications or solutions into your Amazon Web Services console with just 1-click.",
+    "beft3": "Open Source & Customization",
+    "beft3Desc": "Amazon CloudFront Extensions is an open-source project. You can use the solutions and applications for free. If you have different use cases, you can take the source code as reference to make your own implementation.",
+    "beft4": "Reference for various scenario",
+    "beft4Desc": "Amazon CloudFront Extensions includes a rich ret of extensions which cover various use cases."
+  },
+  "usecase": {
+    "title": "Use cases",
+    "usecase1": "eCommerce Website",
+    "usecase1Desc": "This solution provides a template for using WAF and Shield Advanced on CloudFront, it will automatically deploy a set of WAF rules and Shield protection groups into your AWS account to secure your web application against DDoS attack, badbot, SQL injection attack, XSS attack and block the IP which has bad reputation.",
+    "usecase2": "Resize image on the fly",
+    "usecase2Desc": "Resize pictures on the fly according to dimensions passed by the query parameter."
+  },
+  "getStarted": {
+    "title": "Get started",
+    "desc": "Find common extensions for your CloudFront"
+  },
+  "gettingStarted": {
+    "title": "Getting started",
+    "startCF": "Getting started with CloudFront Extensions"
+  },
+  "moreResource": {
+    "title": "More resources",
+    "doc": "Documentation",
+    "faq": "FAQ",
+    "issue": "Submit issues",
+    "workshop": "Workshop"
+  }
+}

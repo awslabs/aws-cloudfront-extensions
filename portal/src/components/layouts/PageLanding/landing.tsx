@@ -2,6 +2,7 @@ import React from "react";
 import Button from "components/Button";
 import HeaderPanel from "components/HeaderPanel";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface TitleDescType {
   title: string;
@@ -36,6 +37,7 @@ const PageLanding: React.FC<HomeProps> = (props: HomeProps) => {
     moreResourceList,
   } = props;
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -51,25 +53,25 @@ const PageLanding: React.FC<HomeProps> = (props: HomeProps) => {
       </div>
       <div className="home-content">
         <div className="home-content-left">
-          <div className="home-box-title">Benefits and features</div>
+          <div className="home-box-title">{t("home:benifits.title")}</div>
           <div className="home-box">
             {benefitList.map((element, index) => {
               return (
                 <div className="box-item" key={index}>
-                  <div className="sub-title">{element.title}</div>
-                  <div>{element.desc}</div>
+                  <div className="sub-title">{t(element.title)}</div>
+                  <div>{t(element.desc || "")}</div>
                 </div>
               );
             })}
           </div>
 
-          <div className="home-box-title">Use cases</div>
+          <div className="home-box-title">{t("home:usecase.title")}</div>
           <div className="home-box">
             {useCaseList.map((element, index) => {
               return (
                 <div className="box-item" key={index}>
-                  <div className="sub-title">{element.title}</div>
-                  <div>{element.desc}</div>
+                  <div className="sub-title">{t(element.title)}</div>
+                  <div>{t(element.desc || "")}</div>
                 </div>
               );
             })}
@@ -77,7 +79,7 @@ const PageLanding: React.FC<HomeProps> = (props: HomeProps) => {
         </div>
         <div className="home-content-right">
           <div className="get-start-box">
-            <div className="start-title">Get started</div>
+            <div className="start-title">{t("home:getStarted.title")}</div>
             <div className="mt-10">{getStartedDesc}</div>
             <div className="mt-20">
               <Button
@@ -86,18 +88,21 @@ const PageLanding: React.FC<HomeProps> = (props: HomeProps) => {
                   navigate(getStartedLink);
                 }}
               >
-                Get Started
+                {t("button.getStarted")}
               </Button>
             </div>
           </div>
 
           <div>
-            <HeaderPanel contentNoPadding title="Getting Started">
+            <HeaderPanel
+              contentNoPadding
+              title={t("home:gettingStarted.title")}
+            >
               <ul className="home-link-ul">
                 {getStartList.map((element, index) => {
                   return (
                     <li key={index}>
-                      <a href={element.link}>{element.title}</a>
+                      <a href={element.link}>{t(element.title)}</a>
                     </li>
                   );
                 })}
@@ -106,12 +111,12 @@ const PageLanding: React.FC<HomeProps> = (props: HomeProps) => {
           </div>
 
           <div>
-            <HeaderPanel contentNoPadding title="More resources">
+            <HeaderPanel contentNoPadding title={t("home:moreResource.title")}>
               <ul className="home-link-ul">
                 {moreResourceList.map((element, index) => {
                   return (
                     <li key={index}>
-                      <a href={element.link}>{element.title}</a>
+                      <a href={element.link}>{t(element.title)}</a>
                     </li>
                   );
                 })}

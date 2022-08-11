@@ -1,75 +1,73 @@
 import PageLanding from "components/layouts/PageLanding";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const BENEFIT_LIST = [
   {
-    title: "CloudFront best practices",
-    desc: "You can find the code implementation of most common Amazon CloudFront use cases. All solutions and applications included are vetted by Amazon Web Services.",
+    title: "home:benifits.beft1",
+    desc: "home:benifits.beft1Desc",
   },
   {
-    title: "Easy one-click deployment",
-    desc: "You can easily deploy CloudFront applications or solutions into your Amazon Web Services console with just 1-click.",
+    title: "home:benifits.beft2",
+    desc: "home:benifits.beft2Desc",
   },
   {
-    title: "Open Source & Customization",
-    desc: "Amazon CloudFront Extensions is an open-source project. You can use the solutions and applications for free. If you have different use cases, you can take the source code as reference to make your own implementation.",
+    title: "home:benifits.beft3",
+    desc: "home:benifits.beft3Desc",
   },
   {
-    title: "Reference for various scenario",
-    desc: "Amazon CloudFront Extensions includes a rich ret of extensions which cover various use cases.",
+    title: "home:benifits.beft4",
+    desc: "home:benifits.beft4Desc",
   },
 ];
 
 const USECASE_LIST = [
   {
-    title: "eCommerce Website",
-    desc: "This solution provides a template for using WAF and Shield Advanced on CloudFront, it will automatically deploy a set of WAF rules and Shield protection groups into your AWS account to secure your web application against DDoS attack, badbot, SQL injection attack, XSS attack and block the IP which has bad reputation.",
+    title: "home:usecase.usecase1",
+    desc: "home:usecase.usecase1Desc",
   },
   {
-    title: "Resize image on the fly",
-    desc: "Resize pictures on the fly according to dimensions passed by the query parameter.",
+    title: "home:usecase.usecase2",
+    desc: "home:usecase.usecase2Desc",
   },
 ];
 
 const GETTING_START_LIST = [
   {
-    title: "Getting started with CloudFront Extensions",
-    link: "/",
-  },
-  {
-    title: "Getting started with CloudFront Extensions",
+    title: "home:gettingStarted.startCF",
     link: "/",
   },
 ];
 
 const MORE_RESOURCE_LIST = [
   {
-    title: "Documentation",
+    title: "home:moreResource.doc",
     link: "/",
   },
   {
-    title: "FAQ",
+    title: "home:moreResource.faq",
     link: "/",
   },
   {
-    title: "Submit issues",
+    title: "home:moreResource.issue",
     link: "/",
   },
   {
-    title: "Workshop",
+    title: "home:moreResource.workshop",
     link: "/",
   },
 ];
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <div>
       <PageLanding
-        solutionTag="Networking &amp; Content Delivery"
-        headTitle="CloudFront Extensions"
-        headSubTitle="Use Amazon CloudFront conveniently in different scenarios"
-        headDesc="CloudFront Extensions includes rich set of featured Lambda@Edge, CloudFront Functions, CDK templates for various user scenarios and an out-of-box monitoring solution."
-        getStartedDesc="Find common extensions for your CloudFront"
+        solutionTag={t("home:category")}
+        headTitle={t("home:title")}
+        headSubTitle={t("home:subTitle")}
+        headDesc={t("home:desc")}
+        getStartedDesc={t("home:getStarted.desc")}
         getStartedLink="/extentions-repository"
         benefitList={BENEFIT_LIST}
         useCaseList={USECASE_LIST}

@@ -1,0 +1,39 @@
+{
+  "category": "Networking & Content Delivery",
+  "title": "CloudFront Extensions",
+  "subTitle": "在不同的场景中方便地使用 Amazon CloudFront",
+  "desc": "CloudFront Extensions 包括丰富的特色 Lambda@Edge、CloudFront 函数、适用于各种用户场景的 CDK 模板和开箱即用的监控解决方案。",
+  "benifits": {
+    "title": "优点和特点",
+    "beft1": "CloudFront best practices",
+    "beft1Desc": "You can find the code implementation of most common Amazon CloudFront use cases. All solutions and applications included are vetted by Amazon Web Services.",
+    "beft2": "Easy one-click deployment",
+    "beft2Desc": "You can easily deploy CloudFront applications or solutions into your Amazon Web Services console with just 1-click.",
+    "beft3": "Open Source & Customization",
+    "beft3Desc": "Amazon CloudFront Extensions is an open-source project. You can use the solutions and applications for free. If you have different use cases, you can take the source code as reference to make your own implementation.",
+    "beft4": "Reference for various scenario",
+    "beft4Desc": "Amazon CloudFront Extensions includes a rich ret of extensions which cover various use cases."
+  },
+  "usecase": {
+    "title": "使用场景",
+    "usecase1": "eCommerce Website",
+    "usecase1Desc": "This solution provides a template for using WAF and Shield Advanced on CloudFront, it will automatically deploy a set of WAF rules and Shield protection groups into your AWS account to secure your web application against DDoS attack, badbot, SQL injection attack, XSS attack and block the IP which has bad reputation.",
+    "usecase2": "Resize image on the fly",
+    "usecase2Desc": "Resize pictures on the fly according to dimensions passed by the query parameter."
+  },
+  "getStarted": {
+    "title": "开始使用",
+    "desc": "Find common extensions for your CloudFront"
+  },
+  "gettingStarted": {
+    "title": "入门",
+    "startCF": "Getting started with CloudFront Extensions"
+  },
+  "moreResource": {
+    "title": "更多资源",
+    "doc": "文档",
+    "faq": "常见问题",
+    "issue": "问题反馈",
+    "workshop": "Workshop"
+  }
+}
