@@ -95,6 +95,16 @@ export class ConsoleStack extends cdk.Stack {
                 ParameterGroups: [
                     {
                         Label: {
+                            default: 'Console User'
+                        },
+                        Parameters: [
+                            consoleAdminUserName.logicalId,
+                            consoleAdminUserEmail.logicalId,
+                            consoleAdminUserPassword.logicalId,
+                        ],
+                    },
+                    {
+                        Label: {
                             default: 'Monitroing'
                         },
                         Parameters: [
@@ -105,25 +115,30 @@ export class ConsoleStack extends cdk.Stack {
                             useStartTime.logicalId,
                         ],
                     },
-
                 ],
                 ParameterLabels: {
+                    [consoleAdminUserName.logicalId]: {
+                        default: 'Initial User Name',
+                    },
+                    [consoleAdminUserEmail.logicalId]: {
+                        default: 'Initial User Email',
+                    },
+                    [consoleAdminUserPassword.logicalId]: {
+                        default: 'Initial User Password',
+                    },
+
                     [monitoringType.logicalId]: {
                         default: 'CloudFront Log Type',
                     },
-
                     [domainList.logicalId]: {
                         default: 'CloudFront Domain List',
                     },
-
                     [logKeepingDays.logicalId]: {
                         default: 'Log Keeping Days',
                     },
-
                     [deleteLog.logicalId]: {
                         default: 'Delete Log (Non-Realtime Only)',
                     },
-
                     [useStartTime.logicalId]: {
                         default: 'Use Start Time (Non-Realtime Only)',
                     },
