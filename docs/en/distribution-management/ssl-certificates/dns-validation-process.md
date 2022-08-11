@@ -93,7 +93,7 @@ If you want to update the email, you need to update the email parameter in the C
 ![godaddy-cloudfront](../../../images/godaddy-cloudfront.png)
 
 
-### Adding Through 
+### Adding Through Provided Script
 
 1. Prepare python environment based on your os: [install python](https://www.python.org/downloads/).
 2. Download the file by this [url](https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806) and save to file `goDaddyCert.py`.
