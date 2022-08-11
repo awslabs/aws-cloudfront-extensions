@@ -5,7 +5,7 @@
 
 - Request body parameters
     - src_distribution_id: String
-    - target_distribution_ids: String
+    - target_distribution_ids: String (use "," to seperate multiple target distribution)
     - snapshot_name: String
 
 - Example Request and Description
