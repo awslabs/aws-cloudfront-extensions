@@ -63,7 +63,7 @@ export class ConsoleStack extends cdk.Stack {
 
         // Monitoring
         const monitoringType = new cdk.CfnParameter(this, 'Monitoring', {
-            description: '',
+            description: 'Enable realtime or non-realtime monitoring to get CloudFront metrics',
             type: 'String',
             allowedValues: ['no', 'yes-Realtime', 'yes-Non-Realtime'],
             default: 'no',
@@ -80,12 +80,12 @@ export class ConsoleStack extends cdk.Stack {
             default: 120,
         });
         const deleteLog = new cdk.CfnParameter(this, 'DeleteLog', {
-            description: 'Delete original CloudFront standard logs in S3 bucket (true or false)',
+            description: 'Delete original CloudFront standard logs in S3 bucket (true or false), this only applies to non-realtime monitoring',
             type: 'String',
             default: 'false',
         });
         const useStartTime = new cdk.CfnParameter(this, 'UseStartTime', {
-            description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time',
+            description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time, this only applies to non-realtime monitoring',
             type: 'String',
             default: 'false',
         });
@@ -105,7 +105,7 @@ export class ConsoleStack extends cdk.Stack {
                     },
                     {
                         Label: {
-                            default: 'Monitroing'
+                            default: 'Monitoring'
                         },
                         Parameters: [
                             monitoringType.logicalId,
@@ -222,7 +222,7 @@ export class ConsoleStack extends cdk.Stack {
             build_time: new Date().getTime() + "",
         });
         
-        // 2 Monitoring Stack
+        // 2 Monitoring Stacks
         // Non-RealtimeMonitoring
         const nonRealtimeMonitoring = new NonRealtimeMonitoringStack(this, 'NonRealtime', {
             nonRealTimeMonitoring: monitoringType.valueAsString,
