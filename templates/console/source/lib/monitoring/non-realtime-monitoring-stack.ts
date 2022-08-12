@@ -1,7 +1,7 @@
 import * as glue from "@aws-cdk/aws-glue-alpha";
 import { S3ToLambda } from '@aws-solutions-constructs/aws-s3-lambda';
 import * as cdk from 'aws-cdk-lib';
-import { CfnParameter, CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   EndpointType,
   LambdaRestApi,
@@ -10,7 +10,6 @@ import {
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
-import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { CfnTable } from 'aws-cdk-lib/aws-glue';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { CompositePrincipal, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
@@ -18,6 +17,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import * as cr from 'aws-cdk-lib/custom-resources';
+import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { Construct } from 'constructs';
 import { randomBytes } from 'crypto';
 import * as path from 'path';
@@ -41,7 +41,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     this.monitroingUrl = '';
     this.secretValue = '';
     this.templateOptions.description = "(SO8150) - Cloudfront Non-Realtime monitoring stack";
-    
+
     // const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
     //   description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
     //   type: 'String',
@@ -66,7 +66,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     const glueTableName = "cloudfront_standard_log";
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.RETAIN,
       serverAccessLogsPrefix: 'accessLogBucketAccessLog',
     });
 
@@ -744,6 +744,17 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       proxy: false,
       endpointConfiguration: {
         types: [EndpointType.EDGE]
+      },
+      defaultCorsPreflightOptions: {
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+        ],
+        allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        allowCredentials: true,
+        allowOrigins: ['*'],
       }
     });
 

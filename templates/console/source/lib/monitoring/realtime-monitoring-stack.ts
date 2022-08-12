@@ -27,10 +27,10 @@ import * as path from 'path';
 import { MonitoringProps } from './non-realtime-monitoring-stack';
 
 export class RealtimeMonitoringStack extends cdk.NestedStack {
-  
+
   readonly monitroingUrl: string;
   readonly secretValue: string;
-  
+
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id, props);
     this.monitroingUrl = '';
@@ -51,7 +51,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
 
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.RETAIN,
     });
 
     const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
@@ -930,6 +930,17 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       proxy: false,
       endpointConfiguration: {
         types: [EndpointType.EDGE]
+      },
+      defaultCorsPreflightOptions: {
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+        ],
+        allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        allowCredentials: true,
+        allowOrigins: ['*'],
       }
     });
 
