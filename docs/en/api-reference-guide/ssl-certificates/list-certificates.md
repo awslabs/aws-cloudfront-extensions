@@ -1,14 +1,14 @@
-# cert_list
-## API reference
+## cert_list
 
 - HTTP request method: `GET`
 
-- Request body parameters
-- Example Request and Description
+- Request
 ```http request
 /ssl_for_saas/cert_list
 ```
-- Example Response Body
+
+
+- Response
 ```json
 [
   {

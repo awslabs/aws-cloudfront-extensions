@@ -1,22 +1,23 @@
-# config_snapshot_tag_update
-## API reference
+## config_snapshot_tag_update
 
 - HTTP request method: `POST`
+
+- Request
+```http request
+/snapshot/config_snapshot_tag_update?distribution_id=E3K4JDLORL0EUD&snapshot_name=snapshot1&note=测试版本snapshot
+```
 
 - Request body parameters
     - distribution_id: String
     - note: String
     - snapshot_name: String
 
-- Example Request and Description
-```http request
-/snapshot/config_snapshot_tag_update?distribution_id=E3K4JDLORL0EUD&snapshot_name=snapshot1&note=测试版本snapshot
-```
-- Example Response Body
+
+- Response
 ```json
 {
   "Attributes": {
-    "note": "测试版本snapshot"
+    "note": "Test snapshot"
   },
   "ResponseMetadata": {
     "RequestId": "5GLP3OHORDIUPQPUFP50394ARJVV4KQNSO5AEMVJF66Q9ASUAAJG",

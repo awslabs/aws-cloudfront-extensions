@@ -53,7 +53,6 @@ To see details for the stack resources, choose the **Outputs** tab.
 
 Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR (Serverless Application Repository).
 
-For more information about Lambda@Edge and CloudFront functions, see [Welcome](index.md).
 
 
 #### Lambda@Edge

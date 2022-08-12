@@ -1,16 +1,17 @@
-# list_snapshots
-## API reference
+## list_snapshots
 
 - HTTP request method: `POST`
+
+- Request
+```http request
+/snapshot/list_snapshots?distributionId=E20GR9AX7K798K
+```
 
 - Request body parameters
     - distributionId: String
 
-- Example Request and Description
-```http request
-/snapshot/list_snapshots?distributionId=E20GR9AX7K798K
-```
-- Example Response Body
+
+- Response
 ```json
 [
   {

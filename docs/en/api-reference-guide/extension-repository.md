@@ -1,4 +1,4 @@
-## Operation ID: Pre-warming 
+## Pre-warming 
 - HTTP request method: `POST`
 - Request
 
@@ -42,7 +42,7 @@
 
   `requestID`: The request ID, which you can use in PrewarmStatus API to get the prewarm status.
 
-## Operation ID: PrewarmStatus 
+## PrewarmStatus 
 - HTTP request method: `GET`
 - Request
 
