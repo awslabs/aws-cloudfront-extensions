@@ -11,6 +11,7 @@ import { aws_events as events } from "aws-cdk-lib";
 import { aws_events_targets as targets } from "aws-cdk-lib";
 import { aws_apigateway as _apigw } from "aws-cdk-lib";
 import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
+import * as logs from "aws-cdk-lib/aws-logs";
 import { CfnParameter } from "aws-cdk-lib";
 import { Duration } from "aws-cdk-lib";
 import { aws_kms as kms } from "aws-cdk-lib";
@@ -96,6 +97,7 @@ export class StepFunctionRpTsConstruct extends Construct {
               new iam.ServicePrincipal("sns.amazonaws.com"),
               new iam.ServicePrincipal("cloudwatch.amazonaws.com"),
               new iam.ServicePrincipal("events.amazonaws.com"),
+              new iam.ServicePrincipal("lambda.amazonaws.com"),
             ],
           }),
           new iam.PolicyStatement({
@@ -118,7 +120,13 @@ export class StepFunctionRpTsConstruct extends Construct {
             ],
             resources: ["*"],
             effect: iam.Effect.ALLOW,
-            principals: [new iam.AccountRootPrincipal()],
+            principals: [
+              new iam.ServicePrincipal("sns.amazonaws.com"),
+              new iam.ServicePrincipal("cloudwatch.amazonaws.com"),
+              new iam.ServicePrincipal("events.amazonaws.com"),
+              new iam.ServicePrincipal("lambda.amazonaws.com"),
+              new iam.AccountRootPrincipal(),
+            ],
           }),
         ],
       }),
@@ -131,7 +139,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       {
         displayName: "SNS Topic",
         topicName: "CloudFront_Distribution_Notification",
-        masterKey: snsKey,
+        // masterKey: snsKey,
       }
     );
 
@@ -170,10 +178,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     });
 
     const ddb_rw_policy = new iam.PolicyStatement({
-      resources: [
-        callback_table.tableArn,
-        ssl_for_sass_job_info_table.tableArn,
-      ],
+      resources: ["*"],
       actions: ["dynamodb:*"],
     });
 
@@ -192,6 +197,11 @@ export class StepFunctionRpTsConstruct extends Construct {
       ],
     });
 
+    const s3_update_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["s3:GetBucketAcl*", "s3:PutBucketAcl*"],
+    });
+
     const lambda_rw_policy = new iam.PolicyStatement({
       resources: ["*"],
       actions: ["lambda:*"],
@@ -207,6 +217,43 @@ export class StepFunctionRpTsConstruct extends Construct {
       actions: ["cloudfront:*"],
     });
 
+    const tag_update_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["tag:*"],
+    });
+
+    const kms_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["kms:*"],
+    });
+
+    const stepFunction_loggin_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: [
+        "logs:CreateLogDelivery",
+        "logs:GetLogDelivery",
+        "logs:UpdateLogDelivery",
+        "logs:DeleteLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:PutLogEvents",
+        "logs:PutResourcePolicy",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeLogGroups",
+      ],
+    });
+    const _stepFunction_loggin_role = new iam.Role(
+      this,
+      "_stepFunction_loggin_role",
+      {
+        assumedBy: new iam.ServicePrincipal("states.amazonaws.com"),
+      }
+    );
+
+    _stepFunction_loggin_role.addToPolicy(stepFunction_loggin_policy);
+    _stepFunction_loggin_role.addToPolicy(lambda_rw_policy);
+    _stepFunction_loggin_role.addToPolicy(stepFunction_run_policy);
+    _stepFunction_loggin_role.addToPolicy(lambdaRunPolicy);
+
     const _fn_acm_import_cb_role = new iam.Role(
       this,
       "_fn_acm_import_cb_role",
@@ -218,6 +265,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_acm_import_cb_role.addToPolicy(acm_admin_policy);
     _fn_acm_import_cb_role.addToPolicy(ddb_rw_policy);
     _fn_acm_import_cb_role.addToPolicy(cloudfront_create_update_policy);
+    _fn_acm_import_cb_role.addToPolicy(kms_policy);
 
     // lambda function to handle acm import operation
     const fn_acm_import_cb = new _lambda.DockerImageFunction(
@@ -249,6 +297,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_acm_cb_role.addToPolicy(ddb_rw_policy);
     _fn_acm_cb_role.addToPolicy(sns_update_policy);
     _fn_acm_cb_role.addToPolicy(cloudfront_create_update_policy);
+    _fn_acm_cb_role.addToPolicy(kms_policy);
 
     // lambda function to handle acm create operation
     const fn_acm_cb = new _lambda.DockerImageFunction(scope, "acm_callback", {
@@ -284,7 +333,9 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_acm_cb_handler_role.addToPolicy(stepFunction_run_policy);
     _fn_acm_cb_handler_role.addToPolicy(cloudfront_create_update_policy);
     _fn_acm_cb_handler_role.addToPolicy(s3_read_policy);
+    _fn_acm_cb_handler_role.addToPolicy(s3_update_policy);
     _fn_acm_cb_handler_role.addToPolicy(lambda_rw_policy);
+    _fn_acm_cb_handler_role.addToPolicy(kms_policy);
 
     // lambda function to create cloudfront distribution after certification been verified and issued
     const fn_acm_cb_handler = new _lambda.DockerImageFunction(
@@ -318,6 +369,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_acm_cron_role.addToPolicy(acm_admin_policy);
     _fn_acm_cron_role.addToPolicy(ddb_rw_policy);
     _fn_acm_cron_role.addToPolicy(stepFunction_run_policy);
+    _fn_acm_cron_role.addToPolicy(kms_policy);
 
     // background lambda running regularly to scan the acm certification and notify acm_callback_handler when cert been issued
     const fn_acm_cron = new _lambda.DockerImageFunction(this, "acm_cron_job", {
@@ -342,6 +394,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_sns_notify_role.addToPolicy(lambdaRunPolicy);
     _fn_sns_notify_role.addToPolicy(ddb_rw_policy);
     _fn_sns_notify_role.addToPolicy(sns_update_policy);
+    _fn_sns_notify_role.addToPolicy(kms_policy);
 
     // send out sns failure notification
     const fn_sns_failure_notify = new _lambda.DockerImageFunction(
@@ -601,60 +654,44 @@ export class StepFunctionRpTsConstruct extends Construct {
         .next(sns_notify_job)
     );
 
+    const logGroup = new logs.LogGroup(this, "ssl_step_function_logs");
     const stepFunction = new _step.StateMachine(this, "SSL for SaaS", {
       definition: stepFunctionEntry,
+      role: _stepFunction_loggin_role,
       stateMachineName: "SSL-for-SaaS-StateMachine",
       stateMachineType: _step.StateMachineType.STANDARD,
       // set global timeout, don't set timeout in callback inside
       timeout: Duration.hours(24),
+      logs: {
+        destination: logGroup,
+        level: _step.LogLevel.ERROR,
+      },
     });
 
     const _fn_appsync_func_role = new iam.Role(this, "_fn_appsync_func_role", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-      // managedPolicies: [
-      //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-      //     "service-role/AWSLambdaBasicExecutionRole"
-      //   ),
-      //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-      //     "AWSCertificateManagerFullAccess"
-      //   ),
-      //   iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess"),
-      //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-      //     "AWSStepFunctionsFullAccess"
-      //   ),
-      // ],
     });
 
     _fn_appsync_func_role.addToPolicy(lambdaRunPolicy);
     _fn_appsync_func_role.addToPolicy(acm_admin_policy);
     _fn_appsync_func_role.addToPolicy(ddb_rw_policy);
     _fn_appsync_func_role.addToPolicy(stepFunction_run_policy);
+    _fn_appsync_func_role.addToPolicy(tag_update_policy);
+    _fn_appsync_func_role.addToPolicy(kms_policy);
 
     const _fn_ssl_api_handler_role = new iam.Role(
       this,
       "_fn_ssl_api_handler_role",
       {
         assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-        // managedPolicies: [
-        //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //     "service-role/AWSLambdaBasicExecutionRole"
-        //   ),
-        //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //     "AWSCertificateManagerFullAccess"
-        //   ),
-        //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //     "AmazonDynamoDBFullAccess"
-        //   ),
-        //   iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //     "AWSStepFunctionsFullAccess"
-        //   ),
-        // ],
       }
     );
     _fn_ssl_api_handler_role.addToPolicy(lambdaRunPolicy);
     _fn_ssl_api_handler_role.addToPolicy(acm_admin_policy);
     _fn_ssl_api_handler_role.addToPolicy(ddb_rw_policy);
     _fn_ssl_api_handler_role.addToPolicy(stepFunction_run_policy);
+    _fn_ssl_api_handler_role.addToPolicy(tag_update_policy);
+    _fn_ssl_api_handler_role.addToPolicy(kms_policy);
 
     // lambda in step function & cron job
     const fn_ssl_api_handler = new _lambda.DockerImageFunction(
