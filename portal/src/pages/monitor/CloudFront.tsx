@@ -103,11 +103,11 @@ const CloudFront: React.FC = () => {
   const getCloudfrontDistributionList = async () => {
     try {
       const resData = await appSyncRequestQuery(listDistribution);
-      console.log(resData);
+      // console.log(resData);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpDistributionList = [];
       const tmpSelectedList = [];
-      console.log(amplifyConfig.aws_monitoring_stack_name);
+      // console.log(amplifyConfig.aws_monitoring_stack_name);
       const domainData = await appSyncRequestMutation(updateDomains, {
         stack_name: "",
         domains: "*",
@@ -162,17 +162,16 @@ const CloudFront: React.FC = () => {
     if (selectDomain != "") {
       const timeStamp = new Date().getTime();
       const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=all&Domain=${selectDomain}&timestamp=${timeStamp}`;
+      // console.log(url2);
       try {
-        console.log(url2);
         const response = await fetch(url2, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            "x-api-key": "wxluHlwYUw7WSytEG2SCHg==",
+            "x-api-key": amplifyConfig.aws_monitoring_api_key,
           },
         });
         const data = await response.json();
-        console.log(data);
         await data.Response.Data[0].CdnData.forEach(
           (item: { Metric: string; DetailData: [] }) => {
             if (item.Metric == "request") {

@@ -111,12 +111,22 @@ export class PortalConstruct extends Construct {
                 service: 'S3',
                 physicalResourceId: PhysicalResourceId.of('config'),
             },
-            onCreate: {
+            policy: AwsCustomResourcePolicy.fromStatements([
+                new PolicyStatement({
+                    actions: ['s3:PutObject'],
+                    resources: [this.portalBucket.arnForObjects(configFn)]
+                })
+            ])
+        });
+        configLambda.node.addDependency(bucketFile);
+        const configMonitoringLambda = new AwsCustomResource(this, 'WebConfigMonitoring', {
+            logRetention: RetentionDays.ONE_DAY,
+            onUpdate: {
                 action: 'putObject',
                 parameters: {
                     Body: JSON.stringify({
                         'aws_monitoring_url': '',
-                        'aws_monitoring_api_key':''
+                        'aws_monitoring_api_key': ''
                     }),
                     Bucket: this.portalBucket.bucketName,
                     CacheControl: 'max-age=0, no-cache, no-store, must-revalidate',
@@ -129,11 +139,11 @@ export class PortalConstruct extends Construct {
             policy: AwsCustomResourcePolicy.fromStatements([
                 new PolicyStatement({
                     actions: ['s3:PutObject'],
-                    resources: [this.portalBucket.arnForObjects(configFn), this.portalBucket.arnForObjects(configMonitoringFn)]
+                    resources: [this.portalBucket.arnForObjects(configMonitoringFn)]
                 })
             ])
         });
-        configLambda.node.addDependency(bucketFile);
+        configMonitoringLambda.node.addDependency(bucketFile);
     }
 
 

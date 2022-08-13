@@ -401,6 +401,8 @@ const App: React.FC = () => {
         const res: AmplifyConfigType = recConsole.data;
         res.aws_monitoring_api_key = resMonitroing.data.aws_monitoring_api_key;
         res.aws_monitoring_url = resMonitroing.data.aws_monitoring_url;
+        res.aws_monitoring_stack_name =
+          resMonitroing.data.aws_monitoring_stack_name;
         const configData: AmplifyConfigType = res;
         dispatch({
           type: ActionType.UPDATE_AMPLIFY_CONFIG,
