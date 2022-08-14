@@ -1,16 +1,17 @@
-# get_ssl_job
-## API reference
+## get_ssl_job
 
 - HTTP request method: `GET`
+
+- Request
+```http request
+/ssl_for_saas/get_ssl_job?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42
+```
 
 - Request body parameters
   - jobId: String
 
-- Example Request and Description
-```http request
-/ssl_for_saas/get_ssl_job?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42
-```
-- Example Response Body
+
+- Response
 ```json
 {
   "distList": [],

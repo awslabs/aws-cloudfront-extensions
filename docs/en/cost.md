@@ -13,7 +13,6 @@ As of August 2022, if the configuration of CloudFront distributions are changed 
 | Amazon DynamoDB | 2GB data storage | $0.50 |
 | Total |  | ~$0.63 |
 
-Please refer to **Non-real time monitoring with CloudFront standard logs** or **Real time monitoring with CloudFront real-time logs** when you enable monitoring feature.
 
 ##  SSL certificates
  
@@ -63,7 +62,7 @@ As of August 2022, to monitor 10 metrics for one CloudFront distribution which h
 
 ## Pre-warming
 
-### Example 1: Pre-warm 500 resources daily, the size of each resource is 500MB.
+### Example 1: Pre-warm 500 resources daily, the size of each resource is 500MB
 
 As of August 2022, the estimated cost of using this solution is $171.27 per month in the US East (N. Virginia) Region (excludes free tier).
 
@@ -77,7 +76,7 @@ As of August 2022, the estimated cost of using this solution is $171.27 per mont
 | Amazon CloudWatch | 1 metric and alarm | $0.90 |
 | Total |  | $171.27 |
 
-### Example 2: Pre-warm 200 resources in one month, the size of each resource is 1GB.
+### Example 2: Pre-warm 200 resources in one month, the size of each resource is 1GB
 
 As of August 2022, the estimated cost of using this solution is $11.78 per month in the US East (N. Virginia) Region (excludes free tier).
 

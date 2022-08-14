@@ -1,17 +1,18 @@
-# delete_snapshot
-## API reference
+## delete_snapshot
 
 - HTTP request method: `POST`
+
+- Request
+```http request
+/snapshot/delete_snapshot?distributionId=E20GR9AX7K798K&snapShotName=dfdfd
+```
 
 - Request body parameters
     - distributionId: String
     - snapShotName: String
 
-- Example Request and Description
-```http request
-/snapshot/delete_snapshot?distributionId=E20GR9AX7K798K&snapShotName=dfdfd
-```
-- Example Response Body
+
+- Response
 ```json
 {
   "statusCode": 200,

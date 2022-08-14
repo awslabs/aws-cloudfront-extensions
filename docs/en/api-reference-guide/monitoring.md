@@ -1,6 +1,6 @@
 CloudFront real-time log analysis and standard log analysis have the same API format. 
 
-## Operation ID: RealTimeMonitoringMetrics
+## RealTimeMonitoringMetrics
 
 - HTTP request method: `GET`
 - Request

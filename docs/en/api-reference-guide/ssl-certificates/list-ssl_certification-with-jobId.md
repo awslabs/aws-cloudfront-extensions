@@ -1,15 +1,16 @@
-# list_ssl_certification_with_jobId
-## API reference
+## list_ssl_certification_with_jobId
 
 - HTTP request method: `GET`
 
-- Request body parameters
-    - jobId: String
-- Example Request and Description
+- Request
 ```http request
 /ssl_for_saas/list_ssl_certification_with_jobId?jobId=f98d3afb-4956-4ddc-b227-88c7a1f2384c
 ```
-- Example Response Body
+
+- Request body parameters
+    - jobId: String
+
+- Response
 ```json
 [
   "arn:aws:acm:us-east-1:596963228260:certificate/7559c140-a6e0-4c25-8605-c6525561471e",

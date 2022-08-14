@@ -1,14 +1,12 @@
-# list_ssl_jobs
-## API reference
+## list_ssl_jobs
 
 - HTTP request method: `GET`
 
-- Request body parameters
-- Example Request and Description
+- Request
 ```http request
 /ssl_for_saas/list_ssl_jobs
 ```
-- Example Response Body
+- Response
 ```json
 [
   {

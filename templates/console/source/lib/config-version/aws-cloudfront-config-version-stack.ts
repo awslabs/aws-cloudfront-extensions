@@ -1,5 +1,5 @@
 import * as path from "path";
-import {Aws, aws_lambda as lambda, StackProps} from "aws-cdk-lib";
+import { Aws, aws_lambda as lambda, StackProps } from "aws-cdk-lib";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import * as cdk from "aws-cdk-lib";
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
@@ -21,12 +21,9 @@ import { Rule } from "aws-cdk-lib/aws-events";
 import targets = require("aws-cdk-lib/aws-events-targets");
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { MyCustomResource } from "./custom-resources/cloudfront-config-custom-resource";
-import {Construct} from "constructs";
-
+import { Construct } from "constructs";
 
 export class CloudFrontConfigVersionStack extends Stack {
-
-
   constructor(scope: Construct, id: string, props?: CommonProps) {
     super(scope, id, props);
     this.templateOptions.description =
@@ -35,13 +32,11 @@ export class CloudFrontConfigVersionStack extends Stack {
   }
 }
 
-
 export class CloudFrontConfigVersionConstruct extends Construct {
   public readonly configVersionDDBTableName: string;
 
   constructor(scope: Stack, id: string, props?: CommonProps) {
     super(scope, id);
-
 
     cdk.Tags.of(this).add("solution", "Cloudfront Extension Config Version", {
       includeResourceTypes: [
@@ -140,23 +135,61 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       ),
     });
 
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess")
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess")
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("CloudFrontFullAccess")
-    );
-    lambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
-      )
-    );
+    const lambdaRunPolicy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+      ],
+    });
+
+    const acm_admin_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["acm:*"],
+    });
+
+    const ddb_rw_policy = new iam.PolicyStatement({
+      resources: [
+        cloudfront_config_version_table.tableArn,
+        cloudfront_config_latestVersion_table.tableArn,
+        cloudfront_config_snapshot_table.tableArn,
+      ],
+      actions: ["dynamodb:*"],
+    });
+
+    const stepFunction_run_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["states:*"],
+    });
+
+    const s3_rw_policy = new iam.PolicyStatement({
+      resources: [`${cloudfront_config_version_s3_bucket.bucketArn}/*`],
+      actions: [
+        "s3:Get*",
+        "s3:List*",
+        "s3-object-lambda:Get*",
+        "s3-object-lambda:List*",
+        "s3:PutObject",
+        "s3:GetObject",
+      ],
+    });
+
+    const lambda_rw_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["lambda:*"],
+    });
+
+    const cloudfront_create_update_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["cloudfront:*"],
+    });
+
+    lambdaRole.addToPolicy(ddb_rw_policy);
+    lambdaRole.addToPolicy(s3_rw_policy);
+    lambdaRole.addToPolicy(lambda_rw_policy);
+    lambdaRole.addToPolicy(cloudfront_create_update_policy);
+    lambdaRole.addToPolicy(lambdaRunPolicy);
 
     // define a shared lambda layer for all other lambda to use
     const powertools_layer = LayerVersion.fromLayerVersionArn(
@@ -618,7 +651,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       value: cloudfront_config_version_table.tableName,
       exportName: "configVersionDDBTableName",
     });
-    this.configVersionDDBTableName =  cloudfront_config_version_table.tableName;
+    this.configVersionDDBTableName = cloudfront_config_version_table.tableName;
 
     new cdk.CfnOutput(this, "cloudfront_config_latest_version_dynamodb", {
       value: cloudfront_config_latestVersion_table.tableName,
