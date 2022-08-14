@@ -22,6 +22,7 @@ With the Metrics dashboard, you can do the following:
 
     You can navigate to the CloudFront monitoring dashboard from the left sidebar of the Web Console under Monitoring, and click distribution (you can find it by CNAMEs) that you want to view in the distribution list and specify a time period in the time picker. The traffic metrics will be show in the graphical charts in the dashboard.
 
+    ![Monitoring Dashboard](../../images/monitoring-dashboard.png)
 
 - **Setup monitoring domain list**
 
