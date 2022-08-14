@@ -45,6 +45,8 @@ export class WebPortalStack extends Stack {
  */
 export class PortalConstruct extends Construct {
 
+    readonly portalBucket: s3.Bucket;
+
     constructor(scope: Construct, id: string, props: PortalProps) {
         super(scope, id);
 
@@ -75,7 +77,7 @@ export class PortalConstruct extends Construct {
             insertHttpSecurityHeaders: false,
         });
 
-        const portalBucket = portal.s3Bucket as s3.Bucket;
+        this.portalBucket = portal.s3Bucket as s3.Bucket;
         const portalUrl = portal.cloudFrontWebDistribution.distributionDomainName;
 
         // Prints out the AppSync GraphQL endpoint to the terminal
@@ -83,16 +85,17 @@ export class PortalConstruct extends Construct {
             value: portalUrl,
         });
         const configFn = 'aws-exports.json';
+        const configMonitoringFn = 'aws-monitoring-exports.json';
         // Upload static web assets
         const bucketFile = new s3d.BucketDeployment(this, "DeployWebAssets", {
             sources: [
                 s3d.Source.asset(path.join(__dirname, "../../../../../portal/build")),
             ],
-            destinationBucket: portalBucket,
+            destinationBucket: this.portalBucket,
             prune: false,
         });
         new cdk.CfnOutput(this, "export.json", {
-            value: portalBucket.bucketName,
+            value: this.portalBucket.bucketName,
         });
         const configLambda = new AwsCustomResource(this, 'WebConfig', {
             logRetention: RetentionDays.ONE_DAY,
@@ -100,7 +103,7 @@ export class PortalConstruct extends Construct {
                 action: 'putObject',
                 parameters: {
                     Body: JSON.stringify(props),
-                    Bucket: portalBucket.bucketName,
+                    Bucket: this.portalBucket.bucketName,
                     CacheControl: 'max-age=0, no-cache, no-store, must-revalidate',
                     ContentType: 'application/json',
                     Key: configFn,
@@ -111,11 +114,36 @@ export class PortalConstruct extends Construct {
             policy: AwsCustomResourcePolicy.fromStatements([
                 new PolicyStatement({
                     actions: ['s3:PutObject'],
-                    resources: [portalBucket.arnForObjects(configFn)]
+                    resources: [this.portalBucket.arnForObjects(configFn)]
                 })
             ])
         });
         configLambda.node.addDependency(bucketFile);
+        const configMonitoringLambda = new AwsCustomResource(this, 'WebConfigMonitoring', {
+            logRetention: RetentionDays.ONE_DAY,
+            onUpdate: {
+                action: 'putObject',
+                parameters: {
+                    Body: JSON.stringify({
+                        'aws_monitoring_url': '',
+                        'aws_monitoring_api_key': ''
+                    }),
+                    Bucket: this.portalBucket.bucketName,
+                    CacheControl: 'max-age=0, no-cache, no-store, must-revalidate',
+                    ContentType: 'application/json',
+                    Key: configMonitoringFn,
+                },
+                service: 'S3',
+                physicalResourceId: PhysicalResourceId.of('config'),
+            },
+            policy: AwsCustomResourcePolicy.fromStatements([
+                new PolicyStatement({
+                    actions: ['s3:PutObject'],
+                    resources: [this.portalBucket.arnForObjects(configMonitoringFn)]
+                })
+            ])
+        });
+        configMonitoringLambda.node.addDependency(bucketFile);
     }
 
 

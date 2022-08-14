@@ -7,6 +7,8 @@ import {
 } from "./config-version/aws-cloudfront-config-version-stack";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { StepFunctionRpTsConstruct } from "./ssl-for-saas/step_function_rp_ts-stack";
+import { NonRealtimeMonitoringStack } from '../lib/monitoring/non-realtime-monitoring-stack';
+import { RealtimeMonitoringStack } from '../lib/monitoring/realtime-monitoring-stack';
 import { RepoConstruct } from "./repo/repo-stack";
 import { aws_cognito as cognito, StackProps } from "aws-cdk-lib";
 import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from "aws-cdk-lib/custom-resources";
@@ -59,6 +61,106 @@ export class ConsoleStack extends cdk.Stack {
             maxLength: 32,
         })
 
+        // Monitoring
+        const monitoringType = new cdk.CfnParameter(this, 'Monitoring', {
+            description: 'Enable realtime or non-realtime monitoring to get CloudFront metrics',
+            type: 'String',
+            allowedValues: ['no', 'yes-Realtime', 'yes-Non-Realtime'],
+            default: 'no',
+        });
+
+        const domainList = new cdk.CfnParameter(this, 'CloudFrontDomainList', {
+            description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
+            type: 'String',
+            default: '',
+        });
+        const logKeepingDays = new cdk.CfnParameter(this, 'CloudFrontLogKeepDays', {
+            description: 'Max number of days to keep cloudfront realtime logs in S3',
+            type: 'Number',
+            default: 120,
+        });
+        const deleteLog = new cdk.CfnParameter(this, 'DeleteLog', {
+            description: 'Delete original CloudFront standard logs in S3 bucket (true or false), this only applies to non-realtime monitoring',
+            type: 'String',
+            default: 'false',
+        });
+        const useStartTime = new cdk.CfnParameter(this, 'UseStartTime', {
+            description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time, this only applies to non-realtime monitoring',
+            type: 'String',
+            default: 'false',
+        });
+
+        this.templateOptions.metadata = {
+            'AWS::CloudFormation::Interface': {
+                ParameterGroups: [
+                    {
+                        Label: {
+                            default: 'Console User'
+                        },
+                        Parameters: [
+                            consoleAdminUserName.logicalId,
+                            consoleAdminUserEmail.logicalId,
+                            consoleAdminUserPassword.logicalId,
+                        ],
+                    },
+                    {
+                        Label: {
+                            default: 'Monitoring'
+                        },
+                        Parameters: [
+                            monitoringType.logicalId,
+                            domainList.logicalId,
+                            logKeepingDays.logicalId,
+                            deleteLog.logicalId,
+                            useStartTime.logicalId,
+                        ],
+                    },
+                ],
+                ParameterLabels: {
+                    [consoleAdminUserName.logicalId]: {
+                        default: 'Initial User Name',
+                    },
+                    [consoleAdminUserEmail.logicalId]: {
+                        default: 'Initial User Email',
+                    },
+                    [consoleAdminUserPassword.logicalId]: {
+                        default: 'Initial User Password',
+                    },
+
+                    [monitoringType.logicalId]: {
+                        default: 'CloudFront Log Type',
+                    },
+                    [domainList.logicalId]: {
+                        default: 'CloudFront Domain List',
+                    },
+                    [logKeepingDays.logicalId]: {
+                        default: 'Log Keeping Days',
+                    },
+                    [deleteLog.logicalId]: {
+                        default: 'Delete Log (Non-Realtime Only)',
+                    },
+                    [useStartTime.logicalId]: {
+                        default: 'Use Start Time (Non-Realtime Only)',
+                    },
+                },
+            },
+        };
+
+        const nonRealTimeMonitoringCondition = new cdk.CfnCondition(
+            this,
+            'NonRealTimeMonitoringCondition',
+            {
+                expression: cdk.Fn.conditionEquals(monitoringType.valueAsString, 'yes-Non-Realtime')
+            }
+        )
+
+        const realtimeMonitoringCondition = new cdk.CfnCondition(
+            this,
+            'RealTimeMonitoringCondition',
+            {
+                expression: cdk.Fn.conditionEquals(monitoringType.valueAsString, 'yes-Realtime')
+            }
+        )
         const user = new cognito.CfnUserPoolUser(this, 'WebConsoleDefaultUser', {
           userPoolId: cognitoUserPool.userPoolId,
           // Properties below are optional
@@ -108,9 +210,6 @@ export class ConsoleStack extends cdk.Stack {
             cognitoUserPool: cognitoUserPool,
         });
 
-        // const monitoringUrl = cdk.Fn.importValue('monitoringUrl') as string;
-        // const monitoringApiKey = cdk.Fn.importValue('monitoringApiKey') as string;
-
         const webConsole = new PortalConstruct(this, "WebConsole", {
             aws_api_key: commonConstruct?.appsyncApi.apiKey,
             aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
@@ -120,11 +219,33 @@ export class ConsoleStack extends cdk.Stack {
             aws_user_pools_id: cognitoUserPool.userPoolId,
             aws_user_pools_web_client_id: cognitoUserPoolClient.userPoolClientId,
             aws_cognito_region: this.region,
-            // aws_monitoring_url: monitoringUrl,
-            // aws_monitoring_api_key: monitoringApiKey,
-            aws_monitoring_stack_name: 'MonitoringStack',
             build_time: new Date().getTime() + "",
         });
+        
+        // 2 Monitoring Stacks
+        // Non-RealtimeMonitoring
+        const nonRealtimeMonitoring = new NonRealtimeMonitoringStack(this, 'NonRealtime', {
+            nonRealTimeMonitoring: monitoringType.valueAsString,
+            domainList: domainList.valueAsString,
+            logKeepingDays: logKeepingDays.valueAsNumber,
+            deleteLogNonRealtime: deleteLog.valueAsString,
+            useStartTimeNonRealtime: useStartTime.valueAsString,
+            portalBucket: webConsole.portalBucket,
+        });
+        (nonRealtimeMonitoring.nestedStackResource as cdk.CfnStack).cfnOptions.condition = nonRealTimeMonitoringCondition;
+        // RealtimeMonitoring
+        const realtimeMonitoring = new RealtimeMonitoringStack(this, 'Realtime', {
+            nonRealTimeMonitoring: monitoringType.valueAsString,
+            domainList: domainList.valueAsString,
+            logKeepingDays: logKeepingDays.valueAsNumber,
+            deleteLogNonRealtime: deleteLog.valueAsString,
+            useStartTimeNonRealtime: useStartTime.valueAsString,
+            portalBucket: webConsole.portalBucket,
+        });
+        (realtimeMonitoring.nestedStackResource as cdk.CfnStack).cfnOptions.condition = realtimeMonitoringCondition;
+
+        realtimeMonitoring.node.addDependency(commonConstruct, webConsole);
+        nonRealtimeMonitoring.node.addDependency(commonConstruct, webConsole);
 
         // Config version stack
         const configVersion = new CloudFrontConfigVersionConstruct(
@@ -148,23 +269,23 @@ export class ConsoleStack extends cdk.Stack {
         });
 
         // SSL for SaaS stack
-        new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
-            /* If you don't specify 'env', this stack will be environment-agnostic.
-             * Account/Region-dependent features and context lookups will not work,
-             * but a single synthesized template can be deployed anywhere. */
+        // new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
+        //     /* If you don't specify 'env', this stack will be environment-agnostic.
+        //      * Account/Region-dependent features and context lookups will not work,
+        //      * but a single synthesized template can be deployed anywhere. */
 
-            /* Uncomment the next line to specialize this stack for the AWS Account
-             * and Region that are implied by the current CLI configuration. */
-            // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+        //     /* Uncomment the next line to specialize this stack for the AWS Account
+        //      * and Region that are implied by the current CLI configuration. */
+        //     // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 
-            /* Uncomment the next line if you know exactly what Account and Region you
-             * want to deploy the stack to. */
-            // env: { account: '123456789012', region: 'us-east-1' },
+        //     /* Uncomment the next line if you know exactly what Account and Region you
+        //      * want to deploy the stack to. */
+        //     // env: { account: '123456789012', region: 'us-east-1' },
 
-            /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-            synthesizer: props.synthesizer,
-            appsyncApi: commonConstruct.appsyncApi,
-            configVersionDDBTableName: configVersion.configVersionDDBTableName,
-        });
+        //     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+        //     synthesizer: props.synthesizer,
+        //     appsyncApi: commonConstruct.appsyncApi,
+        //     configVersionDDBTableName: configVersion.configVersionDDBTableName,
+        // });
     }
 }

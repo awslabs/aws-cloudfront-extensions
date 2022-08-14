@@ -17,7 +17,7 @@ import { DeployExtensionObj } from "../deploy/Deploy";
 import { useSelector } from "react-redux";
 import { AmplifyConfigType } from "assets/js/type";
 import { AppStateProps } from "reducer/appReducer";
-
+import RefreshIcon from "@material-ui/icons/Refresh";
 import DateRangePicker from "rsuite/DateRangePicker";
 import "rsuite/dist/rsuite.min.css";
 
@@ -31,28 +31,6 @@ const BreadCrunbList = [
     link: "",
   },
 ];
-
-const buildRandomArr = (count: number) => {
-  const tmpArr = [];
-  const buildRandomData = (start: number, end: number) => {
-    const num = Math.floor(Math.random() * (end - start) + start);
-    return num;
-  };
-  for (let i = 0; i < count; i++) {
-    const data = buildRandomData(10, 100);
-    tmpArr.push(data);
-  }
-  return tmpArr;
-};
-
-interface OptionType {
-  label: string;
-  value: string;
-}
-interface ChooseCloudFrontProps {
-  deployExtensionObj: DeployExtensionObj;
-  changeExtensionObjDistribution: (distribution: OptionType) => void;
-}
 
 const CloudFront: React.FC = () => {
   const chartOption = {
@@ -78,6 +56,7 @@ const CloudFront: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [selectDomain, setSelectDomain] = useState("");
 
   const [cdnRequestData, setCdnRequestData] = useState([
     { Time: "", Value: null },
@@ -120,28 +99,20 @@ const CloudFront: React.FC = () => {
     (state: AppStateProps) => state.amplifyConfig
   );
 
-  const dateFormatter = (str: "") => {
-    return str;
-  };
-  const [value, setValue] = React.useState<Date | null>(
-    new Date("2014-08-18T21:11:54")
-  );
-
-  const handleChange = (newValue: Date | null) => {
-    setValue(newValue);
-  };
-
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
     try {
       const resData = await appSyncRequestQuery(listDistribution);
+      // console.log(resData);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpDistributionList = [];
       const tmpSelectedList = [];
+      // console.log(amplifyConfig.aws_monitoring_stack_name);
       const domainData = await appSyncRequestMutation(updateDomains, {
-        stack_name: amplifyConfig.aws_monitoring_stack_name,
+        stack_name: "",
         domains: "*",
       });
+      console.log(domainData);
       const domainList: string[] = [];
       if (domainData.data.updateDomains.includes(",")) {
         const domains = domainData.data.updateDomains.split(",");
@@ -187,62 +158,63 @@ const CloudFront: React.FC = () => {
     }
   };
 
-  const getChartData = async (domain: string) => {
-    const url2 =
-      amplifyConfig.aws_monitoring_url +
-      "/metric?StartTime=" +
-      startDate +
-      "&EndTime=" +
-      endDate +
-      "&Metric=all" +
-      domain;
-    try {
-      const response = await fetch(url2, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "x-api-key": amplifyConfig.aws_monitoring_api_key,
-        },
-      });
-      const data = await response.json();
-      data.Data[0].CdnData.forEach(
-        (item: { Metric: string; DetailData: [] }) => {
-          if (item.Metric == "request") {
-            setCdnRequestData(item.DetailData);
-          } else if (item.Metric == "requestOrigin") {
-            setCdnRequestOriginData(item.DetailData);
-          } else if (item.Metric == "statusCode") {
-            setCdnStatusCodeData(item.DetailData);
-          } else if (item.Metric == "statusCodeOrigin") {
-            setCdnStatusCodeOriginData(item.DetailData);
-          } else if (item.Metric == "chr") {
-            setCdnChrData(item.DetailData);
-          } else if (item.Metric == "chrBandWidth") {
-            setCdnChrBandWidthData(item.DetailData);
-          } else if (item.Metric == "bandwidth") {
-            setCdnBandWidthData(item.DetailData);
-          } else if (item.Metric == "bandwidthOrigin") {
-            setCdnBandWidthOriginData(item.DetailData);
-          } else if (item.Metric == "downloadSpeed") {
-            setCdnDownloadSpeedData(item.DetailData);
-          } else if (item.Metric == "downloadSpeedOrigin") {
-            setCdnDownloadSpeedOriginData(item.DetailData);
-          } else if (item.Metric == "topNUrlRequests") {
-            setCdnTopNUrlRequestsData(item.DetailData);
-          } else if (item.Metric == "topNUrlSize") {
-            setCdnTopNUrlSizeData(item.DetailData);
-          } else if (item.Metric == "downstreamTraffic") {
-            setCdnDownstreamTrafficData(item.DetailData);
+  const getChartData = async () => {
+    if (selectDomain != "") {
+      const timeStamp = new Date().getTime();
+      const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=all&Domain=${selectDomain}&timestamp=${timeStamp}`;
+      // console.log(url2);
+      try {
+        const response = await fetch(url2, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "x-api-key": amplifyConfig.aws_monitoring_api_key,
+          },
+        });
+        const data = await response.json();
+        await data.Response.Data[0].CdnData.forEach(
+          (item: { Metric: string; DetailData: [] }) => {
+            if (item.Metric == "request") {
+              setCdnRequestData(item.DetailData);
+            } else if (item.Metric == "requestOrigin") {
+              setCdnRequestOriginData(item.DetailData);
+            } else if (item.Metric == "statusCode") {
+              setCdnStatusCodeData(item.DetailData);
+            } else if (item.Metric == "statusCodeOrigin") {
+              setCdnStatusCodeOriginData(item.DetailData);
+            } else if (item.Metric == "chr") {
+              setCdnChrData(item.DetailData);
+            } else if (item.Metric == "chrBandWidth") {
+              setCdnChrBandWidthData(item.DetailData);
+            } else if (item.Metric == "bandwidth") {
+              setCdnBandWidthData(item.DetailData);
+            } else if (item.Metric == "bandwidthOrigin") {
+              setCdnBandWidthOriginData(item.DetailData);
+            } else if (item.Metric == "downloadSpeed") {
+              setCdnDownloadSpeedData(item.DetailData);
+            } else if (item.Metric == "downloadSpeedOrigin") {
+              setCdnDownloadSpeedOriginData(item.DetailData);
+            } else if (item.Metric == "topNUrlRequests") {
+              setCdnTopNUrlRequestsData(item.DetailData);
+            } else if (item.Metric == "topNUrlSize") {
+              setCdnTopNUrlSizeData(item.DetailData);
+            } else if (item.Metric == "downstreamTraffic") {
+              setCdnDownstreamTrafficData(item.DetailData);
+            }
           }
-        }
-      );
-    } catch (error) {
-      console.error(error);
+        );
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
   useEffect(() => {
     getCloudfrontDistributionList();
+    setStartDate(
+      encodeURI(moment().add(-12, "hours").format("YYYY-MM-DD HH:mm:ss"))
+    );
+    setEndDate(encodeURI(moment(new Date()).format("YYYY-MM-DD HH:mm:ss")));
   }, []);
 
   const getCdnStatusCode = () => {
@@ -456,7 +428,7 @@ const CloudFront: React.FC = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "auto 400px",
+              gridTemplateColumns: "auto 400px 50px",
               gridGap: 20,
             }}
           >
@@ -464,25 +436,34 @@ const CloudFront: React.FC = () => {
               options={selectDistribution}
               onChange={(event: any) => {
                 if (event != null) {
-                  getChartData(event.value);
+                  setSelectDomain(event.value);
+                  getChartData();
                 }
               }}
             />
             <DateRangePicker
-              format="yyyy-MM-dd hh:mm"
-              defaultValue={[new Date(), new Date()]}
+              format="yyyy-MM-dd HH:mm"
+              defaultValue={[moment().add(-12, "hours").toDate(), new Date()]}
               disabledDate={afterToday?.()}
               onChange={(range) => {
                 if (range != null) {
                   setStartDate(
-                    encodeURI(moment(range[0]).format("YYYY-MM-DD hh:mm:ss"))
+                    encodeURI(moment(range[0]).format("YYYY-MM-DD HH:mm:ss"))
                   );
                   setEndDate(
-                    encodeURI(moment(range[1]).format("YYYY-MM-DD hh:mm:ss"))
+                    encodeURI(moment(range[1]).format("YYYY-MM-DD HH:mm:ss"))
                   );
+                  getChartData();
                 }
               }}
             />
+            <Button
+              onClick={() => {
+                getChartData();
+              }}
+            >
+              <RefreshIcon fontSize="medium" />
+            </Button>
           </div>
         </FormItem>
         <div className="flex flex-warp">
