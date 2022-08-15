@@ -5,7 +5,7 @@
     "desc": "Description",
     "stage": "CloudFront Stage",
     "details": "Details",
-    "viewDetail": "Link",
+    "link": "Link",
     "updated": "Updated"
   },
   "update": {
