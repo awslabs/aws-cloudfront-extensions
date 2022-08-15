@@ -30,7 +30,7 @@ const CertificationList: React.FC = () => {
   >([]);
 
   // Get Distribution List
-  const getCloudfrontDistributionList = async () => {
+  const getCertificationList = async () => {
     try {
       setLoadingData(true);
       setCertificationList([]);
@@ -46,7 +46,7 @@ const CertificationList: React.FC = () => {
   };
 
   useEffect(() => {
-    getCloudfrontDistributionList();
+    getCertificationList();
   }, []);
 
   return (
@@ -62,7 +62,7 @@ const CertificationList: React.FC = () => {
               <Button
                 disabled={loadingData}
                 onClick={() => {
-                  getCloudfrontDistributionList();
+                  getCertificationList();
                 }}
               >
                 <RefreshIcon fontSize="small" />

@@ -67,8 +67,13 @@ const TablePanel: React.FC<TablePanelProps> = (props: TablePanelProps) => {
 
   useEffect(() => {
     console.info("items:", items);
-    setDataList(items);
-    if (items.length === 0) {
+    if (items == null) {
+      setDataList([]);
+    } else {
+      setDataList(items);
+    }
+
+    if (items == null || items.length === 0) {
       setCheckAllStatus(UNCHECKED);
     }
   }, [items]);
