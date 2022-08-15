@@ -6,7 +6,7 @@
     "logout": "Sign Out"
   },
   "menu": {
-    "home": "首页",
+    "home": "home",
     "monitoring": "Monitoring",
     "cloudFrontTraffic": "CloudFront traffic",
     "distributionMgmt": "Distribution management",
