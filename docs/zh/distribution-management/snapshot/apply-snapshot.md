@@ -1,14 +1,14 @@
-You can apply a snapshot to other CloudFront distributions.
+您可以将快照中的配置应用于其他CloudFront分配。
 
 !!! Important
-     Please be careful when apply the snapshot, the target distribution configuration will be totally replaced.
+     应用快照时请小心，目标CloudFront分配配置将被完全替换。
 
-1. Log in to the web console.
-2. In the left sidebar, under **Configuration**, select **Snapshot**. 
-3. Click a distribution (you can find it by CNAMEs) that you want to view its snapshots.
-4. From the snapshot list, select a snapshot.
-5. Choose **Actions** on the top right, and then choose **Apply to other distributions**.
-6. In the pop-up window, select one or more existing CloudFront distribution that you want to apply the configuration of this snapshot. 
-7. Enter `Confirm` in the text box to confirm this action.
-8. Choose **Apply**. 
 
+1. 登录到web控制台。
+2. 在左侧栏的**分配配置**下，选择**快照**。
+3. 单击要查看其快照的分配（您可以通过CNAMEs找到）。
+4. 从快照列表中，选择一个快照。
+5. 选择右上角的**操作**，然后选择**应用于其他分配**。
+6. 在弹出窗口中，选择一个或多个要应用此快照配置的现有CloudFront分配。
+7. 在文本框中输入“Confirm”以确认此操作。
+8. 选择**应用**。

@@ -1,47 +1,51 @@
-The solution will create one or multiple certificates in ACM and create the associated distributions in CloudFront. 
+本解决方案将在ACM中创建一个或多个证书，并创建相关CloudFront分配。
 
 ![create-certificate-job](../../../images/create-certificate-job.png)
 
-### How does it work
+### 它是如何工作的
 
-When you start a Create Certificates Job, the solution starts a workflow in AWS Step Functions that does the following:
+启动创建证书作业时，本解决方案将在AWS Step Functions中启动工作流，该工作流执行以下操作：
 
-1. Create certificates in ACM: The solution will automatically create all ACM based on input. After all SSL Certificates were created, the solution will automatically sent SNS message to the designated email address or HTTP endpoint (depending on subscription). After this step, the domain owners are expected to complete DNS validation process. For more information, see [DNS validation process with your DNS Provider](./dns-validation-process.md).
+1. 在ACM中创建证书：本解决方案将根据输入自动创建所有ACM证书。创建SSL证书后，本解决方案将向指定的电子邮件地址或HTTP端点（取决于订阅方式）发送SNS消息。之后，域名所有者需要完成DNS验证过程。有关更多信息，请参阅[DNS验证](./dns-validation-process.md)。
 
-2. Check certificates status in ACM: The solution checks the progress of DNS validation status every 5 minutes. The DNS validation is a manual process, also known as Domain Control Validation. Domain owner needs to manually add a CNAME record for your domain name on the website of your DNS providers. ACM will check the DNS validation status every few minutes. Once done, ACM will issue certificates. 
+2. 检查ACM中的证书状态：本解决方案每5分钟检查一次DNS验证状态。DNS验证是一个手动过程，也称为域控制验证（Domain Control Validation）。域名所有者需要在DNS提供商的网站上手动添加域名的CNAME记录。ACM将每隔几分钟检查一次DNS验证状态。完成后，ACM将颁发证书。
 
-3. Create new CloudFront distributions: Once all certificates were issued by ACM, the solution will automatically create CloudFront distributions. After all distributions were created, the solution will send an SNS message to the designated email address or HTTP endpoint. After this step, the domain owners are expected to add new CloudFront distribution to map to CNAME. For more information, see [Adding CloudFront record for CNAME with your DNS Provider](./add-record-for-cname.md).
+3. 创建新的CloudFront分配：当所有证书都由ACM颁发后，本解决方案将自动创建CloudFront分配。创建所有CloudFront分配后，本解决方案将向指定的电子邮件地址或HTTP端点发送SNS消息。之后，域名所有者需要添加新的CloudFront分配以映射到CNAME。有关更多信息，请参阅[向DNS提供商添加CNAME的CloudFront记录](./add-record-for-cname.md)。
+
 
 ![certificate-workflow](../../../images/certificate-workflow.png)
 
-### Schedule a job for creating new certificates
 
-1. Log in to the web console.
-2. In the left sidebar, under **Configuration**, select **SSL Certification**. 
-3. Choose **Request New Certificate**.
-4. In the page that opens, click **Get Started**.
-5. Enter a group of domain name list for a certificate. Click **Add domain names for another certificate** if you want to create another certificate. 
-6. Choose **Automatically create distributions**, and select a snapshot of a distribution that you want to copy the config from. 
+### 创建新证书
 
-[//]: # (7. &#40;Optional&#41; Turn on switch if you’d like the solution to aggregate certificate. for example, if you have domain list *.example.com, 1xxx.example.com &#40;http://1.example.com/&#41;, 2xxx.example.com. The certificate will only contain *.example.com &#40;http://example.com/&#41;. *[Suggest to remove, it is difficult for users to understand the logic behind. ]*)
-[//]: # (8. Click **Add new tag** to add a Tag for the resource &#40;certificate, CloudFront Distributions&#41; that will be created.)
-9. Click **Start job**.
-10. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
 
-### View create certificate job status
+1. 登录到web控制台。
+2. 在左侧栏的**分配配置**下，选择**SSL证书**。
+3. 选择**请求新证书**。
+4. 在打开的页面中，单击**开始**。
+5. 为证书输入一组域名列表。如果要创建其他证书，请单击**为其他证书添加域名**。
+6. 选择**自动创建分发**，然后选择要从中复制配置的CloudFront分配的快照。
+7. 单击**添加新标记**，为将要创建的证书、云端分发版等资源添加标记。
+8. 单击**开始作业**。
+9. 验证生成的输入参数，如果一切正常，则在输入框中输入“Confirm”，然后单击“应用”按钮。
 
-You can view job status on the web console or using API calls.
+### 查看作业状态
 
-Once the create job started, you will be redirected to a page where you can view the status of the job. For create certificate job, there are three steps in AWS Step functions workflow. After all steps are completed, the job will finish with success. If one of the steps failed, the job will fail. 
 
-* Step1 will be completed once all certificates were created in ACM. It usually takes less than a minute. 
-* Step2 will be completed once ACM had issued all expected certificates. ACM only issues the certificates if all DNS validation were done.(This step will be blocking until user do the DCV validation on all the domain names on related name servers, please refer to [this link](https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html))
-* Step3 will be completed once all expected distributions were created in CloudFront. 
+您可以在web控制台或使用API查看作业状态。
 
-After Step1, the domain owners are expected to complete DNS validation process. See more details in *Instruction - DNS validation process with your DNS Provider*.
+创建作业启动后，您将被重定向到一个页面，在该页面上可以查看作业的状态。对于创建证书作业，AWS Step Functions工作流中会依次执行三个步骤。完成所有步骤后，作业将成功完成。如果其中一个步骤失败，作业将失败。
 
-After Step3, the domain owners are expected to add new CloudFront distribution to map to CNAME. See more details in *Instruction - Adding CloudFront record for CNAME with your DNS Provider*.
+* 步骤1将创建所有ACM证书后完成。通常不到一分钟。
 
-If the job failed, refer to [Clean up resources](clean-up-resources.md) to clean up the created ACM and CloudFront distributions if needed.
+* 步骤2将在ACM发布所有预期证书后完成。ACM仅在完成所有DNS验证后才颁发证书。（此步骤将被阻塞，直到用户对相关DNS服务器上的所有域名进行DCV验证，请参阅[此链接](https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html))
 
+* 步骤3在创建了所有CloudFront分配后完成。
+
+在步骤1之后，域名所有者需要完成DNS验证过程。有关更多详细信息，请参阅[DNS验证](./dns-validation-process.md)。
+
+在步骤3之后，域名所有者需要添加新的CloudFront分配以映射到CNAME。有关更多详细信息，请参阅[在DNS提供商中为CNAME添加CloudFront记录](./add-record-for-cname.md)。
+
+
+如果作业失败，请参阅[清理资源](clean-up-resources.md)，清理创建的ACM和CloudFront分配。
 

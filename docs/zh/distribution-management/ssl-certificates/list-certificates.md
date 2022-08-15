@@ -1,15 +1,19 @@
-On the web console, you can search for the SSL certificates by CNAMEs. In the backend of the solution, it calls the ACM API to list all current certificates you have in this AWS account. 
+在web控制台上，您可以通过CNAMEs搜索SSL证书。在解决方案的后端，它调用ACM API列出此AWS帐户中的所有当前证书。
 
-!!! Important "Important"
+!!! Important "注意"
 
-    One CNAME could be mapped to multiple SSL Certificates. However, when creating CloudFront distributions, you cannot have two distributions map to one CNAME (the alternative domain name). 
+    一个CNAME可以映射到多个SSL证书。但是，在创建CloudFront分配时，不能将两个分配映射到一个CNAME（替代域名）。 
 
-To list SSL certificates on the web console, do the following:
 
-1. Log in to the web console.
-2. In the left sidebar, under **Configuration**, select **SSL Certification**. 
-3. View the listed SSL certificates. 
 
-[//]: # (4. &#40;Optional&#41; In the search box, you can search for SSL certificates by CNAME.)
+要在web控制台上列出SSL证书，请执行以下操作：
 
-You can also get the SSL Certificate List via APIs. For more information, see *API Reference Guide*.
+1. 登录到web控制台。
+
+2. 在左侧栏的**配置**下，选择**SSL认证**。
+
+3. 查看列出的SSL证书。
+
+
+您还可以通过API获取SSL证书列表。有关更多信息，请参阅*API参考指南*。
+

@@ -13,7 +13,6 @@ nav:
   - 安全信息: security.md
   - 区域支持: regions.md
   - 部署解决方案: deployment.md
-  - 模板信息: template.md
   - 监控: 
       - 概述: monitoring/overview.md
       - 非实时监控: monitoring/non-real-time-monitoring.md
@@ -30,10 +29,10 @@ nav:
           - 概述: distribution-management/ssl-certificates/overview.md
           - 创建新证书: distribution-management/ssl-certificates/create-new-certificates.md
           - 导入已有证书: distribution-management/ssl-certificates/import-existing-certificates.md
-          - List SSL certificates: distribution-management/ssl-certificates/list-certificates.md
-          - DNS validation process with your DNS Provider: distribution-management/ssl-certificates/dns-validation-process.md
-          - Adding CloudFront record for CNAME with your DNS Provider: distribution-management/ssl-certificates/add-record-for-cname.md 
-          - Clean up resources: distribution-management/ssl-certificates/clean-up-resources.md
+          - 查看SSL证书列表: distribution-management/ssl-certificates/list-certificates.md
+          - DNS验证: distribution-management/ssl-certificates/dns-validation-process.md
+          - 在DNS提供商中为CNAME添加CloudFront记录: distribution-management/ssl-certificates/add-record-for-cname.md 
+          - 清理资源: distribution-management/ssl-certificates/clean-up-resources.md
   - 扩展仓库: 
       - 概述: extension-repository/overview.md
       - 客户端IP透传: extension-repository/true-client-ip.md

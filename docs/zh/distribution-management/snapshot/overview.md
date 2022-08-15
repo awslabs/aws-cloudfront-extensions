@@ -1,21 +1,22 @@
-## Snapshot
+## 快照
 
-A configuration of CloudFront distribution could be very complex, and you may want to save a specific configuration and apply it to current or other distributions in your aws account. This solution allows you to save configuration as “snapshot” so that you can reuse it at any time.
+CloudFront分配中包含了多种配置，您可能希望保存指定配置并将其应用于AWS帐户中的当前CloudFront分配或其他分配。此解决方案允许您将配置保存为“快照”，以便您可以随时重用它。
 
-### How does it work?
-When you create a snapshot, the solution automatically exports the current distribution configuration file in S3 bucket. A DynamoDB table is used to store the mapping of the config file and the snapshot names. 
+### 快照是如何工作的？
 
-### How to work with snapshots?
+创建快照时，本解决方案会自动将指定CloudFront分配的配置导出并存储成S3桶中的文件，并将此配置文件和快照名称的映射等信息存储在DynamoDB表中。
 
-You can perform the following operations on snapshots on web console:
+### 如何使用快照？
 
-- [Compare snapshot](./compare-snapshot.md)
-- [Apply snapshot](./apply-snapshot.md)
-- [Publish snapshot](./publish-snapshot.md)
-- [Delete snapshot](./delete-snapshot.md)
+您可以在web控制台上对快照执行以下操作：
+
+- [发布快照](./publish-snapshot.md)
+- [比较快照](./compare-snapshot.md)
+- [应用快照](./apply-snapshot.md)
+- [删除快照](./delete-snapshot.md)
 
 
-You can also perform the following operations on snapshots via API:
+您也可以通过API对快照执行以下操作：
 
 - [create_snapshot](../../api-reference-guide/snapshot/create_snapshot.md)
 - [delete_snapshot](../../api-reference-guide/snapshot/delete_snapshot.md)

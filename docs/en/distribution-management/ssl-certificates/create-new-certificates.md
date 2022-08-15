@@ -22,11 +22,9 @@ When you start a Create Certificates Job, the solution starts a workflow in AWS 
 4. In the page that opens, click **Get Started**.
 5. Enter a group of domain name list for a certificate. Click **Add domain names for another certificate** if you want to create another certificate. 
 6. Choose **Automatically create distributions**, and select a snapshot of a distribution that you want to copy the config from. 
-
-[//]: # (7. &#40;Optional&#41; Turn on switch if you’d like the solution to aggregate certificate. for example, if you have domain list *.example.com, 1xxx.example.com &#40;http://1.example.com/&#41;, 2xxx.example.com. The certificate will only contain *.example.com &#40;http://example.com/&#41;. *[Suggest to remove, it is difficult for users to understand the logic behind. ]*)
-[//]: # (8. Click **Add new tag** to add a Tag for the resource &#40;certificate, CloudFront Distributions&#41; that will be created.)
-9. Click **Start job**.
-10. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
+7. Click **Add new tag** to add a Tag for the resource such as certificates, CloudFront Distributions that will be created.
+8. Click **Start job**.
+9. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
 
 ### View create certificate job status
 
@@ -38,9 +36,9 @@ Once the create job started, you will be redirected to a page where you can view
 * Step2 will be completed once ACM had issued all expected certificates. ACM only issues the certificates if all DNS validation were done.(This step will be blocking until user do the DCV validation on all the domain names on related name servers, please refer to [this link](https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html))
 * Step3 will be completed once all expected distributions were created in CloudFront. 
 
-After Step1, the domain owners are expected to complete DNS validation process. See more details in *Instruction - DNS validation process with your DNS Provider*.
+After Step1, the domain owners are expected to complete DNS validation process. See more details in [DNS validation process with your DNS Provider](./dns-validation-process.md).
 
-After Step3, the domain owners are expected to add new CloudFront distribution to map to CNAME. See more details in *Instruction - Adding CloudFront record for CNAME with your DNS Provider*.
+After Step3, the domain owners are expected to add new CloudFront distribution to map to CNAME. See more details in [Adding CloudFront record for CNAME with your DNS Provider](./add-record-for-cname.md).
 
 If the job failed, refer to [Clean up resources](clean-up-resources.md) to clean up the created ACM and CloudFront distributions if needed.
 

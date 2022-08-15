@@ -1,9 +1,7 @@
-If you do not need a snapshot any more, you can delete it.
+如果您不再需要快照，可以将其删除。
 
-1. Log in to the web console.
-2. In the left sidebar, under **Configuration**, select **Snapshot**. 
-3. Click a distribution (you can find it by CNAMEs) in which you want to delete a snapshot.
-4. From the snapshot list, select the snapshot you want to delete. 
-5. Choose **Actions** on the top right, and then choose **Delete Snapshot**.
-
-
+1. 登录到web控制台。
+2. 在左侧栏的**分配配置**下，选择**快照**。
+3. 单击要删除快照的分配（您可以通过CNAMEs找到）。
+4. 从快照列表中，选择要删除的快照。
+5. 选择右上角的**操作**，然后选择**删除快照**。

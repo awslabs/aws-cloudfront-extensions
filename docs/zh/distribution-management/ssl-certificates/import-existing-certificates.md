@@ -1,45 +1,44 @@
-The solution will automatically import one or multiple your existing issued certificates in ACM and create associated distributions in CloudFront. 
+本解决方案将自动在ACM中导入一个或多个现有颁发的证书，并创建相关的CloudFront分配。 
 
 ![import-certificate-job](../../../images/import-certificate-job.png)
 
-### How does it work
+### 它是如何工作的
 
-When you starts an Import Certificate Job, the solution starts a workflow in AWS Step Functions that does the following:
+启动导入证书作业时，解决方案将在AWS Step Functions中启动工作流，该工作流执行以下操作：
 
-1. Import certificates in ACM: The solution will automatically import certificate records in ACM.
-2. Create new CloudFront distributions: The solution will automatically create CloudFront distributions. After all distributions were created, the solution will send a SNS message to the designated email address or HTTP endpoint. 
+1. 在ACM中导入证书：解决方案将自动导入ACM中的证书记录。
+2. 创建新的CloudFront分配：解决方案将自动创建CloudFront分配。创建所有CloudFront分配后，解决方案将向指定的电子邮件地址或HTTP端点发送SNS消息。
+
 
 ![certificate-workflow1](../../../images/certificate-workflow1.png)
 
 
-### Schedule a job for importing existing certificates
+### 导入现有证书的作业
 
-!!! Important "Important"
+!!! Important "注意"
 
-    Currently, the solution only supports importing one certificate in a job on the Web UI. But user can use api to import multiple certificates through our api. Please refer to the api documentation.
+    目前，本解决方案仅支持在Web UI上导入一个证书。但用户可以使用API导入多个证书。请参阅API文档。
 
-1. Log in to the web console.
-2. In the left sidebar, under **Configuration**, select **SSL Certification**. 
-3. Choose **Import Existing Certificates**.
-4. Choose **Import One Certificate**.
-5. Enter Certificate name, Certificate body, Certificate Private Body, and Certificate chain.
-
-[//]: # (6. &#40;Optional&#41; Choose *Automatically create distributions*, select a snapshot of a distribution that you want copy the config from. )
-
-[//]: # (7. &#40;Optional&#41;: Turn on switch if you’d like the solution to aggregate certificate. for example, if you have domain list *.example.com, 1xxx.example.com &#40;http://1.example.com/&#41;, 2xxx.example.com. The certificate will only contain *.example.com &#40;http://example.com/&#41;. [Suggest to remove, it is difficult for users to understand the logic behind. ])
-8. Click **Add new tag** to add a Tag for the resource (certificate, CloudFront Distributions) that will be created.
-9. Click **Start job**.
-10. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
-
-## View import certificate job status
-
-Once the import job started, you will be redirected to a page where you can view the status of the job. For import certificate job, there are two steps in AWS Step Function workflow. After all steps are completed, the job will finish with success. If one of the steps failed, the job will fail. 
-
-* Step1 will be completed once all certificates were created in ACM. It usually takes less than a minute.
-* Step2 will be completed once all expected distributions were created in CloudFront.
-
-After Step2, the domain owners are expected to add new CloudFront distribution to map to CNAME. For more information, see [Adding CloudFront record for CNAME with your DNS Provider](./add-record-for-cname.md).
-
-If the job failed, refer to [Clean up resources](clean-up-resources.md) to clean up the created ACM and CloudFront distributions if needed.
+1. 登录到web控制台。
+2. 在左侧栏的**配置**下，选择**SSL证书**。
+3. 选择**导入现有证书**。
+4. 选择**导入一个证书**。
+5. 输入证书名称、证书主体、证书私有主体和证书链。
+6. 单击**添加新标记**为将要创建的资源（证书、CloudFront分配）添加标记。
+7. 单击**开始作业**。
+8. 验证生成的输入参数，如果一切正常，则在输入框中输入“Confirm”，然后单击“应用”按钮。
 
 
+## 查看导入证书作业的状态
+
+
+导入作业启动后，您将被重定向到可以查看作业状态的页面。对于导入证书作业，AWS Step Functions会执行两个步骤。完成所有步骤后，工作将成功完成。如果其中一个步骤失败，作业将失败。
+
+
+* 步骤1将创建所有ACM证书后完成。通常不到一分钟。
+* 步骤2在创建了所有CloudFront分配后完成。
+
+
+在步骤2之后，域名所有者需要添加新的CloudFront分配以映射到CNAME。有关更多信息，请参阅[在DNS提供商中为CNAME添加CloudFront记录](./add-record-for-cname.md)。
+
+如果作业失败，请参阅[清理资源](clean-up-resources.md)，清理创建的ACM和CloudFront分配。

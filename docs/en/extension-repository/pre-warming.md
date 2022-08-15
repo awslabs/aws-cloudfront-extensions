@@ -10,7 +10,7 @@ The solution deploys a CloudFormation template, that will install the below arch
 The CloudFormation template provides the following components and workflows:
 
 1. Scheduler Lambda function inserts initial pre-warm status into the DynamoDB table and invokes cache invalidator.
-2. Cache invalidator Lambda function invalidates CloudFront caches for all the URLs and sends messages with requestId, POP and URLs, and so on into SQS.
+2. Cache invalidator Lambda function invalidates CloudFront caches for all the URLs and sends messages with requestId, PoP and URLs, and so on into SQS.
 3. CloudWatch alarm monitors the messages in the queue and notifies the auto scaling group to scale out when messages are sent into the queue.
 4. Auto scaling group contains EC2 spot instances. Each instance sends requests to the edge locations and updates the prewarm status into DynamoDB table after consuming the messages from the SQS queue.
 5. StatusFetcher function gets the prewarm status from the DynamoDB table.
@@ -33,9 +33,9 @@ Use the following steps to deploy this solution on AWS.
 
 #### Deployment steps
 
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/Prewarm.template) as a starting point for your own implementation.
+1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/PrewarmStack.template.json) as a starting point for your own implementation.
 
-      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/Prewarm.template)
+      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/PrewarmStack.template.json)
 
 
 2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.

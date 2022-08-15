@@ -23,13 +23,9 @@ When you starts an Import Certificate Job, the solution starts a workflow in AWS
 3. Choose **Import Existing Certificates**.
 4. Choose **Import One Certificate**.
 5. Enter Certificate name, Certificate body, Certificate Private Body, and Certificate chain.
-
-[//]: # (6. &#40;Optional&#41; Choose *Automatically create distributions*, select a snapshot of a distribution that you want copy the config from. )
-
-[//]: # (7. &#40;Optional&#41;: Turn on switch if you’d like the solution to aggregate certificate. for example, if you have domain list *.example.com, 1xxx.example.com &#40;http://1.example.com/&#41;, 2xxx.example.com. The certificate will only contain *.example.com &#40;http://example.com/&#41;. [Suggest to remove, it is difficult for users to understand the logic behind. ])
-8. Click **Add new tag** to add a Tag for the resource (certificate, CloudFront Distributions) that will be created.
-9. Click **Start job**.
-10. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
+6. Click **Add new tag** to add a Tag for the resource (certificate, CloudFront Distributions) that will be created.
+7. Click **Start job**.
+8. Verify the generated input parameters and if everything is fine then enter "Confirm" in input box and click "Apply" button.
 
 ## View import certificate job status
 

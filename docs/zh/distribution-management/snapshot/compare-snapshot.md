@@ -1,8 +1,7 @@
-You can compare two snapshots to find their differences.
+您可以比较两个快照以找出它们的差异。
 
-1. Log in to the web console.
-2. In the left sidebar, under **Configuration**, select **Snapshot**. 
-3. Click a distribution (you can find it by CNAMEs) that you want to compare its snapshots.
-4. From the snapshot list, select two snapshots that you want to compare.
-5. Choose **Actions** on the top right, and then choose **Compare**. You will be navigated to a different page, where you can view the difference between the two CloudFront distributions.
-
+1. 登录到web控制台。
+2. 在左侧栏的**分配配置**下，选择**快照**。
+3. 单击要比较其快照的CloudFront分配（您可以通过CNAMEs找到）。
+4. 从快照列表中，选择要比较的两个快照。
+5. 选择右上角的**操作**，然后选择**比较**。您将被导航到另一个页面，在那里您可以查看两个CloudFront分配的快照之间的差异。

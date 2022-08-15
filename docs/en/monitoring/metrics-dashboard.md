@@ -1,4 +1,4 @@
-Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses logs generated and collected by CloudFront Monitoring API.
+Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses CloudFront standard log or realtime log to get the metrics. The solution provides a metric API if you only need to get the metric data via restful API and don't need the dashboard.
 
 With the Metrics dashboard, you can do the following:
 
@@ -6,18 +6,18 @@ With the Metrics dashboard, you can do the following:
 
 
 
-    The CloudFront monitoring dashboard displays multiple traffic metrics in each graphical chart for you to reference. Each chart related |one metric in CloudFront Monitoring API.
+    The CloudFront monitoring dashboard displays multiple metrics in each graphical chart for you to reference. Each chart related |one metric in CloudFront Monitoring API.
     
     !!! Note "Note"
         The Graphed metrics type in the dashboard are the same with the CloudFront Monitoring API acquisition type when deploy the solution.
 
-    Please see traffic metrics description in the below list
+    Please see metrics description in the below list
 
 
     |**CloudFront Monitoring API Type**|**Description**|**Window Time**|
     |----------------------|----------------------|--------------------|
-    |[Real time traffic metrics](real-time-monitoring.md#metrics)        |Realtime log for CloudFront distribution|5 minutes|
-    |[Non-real time traffic metrics](non-real-time-monitoring.md#metrics)|Non-Realtime log for CloudFront distribution|5 minutes|
+    |[Real time traffic metrics](real-time-monitoring.md#metrics)        | Realtime log for CloudFront distribution with 5-min delay |5 minutes|
+    |[Non-real time traffic metrics](non-real-time-monitoring.md#metrics)| Non-Realtime log for CloudFront distribution with 1-hour delay |5 minutes|
 
 
     You can navigate to the CloudFront monitoring dashboard from the left sidebar of the Web Console under Monitoring, and click distribution (you can find it by CNAMEs) that you want to view in the distribution list and specify a time period in the time picker. The traffic metrics will be show in the graphical charts in the dashboard.

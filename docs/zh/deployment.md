@@ -5,46 +5,45 @@
 
 部署时间：约15分钟
 
-
 ### 部署概述
 
-Use the following steps to deploy this solution on AWS.
+使用以下步骤在Amazon Web Service上部署此解决方案。
 
-- Launch the CloudFormation template into your AWS account.
-- Review the template parameters, and adjust them if necessary.
+- 在您的Amazon Web Service帐户中启动CloudFormation模板。
+- 查看模板参数，并在必要时进行调整。
 
-### Deployment steps
+### 部署步骤
 
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontExtnConsoleStack.template) as a starting point for your own implementation.
+1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接[下载模板](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontExtnConsoleStack.template) 进行部署。
 
       [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontExtnConsoleStack.template)
 
 
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
+2. 默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。
 
-   1. Under Parameters, review the parameters for the template, and modify them as necessary.
+3. 在参数部分，查看模板的参数，并根据需要进行修改。
 
-         | Parameter             | Default value | Description                                                                                                                                 |
-         |-----------|---------------|---------|
-         | EmailAddress          | - | Email address to receive SSL certificates notification.                                                                                     |
-         | InitialUserEmail               | - | The initial user email for the web console.                                                                                                 |
-         | InitialUserName  | - | The initial username for the web console.                                                                                                   |
-         | InitialUserPassword  | - | The initial user password for the web console.                                                                                              |
-         | Monitoring            | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth.                                    |
-         | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-         | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket.                                                                       |
-         | DeleteLog             | false | Delete original CloudFront standard logs in S3 bucket (true or false).                                                                      |
-         | UseStartTime          | false | Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time.          |
+      | 参数             | 默认值 | 说明                                                                                                                                 |
+      |-----------|---------------|---------|
+      | EmailAddress          | - | Email address to receive SSL certificates notification.                                                                                     |
+      | InitialUserEmail               | - | The initial user email for the web console.                                                                                                 |
+      | InitialUserName  | - | The initial username for the web console.                                                                                                   |
+      | InitialUserPassword  | - | The initial user password for the web console.                                                                                              |
+      | Monitoring            | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth.                                    |
+      | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
+      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket.                                                                       |
+      | DeleteLog   | false | Delete original CloudFront standard logs in S3 bucket (true or false).                                                                      |
+      | UseStartTime   | false | Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time.          |
   
 
-4. Choose **Next**.
-5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
-6. On the **Review** page, review and confirm the settings. Check the boxes acknowledging that the template will create AWS Identity and Access Management (IAM) resources and any additional capabilities required.
-7. Choose **Create** to deploy the stack. 
+4. 选择**下一步**。
+5. 在**配置堆栈选项**页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择**下一步**。
+6. 在**审核**页面，查看并确认设置。确保选中确认模板将创建Amazon Identity and Access Management（IAM）资源的复选框。选择**下一步**。
+7. 选择**创建堆栈**以部署堆栈。
 
-You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
+您可以在Amazon CloudFormation控制台的**状态**列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为**CREATE_COMPLETE**。
 
-To see details for the stack resources, choose the **Outputs** tab. 
+您还可以选择**输出**标签页查看堆栈资源的详细信息。
 
 ## Lambda@Edge & CloudFront Functions合集
  
