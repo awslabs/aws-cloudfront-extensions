@@ -19,7 +19,6 @@ cf = boto3.client('cloudfront')
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
-JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)

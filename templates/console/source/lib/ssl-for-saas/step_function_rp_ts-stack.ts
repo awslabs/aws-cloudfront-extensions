@@ -68,22 +68,6 @@ export class StepFunctionRpTsConstruct extends Construct {
       }
     );
 
-    // dynamodb table for acm callback
-    const ssl_for_saas_job_status_table = new dynamodb.Table(
-      this,
-      "ssl_for_saas_job_status_table",
-      {
-        partitionKey: {
-          name: "jobId",
-          type: dynamodb.AttributeType.STRING,
-        },
-        sortKey: {
-          name: "step",
-          type: dynamodb.AttributeType.STRING,
-        },
-      }
-    );
-
     const snsKey = new kms.Key(this, "KmsMasterKey", {
       enableKeyRotation: true,
       policy: new iam.PolicyDocument({
@@ -280,7 +264,6 @@ export class StepFunctionRpTsConstruct extends Construct {
           SNS_TOPIC: sns_topic.topicArn,
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
           CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
         },
@@ -309,7 +292,6 @@ export class StepFunctionRpTsConstruct extends Construct {
         SNS_TOPIC: sns_topic.topicArn,
         CALLBACK_TABLE: callback_table.tableName,
         JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
         TASK_TYPE: "placeholder",
         CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
       },
@@ -351,7 +333,6 @@ export class StepFunctionRpTsConstruct extends Construct {
           PAYLOAD_EVENT_KEY: "placeholder",
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
           GRAPHQL_API_URL: props.appsyncApi.graphqlUrl,
           GRAPHQL_API_KEY: props.appsyncApi.apiKey || "",
@@ -382,7 +363,6 @@ export class StepFunctionRpTsConstruct extends Construct {
         PAYLOAD_EVENT_KEY: "placeholder",
         CALLBACK_TABLE: callback_table.tableName,
         JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
         TASK_TYPE: "placeholder",
       },
       timeout: Duration.seconds(900),
@@ -410,7 +390,6 @@ export class StepFunctionRpTsConstruct extends Construct {
           SNS_TOPIC: sns_topic.topicArn,
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
         },
         timeout: Duration.seconds(900),
@@ -428,7 +407,6 @@ export class StepFunctionRpTsConstruct extends Construct {
         SNS_TOPIC: sns_topic.topicArn,
         CALLBACK_TABLE: callback_table.tableName,
         JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
         TASK_TYPE: "placeholder",
       },
       timeout: Duration.seconds(900),
@@ -460,7 +438,6 @@ export class StepFunctionRpTsConstruct extends Construct {
           SNS_TOPIC: sns_topic.topicArn,
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
         },
         timeout: Duration.seconds(900),
@@ -707,7 +684,6 @@ export class StepFunctionRpTsConstruct extends Construct {
           STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
         },
         timeout: Duration.seconds(900),
@@ -817,7 +793,6 @@ export class StepFunctionRpTsConstruct extends Construct {
           STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          JOB_STATUS_TABLE: ssl_for_saas_job_status_table.tableName,
           TASK_TYPE: "placeholder",
         },
         timeout: Duration.seconds(900),

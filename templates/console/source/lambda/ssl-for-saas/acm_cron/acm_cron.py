@@ -13,7 +13,6 @@ sf_client = boto3.client('stepfunctions')
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
 # JOB_INFO_TABLE_NAME = 'StepFunctionRpTsStack-sslforsaasjobinfotable858BC785-VPJ5L5TT5PSV'
-JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)

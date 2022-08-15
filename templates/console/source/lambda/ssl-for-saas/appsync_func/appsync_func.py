@@ -23,7 +23,6 @@ logger = Logger(service="ssl_for_saas_appsync_resolver")
 acm = boto3.client('acm', region_name='us-east-1')
 stepFunctionArn = os.environ.get('STEP_FUNCTION_ARN')
 JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
-JOB_STATUS_TABLE_NAME = os.environ.get('JOB_STATUS_TABLE')
 
 app = AppSyncResolver()
 
