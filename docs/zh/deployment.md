@@ -14,9 +14,9 @@
 
 ### 部署步骤
 
-1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接[下载模板](https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontExtnConsoleStack.template) 进行部署。
+1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接[下载模板](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/CloudFrontExtnConsoleStack.template.json) 进行部署。
 
-      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontExtnConsoleStack.template)
+      [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/CloudFrontExtnConsoleStack.template.json)
 
 
 2. 默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。
@@ -25,15 +25,15 @@
 
       | 参数             | 默认值 | 说明                                                                                                                                 |
       |-----------|---------------|---------|
-      | EmailAddress          | - | Email address to receive SSL certificates notification.                                                                                     |
-      | InitialUserEmail               | - | The initial user email for the web console.                                                                                                 |
-      | InitialUserName  | - | The initial username for the web console.                                                                                                   |
-      | InitialUserPassword  | - | The initial user password for the web console.                                                                                              |
-      | Monitoring            | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth.                                    |
-      | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront realtime logs in the S3 bucket.                                                                       |
-      | DeleteLog   | false | Delete original CloudFront standard logs in S3 bucket (true or false).                                                                      |
-      | UseStartTime   | false | Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time.          |
+      | EmailAddress          | - | 接收SSL证书通知的电子邮箱地址                                                                                    |
+      | ConsoleAdminEmail               | - | Web控制台的初始用户电子邮箱                                                                                                 |
+      | ConsoleAdminUserName  | - | Web控制台的初始用户名                                                                                                   |
+      | ConsoleAdminPassword  | - | Web控制台的初始用户密码                                                                                              |
+      | Monitoring            | no | 启用实时或非实时监控以获取CloudFront监控指标，如缓存命中率、带宽                                    |
+      | CloudFrontDomainList  | - | CloudFront域名列表。如需监控多个域名，使用逗号分隔多个域名。填入“ALL”监视AWS帐户中的所有域名 |
+      | CloudFrontLogKeepDays | 120 | 将CloudFront日志保存在S3存储桶中的天数                                                                       |
+      | DeleteLog   | false | 删除S3存储桶中的原始CloudFront标准日志（true或false）                                                                      |
+      | UseStartTime   | false | 如果指标数据中的时间基于开始时间，则将其设置为true；如果指标数据的时间基于结束时间，则设置为false          |
   
 
 4. 选择**下一步**。
