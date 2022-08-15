@@ -404,9 +404,18 @@ def cert_create_or_import(input):
 
         auto_creation = body['auto_creation']
         domain_name_list = body['cnameList']
+        if 'cnameList' in body:
+            certTotalNumber = len(body['cnameList'])
+        else:
+            certTotalNumber = 0
+            body['cnameList'] = []
 
-        certTotalNumber = len(body['cnameList'])
-        pemTotalNumber = len(body['pemList'])
+        if 'pemList' in body:
+            pemTotalNumber = len(body['pemList'])
+        else:
+            pemTotalNumber = 0
+            body['pemList'] = []
+
         cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
         job_type = body['acm_op']
         creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
@@ -672,6 +681,7 @@ def manager_get_ssl_job(jobId):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
+
 
     try:
         response = ddb_table.get_item(

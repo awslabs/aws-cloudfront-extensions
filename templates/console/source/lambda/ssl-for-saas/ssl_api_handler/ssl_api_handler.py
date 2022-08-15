@@ -404,9 +404,18 @@ def cert_create_or_import():
 
         auto_creation = body['auto_creation']
         domain_name_list = body['cnameList']
+        if 'cnameList' in body:
+            certTotalNumber = len(body['cnameList'])
+        else:
+            certTotalNumber = 0
+            body['cnameList'] = []
 
-        certTotalNumber = len(body['cnameList'])
-        pemTotalNumber = len(body['pemList'])
+        if 'pemList' in body:
+            pemTotalNumber = len(body['pemList'])
+        else:
+            pemTotalNumber = 0
+            body['pemList'] = []
+
         cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
         job_type = body['acm_op']
         creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')

@@ -350,7 +350,11 @@ def lambda_handler(event, context):
     task_type = os.getenv('TASK_TYPE')
     task_token = event['task_token']
     job_token = event['input']['aws_request_id']
-    dist_aggregate = event['input']['dist_aggregate']
+    if 'dist_aggregate' in event['input']:
+        dist_aggregate = event['input']['dist_aggregate']
+    else:
+        dist_aggregate = 'false'
+
     domain_name_list = event['input']['cnameList']
 
     task_token = check_generate_task_token(task_token)
