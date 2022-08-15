@@ -138,14 +138,14 @@ export FILE_ASSET_PREFIX="${SOLUTION_NAME}/${BUILD_VERSION}/"
 # container support
 export BSS_IMAGE_ASSET_TAG_PREFIX="${BUILD_VERSION}-"
 
-export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_CN_ASSET_ACCOUNT_ID}
-export BSS_IMAGE_ASSET_REGION_SET="cn-north-1,cn-northwest-1"
-export BSS_FILE_ASSET_REGION_SET="cn-north-1,cn-northwest-1"
-run mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS}
-export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${CN_ASSETS}"
-
-# run npm run synth # -- --output=$staging_dist_dir
-run npx cdk synth -c TargetPartition=aws-cn --json --output ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS} -q 2>/dev/null
+# export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_CN_ASSET_ACCOUNT_ID}
+# export BSS_IMAGE_ASSET_REGION_SET="cn-north-1,cn-northwest-1"
+# export BSS_FILE_ASSET_REGION_SET="cn-north-1,cn-northwest-1"
+# run mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS}
+# export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${CN_ASSETS}"
+# 
+# # run npm run synth # -- --output=$staging_dist_dir
+# run npx cdk synth -c TargetPartition=aws-cn --json --output ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS} -q 2>/dev/null
 
 export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_ASSET_ACCOUNT_ID}
 export BSS_FILE_ASSET_REGION_SET="$REGIONS"
