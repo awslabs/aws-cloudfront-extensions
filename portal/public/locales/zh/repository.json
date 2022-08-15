@@ -53,5 +53,15 @@
       "behaviors": "行为",
       "cfStage": "CloudFront 阶段"
     }
+  },
+  "result": {
+    "status": "部署状态",
+    "notDeployed": "现在正在部署您的扩展程序",
+    "beingDeploy": "扩展正在部署到 CloudFront distribution",
+    "howToUse": "如何使用扩展",
+    "fromHere": "表单部分来自。",
+    "helpful": "以下是一些有用的入门资源",
+    "firstLink": "文档链接一",
+    "secondLink": "文档链接二"
   }
 }

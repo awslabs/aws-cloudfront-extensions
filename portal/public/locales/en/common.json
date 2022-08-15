@@ -41,7 +41,9 @@
     "enable": "Enable",
     "checkUpdate": "Check Updates",
     "deploy": "Deploy",
-    "update": "Update"
+    "update": "Update",
+    "viewStatus": "View deployment status",
+    "viewRepo": "View Repository"
   },
   "status": {
     "error": "Error"

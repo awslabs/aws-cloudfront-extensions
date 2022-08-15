@@ -53,5 +53,15 @@
       "behaviors": "Behaviors",
       "cfStage": "CloudFront Stage"
     }
+  },
+  "result": {
+    "status": "Deploy status",
+    "notDeployed": "Your extension are now being deployed",
+    "beingDeploy": "The extension are being deployed to CloudFront distribution ",
+    "howToUse": "How to use extensions",
+    "fromHere": "Form sections come here.",
+    "helpful": "Here are some helpful resources to get started",
+    "firstLink": "First link to documentation",
+    "secondLink": "Second link to documentation"
   }
 }

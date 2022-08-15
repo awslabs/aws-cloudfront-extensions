@@ -41,14 +41,16 @@
     "enable": "启用",
     "checkUpdate": "检查更新",
     "deploy": "部署",
-    "update": "更新"
+    "update": "更新",
+    "viewStatus": "查看部署状态",
+    "viewRepo": "查看存储库"
   },
   "status": {
     "error": "Error"
   },
-  "yes": "Yes",
-  "no": "No",
-  "loading": "loading...",
-  "noData": "No Data",
-  "info": "Info"
+  "yes": "是",
+  "no": "否",
+  "loading": "加载中...",
+  "noData": "暂无数据",
+  "info": "信息"
 }

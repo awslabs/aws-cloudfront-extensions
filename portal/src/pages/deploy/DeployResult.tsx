@@ -7,6 +7,7 @@ import { DeployExtensionObj } from "./Deploy";
 import { useSelector } from "react-redux";
 import { AmplifyConfigType } from "assets/js/type";
 import { AppStateProps } from "reducer/appReducer";
+import { useTranslation } from "react-i18next";
 
 interface DeployResultProps {
   stackLink: string;
@@ -25,10 +26,12 @@ const DeployResult: React.FC<DeployResultProps> = (
     (state: AppStateProps) => state.amplifyConfig
   );
 
+  const { t } = useTranslation();
+
   return (
     <div>
       {/* <Breadcrumb list={BreadCrumbList} /> */}
-      <PagePanel title="Deploy status">
+      <PagePanel title={t("repository:result.status")}>
         <Alert
           actions={
             <div>
@@ -43,46 +46,51 @@ const DeployResult: React.FC<DeployResultProps> = (
                 target="_blank"
                 rel="noreferrer"
               >
-                <Button>View deployment status</Button>
+                <Button>{t("button.viewStatus")}</Button>
               </a>
             </div>
           }
           type={AlertType.Success}
-          title="Your extension are now being deployed"
+          title={t("repository:result.notDeployed")}
           content={
             deployExtensionObj.distributionObj
-              ? `The extension are being deployed to CloudFront distribution 
+              ? `${t("repository:result.beingDeploy")}
           ${deployExtensionObj.distributionObj?.value}`
               : ""
           }
         />
       </PagePanel>
-      <PagePanel title="How to use extensions" desc={deployExtensionObj.desc}>
-        <div className="d-status-content ptb-20">Form sections come here.</div>
+      <PagePanel
+        title={t("repository:result.howToUse")}
+        desc={deployExtensionObj.desc}
+      >
+        <div className="d-status-content ptb-20">
+          {t("repository:result.fromHere")}
+        </div>
       </PagePanel>
-      <PagePanel title="Here are some helpful resources to get started">
+      <PagePanel title={t("repository:result.helpful")}>
         <div className="m-w-45p">
           <div className="flex">
             <div className="flex-1">
-              <a href="/">First link to documentation</a>
+              <a href="/">{t("repository:result.firstLink")}</a>
             </div>
             <div className="flex-1">
-              <a href="/">Second link to documentation</a>
+              <a href="/">{t("repository:result.secondLink")}</a>
             </div>
           </div>
           <div className="flex">
             <div className="flex-1">
-              <a href="/">First link to documentation</a>
+              <a href="/">{t("repository:result.firstLink")}</a>
             </div>
             <div className="flex-1">
-              <a href="/">Second link to documentation</a>
+              <a href="/">{t("repository:result.secondLink")}</a>
             </div>
           </div>
         </div>
       </PagePanel>
       <div className="mt-20 button-action text-right">
         <a href={deployExtensionObj.codeUri} target="_blank" rel="noreferrer">
-          <Button>View Repository</Button>
+          <Button>{t("button.viewRepo")}</Button>
         </a>
       </div>
     </div>
