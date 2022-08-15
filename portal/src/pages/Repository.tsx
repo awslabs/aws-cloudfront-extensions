@@ -4,24 +4,13 @@ import Button from "components/Button";
 import { SelectType, TablePanel } from "components/TablePanel";
 import { Pagination } from "@material-ui/lab";
 import { useNavigate } from "react-router-dom";
-import TextInput from "components/TextInput";
 import { Extension, ExtensionType } from "API";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import { checkSyncStatus, listExtensions, queryByName } from "graphql/queries";
 import { deployExtension, syncExtensions } from "graphql/mutations";
 import Swal from "sweetalert2";
 import Modal from "components/Modal";
-
-const BreadCrunbList = [
-  {
-    name: "Home",
-    link: "/",
-  },
-  {
-    name: "Extensions repository",
-    link: "",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 10;
 
@@ -34,13 +23,24 @@ const Repository: React.FC = () => {
   const [loadingDeploy, setLoadingDeploy] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openDeployModal, setOpenDeployModal] = useState(false);
-  const [searchParams, setSearchParams] = useState("");
   const [extentionList, setExtentionList] = useState<Extension[]>([]);
   const [curPage, setCurPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [selectedExtension, setSelectedExtension] = useState<Extension>();
   const [deployDisabled, setDeployDisabled] = useState(true);
   // const [cur, setcur] = useState(second)
+  const { t } = useTranslation();
+
+  const BreadCrunbList = [
+    {
+      name: t("menu.home"),
+      link: "/",
+    },
+    {
+      name: t("menu.repository"),
+      link: "",
+    },
+  ];
 
   // Get Extension List
   const getExtensionList = async () => {
@@ -74,8 +74,8 @@ const Repository: React.FC = () => {
         setOpenModal(true);
       } else {
         Swal.fire(
-          "Up to date",
-          "All your extenstions are up to date",
+          t("repository:update.upToDate"),
+          t("repository:update.upToDateDesc"),
           "success"
         );
       }
@@ -114,14 +114,12 @@ const Repository: React.FC = () => {
     const resData = await appSyncRequestQuery(queryByName, {
       name: selectedExtension?.name,
     });
-    console.info("resData:", resData);
 
     setLoadingQuery(false);
     if (
       !resData.data.queryByName.cfnParameter &&
       resData.data.queryByName.type === ExtensionType.Lambda
     ) {
-      console.info("show deploy modal");
       setOpenDeployModal(true);
     } else {
       navigate(`/extentions/deploy/${selectedExtension?.name}`);
@@ -158,7 +156,6 @@ const Repository: React.FC = () => {
   }, [curPage]);
 
   useEffect(() => {
-    console.info("selectedExtension:", selectedExtension);
     if (selectedExtension) {
       setDeployDisabled(false);
     } else {
@@ -172,7 +169,7 @@ const Repository: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title="Extensions"
+          title={t("repository:title")}
           selectType={SelectType.RADIO}
           actions={
             <div>
@@ -184,7 +181,7 @@ const Repository: React.FC = () => {
                   checkExtensionUpdate();
                 }}
               >
-                Check Updates
+                {t("button.checkUpdate")}
               </Button>
               <Button
                 loading={loadingQuery}
@@ -194,7 +191,7 @@ const Repository: React.FC = () => {
                   beforeToDeploy();
                 }}
               >
-                Deploy
+                {t("button.deploy")}
               </Button>
             </div>
           }
@@ -209,26 +206,40 @@ const Repository: React.FC = () => {
           items={extentionList}
           columnDefinitions={[
             {
-              width: 250,
+              width: 200,
               id: "name",
-              header: "Name",
+              header: t("repository:list.name"),
               cell: (e: Extension) => e.name,
             },
             {
               id: "desc",
-              header: "Description",
+              header: t("repository:list.desc"),
               cell: (e: Extension) => e.desc,
             },
             {
               width: 160,
               id: "stage",
-              header: "CloudFront Stage",
+              header: t("repository:list.stage"),
               cell: (e: Extension) => e.stage,
+            },
+            {
+              width: 50,
+              id: "details",
+              header: t("repository:list.details"),
+              cell: (e: Extension) => {
+                return e.codeUri ? (
+                  <a href={e.codeUri} target="_blank" rel="noreferrer">
+                    {t("repository:list.link")}
+                  </a>
+                ) : (
+                  "-"
+                );
+              },
             },
             {
               width: 200,
               id: "updated",
-              header: "Updated",
+              header: t("repository:list.updated"),
               cell: (e: Extension) => e.updateDate,
             },
           ]}
@@ -253,7 +264,7 @@ const Repository: React.FC = () => {
         />
       </div>
       <Modal
-        title="Update Extenstions"
+        title={t("repository:update.updateExt")}
         isOpen={openModal}
         fullWidth={false}
         closeModal={() => {
@@ -266,7 +277,7 @@ const Repository: React.FC = () => {
                 setOpenModal(false);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               loading={loadingSync}
@@ -275,19 +286,18 @@ const Repository: React.FC = () => {
                 syncLatestExtension();
               }}
             >
-              Update
+              {t("button.update")}
             </Button>
           </div>
         }
       >
         <div className="gsui-modal-content">
-          A newer version of the extensions were detected, are you sure you need
-          to update all extenstions?
+          {t("repository:update.newVersion")}
         </div>
       </Modal>
 
       <Modal
-        title="Deploy Extensions"
+        title={t("repository:deploy.deployExt")}
         isOpen={openDeployModal}
         fullWidth={false}
         closeModal={() => {
@@ -300,7 +310,7 @@ const Repository: React.FC = () => {
                 setOpenDeployModal(false);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               loading={loadingDeploy}
@@ -309,13 +319,13 @@ const Repository: React.FC = () => {
                 startToDeployExtentsion();
               }}
             >
-              Deploy
+              {t("button.deploy")}
             </Button>
           </div>
         }
       >
         <div className="gsui-modal-content">
-          Are you sure you want to deploy the extention{" "}
+          {t("repository:delete.deleteTips")}
           <b>{selectedExtension?.name}</b> ?
         </div>
       </Modal>

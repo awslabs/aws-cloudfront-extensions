@@ -1,0 +1,57 @@
+{
+  "title": "扩展插件",
+  "list": {
+    "name": "名称",
+    "desc": "描述",
+    "stage": "CloudFront 阶段",
+    "details": "详情",
+    "link": "查看",
+    "updated": "更新时间"
+  },
+  "update": {
+    "upToDate": "最新",
+    "upToDateDesc": "您的所有扩展程序都是最新的",
+    "newVersion": "检测到更新版本的扩展，您确定需要更新所有扩展吗？",
+    "updateExt": "更新扩展"
+  },
+  "delete": {
+    "deleteTips": "您确定要部署扩展 "
+  },
+  "deploy": {
+    "deployExt": "部署扩展",
+    "step": {
+      "fa": "函数关联",
+      "review": "检查",
+      "chooseCFD": "选择 CloudFront Distribution",
+      "specifyParam": "指定参数"
+    },
+    "chooseCF": {
+      "distribution": "Distributions",
+      "distributionDesc1": "选择 CloudFront Distribution 或在",
+      "distributionDesc2": "CloudFront 控制台",
+      "distributionDesc3": "部署 CloudFront 扩展。",
+      "chooseCFD": "选择 CloudFront distribution",
+      "behaviors": "行为",
+      "behaviorsDesc": "选择一种行为来部署扩展",
+      "selectBehavior": "选择行为"
+    },
+    "fa": {
+      "title": "函数关联",
+      "titleDesc": "选择与此缓存行为相关联的边缘函数，以及调用该函数的 CloudFront 事件。",
+      "alert": "警告：您将要关联一个函数，该函数将覆盖以下缓存行为的现有函数。 你确定你要继续吗？",
+      "ext": "扩展",
+      "statge": "CloudFront 阶段",
+      "selectStage": "选择阶段",
+      "param": "参数",
+      "inputPrefix": "请输入 "
+    },
+    "review": {
+      "param": "参数",
+      "key": "键",
+      "value": "值",
+      "distributionId": "Distribution ID",
+      "behaviors": "行为",
+      "cfStage": "CloudFront 阶段"
+    }
+  }
+}

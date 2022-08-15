@@ -6,6 +6,7 @@
     "logout": "Sign Out"
   },
   "menu": {
+    "home": "首页",
     "monitoring": "Monitoring",
     "cloudFrontTraffic": "CloudFront traffic",
     "distributionMgmt": "Distribution management",
@@ -14,7 +15,9 @@
     "certificates": "Certificates",
     "extensions": "Extensions",
     "repository": "Repository",
-    "doc": "Documentation"
+    "doc": "Documentation",
+    "cfext": "CloudFront Extensions",
+    "deploy": "Deploy"
   },
   "bottom": {
     "copy": "Amazon Web Services, Inc. or its affiliates. All rights reserved.",
@@ -35,7 +38,10 @@
     "edit": "Edit",
     "save": "Save",
     "copy": "Copy",
-    "enable": "Enable"
+    "enable": "Enable",
+    "checkUpdate": "Check Updates",
+    "deploy": "Deploy",
+    "update": "Update"
   },
   "status": {
     "error": "Error"

@@ -1,6 +1,7 @@
 import { ExtensionType } from "API";
 import HeaderPanel from "components/HeaderPanel";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { DeployExtensionObj } from "../Deploy";
 
 interface ReviewProps {
@@ -9,33 +10,43 @@ interface ReviewProps {
 
 const Review: React.FC<ReviewProps> = (props: ReviewProps) => {
   const { deployExtensionObj } = props;
+  const { t } = useTranslation();
   return (
     <div>
       {deployExtensionObj.type !== ExtensionType.Lambda && (
-        <HeaderPanel title="Parameters" contentNoPadding>
+        <HeaderPanel
+          title={t("repository:deploy.review.param")}
+          contentNoPadding
+        >
           <div>
             <div className="flex gsui-show-tag-list">
               <div className="tag-key">
-                <b>Key</b>
+                <b>{t("repository:deploy.review.key")}</b>
               </div>
               <div className="tag-value flex-1">
-                <b>Value</b>
+                <b>{t("repository:deploy.review.value")}</b>
               </div>
             </div>
             <div className="flex gsui-show-tag-list">
-              <div className="tag-key">Distribution Id</div>
+              <div className="tag-key">
+                {t("repository:deploy.review.distributionId")}
+              </div>
               <div className="tag-value flex-1">
                 {deployExtensionObj.distributionObj?.value}
               </div>
             </div>
             <div className="flex gsui-show-tag-list">
-              <div className="tag-key">Behaviors</div>
+              <div className="tag-key">
+                {t("repository:deploy.review.behaviors")}
+              </div>
               <div className="tag-value flex-1">
                 {deployExtensionObj.behaviorArr.join(", ")}
               </div>
             </div>
             <div className="flex gsui-show-tag-list">
-              <div className="tag-key">CloudFront Stage</div>
+              <div className="tag-key">
+                {t("repository:deploy.review.cfStage")}
+              </div>
               <div className="tag-value flex-1">{deployExtensionObj.stage}</div>
             </div>
           </div>
@@ -50,10 +61,10 @@ const Review: React.FC<ReviewProps> = (props: ReviewProps) => {
           <div>
             <div className="flex gsui-show-tag-list">
               <div className="tag-key">
-                <b>Key</b>
+                <b>{t("repository:deploy.review.key")}</b>
               </div>
               <div className="tag-value flex-1">
-                <b>Value</b>
+                <b>{t("repository:deploy.review.value")}</b>
               </div>
             </div>
             {deployExtensionObj.paramList.map((element, index) => {

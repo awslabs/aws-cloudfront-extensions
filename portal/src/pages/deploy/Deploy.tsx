@@ -13,11 +13,7 @@ import LoadingText from "components/LoadingText";
 import { ExtensionType } from "API";
 import { OptionType } from "components/AutoComplete/autoComplete";
 import DeployResult from "./DeployResult";
-
-const BreadCrumbList = [
-  { name: "CloudFront Extensions", link: "/extentions-repository" },
-  { name: "Deploy" },
-];
+import { useTranslation } from "react-i18next";
 
 export type ParameterType = {
   parameterKey: string;
@@ -65,6 +61,12 @@ const Deploy: React.FC = () => {
       // parameters: [],
     });
   const [stackLink, setStackLink] = useState("");
+
+  const { t } = useTranslation();
+  const BreadCrumbList = [
+    { name: t("menu.cfext"), link: "/extentions-repository" },
+    { name: t("menu.deploy") },
+  ];
 
   // Deploy Extensions
   const startToDeployExtension = async () => {
@@ -176,16 +178,19 @@ const Deploy: React.FC = () => {
               activeIndex={activeStep}
               list={
                 deployExtensionObj.type === ExtensionType.Lambda
-                  ? [{ name: "Function associations" }, { name: "Review" }]
+                  ? [
+                      { name: t("repository:deploy.step.fa") },
+                      { name: t("repository:deploy.step.review") },
+                    ]
                   : [
-                      { name: "Choose CloudFront distribution" },
+                      { name: t("repository:deploy.step.chooseCFD") },
                       {
                         name:
                           deployExtensionObj.type === ExtensionType.Lambda
-                            ? "Specify Parameters"
-                            : "Function associations",
+                            ? t("repository:deploy.step.specifyParam")
+                            : t("repository:deploy.step.fa"),
                       },
-                      { name: "Review" },
+                      { name: t("repository:deploy.step.review") },
                     ]
               }
               selectStep={(step) => {
@@ -253,7 +258,7 @@ const Deploy: React.FC = () => {
                   navigate(`/extentions-repository`);
                 }}
               >
-                Cancel
+                {t("button.cancel")}
               </Button>
               {activeStep > 0 && (
                 <Button
@@ -263,7 +268,7 @@ const Deploy: React.FC = () => {
                     });
                   }}
                 >
-                  Previous
+                  {t("button.previous")}
                 </Button>
               )}
               {((deployExtensionObj.type !== ExtensionType.Lambda &&
@@ -278,7 +283,7 @@ const Deploy: React.FC = () => {
                     });
                   }}
                 >
-                  Next
+                  {t("button.next")}
                 </Button>
               )}
               {((deployExtensionObj.type !== ExtensionType.Lambda &&
@@ -292,7 +297,7 @@ const Deploy: React.FC = () => {
                     startToDeployExtension();
                   }}
                 >
-                  Deploy
+                  {t("button.deploy")}
                 </Button>
               )}
             </div>

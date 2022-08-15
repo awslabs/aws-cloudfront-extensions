@@ -7,6 +7,7 @@ import TextInput from "components/TextInput";
 import { StageListMap } from "assets/js/const";
 import { DeployExtensionObj, ParamsType } from "../Deploy";
 import { ExtensionType } from "API";
+import { useTranslation } from "react-i18next";
 interface FunctionAssociationsProps {
   deployExtensionObj: DeployExtensionObj;
   changeExtensionObjParamList: (params: ParamsType[]) => void;
@@ -22,21 +23,23 @@ const FunctionAssociations: React.FC<FunctionAssociationsProps> = (
     changeCloudFrontStage,
   } = props;
 
+  const { t } = useTranslation();
+
   return (
     <div>
       {deployExtensionObj.type !== ExtensionType.Lambda && (
         <HeaderPanel
-          title="Function associations"
-          desc="Choose an edge function to associate with this cache behavior, and the CloudFront event that invokes the function."
+          title={t("repository:deploy.fa.title")}
+          desc={t("repository:deploy.fa.titleDesc")}
         >
-          <Alert content="WARNING: You are about to associate a function that will overwirte the existing function for the following cache behaviors. Are you sure you want to continue?" />
+          <Alert content={t("repository:deploy.fa.alert")} />
           <div className="m-w-75p mt-20">
             <div className="flex align-center">
               <div className="flex-2 align-center">
-                <b>Extention</b>
+                <b>{t("repository:deploy.fa.ext")}</b>
               </div>
               <div className="flex-3 align-center">
-                <b>CloudFront stage</b>
+                <b>{t("repository:deploy.fa.statge")}</b>
               </div>
             </div>
             <div className="flex align-center mt-15">
@@ -45,7 +48,7 @@ const FunctionAssociations: React.FC<FunctionAssociationsProps> = (
               </div>
               <div className="flex-3 align-center">
                 <Select
-                  placeholder="Select stage"
+                  placeholder={t("repository:deploy.fa.selectStage")}
                   onChange={(event) => {
                     changeCloudFrontStage(event.target.value);
                   }}
@@ -59,7 +62,12 @@ const FunctionAssociations: React.FC<FunctionAssociationsProps> = (
       )}
 
       {deployExtensionObj.paramList.length > 0 && (
-        <HeaderPanel title={`${deployExtensionObj.name} Parameters`} desc={""}>
+        <HeaderPanel
+          title={`${deployExtensionObj.name} ${t(
+            "repository:deploy.fa.param"
+          )}`}
+          desc={""}
+        >
           {deployExtensionObj.paramList.map((element, index) => {
             return (
               <FormItem
@@ -76,7 +84,9 @@ const FunctionAssociations: React.FC<FunctionAssociationsProps> = (
                     tmpParamList[index].value = event.target.value;
                     changeExtensionObjParamList(tmpParamList);
                   }}
-                  placeholder={`Please input ${element.key}`}
+                  placeholder={`${t("repository:deploy.fa.inputPrefix")} ${
+                    element.key
+                  }`}
                   value={element.value}
                 />
               </FormItem>

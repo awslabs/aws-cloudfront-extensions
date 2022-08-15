@@ -6,15 +6,18 @@
     "logout": "退出登录"
   },
   "menu": {
+    "home": "首页",
     "monitoring": "监控",
     "cloudFrontTraffic": "CloudFront 流量",
-    "distributionMgmt": "Distribution management",
+    "distributionMgmt": "Distribution 管理",
     "snapshot": "快照",
     "changeHistory": "变更历史",
     "certificates": "证书",
-    "extensions": "Extensions",
-    "repository": "Repository",
-    "doc": "文档"
+    "extensions": "扩展插件",
+    "repository": "存储库",
+    "doc": "文档",
+    "cfext": "CloudFront Extensions",
+    "deploy": "部署"
   },
   "bottom": {
     "copy": "Amazon Web Services, Inc. 或其子公司.保留所有权利.",
@@ -35,7 +38,10 @@
     "edit": "编辑",
     "save": "保存",
     "copy": "复制",
-    "enable": "启用"
+    "enable": "启用",
+    "checkUpdate": "检查更新",
+    "deploy": "部署",
+    "update": "更新"
   },
   "status": {
     "error": "Error"

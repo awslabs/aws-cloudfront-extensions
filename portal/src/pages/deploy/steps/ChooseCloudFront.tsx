@@ -10,6 +10,7 @@ import { OptionType } from "components/AutoComplete/autoComplete";
 import MultiSelect from "components/MultiSelect";
 import { SelectItem } from "components/Select/select";
 import { DeployExtensionObj } from "../Deploy";
+import { useTranslation } from "react-i18next";
 
 interface ChooseCloudFrontProps {
   deployExtensionObj: DeployExtensionObj;
@@ -29,6 +30,7 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
   const [loadingBehavior, setLoadingBehavior] = useState(false);
   const [cloudFrontList, setCloudFrontList] = useState<OptionType[]>([]);
   const [behaviorList, setBehaviorList] = useState<SelectItem[]>([]);
+  const { t } = useTranslation();
 
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
@@ -98,14 +100,17 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
 
   return (
     <div>
-      <HeaderPanel title="CloudFront Distribution">
+      <HeaderPanel title={t("repository:deploy.chooseCF.distribution")}>
         <FormItem
           optionTitle="Distributions"
           optionDesc={
             <div>
-              Choose a CloudFront distribution or create a new one in{" "}
-              <ExtLink to="/">CloudFront console</ExtLink> to deploy CloudFront
-              Extensions.
+              {t("repository:deploy.chooseCF.distributionDesc1")}
+              <ExtLink to="/">
+                {" "}
+                {t("repository:deploy.chooseCF.distributionDesc2")}
+              </ExtLink>{" "}
+              {t("repository:deploy.chooseCF.distributionDesc3")}
             </div>
           }
         >
@@ -114,7 +119,7 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
             className="m-w-75p"
             value={deployExtensionObj.distributionObj}
             optionList={cloudFrontList}
-            placeholder="Choose CloudFront distribution"
+            placeholder={t("repository:deploy.chooseCF.chooseCFD")}
             onChange={(event, data) => {
               console.info(event, data);
               changeExtensionObjDistribution(data);
@@ -122,15 +127,15 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
           />
         </FormItem>
         <FormItem
-          optionTitle="Behaviors"
-          optionDesc={<div>Choose a behavior to deploy the extensions</div>}
+          optionTitle={t("repository:deploy.chooseCF.behaviors")}
+          optionDesc={t("repository:deploy.chooseCF.behaviorsDesc")}
         >
           <MultiSelect
             className="m-w-45p"
             loading={loadingBehavior}
             optionList={behaviorList}
             value={deployExtensionObj.behaviorArr}
-            placeholder="Select behavior"
+            placeholder={t("repository:deploy.chooseCF.selectBehavior")}
             onChange={(items) => {
               changeExtensionObjBehavior(items);
             }}
