@@ -162,6 +162,8 @@ mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
 
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[0]}"
 run npx cdk synth -c EnableDashboardCustomDomain=true --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]} -q 2>/dev/null
+
+# Custom domain
 mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
 run npx cdk synth --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]} -q 2>/dev/null
