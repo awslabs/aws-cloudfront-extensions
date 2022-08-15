@@ -33,7 +33,9 @@
       "chooseCFD": "Choose CloudFront distribution",
       "behaviors": "Behaviors",
       "behaviorsDesc": "Choose a behavior to deploy the extensions",
-      "selectBehavior": "Select behavior"
+      "selectBehavior": "Select behavior",
+      "chooseCFDError": "Please select a CloudFront distribution",
+      "selectBehaviorError": "Please select behavior"
     },
     "fa": {
       "title": "Function associations",

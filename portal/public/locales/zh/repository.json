@@ -33,7 +33,9 @@
       "chooseCFD": "选择 CloudFront distribution",
       "behaviors": "行为",
       "behaviorsDesc": "选择一种行为来部署扩展",
-      "selectBehavior": "选择行为"
+      "selectBehavior": "选择行为",
+      "chooseCFDError": "请选择 CloudFront Distribution",
+      "selectBehaviorError": "请选择行为"
     },
     "fa": {
       "title": "函数关联",

@@ -25,6 +25,7 @@ export interface ParamsType {
   desc: string;
   type: string;
   value: string;
+  isEmpty: boolean;
 }
 export interface DeployExtensionObj {
   name: string;
@@ -37,6 +38,11 @@ export interface DeployExtensionObj {
   paramList: ParamsType[];
   // commonParams: ParameterType[];
   // parameters: ParameterType[];
+}
+
+export interface DeployValidationErrorObj {
+  distributionEmpty: boolean;
+  behaviorEmpty: boolean;
 }
 
 const Deploy: React.FC = () => {
@@ -62,11 +68,62 @@ const Deploy: React.FC = () => {
     });
   const [stackLink, setStackLink] = useState("");
 
+  const [deployValidationError, setDeployValidationError] = useState({
+    distributionEmpty: false,
+    behaviorEmpty: false,
+  });
+
   const { t } = useTranslation();
   const BreadCrumbList = [
     { name: t("menu.cfext"), link: "/extentions-repository" },
     { name: t("menu.deploy") },
   ];
+
+  // Check User Deploy Input
+  const checkUserDeployInputValidation = () => {
+    let validRes = true;
+    if (activeStep === 0 && deployExtensionObj.type !== ExtensionType.Lambda) {
+      if (
+        !deployExtensionObj.distributionObj ||
+        !deployExtensionObj.distributionObj.value
+      ) {
+        setDeployValidationError((prev) => {
+          return { ...prev, distributionEmpty: true };
+        });
+        validRes = false;
+        return validRes;
+      }
+      if (
+        !deployExtensionObj.behaviorArr ||
+        deployExtensionObj.behaviorArr.length <= 0
+      ) {
+        setDeployValidationError((prev) => {
+          return { ...prev, behaviorEmpty: true };
+        });
+        validRes = false;
+        return validRes;
+      }
+    }
+
+    if (activeStep === 0 && deployExtensionObj.type === ExtensionType.Lambda) {
+      const emptyValueKeyArr = [];
+      const paramsArr = deployExtensionObj.paramList;
+      paramsArr.forEach((element) => {
+        if (!element.value.trim()) {
+          element.isEmpty = true;
+          emptyValueKeyArr.push(element.key);
+        }
+      });
+      setdeployExtensionObj((prev) => {
+        return {
+          ...prev,
+          paramList: paramsArr,
+        };
+      });
+      return emptyValueKeyArr.length > 0 ? false : true;
+    }
+    return validRes;
+  };
 
   // Deploy Extensions
   const startToDeployExtension = async () => {
@@ -195,7 +252,6 @@ const Deploy: React.FC = () => {
               }
               selectStep={(step) => {
                 console.info("step:", step);
-                setActiveStep(step);
               }}
             />
           </div>
@@ -203,8 +259,12 @@ const Deploy: React.FC = () => {
             {deployExtensionObj.type !== ExtensionType.Lambda &&
               activeStep === 0 && (
                 <ChooseCloudFront
+                  deployValidationError={deployValidationError}
                   deployExtensionObj={deployExtensionObj}
                   changeExtensionObjBehavior={(behavior) => {
+                    setDeployValidationError((prev) => {
+                      return { ...prev, behaviorEmpty: false };
+                    });
                     setdeployExtensionObj((prev) => {
                       return {
                         ...prev,
@@ -213,9 +273,13 @@ const Deploy: React.FC = () => {
                     });
                   }}
                   changeExtensionObjDistribution={(distribution) => {
+                    setDeployValidationError((prev) => {
+                      return { ...prev, distributionEmpty: false };
+                    });
                     setdeployExtensionObj((prev) => {
                       return {
                         ...prev,
+                        behaviorArr: [],
                         distributionObj: distribution,
                       };
                     });
@@ -278,9 +342,11 @@ const Deploy: React.FC = () => {
                 <Button
                   btnType="primary"
                   onClick={() => {
-                    setActiveStep((prev) => {
-                      return prev + 1;
-                    });
+                    if (checkUserDeployInputValidation()) {
+                      setActiveStep((prev) => {
+                        return prev + 1;
+                      });
+                    }
                   }}
                 >
                   {t("button.next")}

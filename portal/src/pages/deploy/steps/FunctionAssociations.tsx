@@ -74,6 +74,11 @@ const FunctionAssociations: React.FC<FunctionAssociationsProps> = (
                 key={index}
                 optionTitle={element.key}
                 optionDesc={element.desc}
+                errorText={
+                  element.isEmpty
+                    ? t("repository:deploy.fa.inputPrefix") + element.key
+                    : ""
+                }
               >
                 <TextInput
                   className="m-w-75p"
@@ -82,6 +87,7 @@ const FunctionAssociations: React.FC<FunctionAssociationsProps> = (
                       JSON.stringify(deployExtensionObj.paramList)
                     );
                     tmpParamList[index].value = event.target.value;
+                    tmpParamList[index].isEmpty = false;
                     changeExtensionObjParamList(tmpParamList);
                   }}
                   placeholder={`${t("repository:deploy.fa.inputPrefix")} ${
