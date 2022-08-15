@@ -1,291 +1,333 @@
-import * as cdk from 'aws-cdk-lib';
+import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { CommonConstruct } from "./cf-common/cf-common-stack";
 import { PortalConstruct } from "./web-portal/web_portal_stack";
-import {
-    CloudFrontConfigVersionConstruct,
-} from "./config-version/aws-cloudfront-config-version-stack";
+import { CloudFrontConfigVersionConstruct } from "./config-version/aws-cloudfront-config-version-stack";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { StepFunctionRpTsConstruct } from "./ssl-for-saas/step_function_rp_ts-stack";
-import { NonRealtimeMonitoringStack } from '../lib/monitoring/non-realtime-monitoring-stack';
-import { RealtimeMonitoringStack } from '../lib/monitoring/realtime-monitoring-stack';
+import { NonRealtimeMonitoringStack } from "../lib/monitoring/non-realtime-monitoring-stack";
+import { RealtimeMonitoringStack } from "../lib/monitoring/realtime-monitoring-stack";
 import { RepoConstruct } from "./repo/repo-stack";
 import { aws_cognito as cognito, StackProps } from "aws-cdk-lib";
-import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from "aws-cdk-lib/custom-resources";
+import {
+  AwsCustomResource,
+  AwsCustomResourcePolicy,
+  PhysicalResourceId,
+} from "aws-cdk-lib/custom-resources";
 
 interface ConsoleStackProps extends StackProps {
-    synthesizer: any
+  synthesizer: any;
 }
 
 export class ConsoleStack extends cdk.Stack {
+  constructor(app: Construct, id: string, props: ConsoleStackProps) {
+    super(app, id, props);
+    this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
 
-    constructor(app: Construct, id: string, props: ConsoleStackProps) {
-        super(app, id, props);
-        this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
+    // Construct a cognito for auth
+    const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
+      userPoolName: "CloudFrontExtCognito_UserPool",
+      selfSignUpEnabled: false,
+      autoVerify: {
+        email: true,
+      },
+      signInAliases: {
+        username: true,
+        email: true,
+      },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: false,
+        },
+      },
+    });
 
-        // Construct a cognito for auth
-        const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
-            userPoolName: "CloudFrontExtCognito_UserPool",
-            selfSignUpEnabled: false,
-            autoVerify: {
-                email: true,
+    const consoleAdminUserName = new cdk.CfnParameter(this, "InitialUserName", {
+      type: "String",
+      description: "The initial username for the web console",
+    });
+
+    const consoleAdminUserEmail = new cdk.CfnParameter(
+      this,
+      "InitialUserEmail",
+      {
+        type: "String",
+        description: "The initial user email for the web console",
+      }
+    );
+
+    const consoleAdminUserPassword = new cdk.CfnParameter(
+      this,
+      "InitialUserPassword",
+      {
+        type: "String",
+        description: "the initial user password for the web console",
+        allowedPattern:
+          "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,16}$",
+        constraintDescription:
+          "Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9)",
+        minLength: 8,
+        maxLength: 32,
+      }
+    );
+
+    // Monitoring
+    const monitoringType = new cdk.CfnParameter(this, "Monitoring", {
+      description:
+        "Enable realtime or non-realtime monitoring to get CloudFront metrics",
+      type: "String",
+      allowedValues: ["no", "yes-Realtime", "yes-Non-Realtime"],
+      default: "no",
+    });
+
+    const domainList = new cdk.CfnParameter(this, "CloudFrontDomainList", {
+      description:
+        "The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using ',' as seperation. Use ALL to monitor all domains",
+      type: "String",
+      default: "",
+    });
+    const logKeepingDays = new cdk.CfnParameter(this, "CloudFrontLogKeepDays", {
+      description: "Max number of days to keep cloudfront realtime logs in S3",
+      type: "Number",
+      default: 120,
+    });
+    const deleteLog = new cdk.CfnParameter(this, "DeleteLog", {
+      description:
+        "Delete original CloudFront standard logs in S3 bucket (true or false), this only applies to non-realtime monitoring",
+      type: "String",
+      default: "false",
+    });
+    const useStartTime = new cdk.CfnParameter(this, "UseStartTime", {
+      description:
+        "Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time, this only applies to non-realtime monitoring",
+      type: "String",
+      default: "false",
+    });
+
+    this.templateOptions.metadata = {
+      "AWS::CloudFormation::Interface": {
+        ParameterGroups: [
+          {
+            Label: {
+              default: "Console User",
             },
-            signInAliases: {
-                username: true,
-                email: true,
+            Parameters: [
+              consoleAdminUserName.logicalId,
+              consoleAdminUserEmail.logicalId,
+              consoleAdminUserPassword.logicalId,
+            ],
+          },
+          {
+            Label: {
+              default: "Monitoring",
             },
-            standardAttributes: {
-                email: {
-                    required: true,
-                    mutable: false,
-                }
-            },
-        });
+            Parameters: [
+              monitoringType.logicalId,
+              domainList.logicalId,
+              logKeepingDays.logicalId,
+              deleteLog.logicalId,
+              useStartTime.logicalId,
+            ],
+          },
+        ],
+        ParameterLabels: {
+          [consoleAdminUserName.logicalId]: {
+            default: "Initial User Name",
+          },
+          [consoleAdminUserEmail.logicalId]: {
+            default: "Initial User Email",
+          },
+          [consoleAdminUserPassword.logicalId]: {
+            default: "Initial User Password",
+          },
 
-        const consoleAdminUserName = new cdk.CfnParameter(this, "InitialUserName", {
-            type: "String",
-            description: "The initial username for the web console"
-        })
+          [monitoringType.logicalId]: {
+            default: "CloudFront Log Type",
+          },
+          [domainList.logicalId]: {
+            default: "CloudFront Domain List",
+          },
+          [logKeepingDays.logicalId]: {
+            default: "Log Keeping Days",
+          },
+          [deleteLog.logicalId]: {
+            default: "Delete Log (Non-Realtime Only)",
+          },
+          [useStartTime.logicalId]: {
+            default: "Use Start Time (Non-Realtime Only)",
+          },
+        },
+      },
+    };
 
-        const consoleAdminUserEmail = new cdk.CfnParameter(this, "InitialUserEmail", {
-            type: "String",
-            description: "The initial user email for the web console"
-        })
+    const nonRealTimeMonitoringCondition = new cdk.CfnCondition(
+      this,
+      "NonRealTimeMonitoringCondition",
+      {
+        expression: cdk.Fn.conditionEquals(
+          monitoringType.valueAsString,
+          "yes-Non-Realtime"
+        ),
+      }
+    );
 
-        const consoleAdminUserPassword = new cdk.CfnParameter(this, "InitialUserPassword", {
-            type: "String",
-            description: "the initial user password for the web console",
-            allowedPattern: "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,16}$",
-            constraintDescription: "Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9)",
-            minLength: 8,
-            maxLength: 32,
-        })
+    const realtimeMonitoringCondition = new cdk.CfnCondition(
+      this,
+      "RealTimeMonitoringCondition",
+      {
+        expression: cdk.Fn.conditionEquals(
+          monitoringType.valueAsString,
+          "yes-Realtime"
+        ),
+      }
+    );
+    const user = new cognito.CfnUserPoolUser(this, "WebConsoleDefaultUser", {
+      userPoolId: cognitoUserPool.userPoolId,
+      // Properties below are optional
+      desiredDeliveryMediums: ["EMAIL"],
+      forceAliasCreation: true,
+      messageAction: "SUPPRESS",
+      userAttributes: [
+        {
+          name: "email_verified",
+          value: "True",
+        },
+        {
+          name: "email",
+          value: consoleAdminUserEmail.valueAsString,
+        },
+      ],
+      username: consoleAdminUserName.valueAsString,
+    });
 
-        // Monitoring
-        const monitoringType = new cdk.CfnParameter(this, 'Monitoring', {
-            description: 'Enable realtime or non-realtime monitoring to get CloudFront metrics',
-            type: 'String',
-            allowedValues: ['no', 'yes-Realtime', 'yes-Non-Realtime'],
-            default: 'no',
-        });
+    // Force the password for the user, since new users created are in FORCE_PASSWORD_CHANGE status by default, such new user has no way to change it though
+    // Refer to API details on https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminSetUserPassword.html
+    const adminSetUserPassword = new AwsCustomResource(
+      this,
+      "AwsCustomResource-ForcePassword",
+      {
+        onCreate: {
+          service: "CognitoIdentityServiceProvider",
+          action: "adminSetUserPassword",
+          parameters: {
+            UserPoolId: cognitoUserPool.userPoolId,
+            Username: user.username,
+            Password: consoleAdminUserPassword.valueAsString,
+            Permanent: true,
+          },
+          physicalResourceId: PhysicalResourceId.of(
+            `AwsCustomResource-ForcePassword-${user.username}`
+          ),
+        },
+        policy: AwsCustomResourcePolicy.fromSdkCalls({
+          resources: AwsCustomResourcePolicy.ANY_RESOURCE,
+        }),
+        installLatestAwsSdk: true,
+      }
+    );
 
-        const domainList = new cdk.CfnParameter(this, 'CloudFrontDomainList', {
-            description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
-            type: 'String',
-            default: '',
-        });
-        const logKeepingDays = new cdk.CfnParameter(this, 'CloudFrontLogKeepDays', {
-            description: 'Max number of days to keep cloudfront realtime logs in S3',
-            type: 'Number',
-            default: 120,
-        });
-        const deleteLog = new cdk.CfnParameter(this, 'DeleteLog', {
-            description: 'Delete original CloudFront standard logs in S3 bucket (true or false), this only applies to non-realtime monitoring',
-            type: 'String',
-            default: 'false',
-        });
-        const useStartTime = new cdk.CfnParameter(this, 'UseStartTime', {
-            description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time, this only applies to non-realtime monitoring',
-            type: 'String',
-            default: 'false',
-        });
+    const cfnUserPool = cognitoUserPool.node
+      .defaultChild as cognito.CfnUserPool;
+    cfnUserPool.userPoolAddOns = {
+      advancedSecurityMode: "ENFORCED",
+    };
 
-        this.templateOptions.metadata = {
-            'AWS::CloudFormation::Interface': {
-                ParameterGroups: [
-                    {
-                        Label: {
-                            default: 'Console User'
-                        },
-                        Parameters: [
-                            consoleAdminUserName.logicalId,
-                            consoleAdminUserEmail.logicalId,
-                            consoleAdminUserPassword.logicalId,
-                        ],
-                    },
-                    {
-                        Label: {
-                            default: 'Monitoring'
-                        },
-                        Parameters: [
-                            monitoringType.logicalId,
-                            domainList.logicalId,
-                            logKeepingDays.logicalId,
-                            deleteLog.logicalId,
-                            useStartTime.logicalId,
-                        ],
-                    },
-                ],
-                ParameterLabels: {
-                    [consoleAdminUserName.logicalId]: {
-                        default: 'Initial User Name',
-                    },
-                    [consoleAdminUserEmail.logicalId]: {
-                        default: 'Initial User Email',
-                    },
-                    [consoleAdminUserPassword.logicalId]: {
-                        default: 'Initial User Password',
-                    },
+    const cognitoUserPoolClient = cognitoUserPool.addClient(
+      "CloudFrontExtn_WebPortal"
+    );
 
-                    [monitoringType.logicalId]: {
-                        default: 'CloudFront Log Type',
-                    },
-                    [domainList.logicalId]: {
-                        default: 'CloudFront Domain List',
-                    },
-                    [logKeepingDays.logicalId]: {
-                        default: 'Log Keeping Days',
-                    },
-                    [deleteLog.logicalId]: {
-                        default: 'Delete Log (Non-Realtime Only)',
-                    },
-                    [useStartTime.logicalId]: {
-                        default: 'Use Start Time (Non-Realtime Only)',
-                    },
-                },
-            },
-        };
+    // Main stack with shared components
+    const commonConstruct = new CommonConstruct(this, `CfCommonConstruct`, {
+      sslForSaasOnly: false,
+      cognitoClient: cognitoUserPoolClient,
+      cognitoUserPool: cognitoUserPool,
+    });
 
-        const nonRealTimeMonitoringCondition = new cdk.CfnCondition(
-            this,
-            'NonRealTimeMonitoringCondition',
-            {
-                expression: cdk.Fn.conditionEquals(monitoringType.valueAsString, 'yes-Non-Realtime')
-            }
-        )
+    const webConsole = new PortalConstruct(this, "WebConsole", {
+      aws_api_key: commonConstruct?.appsyncApi.apiKey,
+      aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
+      aws_appsync_graphqlEndpoint: commonConstruct?.appsyncApi.graphqlUrl,
+      aws_appsync_region: this.region,
+      aws_project_region: this.region,
+      aws_user_pools_id: cognitoUserPool.userPoolId,
+      aws_user_pools_web_client_id: cognitoUserPoolClient.userPoolClientId,
+      aws_cognito_region: this.region,
+      build_time: new Date().getTime() + "",
+    });
 
-        const realtimeMonitoringCondition = new cdk.CfnCondition(
-            this,
-            'RealTimeMonitoringCondition',
-            {
-                expression: cdk.Fn.conditionEquals(monitoringType.valueAsString, 'yes-Realtime')
-            }
-        )
-        const user = new cognito.CfnUserPoolUser(this, 'WebConsoleDefaultUser', {
-          userPoolId: cognitoUserPool.userPoolId,
-          // Properties below are optional
-          desiredDeliveryMediums: ['EMAIL'],
-          forceAliasCreation: true,
-          messageAction: 'SUPPRESS',
-          userAttributes: [{
-            name: 'email_verified',
-            value: 'True',
-          }, {
-              name: 'email',
-              value: consoleAdminUserEmail.valueAsString
-          }],
-          username: consoleAdminUserName.valueAsString,
-        });
+    // 2 Monitoring Stacks
+    // Non-RealtimeMonitoring
+    const nonRealtimeMonitoring = new NonRealtimeMonitoringStack(
+      this,
+      "NonRealtime",
+      {
+        nonRealTimeMonitoring: monitoringType.valueAsString,
+        domainList: domainList.valueAsString,
+        logKeepingDays: logKeepingDays.valueAsNumber,
+        deleteLogNonRealtime: deleteLog.valueAsString,
+        useStartTimeNonRealtime: useStartTime.valueAsString,
+        portalBucket: webConsole.portalBucket,
+      }
+    );
+    (
+      nonRealtimeMonitoring.nestedStackResource as cdk.CfnStack
+    ).cfnOptions.condition = nonRealTimeMonitoringCondition;
+    // RealtimeMonitoring
+    const realtimeMonitoring = new RealtimeMonitoringStack(this, "Realtime", {
+      nonRealTimeMonitoring: monitoringType.valueAsString,
+      domainList: domainList.valueAsString,
+      logKeepingDays: logKeepingDays.valueAsNumber,
+      deleteLogNonRealtime: deleteLog.valueAsString,
+      useStartTimeNonRealtime: useStartTime.valueAsString,
+      portalBucket: webConsole.portalBucket,
+    });
+    (
+      realtimeMonitoring.nestedStackResource as cdk.CfnStack
+    ).cfnOptions.condition = realtimeMonitoringCondition;
 
-        // Force the password for the user, since new users created are in FORCE_PASSWORD_CHANGE status by default, such new user has no way to change it though
-        // Refer to API details on https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminSetUserPassword.html
-        const adminSetUserPassword = new AwsCustomResource(this, 'AwsCustomResource-ForcePassword', {
-            onCreate: {
-                service: 'CognitoIdentityServiceProvider',
-                action: 'adminSetUserPassword',
-                parameters: {
-                    UserPoolId: cognitoUserPool.userPoolId,
-                    Username: user.username,
-                    Password: consoleAdminUserPassword.valueAsString,
-                    Permanent: true,
-                },
-                physicalResourceId: PhysicalResourceId.of(`AwsCustomResource-ForcePassword-${user.username}`),
-            },
-            policy: AwsCustomResourcePolicy.fromSdkCalls({resources: AwsCustomResourcePolicy.ANY_RESOURCE}),
-            installLatestAwsSdk: true,
-        });
+    realtimeMonitoring.node.addDependency(commonConstruct, webConsole);
+    nonRealtimeMonitoring.node.addDependency(commonConstruct, webConsole);
 
-        const cfnUserPool = cognitoUserPool.node.defaultChild as cognito.CfnUserPool
-        cfnUserPool.userPoolAddOns = {
-            advancedSecurityMode: 'ENFORCED'
-        }
+    // Config version stack
+    const configVersion = new CloudFrontConfigVersionConstruct(
+      this,
+      "CloudFrontConfigVersionConstruct",
+      {
+        tags: {
+          app: "CloudFrontConfigVersion",
+        },
+        synthesizer: props.synthesizer,
+        appsyncApi: commonConstruct.appsyncApi,
+      }
+    );
 
-        const cognitoUserPoolClient = cognitoUserPool.addClient('CloudFrontExtn_WebPortal');
+    new RepoConstruct(this, "RepoConstruct", {
+      tags: {
+        app: "CloudFrontExtensionsRepo",
+      },
+      synthesizer: props.synthesizer,
+      appsyncApi: commonConstruct.appsyncApi,
+    });
 
+    // SSL for SaaS stack
+    new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
+      /* If you don't specify 'env', this stack will be environment-agnostic.
+       * Account/Region-dependent features and context lookups will not work,
+       * but a single synthesized template can be deployed anywhere. */
 
-        // Main stack with shared components
-        const commonConstruct = new CommonConstruct(this, `CfCommonConstruct`, {
-            sslForSaasOnly: false,
-            cognitoClient: cognitoUserPoolClient,
-            cognitoUserPool: cognitoUserPool,
-        });
+      /* Uncomment the next line to specialize this stack for the AWS Account
+       * and Region that are implied by the current CLI configuration. */
+      // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 
-        const webConsole = new PortalConstruct(this, "WebConsole", {
-            aws_api_key: commonConstruct?.appsyncApi.apiKey,
-            aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
-            aws_appsync_graphqlEndpoint: commonConstruct?.appsyncApi.graphqlUrl,
-            aws_appsync_region: this.region,
-            aws_project_region: this.region,
-            aws_user_pools_id: cognitoUserPool.userPoolId,
-            aws_user_pools_web_client_id: cognitoUserPoolClient.userPoolClientId,
-            aws_cognito_region: this.region,
-            build_time: new Date().getTime() + "",
-        });
-        
-        // 2 Monitoring Stacks
-        // Non-RealtimeMonitoring
-        const nonRealtimeMonitoring = new NonRealtimeMonitoringStack(this, 'NonRealtime', {
-            nonRealTimeMonitoring: monitoringType.valueAsString,
-            domainList: domainList.valueAsString,
-            logKeepingDays: logKeepingDays.valueAsNumber,
-            deleteLogNonRealtime: deleteLog.valueAsString,
-            useStartTimeNonRealtime: useStartTime.valueAsString,
-            portalBucket: webConsole.portalBucket,
-        });
-        (nonRealtimeMonitoring.nestedStackResource as cdk.CfnStack).cfnOptions.condition = nonRealTimeMonitoringCondition;
-        // RealtimeMonitoring
-        const realtimeMonitoring = new RealtimeMonitoringStack(this, 'Realtime', {
-            nonRealTimeMonitoring: monitoringType.valueAsString,
-            domainList: domainList.valueAsString,
-            logKeepingDays: logKeepingDays.valueAsNumber,
-            deleteLogNonRealtime: deleteLog.valueAsString,
-            useStartTimeNonRealtime: useStartTime.valueAsString,
-            portalBucket: webConsole.portalBucket,
-        });
-        (realtimeMonitoring.nestedStackResource as cdk.CfnStack).cfnOptions.condition = realtimeMonitoringCondition;
+      /* Uncomment the next line if you know exactly what Account and Region you
+       * want to deploy the stack to. */
+      // env: { account: '123456789012', region: 'us-east-1' },
 
-        realtimeMonitoring.node.addDependency(commonConstruct, webConsole);
-        nonRealtimeMonitoring.node.addDependency(commonConstruct, webConsole);
-
-        // Config version stack
-        const configVersion = new CloudFrontConfigVersionConstruct(
-            this,
-            "CloudFrontConfigVersionConstruct",
-            {
-                tags: {
-                    app: "CloudFrontConfigVersion",
-                },
-                synthesizer: props.synthesizer,
-                appsyncApi: commonConstruct.appsyncApi,
-            }
-        );
-
-        new RepoConstruct(this, "RepoConstruct", {
-            tags: {
-                app: "CloudFrontExtensionsRepo",
-            },
-            synthesizer: props.synthesizer,
-            appsyncApi: commonConstruct.appsyncApi,
-        });
-
-        // SSL for SaaS stack
-        // new StepFunctionRpTsConstruct(this, "StepFunctionRpTsConstruct", {
-        //     /* If you don't specify 'env', this stack will be environment-agnostic.
-        //      * Account/Region-dependent features and context lookups will not work,
-        //      * but a single synthesized template can be deployed anywhere. */
-
-        //     /* Uncomment the next line to specialize this stack for the AWS Account
-        //      * and Region that are implied by the current CLI configuration. */
-        //     // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
-        //     /* Uncomment the next line if you know exactly what Account and Region you
-        //      * want to deploy the stack to. */
-        //     // env: { account: '123456789012', region: 'us-east-1' },
-
-        //     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-        //     synthesizer: props.synthesizer,
-        //     appsyncApi: commonConstruct.appsyncApi,
-        //     configVersionDDBTableName: configVersion.configVersionDDBTableName,
-        // });
-    }
+      /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+      synthesizer: props.synthesizer,
+      appsyncApi: commonConstruct.appsyncApi,
+      configVersionDDBTableName: configVersion.configVersionDDBTableName,
+    });
+  }
 }

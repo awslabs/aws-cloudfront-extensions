@@ -266,7 +266,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_acm_import_cb_role.addToPolicy(ddb_rw_policy);
     _fn_acm_import_cb_role.addToPolicy(cloudfront_create_update_policy);
     _fn_acm_import_cb_role.addToPolicy(kms_policy);
-    _fn_acm_cb_role.addToPolicy(sns_update_policy);
+    _fn_acm_import_cb_role.addToPolicy(sns_update_policy);
 
     // lambda function to handle acm import operation
     const fn_acm_import_cb = new _lambda.DockerImageFunction(
