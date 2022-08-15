@@ -5,15 +5,12 @@ import Footer from "./components/layouts/PageFooter";
 import Header from "./components/layouts/PageHeader";
 import "./components/styles/index.scss";
 import Home from "pages/Home";
-import Demo from "pages/Demo";
 import Repository from "pages/Repository";
-import DeploymentStatus from "pages/DeploymentStatus";
 import Deploy from "pages/deploy/Deploy";
 import Axios from "axios";
 
 import "./App.scss";
 import Version from "pages/console/Version/Version";
-// import DeploymentStatusDetail from "pages/statusDetail/DeploymentStatusDetail";
 import VersionDetail from "pages/console/Version/VersionDetail";
 import SaveVersion from "pages/console/Version/SaveVersion";
 import CompareVersion from "pages/console/Version/CompareVersion";
@@ -89,15 +86,6 @@ const SignInRouter: React.FC = () => {
                   element={
                     <Container>
                       <Deploy />
-                    </Container>
-                  }
-                />
-
-                <Route
-                  path="/deployment-status"
-                  element={
-                    <Container>
-                      <DeploymentStatus />
                     </Container>
                   }
                 />
@@ -351,15 +339,6 @@ const SignInRouter: React.FC = () => {
                   element={
                     <Container>
                       <WAF />
-                    </Container>
-                  }
-                />
-
-                <Route
-                  path="/demo/:id"
-                  element={
-                    <Container>
-                      <Demo />
                     </Container>
                   }
                 />
