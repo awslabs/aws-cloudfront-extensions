@@ -18,6 +18,7 @@
     "apexcharts": "^3.33.2",
     "apollo-link": "^1.2.14",
     "aws-amplify": "^4.3.19",
+    "aws-amplify-react-native": "^6.0.5",
     "aws-appsync-auth-link": "^3.0.7",
     "aws-appsync-subscription-link": "^3.0.10",
     "axios": "^0.26.1",

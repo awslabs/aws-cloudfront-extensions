@@ -57,8 +57,8 @@ export class PortalConstruct extends Construct {
                 encryption: s3.BucketEncryption.S3_MANAGED,
                 accessControl: s3.BucketAccessControl.PRIVATE,
                 enforceSSL: true,
-                removalPolicy: RemovalPolicy.RETAIN,
-                autoDeleteObjects: false,
+                removalPolicy: RemovalPolicy.DESTROY,
+                autoDeleteObjects: true,
             },
             cloudFrontDistributionProps: {
                 priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
