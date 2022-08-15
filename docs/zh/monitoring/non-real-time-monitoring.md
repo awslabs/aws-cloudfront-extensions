@@ -1,27 +1,28 @@
-If you selected **Non-real time monitoring** when deploying the solution, the following architecture will be installed automatically to create the cloud resources in your account.
+如果您在部署解决方案（CloudFormation堆栈）时选择**Non-real time monitoring**，将部署以下架构，并在您的帐户中自动创建相应的云资源。
 
 ![non-real-time-monitoring](../../images/non-real-time-monitoring.png)
 
-1. Enable CloudFront standard logs. You need to specify a S3 bucket to store CloudFront standard logs.
-2. Remove unused fields in CloudFront standard logs and partition logs in S3 bucket. CloudFront standard logs contains more than 30 fields, and less than 10 fields are needed for getting CloudFront metrics. AWS Lambda function will read the logs in the S3 bucket and remove the unused fields to reduce the size of the log file. It can improve Athena query speed and save costs as well. AWS Lambda function will also move the logs into the folder for partition, such as year=2022/month=07/day=10/hour=09/.
-3. Query real-time logs in S3 via Athena. In order to allow Athena to speed up data query through data partitioning, Amazon EventBridge will create all partitions for the next day every day, and delete the partitions of the previous day. The Lambda function MetricCollector is used to analyze real-time logs and collect monitoring metrics. It will be executed every 5 minutes.
-4. Save the query results in DynamoDB. Query the corresponding monitoring indicator data through Athena, such as calculating CHR (cache hit rate) and download rate through bandwidth, and finally store the monitoring indicator data in the DynamoDB table.
-5. Call APIs via API Gateway. When users send API request to API Gateway, a Lambda function called MetricManager will be triggered. The function reads the monitoring indicators and returns the corresponding results from the DynamoDB table. In order to strengthen security management and restrict API accesses, API key is enabled in API Gateway by default. Users are required to pass an x-api-key when calling the APIs.
 
-## Metrics
+1. 启用CloudFront标准日志。您需要指定一个S3存储桶来存储CloudFront标准日志。
+2. 删除CloudFront标准日志不需要的字段以及将日志在S3存储桶中进行分区。CloudFront标准日志包含30多个字段，获取CloudFront指标所需的字段不到10个。AWS Lambda函数将读取S3存储桶中的日志，并删除不需要的字段以减小日志文件的大小。它可以提高Athena查询速度并节省成本。AWS Lambda函数会把日志移动到文件夹中进行分区，例如year=2022/month=07/day=10/hour=09/。
+3. 通过Athena查询S3中的标准日志。这里通过数据分区让Athena加速数据查询，Amazon EventBridge将每天创建第二天的所有分区，并删除前一天的分区。Lambda函数MetricCollector每5分钟执行一次，用于分析标准日志和收集监控指标。
+4. 将查询结果保存在DynamoDB中。通过Athena查询相应的监控指标数据，如通过带宽计算CHR（缓存命中率）和下载率，最后将监控指标数据存储在DynamoDB表中。
+5. 通过API Gateway调用API。当用户向API Gateway发送API请求时，将触发名为MetricManager的Lambda函数。该函数从DynamoDB表返回相应的结果。为了加强安全管理和限制API访问，API Gateway默认启用API key。用户在调用api时需要传递x-api-key标头。
 
-The following metrics are provided:
 
-- request: the number of requests from the client to CloudFront
-- requestOrigin: the number of requests back to the origin
-- statusCode: the status code from the client to CloudFront
-- statusCodeOrigin: the status code of the back-to-origin
-- bandwidth: the bandwidth from the client to CloudFront
-- bandwidthOrigin: bandwidth back to origin
-- chr: cache hit rate calculated by the number of requests
-- chrBandWith: cache hit ratio calculated by bandwidth
-- topNUrlRequests: top url calculated by the number of requests
-- topNUrlSize: top url calculated by traffic
-- downstreamTraffic: down stream traffic in response to the request
+## 监控指标 
 
+支持如下监控指标:
+
+- request: 从客户端到 CloudFront 的请求数量
+- requestOrigin: 回源的请求数量
+- statusCode: 从客户端到 CloudFront 的状态码
+- statusCodeOrigin: 回源的状态码
+- bandwidth: 从客户端到CloudFront的带宽
+- bandwidthOrigin: 回源的带宽
+- chr (cache hit ratio): 通过请求数量计算的缓存命中率
+- chrBandWith: 通过带宽计算的缓存命中率
+- topNUrlRequests: 根据请求数量统计的top url
+- topNUrlSize: 根据流量统计的top url
+- downstreamTraffic: 响应流量
 

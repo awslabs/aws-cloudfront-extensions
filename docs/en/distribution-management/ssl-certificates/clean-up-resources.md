@@ -11,12 +11,9 @@ If a create job or an import job failed, you may want to clean up the SSL Certif
 ## Clean up distributions in CloudFront
 
 1. On the **Job Status** page, choose **View distributions created in this job**. You will be redirected to distribution list, where shows all the distributions created in this job.
-2. Click a specific distribution. You will be redirected to ACM web console.
+2. Click a specific distribution.
 3. Delete the distribution.
-4. For all other distributions found in Step 1, delete them in ACM.
+4. For all other distributions found in Step 1, delete them in CloudFront console.
 5. Repeat Step 1 to check whether all distributions in this job were cleaned up.
-
-
-
 
 

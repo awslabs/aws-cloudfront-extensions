@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 type StepType = {
   name: string;
@@ -14,6 +15,7 @@ export const CreateStep: React.FC<CreateStepProps> = (
   props: CreateStepProps
 ) => {
   const { list, activeIndex, selectStep } = props;
+  const { t } = useTranslation();
   return (
     <div className="gsui-create-step">
       <nav>
@@ -21,7 +23,9 @@ export const CreateStep: React.FC<CreateStepProps> = (
           {list.map((element, index) => {
             return (
               <li key={index}>
-                <small>Step {index + 1}</small>
+                <small>
+                  {t("step")} {index + 1}
+                </small>
                 <div className="step-name">
                   <span
                     onClick={() => {

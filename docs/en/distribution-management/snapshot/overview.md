@@ -1,6 +1,6 @@
 ## Snapshot
 
-A configuration of CloudFront distribution could be very complex, and you may want to save a specific configuration and apply it to current or other distributions in your aws account. This solution allows you to save configuration as “snapshot” so that you can reuse it at any time.
+A configuration of CloudFront distribution could be very complex, and you may want to save a specific configuration and apply it to current or other distributions in your AWS account. This solution allows you to save configuration as “snapshot” so that you can reuse it at any time.
 
 ### How does it work?
 When you create a snapshot, the solution automatically exports the current distribution configuration file in S3 bucket. A DynamoDB table is used to store the mapping of the config file and the snapshot names. 

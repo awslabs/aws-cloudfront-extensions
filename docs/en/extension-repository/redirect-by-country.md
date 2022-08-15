@@ -9,9 +9,9 @@ You can use any of the geo-location or [device detection](https://docs.aws.amazo
 
 The solution deploys a CloudFormation template that does the following:
 
-* Install a CloudFront Function named “cloudfront-viewer-country” on your selected CloudFront distribution’s behaviors. 
-* Create a CloudFront origin request policy named “cloudfront-viewer-country” that adds this header to the allowed header list.
-* Add the header “cloudfront-viewer-country” automatically to the origin request policy. 
+* Deploy a CloudFront Functions named “redirect-by-country” on your selected CloudFront distribution’s behaviors. 
+* Create a CloudFront origin request policy named "redirect-by-country" that adds "cloudfront-viewer-country" header to the allowed header list.
+* Add "redirect-by-country" origin request policy automatically to the CloudFront distribution's behaviors. 
 
 !!! Important "Important"
       

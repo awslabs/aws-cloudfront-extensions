@@ -16,7 +16,6 @@ The solution deploys a CloudFormation template that does the following:
       If the CloudFront distribution already has an AWS built-in policy attached, you need to manually add the created policy to the attachment.
 
 
-You only need this header if your origin includes logic based on the client's IP address. If your origin returns the same content regardless of the client IP address, this function is likely not needed.
 
 !!! Note "Note"
       

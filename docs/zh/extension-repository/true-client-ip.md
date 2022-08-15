@@ -1,76 +1,38 @@
-You can get the client IP by reading the True-Client-IP header in your origin server.
+您可以在源站服务器中通过读取True-Client-IP标头来获取客户端IP。
 
-### What is True Client IP Extension?
-If your origin server needs to get the client’s IP address, you can use this extension. The extension automatically adds an HTTP header named “True-Client-IP” in your request. With this header, the request can contain the IP address of the client that sent the request. Without this header, the request by default contains the IP address of the CloudFront server that sent the request to your origin.
+### 什么是客户端IP透传?
 
-### How does it work?
+如果源站服务器需要获取客户端的IP地址，则可以使用此扩展。扩展会自动在请求中添加一个名为“True-Client-IP”的标头。此标头为客户端的真实IP地址。如果没有此标头，在默认情况下请求包含的是CloudFront服务器的IP地址。
 
-The solution deploys a CloudFormation template that does the following:
+### 客户端IP透传是如何工作的?
 
-* Install a CloudFront Function named “true-client-ip” on your selected CloudFront distribution’s behaviors. 
-* Create a CloudFront origin request policy named “true-client-ip” that add this header to the allowed header list.
-* Attach the policy to the above distribution. 
+该解决方案部署了一个CloudFormation模板，该模板执行以下操作：
 
-!!! Important "Important"
+* 在所选CloudFront分配的行为上部署名为“true-client-ip”的CloudFront Functions。
+* 创建名为“true-client-ip”的CloudFront源请求策略，并将此标头添加到允许的标头列表中。
+* 将源请求策略添加到上述CloudFront分配。
+
+!!! Important "注意"
    
-      If the CloudFront distribution already has an AWS built-in policy attached, you need to manually add the created policy to the attachment.
+      如果CloudFront分配已经有一个源请求策略，那么您需要手动将此标头添加到源请求策略中。
 
 
-You only need this header if your origin includes logic based on the client's IP address. If your origin returns the same content regardless of the client IP address, this function is likely not needed.
-
-!!! Note "Note"
+!!! Note "说明"
       
-      You don't have to use the header name True-Client-IP. You can change the name to any value that your origin requires (e.g. X-Real-IP).
+      您不是必须要将标头命名为True-Client-IP。您可以将名称更改为任何值（例如X-Real-IP）。CloudFront还会将X-Forwarded-For标头发送到您的源站，其中包含客户端的IP地址以及请求通过的HTTP代理或负载均衡器信息。
 
-      CloudFront also sends an X-Forwarded-For header to your origin, which contains the client's IP address along with any HTTP proxies or load balancers that the request passed through.
+### CloudFront阶段
+查看器请求
 
-### CloudFront Stage
-Viewer request
+### 通过Web控制台部署（推荐）
 
-### Deployment on the web console (Recommended)
+1. 登录web控制台.
+2. 在左侧栏中，选择**Extensions repository**。
+3. 从**Extensions**列表中选择**true-client-ip**，然后单击右上角的**Deploy**。
+4. 选择要部署此CloudFront扩展的**分配**。
+5. 选择**缓存行为**，然后选择**下一步**。
+6. 选择CloudFront阶段，然后选择**下一步**。
+7. 查看参数并选择**部署**。
 
-1. Log in to the web console.
-2. In the left sidebar, select **Extensions repository**.
-3. Select **true-client-ip** from the **Extensions** list, and click **Deploy** in the upper right corner.
-4. Choose a **Distribution** where you want to deploy this CloudFront extension. 
-5. Choose a **Behavior**, and choose **Next**.
-6. Choose a CloudFront stage, and choose **Next**.
-7. Review the parameters and choose **Deploy**.
-
-Follow the guidance on the web console to check deployment status on CloudFormation console.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
+按照web控制台上的指导检查CloudFormation控制台上的部署状态。
 

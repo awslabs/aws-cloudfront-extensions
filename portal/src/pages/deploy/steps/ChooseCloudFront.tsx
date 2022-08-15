@@ -9,11 +9,12 @@ import { Cloudfront_info } from "API";
 import { OptionType } from "components/AutoComplete/autoComplete";
 import MultiSelect from "components/MultiSelect";
 import { SelectItem } from "components/Select/select";
-import { DeployExtensionObj } from "../Deploy";
+import { DeployExtensionObj, DeployValidationErrorObj } from "../Deploy";
 import { useTranslation } from "react-i18next";
 
 interface ChooseCloudFrontProps {
   deployExtensionObj: DeployExtensionObj;
+  deployValidationError: DeployValidationErrorObj;
   changeExtensionObjDistribution: (distribution: OptionType) => void;
   changeExtensionObjBehavior: (behaviors: string[]) => void;
 }
@@ -23,6 +24,7 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
 ) => {
   const {
     deployExtensionObj,
+    deployValidationError,
     changeExtensionObjDistribution,
     changeExtensionObjBehavior,
   } = props;
@@ -113,6 +115,11 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
               {t("repository:deploy.chooseCF.distributionDesc3")}
             </div>
           }
+          errorText={
+            deployValidationError.distributionEmpty
+              ? t("repository:deploy.chooseCF.chooseCFDError")
+              : ""
+          }
         >
           <AutoComplete
             loading={loadingData}
@@ -129,6 +136,11 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
         <FormItem
           optionTitle={t("repository:deploy.chooseCF.behaviors")}
           optionDesc={t("repository:deploy.chooseCF.behaviorsDesc")}
+          errorText={
+            deployValidationError.behaviorEmpty
+              ? t("repository:deploy.chooseCF.selectBehaviorError")
+              : ""
+          }
         >
           <MultiSelect
             className="m-w-45p"

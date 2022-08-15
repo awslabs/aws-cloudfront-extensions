@@ -1,32 +1,37 @@
-If you selected **Real time monitoring** when deploying the solution (CloudFormation stack), the following architecture will be installed, and the corresponding cloud resources will be automatically created in your account. 
+如果您在部署解决方案（CloudFormation堆栈）时选择**Real time monitoring**，将部署以下架构，并在您的帐户中自动创建相应的云资源。
 
 ![real-time-monitoring](../../images/real-time-monitoring.png)
 
-1. Enable CloudFront real-time logs. You need to configure the corresponding data stream in Kinesis Data Stream.
-2. Set up Kinesis Data Firehose to complete data transfer quickly. This enables CloudFront's real-time logs to pass through Kinesis Data Stream and finally store them in S3 buckets through Kinesis Data Firehose. During this process, to monitor the download speed in each country and each ISP, Kinesis Data Firehose invokes the Amazon Lambda function Log Transformer to find the ISP and country code through the client IP, and cooperate with Kinesis Data Firehose to implement dynamic partitioning, that is, real-time logs are partitioned by partition key and stored in S3 bucket, such as year=2021/month=12/day=10/hour=09.
-3. Query real-time logs in S3 via Athena. In order to allow Athena to speed up data query through data partitioning, Amazon EventBridge will create all partitions for the next day every day, and delete the partitions of the previous day. The Lambda function MetricCollector is used to analyze real-time logs and collect monitoring metrics. It will be executed every 5 minutes.
-4. Save the query results in DynamoDB. Query the corresponding monitoring indicator data through Athena, such as calculating CHR (cache hit rate) and download rate through bandwidth, and finally store the monitoring indicator data in the DynamoDB table.
-5. Call APIs via API Gateway. When users send API request to API Gateway, a Lambda function called MetricManager will be triggered. The function reads the monitoring indicators and returns the corresponding results from the DynamoDB table. In order to strengthen security management and restrict API accesses, API key is enabled in API Gateway by default. Users are required to pass an x-api-key when calling the APIs.
+1. 开启CloudFront实时日志
+    开启的过程中需要配置对应的Kinesis Data Stream数据流。
+2. 设置Kinesis Data Firehose快速完成数据传输
+    CloudFront的实时日志会依次通过Kinesis Data Stream和Kinesis Data Firehose，最终存储到Amazon S3桶中。在此过程中，Kinesis Data Firehose会调用Amazon Lambda函数Log Transformer实现通过客户端IP找到ISP和国家代码，从而以国家代码和运营商为单位对下载速率指标进行分类，并配合Kinesis Data Firehose实现动态分区。也就是说，将实时日志通过分区键进行分区，并存储到Amazon S3桶中，如year=2021/month=12/day=10/hour=09。
+3. 通过Athena查询S3中的实时日志
+    为了让Amazon Athena通过数据分区加速数据查询，通过Amazon EventBridge每天会新建第二天的所有分区，并删除前一天的分区。Lambda函数MetricCollector用来分析实时日志和收集监控指标，每5分钟执行一次。
+4. 将查询数据的结果保存在DynamoDB中方便后续获取
+    通过Amazon Athena查询出相应的监控指标数据，例如通过带宽计算缓存命中率(CHR)、下载速率，最终将监控指标数据存储在DynamoDB表格中。
 
-## Metrics
-
-The following metrics are provided:
-
-- request: the number of requests from the client to CloudFront
-- requestOrigin: the number of requests back to the origin
-- statusCode: the status code from the client to CloudFront
-- statusCodeOrigin: the status code of the back-to-origin
-- bandwidth: the bandwidth from the client to CloudFront
-- bandwidthOrigin: bandwidth back to origin
-- chr: cache hit rate calculated by the number of requests
-- chrBandWith: cache hit ratio calculated by bandwidth
-- downloadSpeed: download speed from client to CloudFront
-- downloadSpeedOrigin: the download speed of the back-to-origin
-- topNUrlRequests: top url calculated by the number of requests
-- topNUrlSize: top url calculated by traffic
-- downstreamTraffic: down stream traffic in response to the request
+5. 最终用户接口使用API Gateway
+    用户接口通过API Gateway和Lambda函数MetricManager生成一个RESTful API，MetricManager会读取DynamoDB表格中的监控指标并返回相应结果。为了进一步加强安全管理限制API的访问，API Gateway中开启API key授权，访问接口的用户需在x-api-key标头中带有合法API key才能正常请求API。
 
 
+## 监控指标 
+
+支持如下监控指标:
+
+- request: 从客户端到 CloudFront 的请求数量
+- requestOrigin: 回源的请求数量
+- statusCode: 从客户端到 CloudFront 的状态码
+- statusCodeOrigin: 回源的状态码
+- bandwidth: 从客户端到CloudFront的带宽
+- bandwidthOrigin: 回源的带宽
+- chr (cache hit ratio): 通过请求数量计算的缓存命中率
+- chrBandWith: 通过带宽计算的缓存命中率
+- downloadSpeed: 从客户端到CloudFront的下载速率
+- downloadSpeedOrigin: 回源的下载速率
+- topNUrlRequests: 根据请求数量统计的top url
+- topNUrlSize: 根据流量统计的top url
+- downstreamTraffic: 响应流量
 
 
 
