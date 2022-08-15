@@ -6,7 +6,7 @@
     "logout": "Sign Out"
   },
   "menu": {
-    "home": "home",
+    "home": "Home",
     "monitoring": "Monitoring",
     "cloudFrontTraffic": "CloudFront traffic",
     "distributionMgmt": "Distribution management",
