@@ -24,10 +24,10 @@ phases:
       - git config --global user.email "cloudfront-extns-helper@example.com"
       - git config --global user.name "cloudfront-extns-helper"
       - export BSS_IMAGE_ASSET_REPOSITORY_NAME=$(echo "$SOLUTION_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-      - export BUILD_VERSION=v2.0.0
+      - export BUILD_VERSION=v2.0.0_$CODEBUILD_BUILD_NUMBER
       - |-
         if [ $(git tag -l "$BUILD_VERSION") ]; then
-          git tag -d v2.0.0
+          git tag -d ${BUILD_VERSION}
         fi
       - export CN_ASSETS='cn/'
       - export GLOBAL_ASSETS='custom-domain/'
@@ -50,7 +50,7 @@ phases:
         function join_by { local IFS="$1"; shift; echo "$*"; }
         export ECR_REPOS=$(join_by , `cat "${__dir}/ecr-repos"`)
         export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
-      - git tag -a v2.0.0 -m "${BUILD_NUMBER} ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - git tag -a ${BUILD_VERSION} -m "${BUILD_NUMBER} ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 artifacts:
   files:
     - .git/**/*
