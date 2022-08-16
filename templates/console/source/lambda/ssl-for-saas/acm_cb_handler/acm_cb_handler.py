@@ -8,7 +8,7 @@ import requests
 from requests_aws4auth import AWS4Auth
 from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
-from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
+from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type, wait_exponential
 from requests import exceptions
 
 # certificate need to create in region us-east-1 for cloudfront to use
@@ -158,6 +158,7 @@ def create_distribution(config):
     #         time.sleep(10)
 
 # create CloudFront distribution
+@retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(15), reraise=True)
 def create_distribution_with_tags(config):
     """[summary]
 
@@ -286,6 +287,11 @@ def lambda_handler(event, context):
                      job_token,
                      'certValidationStageStatus',
                      'SUCCESS')
+
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     job_token,
+                     'distStageStatus',
+                     'INPROGRESS')
     try:
         # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
         resp = dynamo_client.delete_item(

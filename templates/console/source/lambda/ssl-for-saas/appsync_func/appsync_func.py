@@ -11,6 +11,8 @@ import copy
 from datetime import datetime
 from cerberus import Validator
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
+from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type
+from requests import exceptions
 
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.logging import correlation_paths
@@ -23,10 +25,13 @@ logger = Logger(service="ssl_for_saas_appsync_resolver")
 acm = boto3.client('acm', region_name='us-east-1')
 stepFunctionArn = os.environ.get('STEP_FUNCTION_ARN')
 JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+# get sns topic arn from environment variable
+snsTopicArn = os.environ.get('SNS_TOPIC')
 
 app = AppSyncResolver()
 
 step_function = boto3.client('stepfunctions')
+sns_client = boto3.client('sns')
 
 # add execution path
 os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
@@ -46,6 +51,43 @@ _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
 
 raw_context = {}
 
+
+def notify_sns_subscriber(sns_msg):
+    logger.info("deliver message: %s to sns topic arn: %s", str(sns_msg), snsTopicArn)
+    # make it a code url due to sns raw format, TBD make it a official repo url
+    sample_route53_code = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
+    sample_godaddy_code = 'https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93'
+    message_to_be_published = '''
+           CNAME value need to add into DNS hostzone to finish DCV: {} \n
+           Sample Script for Route53 (Python): {} \n
+           Sample Script for Godaddy (Python): {}
+       '''.format(str(sns_msg), sample_route53_code, sample_godaddy_code)
+    # notify to sns topic for distribution event
+    sns_client.publish(
+        TopicArn=snsTopicArn,
+        Message=message_to_be_published,
+        Subject='Domain Name Need to Do DCV (Domain Control Validation)'
+    )
+
+# describe certificate details
+@retry(wait=wait_fixed(3), stop=stop_after_attempt(5), retry=retry_if_exception_type(exceptions.Timeout))
+def fetch_dcv_value(certArn):
+    # describe certificate domainName
+    resp = acm.describe_certificate(
+        CertificateArn=certArn
+    )
+    logger.info('fetch acm response for dcv: %s', resp)
+    if 'DomainValidationOptions' not in resp['Certificate']:
+        logger.info('DomainValidationOptions is None, retry')
+        raise exceptions.Timeout
+
+    # validate if schema DomainValidationOptions is None and retry if possible
+    if 'ResourceRecord' not in resp['Certificate']['DomainValidationOptions'][0]:
+        logger.info('ResourceRecord is None, retry')
+        raise exceptions.Timeout
+
+    logger.info("ResourceRecord fulfilled, return for further processing")
+    return resp
 
 def check_generate_task_token(task_token):
     if not task_token:
@@ -388,6 +430,7 @@ def cert_create_or_import(input):
 
     # will use request id as job_id
     logger.info(raw_context.aws_request_id)
+    snsMsg = []
 
     # Get the parameters from the event
     body = input
@@ -452,6 +495,16 @@ def cert_create_or_import(input):
                     resp = request_certificate(certificate)
                     logger.info('Certificate creation response: %s', resp)
 
+                    resp_detail = fetch_dcv_value(resp['CertificateArn'])
+
+                    # iterate DomainValidationOptions array to get DNS validation record
+                    for dns_index, dns_value in enumerate(resp_detail['Certificate']['DomainValidationOptions']):
+                        if dns_value['ValidationMethod'] == 'DNS':
+                            dns_validation_record = dns_value['ResourceRecord']
+                            logger.info('index %s: DNS validation record: %s', dns_index, dns_validation_record)
+                            snsMsg.append(dns_validation_record)
+
+
                 update_job_field(JOB_INFO_TABLE_NAME,
                                  raw_context.aws_request_id,
                                  'certCreateStageStatus',
@@ -464,6 +517,8 @@ def cert_create_or_import(input):
                                  raw_context.aws_request_id,
                                  'cert_completed_number',
                                  certTotalNumber)
+
+                notify_sns_subscriber(snsMsg)
             # note dist_aggregate is ignored here, we don't aggregate imported certificate
             elif acm_op == "import":
                 # iterate pemList array from event
