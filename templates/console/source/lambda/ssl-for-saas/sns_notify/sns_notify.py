@@ -3,7 +3,7 @@ import uuid
 import boto3
 import os
 import json
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field, get_job_info
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -59,10 +59,20 @@ def lambda_handler(event, context):
 
     # Update the job info table to mark the cloudfront distribution creation succeed
     job_token = event['input']['aws_request_id']
-    update_job_field(JOB_INFO_TABLE_NAME,
-                     job_token,
+
+    response = get_job_info(JOB_INFO_TABLE_NAME, job_token)
+    if 'Items' in response:
+        ddb_record = response['Items'][0]
+        cloudfront_distribution_total_number = ddb_record['cloudfront_distribution_total_number']
+        update_job_field(JOB_INFO_TABLE_NAME, job_token, 'cloudfront_distribution_created_number', cloudfront_distribution_total_number)
+        cert_total_number = ddb_record['cert_total_number']
+        update_job_field(JOB_INFO_TABLE_NAME, job_token, 'cert_total_number', cert_total_number)
+        update_job_field(JOB_INFO_TABLE_NAME,
+                      job_token,
                      'distStageStatus',
                      'SUCCESS')
+    else:
+        logger.error('No job info found for job token: ' + job_token)
 
     msg = []
     # iterate distribution list from event

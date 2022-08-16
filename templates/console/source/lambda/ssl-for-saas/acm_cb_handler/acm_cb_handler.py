@@ -287,6 +287,11 @@ def lambda_handler(event, context):
                      job_token,
                      'certValidationStageStatus',
                      'SUCCESS')
+
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     job_token,
+                     'distStageStatus',
+                     'INPROGRESS')
     try:
         # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
         resp = dynamo_client.delete_item(

@@ -3,7 +3,7 @@ import uuid
 import boto3
 import os
 import json
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number
+from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, get_job_info
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')

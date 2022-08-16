@@ -337,6 +337,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           GRAPHQL_API_URL: props.appsyncApi.graphqlUrl,
           GRAPHQL_API_KEY: props.appsyncApi.apiKey || "",
           CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+          SNS_TOPIC: sns_topic.topicArn,
         },
         timeout: Duration.seconds(900),
         role: _fn_acm_cb_handler_role,
@@ -364,6 +365,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         CALLBACK_TABLE: callback_table.tableName,
         JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
         TASK_TYPE: "placeholder",
+        SNS_TOPIC: sns_topic.topicArn,
       },
       timeout: Duration.seconds(900),
       role: _fn_acm_cron_role,
@@ -657,6 +659,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_appsync_func_role.addToPolicy(stepFunction_run_policy);
     _fn_appsync_func_role.addToPolicy(tag_update_policy);
     _fn_appsync_func_role.addToPolicy(kms_policy);
+    _fn_appsync_func_role.addToPolicy(sns_update_policy);
 
     const _fn_ssl_api_handler_role = new iam.Role(
       this,
@@ -671,6 +674,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_ssl_api_handler_role.addToPolicy(stepFunction_run_policy);
     _fn_ssl_api_handler_role.addToPolicy(tag_update_policy);
     _fn_ssl_api_handler_role.addToPolicy(kms_policy);
+    _fn_ssl_api_handler_role.addToPolicy(sns_update_policy);
 
     // lambda in step function & cron job
     const fn_ssl_api_handler = new _lambda.DockerImageFunction(
@@ -684,6 +688,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
+          SNS_TOPIC: sns_topic.topicArn,
           TASK_TYPE: "placeholder",
         },
         timeout: Duration.seconds(900),
@@ -794,6 +799,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           CALLBACK_TABLE: callback_table.tableName,
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
           TASK_TYPE: "placeholder",
+          SNS_TOPIC: sns_topic.topicArn,
         },
         timeout: Duration.seconds(900),
         role: _fn_appsync_func_role,
