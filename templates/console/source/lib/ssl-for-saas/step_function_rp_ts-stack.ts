@@ -67,6 +67,12 @@ export class StepFunctionRpTsConstruct extends Construct {
         },
       }
     );
+    ssl_for_sass_job_info_table
+      .autoScaleWriteCapacity({
+        minCapacity: 40,
+        maxCapacity: 100,
+      })
+      .scaleOnUtilization({ targetUtilizationPercent: 75 });
 
     const snsKey = new kms.Key(this, "KmsMasterKey", {
       enableKeyRotation: true,
