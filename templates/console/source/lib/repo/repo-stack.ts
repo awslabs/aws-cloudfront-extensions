@@ -34,6 +34,7 @@ export class RepoConstruct extends Construct {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
         new iam.ServicePrincipal("appsync.amazonaws.com"),
+        new iam.ServicePrincipal('ec2.amazonaws.com'),
       ),
     });
 
@@ -109,7 +110,8 @@ export class RepoConstruct extends Construct {
             "serverlessrepo:CreateCloudFormationTemplate",
             "serverlessrepo:GetCloudFormationTemplate",
             "serverlessrepo:CreateCloudFormationChangeSet",
-            "s3:GetObject"
+            "s3:GetObject",
+            "ec2:Describe*",
           ]
         })
       ]

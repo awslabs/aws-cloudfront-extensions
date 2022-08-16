@@ -43,7 +43,7 @@ Use the following steps to deploy this solution on AWS.
 
 You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
 
-To see details for the stack resources, choose the **Outputs** tab. 
+To see details for the stack resources, choose the **Outputs** tab. You will find CloudFront Extensions console in **WebConsoleCloudFrontURL**.
 
 ## Lambda@Edge & CloudFront Functions collection
 
