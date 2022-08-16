@@ -159,12 +159,12 @@ fi
 
 IFS=',' read -r -a prefixes <<< "$GLOBAL_ASSETS"
 mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
-
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[0]}"
 run npx cdk synth -c EnableDashboardCustomDomain=true --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]} -q 2>/dev/null
-mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
-export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
-run npx cdk synth --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]} -q 2>/dev/null
+
+#mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
+#export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
+#run npx cdk synth --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]} -q 2>/dev/null
 
 run echo '763104351884.dkr.ecr.us-east-1.amazonaws.com'>>"${__dir}/ecr-repos"
 run echo '727897471807.dkr.ecr.cn-northwest-1.amazonaws.com.cn'>>"${__dir}/cn-ecr-repos"

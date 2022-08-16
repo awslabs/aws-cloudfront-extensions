@@ -24,23 +24,21 @@ phases:
       - git config --global user.email "cloudfront-extns-helper@example.com"
       - git config --global user.name "cloudfront-extns-helper"
       - export BSS_IMAGE_ASSET_REPOSITORY_NAME=$(echo "$SOLUTION_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-      - export BUILD_VERSION=2.0.0
+      - export BUILD_VERSION=v2.0.0
       - |-
         if [ $(git tag -l "$BUILD_VERSION") ]; then
-          git tag -d 2.0.0
+          git tag -d v2.0.0
         fi
       - export CN_ASSETS='cn/'
-      - export GLOBAL_ASSETS='default/,custom-domain/'
+      - export GLOBAL_ASSETS='custom-domain/'
   build:
     commands:
-      # - cd templates/aws-cloudfront-waf/deployment/
-      # - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${VERSION}
       - chmod +x ${CODEBUILD_SRC_DIR}/templates/console/deployment/build-s3-dist.sh
       - ${CODEBUILD_SRC_DIR}/templates/console/deployment/build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${BUILD_VERSION}
       - mkdir -p ${CODEBUILD_SRC_DIR}/templates/console/deployment/open-source/ && touch ${CODEBUILD_SRC_DIR}/templates/console/deployment/open-source/.empty
       - cd ${CODEBUILD_SRC_DIR}/edge/cdk/deployment
       - ./build-s3-dist.sh ${DIST_OUTPUT_BUCKET} ${SOLUTION_NAME} ${BUILD_VERSION}
-      - cp -r ${CODEBUILD_SRC_DIR}/edge/cdk/deployment/global-s3-assets/* ${CODEBUILD_SRC_DIR}/templates/console/deployment/global-s3-assets/default/
+#      - cp -r ${CODEBUILD_SRC_DIR}/edge/cdk/deployment/global-s3-assets/* ${CODEBUILD_SRC_DIR}/templates/console/deployment/global-s3-assets/default/
       - cp -r ${CODEBUILD_SRC_DIR}/edge/cdk/deployment/global-s3-assets/* ${CODEBUILD_SRC_DIR}/templates/console/deployment/global-s3-assets/custom-domain/
       - ls -LR ${CODEBUILD_SRC_DIR}/templates/console/deployment/
   post_build:
@@ -52,14 +50,15 @@ phases:
         function join_by { local IFS="$1"; shift; echo "$*"; }
         export ECR_REPOS=$(join_by , `cat "${__dir}/ecr-repos"`)
         export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
-      - git tag -a 2.0.0 -m "${BUILD_NUMBER} ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - git tag -a v2.0.0 -m "${BUILD_NUMBER} ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 artifacts:
   files:
     - .git/**/*
     - deployment/**/*
     - docs/**/*
     - templates/console/deployment/**/*
-    - edge/cdk/deployment/**/*
+    # - edge/cdk/deployment/**/*
+    # - edge/cdk/deployment/*
     - buildspec_2.yml
     - buildspec.yml
     - CHANGELOG.md

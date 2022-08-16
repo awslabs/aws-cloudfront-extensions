@@ -92,10 +92,10 @@ fi
 
 IFS=',' read -r -a prefixes <<< "$GLOBAL_ASSETS"
 mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
-mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
+#mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 
 echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[0]}"
-echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[1]}"
+#echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[1]}"
 
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[0]}"
 
@@ -112,7 +112,7 @@ npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/re
 
 ls ${GLOBAL_S3_ASSETS_PATH}
 ls ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
-ls ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
+#ls ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 
 title "copy artifacts"
 # echo "run ${__dir}/helper.py ${CDK_OUT_PATH}"
