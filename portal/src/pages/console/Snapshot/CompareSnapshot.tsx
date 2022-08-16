@@ -14,6 +14,7 @@ import {
 } from "../../../graphql/queries";
 import { Snapshot } from "../../../API";
 import LoadingText from "components/LoadingText";
+import { useTranslation } from "react-i18next";
 
 export enum COMPARE_RESULT {
   SAME = "SAME",
@@ -23,6 +24,7 @@ export enum COMPARE_RESULT {
 }
 
 const CompareSnapshot: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { snapshot1 } = useParams();
   const { snapshot2 } = useParams();
@@ -38,7 +40,7 @@ const CompareSnapshot: React.FC = () => {
 
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("snapshot:cfx"),
       link: "/",
     },
     {
@@ -236,7 +238,7 @@ const CompareSnapshot: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel title="Please select the snapshot to compare">
+        <HeaderPanel title={t("snapshot.headTitle")}>
           {loadingDistribution ? (
             <LoadingText />
           ) : (
@@ -405,7 +407,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Show</b>
+                                            <b>{t("axxx")}</b>
                                           </span>
                                         )}
                                         {snapshotDiffRes[key].show && (

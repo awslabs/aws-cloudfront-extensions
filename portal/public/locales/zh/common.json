@@ -8,6 +8,7 @@
   "menu": {
     "home": "首页",
     "monitoring": "监控",
+
     "cloudFrontTraffic": "CloudFront 流量",
     "distributionMgmt": "Distribution 管理",
     "snapshot": "快照",
