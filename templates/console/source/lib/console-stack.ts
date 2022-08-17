@@ -22,7 +22,7 @@ interface ConsoleStackProps extends StackProps {
 export class ConsoleStack extends cdk.Stack {
   constructor(app: Construct, id: string, props: ConsoleStackProps) {
     super(app, id, props);
-    this.templateOptions.description = "(SO8152-ui) CloudFront Extensions - UI";
+    this.templateOptions.description = "(SO8152-ui) - CloudFront Extensions UI";
 
     // Construct a cognito for auth
     const cognitoUserPool = new cognito.UserPool(this, "CloudFrontExtCognito", {
@@ -75,7 +75,7 @@ export class ConsoleStack extends cdk.Stack {
     // Monitoring
     const monitoringType = new cdk.CfnParameter(this, "Monitoring", {
       description:
-        "Enable realtime or non-realtime monitoring to get CloudFront metrics",
+        "Monitoring dashboard to get CloudFront metrics. Set it to no to not deploy monitoring feature, set it to yes-Realtime to get monitoring metrics from realtime log, set it to yes-Non-Realtime to get monitoring metrics from standard log",
       type: "String",
       allowedValues: ["no", "yes-Realtime", "yes-Non-Realtime"],
       default: "no",
