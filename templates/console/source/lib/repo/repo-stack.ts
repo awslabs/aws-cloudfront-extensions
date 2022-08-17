@@ -76,28 +76,7 @@ export class RepoConstruct extends Construct {
       ]
     });
 
-    const extIAMPolicy = new iam.Policy(this, 'ExtIAMPolicy', {
-      statements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: ['*'],
-          actions: [
-            "iam:GetRole",
-            "iam:ListRoles",
-            "iam:CreateRole",
-            "iam:DeleteRole",
-            "iam:PassRole",
-            "iam:AttachRolePolicy",
-            "iam:DetachRolePolicy",
-            "iam:CreateServiceLinkedRole",
-            "iam:PutRolePolicy",
-            "iam:DeleteRolePolicy",
-          ]
-        })
-      ]
-    });
-
-    // Policy to deploy a SAR application
+    // Policy to deploy an extension
     const extDeploymentPolicy = new iam.Policy(this, 'ExtDeploymentPolicy', {
       statements: [
         new iam.PolicyStatement({
@@ -111,38 +90,20 @@ export class RepoConstruct extends Construct {
             "serverlessrepo:GetCloudFormationTemplate",
             "serverlessrepo:CreateCloudFormationChangeSet",
             "s3:GetObject",
-            "ec2:Describe*",
-            "ec2:Start*",
-            "ec2:Stop*",
+            "ec2:*",
+            "apigateway:*",
+            "sqs:*",
+            "iam:*",
+            "autoscaling:*",
+            "cloudwatch:*"
           ]
-        })
-      ]
-    });
-
-    const extSqsPolicy = new iam.Policy(this, 'ExtSQSPolicy', {
-      statements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: ['*'],
-          actions: [
-            "sqs:DeleteMessage",
-            "sqs:GetQueueUrl",
-            "sqs:ChangeMessageVisibility",
-            "sqs:PurgeQueue",
-            "sqs:ReceiveMessage",
-            "sqs:SendMessage",
-            "sqs:GetQueueAttributes",
-            "sqs:SetQueueAttributes",
-          ],
         })
       ]
     });
 
     extDeployerRole.attachInlinePolicy(extDDBPolicy);
     extDeployerRole.attachInlinePolicy(extLambdaPolicy);
-    extDeployerRole.attachInlinePolicy(extIAMPolicy);
     extDeployerRole.attachInlinePolicy(extDeploymentPolicy);
-    extDeployerRole.attachInlinePolicy(extSqsPolicy);
 
     if (props && props.appsyncApi) {
       const extDeployerApi = props?.appsyncApi;

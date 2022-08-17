@@ -53,17 +53,17 @@ export class PortalConstruct extends Construct {
         // Use cloudfrontToS3 solution constructs
         const portal = new CloudFrontToS3(this, "UI", {
             bucketProps: {
+                versioned: false,
                 encryption: s3.BucketEncryption.S3_MANAGED,
                 accessControl: s3.BucketAccessControl.PRIVATE,
                 enforceSSL: true,
-                removalPolicy: RemovalPolicy.DESTROY,
-                autoDeleteObjects: true,
+                removalPolicy: RemovalPolicy.RETAIN,
+                autoDeleteObjects: false,
             },
             cloudFrontDistributionProps: {
                 priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
                 minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2019,
                 enableIpv6: false,
-                enableLogging: true, //Enable access logging for the distribution.
                 comment: `${Aws.STACK_NAME} - Web Console Distribution (${Aws.REGION})`,
                 errorResponses: [
                     {
