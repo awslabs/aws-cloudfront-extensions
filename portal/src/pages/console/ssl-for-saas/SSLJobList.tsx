@@ -20,7 +20,7 @@ const BreadCrunbList = [
     link: "/",
   },
   {
-    name: "SSL for SAAS Job List",
+    name: "SSL for SaaS Job List",
     link: "",
   },
 ];
@@ -63,7 +63,7 @@ const SSLJobList: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title="SSL for SAAS Job List"
+          title="SSL for SaaS Job List"
           selectType={SelectType.NONE}
           actions={
             <div>

@@ -130,7 +130,7 @@ def request_certificate(certificate):
         Tags=[
             {
                 'Key': 'issuer',
-                'Value': certificate['DomainName']
+                'Value': certificate['DomainName'].replace('*.', '')
             }
         ]
     )

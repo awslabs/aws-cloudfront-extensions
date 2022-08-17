@@ -552,7 +552,7 @@
           "deprecationReason" : null
         }, {
           "name" : "Notifications",
-          "description" : "  SSL for SAAS",
+          "description" : "  SSL for SaaS",
           "args" : [ {
             "name" : "limit",
             "description" : null,
@@ -1895,7 +1895,7 @@
           "deprecationReason" : null
         }, {
           "name" : "certCreateOrImport",
-          "description" : "  SSL for SAAS",
+          "description" : "  SSL for SaaS",
           "args" : [ {
             "name" : "input",
             "description" : null,

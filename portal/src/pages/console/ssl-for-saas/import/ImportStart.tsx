@@ -600,7 +600,7 @@ const ImportStart: React.FC = () => {
           <div className="gsui-modal-content">
             <HeaderPanel title="Please confirm the SSL request parameters">
               <FormItem
-                optionTitle="Current SSL for SAAS request parameters"
+                optionTitle="Current SSL for SasS request parameters"
                 optionDesc=""
               >
                 <div>
