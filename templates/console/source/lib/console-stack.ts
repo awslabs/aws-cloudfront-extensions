@@ -62,7 +62,7 @@ export class ConsoleStack extends cdk.Stack {
       "InitialUserPassword",
       {
         type: "String",
-        description: "the initial user password for the web console",
+        description: "The Initial Password for web console. Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9)",
         allowedPattern:
           "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,16}$",
         constraintDescription:
