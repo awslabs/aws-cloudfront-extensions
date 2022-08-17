@@ -104,7 +104,6 @@ export const Button: FC<ButtonProps> = (props) => {
         <div className="btn-drop-down-wrap">
           <button
             onClick={() => {
-              console.info("showDropdown:", showDropdown);
               setShowDropdown(!showDropdown);
             }}
             className={`${classes} btn-drop-down`}

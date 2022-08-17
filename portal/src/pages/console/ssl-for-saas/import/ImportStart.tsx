@@ -227,7 +227,6 @@ const ImportStart: React.FC = () => {
       const resData = await appSyncRequestMutation(certCreateOrImport, {
         input: certCreateOrImportInput,
       });
-      console.info(resData);
       navigate(
         "/config/certification/job/" + resData.data.certCreateOrImport.body
       );
@@ -319,7 +318,6 @@ const ImportStart: React.FC = () => {
     // cnameInfo.existing_cf_info.distribution_id = distributionId;
     certInfo.existing_cf_info.distribution_id = distributionId;
     certInfo.existing_cf_info.config_version_id = version;
-    console.info(JSON.stringify(certInfo));
   };
 
   useEffect(() => {
@@ -465,9 +463,6 @@ const ImportStart: React.FC = () => {
                     value={selectDistributionId}
                     onChange={(event) => {
                       setSelectDistributionId(event.target.value);
-                      console.info(
-                        "distribution id is :" + selectDistributionId
-                      );
                       setVersionList([]);
                       setSelectDistributionVersionId("1");
                       getVersionListByDistribution();
@@ -555,7 +550,6 @@ const ImportStart: React.FC = () => {
                   selectDistributionVersionId
                 );
                 const requestParam = generateCertCreateImportParam();
-                console.info(requestParam);
                 // startCertRequest(requestParam);
                 setOpenModal(true);
               }}
@@ -589,7 +583,6 @@ const ImportStart: React.FC = () => {
                   // startWorkflow();
                   setLoadingApply(true);
                   const requestParam = generateCertCreateImportParam();
-                  console.info(requestParam);
                   startCertRequest(requestParam);
                   setLoadingApply(false);
                   Swal.fire(

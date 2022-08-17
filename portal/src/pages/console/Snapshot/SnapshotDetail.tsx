@@ -108,7 +108,6 @@ const SnapshotDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(listDistribution);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpList = [];
-      console.log(Cloudfront_info_list);
       for (const cfdistlistKey in Cloudfront_info_list) {
         const cname =
           Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
@@ -119,7 +118,6 @@ const SnapshotDetail: React.FC = () => {
           value: Cloudfront_info_list[cfdistlistKey].id,
         });
       }
-      console.log(tmpList);
       setDistributionList(tmpList);
     } catch (error) {
       console.error(error);
@@ -132,7 +130,6 @@ const SnapshotDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(getDistributionCname, {
         distribution_id: id,
       });
-      console.info(resData);
       const result: string[] = resData.data.getDistributionCname;
       setDistributionAliases(result);
     } catch (error) {
@@ -149,7 +146,6 @@ const SnapshotDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(getAppliedSnapshotName, {
         distribution_id: id,
       });
-      console.info(resData);
       const snapshot: string = resData.data.getAppliedSnapshotName;
       setBindingSnapShotName(snapshot);
     } catch (error) {
@@ -166,7 +162,6 @@ const SnapshotDetail: React.FC = () => {
       bindingSnapShotName === "Not binding with any Snapshot" ||
       bindingSnapShotName === ""
     ) {
-      console.info("Not binding with any Snapshot, no need to check diff");
       setIsDrifting("NO");
       setDriftingCompareDisable(true);
       return;
@@ -193,13 +188,11 @@ const SnapshotDetail: React.FC = () => {
       const currentCloudfrontContent: string =
         resDataLatest.data.getConfigSnapshotContent;
 
-      if (bindSnapshotContent == currentCloudfrontContent) {
-        console.info("binding is same");
+      if (bindSnapshotContent === currentCloudfrontContent) {
         setIsDrifting("NO");
       } else {
         setIsDrifting("YES");
         setDriftingCompareDisable(false);
-        console.info("binding is different");
       }
     } catch (error) {
       console.error(error);
@@ -239,14 +232,13 @@ const SnapshotDetail: React.FC = () => {
     for (const index in distributionList) {
       selectList.push(distributionList[index].name);
     }
-    console.info(selectList);
     setSelectDistribution(() => {
       return selectList;
     });
   };
 
   useEffect(() => {
-    console.info(selectDistribution);
+    // console.info(selectDistribution);
   }, [selectDistribution]);
 
   const selectNoneDistributions = async () => {
@@ -256,15 +248,11 @@ const SnapshotDetail: React.FC = () => {
   // Get Version List By Distribution
   const createSnapshotRequest = async () => {
     try {
-      console.info(distributionId);
-      console.info(snapShotName);
-      console.info(snapShotNote);
       const resData = await appSyncRequestMutation(createVersionSnapShot, {
         distributionId,
         snapShotName,
         snapShotNote,
       });
-      console.info(resData);
     } catch (error) {
       console.error(error);
     }
@@ -272,20 +260,16 @@ const SnapshotDetail: React.FC = () => {
   // delete target snapshot
   const deleteSnapshotRequest = async () => {
     try {
-      console.info(distributionId);
-      console.info(snapShotName);
       const resData = await appSyncRequestMutation(deleteSnapshot, {
         distributionId,
         snapShotName: selectedItem[0].snapshot_name,
       });
-      console.info(resData);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    console.info("selectedItem:", selectedItem);
     if (selectedItem.length > 0) {
       if (selectedItem.length === 1) {
         setApplyDisabled(false);
@@ -646,7 +630,7 @@ const SnapshotDetail: React.FC = () => {
               disabled
               value={id || ""}
               onChange={(event) => {
-                console.info("test");
+                // console.info("test");
               }}
             />
           </FormItem>

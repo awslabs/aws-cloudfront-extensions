@@ -128,7 +128,6 @@ const ChooseCloudFront: React.FC<ChooseCloudFrontProps> = (
             optionList={cloudFrontList}
             placeholder={t("repository:deploy.chooseCF.chooseCFD")}
             onChange={(event, data) => {
-              console.info(event, data);
               changeExtensionObjDistribution(data);
             }}
           />

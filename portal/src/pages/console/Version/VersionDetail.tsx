@@ -90,7 +90,6 @@ const VersionDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(getDistributionCname, {
         distribution_id: id,
       });
-      console.info(resData);
       const result: string[] = resData.data.getDistributionCname;
       setDistributionAliases(result);
     } catch (error) {
@@ -108,7 +107,6 @@ const VersionDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(listDistribution);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpList = [];
-      console.log(Cloudfront_info_list);
       for (const cfdistlistKey in Cloudfront_info_list) {
         const cname =
           Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
@@ -119,7 +117,6 @@ const VersionDetail: React.FC = () => {
           value: Cloudfront_info_list[cfdistlistKey].id,
         });
       }
-      console.log(tmpList);
       setDistributionList(tmpList);
     } catch (error) {
       console.error(error);
@@ -156,22 +153,19 @@ const VersionDetail: React.FC = () => {
     for (const index in distributionList) {
       selectList.push(distributionList[index].name);
     }
-    console.info(selectList);
     setSelectDistribution(() => {
       return selectList;
     });
   };
 
-  useEffect(() => {
-    console.info(selectDistribution);
-  }, [selectDistribution]);
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  useEffect(() => {}, [selectDistribution]);
 
   const selectNoneDistributions = async () => {
     setSelectDistribution([]);
   };
 
   useEffect(() => {
-    console.info("selectedItem:", selectedItem);
     if (selectedItem.length > 0) {
       if (selectedItem.length === 1) {
         setApplyDisabled(false);

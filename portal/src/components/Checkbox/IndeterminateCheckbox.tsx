@@ -15,7 +15,6 @@ const IndeterminateCheckbox: React.FC<InteCheckBoxProp> = (props: any) => {
   const checkRef: any = useRef();
 
   useEffect(() => {
-    console.info("value:", value);
     checkRef.current.checked = value === CHECKED;
     checkRef.current.indeterminate = value === INDETERMINATE;
   }, [value]);

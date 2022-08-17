@@ -311,7 +311,7 @@ const CreateStart: React.FC = () => {
       cnameInfo.existing_cf_info.distribution_id = distributionId;
       cnameInfo.existing_cf_info.config_version_id = version;
     }
-    console.info(JSON.stringify(cnameInfoList));
+    // console.info(JSON.stringify(cnameInfoList));
   };
 
   useEffect(() => {
@@ -418,9 +418,6 @@ const CreateStart: React.FC = () => {
                     value={selectDistributionId}
                     onChange={(event) => {
                       setSelectDistributionId(event.target.value);
-                      console.info(
-                        "distribution id is :" + selectDistributionId
-                      );
                       setVersionList([]);
                       setSelectDistributionVersionId("1");
                       getVersionListByDistribution();
@@ -507,7 +504,7 @@ const CreateStart: React.FC = () => {
                   selectDistributionVersionId
                 );
                 const requestParam = generateCertCreateImportParam();
-                console.info(requestParam);
+                // console.info(requestParam);
                 // startCertRequest(requestParam);
                 setOpenModal(true);
               }}
@@ -541,7 +538,6 @@ const CreateStart: React.FC = () => {
                   // startWorkflow();
                   setLoadingApply(true);
                   const requestParam = generateCertCreateImportParam();
-                  console.info(requestParam);
                   startCertRequest(requestParam);
                   setLoadingApply(false);
                   Swal.fire(

@@ -112,7 +112,6 @@ const CloudFront: React.FC = () => {
         stack_name: "",
         domains: "*",
       });
-      console.log(domainData);
       const domainList: string[] = [];
       if (domainData.data.updateDomains.includes(",")) {
         const domains = domainData.data.updateDomains.split(",");

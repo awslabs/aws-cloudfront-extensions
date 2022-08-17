@@ -69,6 +69,7 @@ export class ConsoleStack extends cdk.Stack {
           "Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9)",
         minLength: 8,
         maxLength: 32,
+        noEcho: true,
       }
     );
 

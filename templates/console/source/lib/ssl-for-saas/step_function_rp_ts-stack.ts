@@ -883,12 +883,15 @@ export class StepFunctionRpTsConstruct extends Construct {
 
     new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
       value: ssl_api.path.substring(1),
+      description: "the ssl for saas post rest api "
     });
     new cdk.CfnOutput(this, "list_certs", {
       value: cert_list.path.substring(1),
+      description: "the ssl for saas list certs rest api "
     });
     new cdk.CfnOutput(this, "SSL for SAAS API key", {
       value: apiKey.keyArn,
+      description: "the ssl for saas rest api key "
     });
   }
 }

@@ -644,18 +644,19 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     );
 
     // Prints out the stack region to the terminal
-    new cdk.CfnOutput(this, "cloudfront_config_version_s3_bucket", {
-      value: cloudfront_config_version_s3_bucket.bucketName,
-    });
+    // new cdk.CfnOutput(this, "cloudfront_config_version_s3_bucket", {
+    //   value: cloudfront_config_version_s3_bucket.bucketName,
+    // });
     new cdk.CfnOutput(this, "cloudfront_config_version_dynamodb", {
       value: cloudfront_config_version_table.tableName,
       exportName: "configVersionDDBTableName",
+      description: "the config version dynamodb table"
     });
     this.configVersionDDBTableName = cloudfront_config_version_table.tableName;
 
-    new cdk.CfnOutput(this, "cloudfront_config_latest_version_dynamodb", {
-      value: cloudfront_config_latestVersion_table.tableName,
-    });
+    // new cdk.CfnOutput(this, "cloudfront_config_latest_version_dynamodb", {
+    //   value: cloudfront_config_latestVersion_table.tableName,
+    // });
 
     // new cdk.CfnOutput(this, "cloudfront_config_diff", {
     //   value: cloudfrontConfigVersionManager.functionName,
@@ -665,10 +666,12 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     // });
     new cdk.CfnOutput(this, "cloudfront_snapshot_rest_api", {
       value: snapshot_rest_api.restApiName,
+      description: "the api name of the snapshot rest api"
     });
 
     new cdk.CfnOutput(this, "Snapshot API key", {
       value: apiKey.keyArn,
+      description: "the api keys of the snapshot rest api"
     });
   }
 }

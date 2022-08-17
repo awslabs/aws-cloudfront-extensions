@@ -68,7 +68,6 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = (props: ModalProps) => {
   const { title, isOpen, fullWidth, closeModal, children, actions } = props;
   const handleClose = (event: any, reason: string) => {
-    console.info("reason:", reason);
     if (reason !== "backdropClick") {
       closeModal();
     }

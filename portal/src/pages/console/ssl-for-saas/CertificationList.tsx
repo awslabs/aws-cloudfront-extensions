@@ -97,39 +97,39 @@ const CertificationList: React.FC = () => {
           items={certificationList}
           columnDefinitions={[
             {
-              width: 350,
+              // width: 350,
               id: "DomainName",
               header: "CNAMEs",
               cell: (e: certification_info) => e.DomainName,
               // sortingField: "alt",
             },
             {
-              width: 300,
+              // width: 300,
               id: "CertificateArn",
               header: "CertificateArn",
               cell: (e: certification_info) => e.CertificateArn,
             },
 
             {
-              width: 80,
+              // width: 80,
               id: "Issuer",
               header: "Issuer",
               cell: (e: certification_info) => e.Issuer,
             },
             {
-              width: 160,
+              // width: 160,
               id: "Status",
               header: "SSL/TLS certificate status",
               cell: (e: certification_info) => e.Status,
             },
             {
-              width: 160,
+              // width: 160,
               id: "KeyAlgorithm",
               header: "KeyAlgorithm",
               cell: (e: certification_info) => e.KeyAlgorithm,
             },
             {
-              width: 160,
+              // width: 160,
               id: "certExpireOn",
               header: "Certificate expires on",
               cell: (e: certification_info) => e.NotAfter,
@@ -149,7 +149,7 @@ const CertificationList: React.FC = () => {
           //   </div>
           // }
           changeSelected={(item) => {
-            console.info("select item:", item);
+            // console.info("select item:", item);
             // setSelectedItems(item);
             // setcnameList(MOCK_REPOSITORY_LIST);
           }}

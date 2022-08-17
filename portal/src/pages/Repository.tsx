@@ -70,7 +70,6 @@ const Repository: React.FC = () => {
       setLoadingCheck(true);
       const resData = await appSyncRequestMutation(checkSyncStatus, {});
       if (resData.data.checkSyncStatus === "true") {
-        console.info("need update");
         setOpenModal(true);
       } else {
         Swal.fire(
@@ -104,8 +103,6 @@ const Repository: React.FC = () => {
   };
 
   const handlePageChange = (event: any, value: number) => {
-    console.info("event:", event);
-    console.info("value:", value);
     setCurPage(value);
   };
 

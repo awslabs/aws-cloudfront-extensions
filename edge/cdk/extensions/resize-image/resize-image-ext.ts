@@ -154,7 +154,8 @@ export class ResizeImageStack extends cdk.Stack {
 
     // Output
     new cdk.CfnOutput(this, "FunctionARN", {
-      value: resizeImageInst.functionArn
+      value: resizeImageInst.functionArn,
+      description: "the resize image extension function arn"
     });
 
   }

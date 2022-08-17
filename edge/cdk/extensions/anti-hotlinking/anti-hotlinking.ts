@@ -38,6 +38,7 @@ const hotlinkingDist = new cf.Distribution(stack, 'hotlinkingDist', {
 
 new cdk.CfnOutput(stack, 'distributionDomainName', {
   value: dist.distributionDomainName,
+  description: "the domain name of the distribution"
 });
 
 app.synth();

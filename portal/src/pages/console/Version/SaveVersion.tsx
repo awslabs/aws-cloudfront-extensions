@@ -38,7 +38,6 @@ const SaveVersion: React.FC = () => {
 
   const myLog = () => {
     setDistribution(id);
-    console.info("note is " + note);
     setVersionDesc(note || "");
   };
 

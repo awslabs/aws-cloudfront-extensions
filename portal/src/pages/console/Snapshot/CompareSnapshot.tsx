@@ -191,7 +191,6 @@ const CompareSnapshot: React.FC = () => {
     type: COMPARE_RESULT,
     show: boolean
   ) => {
-    console.info("show:", show);
     const tmpCompareRes = JSON.parse(JSON.stringify(snapshotDiffRes));
     if (type === COMPARE_RESULT.SAME || type === COMPARE_RESULT.DIFF) {
       tmpCompareRes[key].show = show;
@@ -251,7 +250,6 @@ const CompareSnapshot: React.FC = () => {
                     optionList={snapshotList}
                     placeholder="Select snapshot"
                     onChange={(event) => {
-                      console.info("left value is ", event.target.value);
                       setLeftSnapshot(event.target.value);
                     }}
                   />
@@ -264,7 +262,6 @@ const CompareSnapshot: React.FC = () => {
                       optionList={snapshotList}
                       placeholder="Select snapshot"
                       onChange={(event) => {
-                        console.info("right value is ", event.target.value);
                         setRightSnapshot(event.target.value);
                       }}
                     />

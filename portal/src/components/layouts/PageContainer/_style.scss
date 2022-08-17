@@ -1,7 +1,7 @@
 .gsui-main {
   flex: 1;
   position: relative;
-  height: calc(100vh - 40px) - 30px;
+  height: calc(100vh - 40px - 30px);
   overflow: hidden;
   display: flex;
   &-content {

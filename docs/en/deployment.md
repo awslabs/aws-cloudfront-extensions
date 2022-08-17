@@ -24,14 +24,14 @@ Use the following steps to deploy this solution on AWS.
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
 
       | Parameter             | Default value | Description                                                                                                                                 |
-      |-----------|---------------|---------|
+      |-----------|---------------------------------------------------------------------------------------------------------------------------------------------|---------|
       | EmailAddress          | - | Email address to receive SSL certificates notification.                                                                                     |
-      | ConsoleAdminEmail              | - | The initial user email for the web console.                                                                                                 |
-      | ConsoleAdminUserName  | - | The initial username for the web console.                                                                                                   |
-      | ConsoleAdminPassword | - | The initial user password for the web console.                                                                                              |
+      | InitialUserEmail              | - | The initial user email for the web console.                                                                                                 |
+      | InitialUserName  | - | The initial username for the web console.                                                                                                   |
+      | InitialUserPassword | - | The Initial Password for web console.                                                                                             |
       | Monitoring            | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth.                                    |
       | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                       |
+      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
       | DeleteLog             | false | Delete original CloudFront standard logs in S3 bucket (true or false).                                                                      |
       | UseStartTime          | false | Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time.          |
   

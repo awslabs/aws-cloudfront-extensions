@@ -124,7 +124,8 @@ export class CountryRedirectStack extends cdk.Stack {
     
     // Output
     new cdk.CfnOutput(this, "FunctionARN", {
-      value: cfFunction.functionArn
+      value: cfFunction.functionArn,
+      description: "the function arn value"
     });
 
     new cdk.CfnOutput(this, "AddCloudFrontViewerCountryHeader", {

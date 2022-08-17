@@ -238,7 +238,8 @@ export class RepoConstruct extends Construct {
 
     // Output
     new cdk.CfnOutput(this, 'CloudFront Extensions DynamoDB table', {
-      value: cfExtensionsTable.tableName
+      value: cfExtensionsTable.tableName,
+      description: "the cloudfront extensions dynamodb table name"
     });
 
 

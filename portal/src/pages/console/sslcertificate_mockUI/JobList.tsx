@@ -185,14 +185,13 @@ const JobList: React.FC = () => {
                   isSearch={true}
                   placeholder={"Search all jobs"}
                   onChange={(event) => {
-                    console.info("event:", event);
                     setSearchParams(event.target.value);
                   }}
                 />
               </div>
             }
             changeSelected={(item) => {
-              console.info("select item:", item);
+              // console.info("select item:", item);
               // setSelectedItems(item);
               // setcnameList(MOCK_REPOSITORY_LIST);
             }}

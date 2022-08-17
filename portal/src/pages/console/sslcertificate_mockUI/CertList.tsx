@@ -137,14 +137,12 @@ const CertList: React.FC = () => {
                   isSearch={true}
                   placeholder={"Search all certifications"}
                   onChange={(event) => {
-                    console.info("event:", event);
                     setSearchParams(event.target.value);
                   }}
                 />
               </div>
             }
             changeSelected={(item) => {
-              console.info("select item:", item);
               // setSelectedItems(item);
               // setcnameList(MOCK_REPOSITORY_LIST);
             }}

@@ -808,10 +808,10 @@ export class CfLogStack extends cdk.Stack {
     cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopTraffic);
     cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopRequest);
 
-    new cdk.CfnOutput(this, 'S3 bucket to store CloudFront logs', { value: cfLogBucket.bucketName });
-    new cdk.CfnOutput(this, 'Dynamodb table', { value: cloudfrontMetricsTable.tableName });
-    new cdk.CfnOutput(this, 'Glue table', { value: glueTableName });
-    new cdk.CfnOutput(this, "API Key", { value: apiKey.keyArn });
+    // new cdk.CfnOutput(this, 'S3 bucket to store CloudFront logs', { value: cfLogBucket.bucketName });
+    new cdk.CfnOutput(this, 'Dynamodb table', { value: cloudfrontMetricsTable.tableName,  description: "the metrics dynamodb table name"});
+    new cdk.CfnOutput(this, 'Glue table', { value: glueTableName,  description: "the glue table name" });
+    new cdk.CfnOutput(this, "API Key", { value: apiKey.keyArn, description: "the apikey arn"});
 
   }
 

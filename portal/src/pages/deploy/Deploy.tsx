@@ -183,7 +183,6 @@ const Deploy: React.FC = () => {
       const resData = await appSyncRequestQuery(queryByName, {
         name: deployExtensionObj.name,
       });
-      console.info("resData:", resData);
       if (resData.data.queryByName) {
         let tmpDataParamList: ParamsType[] = [];
         if (resData.data.queryByName.cfnParameter) {
@@ -215,7 +214,7 @@ const Deploy: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.info("deployExtensionObj:", deployExtensionObj);
+    // console.info("deployExtensionObj:", deployExtensionObj);
   }, [deployExtensionObj]);
 
   return (
@@ -251,7 +250,7 @@ const Deploy: React.FC = () => {
                     ]
               }
               selectStep={(step) => {
-                console.info("step:", step);
+                // console.info("step:", step);
               }}
             />
           </div>

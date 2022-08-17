@@ -366,7 +366,8 @@ export class PrewarmStack extends cdk.Stack {
 
     // Output
     new cdk.CfnOutput(this, "Prewarm API key", {
-      value: apiKey.keyArn
+      value: apiKey.keyArn,
+      description: "the prewarm api key"
     });
 
   }

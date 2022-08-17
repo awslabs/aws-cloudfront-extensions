@@ -38,7 +38,6 @@ const SaveSnapshot: React.FC = () => {
 
   const myLog = () => {
     setDistribution(id);
-    console.info("note is " + note);
     setSnapshotDesc(note || "");
   };
 

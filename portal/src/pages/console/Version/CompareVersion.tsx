@@ -189,7 +189,6 @@ const CompareVersion: React.FC = () => {
     type: COMPARE_RESULT,
     show: boolean
   ) => {
-    console.info("show:", show);
     const tmpCompareRes = JSON.parse(JSON.stringify(versionDiffRes));
     if (type === COMPARE_RESULT.SAME || type === COMPARE_RESULT.DIFF) {
       tmpCompareRes[key].show = show;
@@ -249,7 +248,6 @@ const CompareVersion: React.FC = () => {
                     optionList={versionList}
                     placeholder="Select version"
                     onChange={(event) => {
-                      console.info("left value is ", event.target.value);
                       setLeftVersion(event.target.value);
                     }}
                   />
@@ -262,7 +260,6 @@ const CompareVersion: React.FC = () => {
                       optionList={versionList}
                       placeholder="Select version"
                       onChange={(event) => {
-                        console.info("right value is ", event.target.value);
                         setRightVersion(event.target.value);
                       }}
                     />

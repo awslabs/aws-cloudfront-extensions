@@ -82,6 +82,7 @@ export class PortalConstruct extends Construct {
         // Prints out the AppSync GraphQL endpoint to the terminal
         new cdk.CfnOutput(this, "CloudFrontURL", {
             value: portalUrl,
+            description: "the url of cloudfront extension console web portal"
         });
         const configFn = 'aws-exports.json';
         const configMonitoringFn = 'aws-monitoring-exports.json';
@@ -92,9 +93,6 @@ export class PortalConstruct extends Construct {
             ],
             destinationBucket: this.portalBucket,
             prune: false,
-        });
-        new cdk.CfnOutput(this, "export.json", {
-            value: this.portalBucket.bucketName,
         });
         const configLambda = new AwsCustomResource(this, 'WebConfig', {
             logRetention: RetentionDays.ONE_DAY,

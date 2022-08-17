@@ -131,7 +131,8 @@ export class TrueClientIpStack extends cdk.Stack {
 
     // Output
     new cdk.CfnOutput(this, "FunctionARN", {
-      value: cfFunction.functionArn
+      value: cfFunction.functionArn,
+      description: "the true client ip function"
     });
 
     new cdk.CfnOutput(this, "AddOriginRequestHeader", {

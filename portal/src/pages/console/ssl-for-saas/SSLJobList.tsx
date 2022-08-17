@@ -49,7 +49,7 @@ const SSLJobList: React.FC = () => {
   // convert timestamp to date format
   const convertTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    console.info("===>" + date);
+    // console.info("===>" + date);
     return date;
   };
 
@@ -156,7 +156,7 @@ const SSLJobList: React.FC = () => {
           //   // </div>
           // }
           changeSelected={(item) => {
-            console.info("select item:", item);
+            // console.info("select item:", item);
             // setSelectedItems(item);
             // setcnameList(MOCK_REPOSITORY_LIST);
           }}

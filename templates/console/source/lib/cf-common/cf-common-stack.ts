@@ -62,14 +62,14 @@ export class CommonConstruct extends Construct {
         });
 
 
-        // Prints out the AppSync GraphQL endpoint to the terminal
-        new cdk.CfnOutput(this, "GraphQLAPIURL", {
-            value: this.appsyncApi.graphqlUrl
-        });
+        // // Prints out the AppSync GraphQL endpoint to the terminal
+        // new cdk.CfnOutput(this, "GraphQLAPIURL", {
+        //     value: this.appsyncApi.graphqlUrl
+        // });
 
         // Prints out the AppSync GraphQL API key to the terminal
-        new cdk.CfnOutput(this, "GraphQLAPIKey", {
-            value: this.appsyncApi.apiKey || ''
-        });
+        // new cdk.CfnOutput(this, "GraphQLAPIKey", {
+        //     value: this.appsyncApi.apiKey || ''
+        // });
     }
 }

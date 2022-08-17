@@ -26,9 +26,9 @@
       | 参数             | 默认值 | 说明                                                                                                                                 |
       |-----------|---------------|---------|
       | EmailAddress          | - | 接收SSL证书通知的电子邮箱地址                                                                                    |
-      | ConsoleAdminEmail               | - | Web控制台的初始用户电子邮箱                                                                                                 |
-      | ConsoleAdminUserName  | - | Web控制台的初始用户名                                                                                                   |
-      | ConsoleAdminPassword  | - | Web控制台的初始用户密码                                                                                              |
+      | InitialUserEmail               | - | Web控制台的初始用户电子邮箱                                                                                                 |
+      | InitialUserName  | - | Web控制台的初始用户名                                                                                                   |
+      | InitialUserPassword  | - | Web控制台的初始用户密码                                                                                              |
       | Monitoring            | no | 启用实时或非实时监控以获取CloudFront监控指标，如缓存命中率、带宽                                    |
       | CloudFrontDomainList  | - | CloudFront域名列表。如需监控多个域名，使用逗号分隔多个域名。填入“ALL”监视AWS帐户中的所有域名 |
       | CloudFrontLogKeepDays | 120 | 将CloudFront日志保存在S3存储桶中的天数                                                                       |

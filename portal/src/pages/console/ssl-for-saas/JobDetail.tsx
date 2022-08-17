@@ -79,7 +79,6 @@ const JobDetail: React.FC = () => {
       });
       const jobInfo: SSLJob = resData.data.getJobInfo;
       setJobInfo(jobInfo);
-      console.info(jobInfo);
     } catch (error) {
       setLoadingData(false);
       console.error(error);
@@ -379,7 +378,7 @@ const JobDetail: React.FC = () => {
               },
             ]}
             changeSelected={(item) => {
-              console.info("select item:", item);
+              // console.info("select item:", item);
               // setSelectedItems(item);
               // setcnameList(MOCK_REPOSITORY_LIST);
             }}
@@ -432,7 +431,7 @@ const JobDetail: React.FC = () => {
               },
             ]}
             changeSelected={(item) => {
-              console.info("select item:", item);
+              // console.info("select item:", item);
             }}
           />
         </Modal>
