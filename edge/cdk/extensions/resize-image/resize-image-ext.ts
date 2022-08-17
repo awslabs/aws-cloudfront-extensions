@@ -107,7 +107,6 @@ export class ResizeImageStack extends cdk.Stack {
       ]
     });
 
-    //TODO: least priviliege
     const cloudfrontPolicy = new iam.Policy(this, 'ResizeCloudFrontPolicy', {
       statements: [
         new iam.PolicyStatement({

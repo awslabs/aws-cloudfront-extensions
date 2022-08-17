@@ -43,7 +43,7 @@ export class RepoConstruct extends Construct {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [cfExtensionsTable.tableArn],
+          resources: ['*'],
           actions: [
             "dynamodb:*"
           ]
@@ -98,7 +98,7 @@ export class RepoConstruct extends Construct {
     });
 
     // Policy to deploy a SAR application
-    const extDeploymentPolicy = new iam.Policy(this, 'extDeploymentPolicy', {
+    const extDeploymentPolicy = new iam.Policy(this, 'ExtDeploymentPolicy', {
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -112,7 +112,28 @@ export class RepoConstruct extends Construct {
             "serverlessrepo:CreateCloudFormationChangeSet",
             "s3:GetObject",
             "ec2:Describe*",
+            "ec2:Start*",
+            "ec2:Stop*",
           ]
+        })
+      ]
+    });
+
+    const extSqsPolicy = new iam.Policy(this, 'ExtSQSPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "sqs:DeleteMessage",
+            "sqs:GetQueueUrl",
+            "sqs:ChangeMessageVisibility",
+            "sqs:PurgeQueue",
+            "sqs:ReceiveMessage",
+            "sqs:SendMessage",
+            "sqs:GetQueueAttributes",
+            "sqs:SetQueueAttributes",
+          ],
         })
       ]
     });
@@ -121,6 +142,7 @@ export class RepoConstruct extends Construct {
     extDeployerRole.attachInlinePolicy(extLambdaPolicy);
     extDeployerRole.attachInlinePolicy(extIAMPolicy);
     extDeployerRole.attachInlinePolicy(extDeploymentPolicy);
+    extDeployerRole.attachInlinePolicy(extSqsPolicy);
 
     if (props && props.appsyncApi) {
       const extDeployerApi = props?.appsyncApi;
