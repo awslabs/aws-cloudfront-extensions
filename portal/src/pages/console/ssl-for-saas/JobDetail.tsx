@@ -45,6 +45,7 @@ const JobDetail: React.FC = () => {
     distStageStatus: "NOTSTART",
     jobType: "create",
     promptInfo: "",
+    dcv_validation_msg: "",
   });
   const [loadingData, setLoadingData] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -163,7 +164,7 @@ const JobDetail: React.FC = () => {
     fetchJobInfo();
     const refreshInterval = setInterval(() => {
       fetchJobInfo();
-    }, 10000);
+    }, 20000);
     return () => clearInterval(refreshInterval);
   }, []);
 
@@ -307,7 +308,11 @@ const JobDetail: React.FC = () => {
                   status={jobInfo.certValidationStageStatus}
                   progress={certValidationPercentage}
                   progressTopText="Validate certificate (manual)"
-                  progressBottomText="The step will be completed if all SSL certificates were issued"
+                  progressBottomText={
+                    "The step will be completed if all SSL certificates were issued" +
+                    "\n" +
+                    jobInfo.dcv_validation_msg
+                  }
                 />
                 <div>
                   <img className="ml-80 arrow-width" src={ArrowDown} />

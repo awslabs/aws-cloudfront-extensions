@@ -322,6 +322,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       }
     );
 
+    // TODO: temp remove the version api
     // const version_rest_api = new LambdaRestApi(
     //   this,
     //   "cloudfront_config_version_restfulApi",
@@ -453,23 +454,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       apiKeyRequired: true,
     });
 
-    //Policy to allow client to call this restful api
-    // const version_api_client_policy = new ManagedPolicy(
-    //   this,
-    //   "version_client_policy",
-    //   {
-    //     managedPolicyName: "cf_config_version_client_policy",
-    //     description: "policy for client to call cf version",
-    //     statements: [
-    //       new iam.PolicyStatement({
-    //         resources: [version_rest_api.arnForExecuteApi()],
-    //         actions: ["execute-api:Invoke"],
-    //         effect: iam.Effect.ALLOW,
-    //       }),
-    //     ],
-    //   }
-    // );
-
     const usagePlan = snapshot_rest_api.addUsagePlan("Snapshot_api_UsagePlan", {
       description: "Snapshot api usage plan",
     });
@@ -478,23 +462,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     usagePlan.addApiStage({
       stage: snapshot_rest_api.deploymentStage,
     });
-
-    //Policy to allow client to call this restful api
-    const snapshot_client_policy = new ManagedPolicy(
-      this,
-      "snapshot_client_policy",
-      {
-        managedPolicyName: "cf_config_snapshot_client_policy",
-        description: "policy for client to call cf snapshot",
-        statements: [
-          new iam.PolicyStatement({
-            resources: [snapshot_rest_api.arnForExecuteApi()],
-            actions: ["execute-api:Invoke"],
-            effect: iam.Effect.ALLOW,
-          }),
-        ],
-      }
-    );
 
     const cloudfrontConfigVersionManager_graphql = new lambda.Function(
       this,

@@ -334,7 +334,7 @@ def lambda_handler(event, context):
     certTotalNumber = len(event['input']['pemList'])
     cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
     job_type = event['input']['acm_op']
-    creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    creationDate = str(datetime.now())
     certCreateStageStatus = 'INPROGRESS'
     certValidationStageStatus = 'NOTSTART'
     distStageStatus = 'NOTSTART'

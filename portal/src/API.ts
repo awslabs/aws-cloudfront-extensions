@@ -164,6 +164,7 @@ export type SSLJob = {
   certList?: Array< string | null > | null,
   distList?: Array< string | null > | null,
   promptInfo?: string | null,
+  dcv_validation_msg?: string | null,
 };
 
 export type DeployExtensionMutationVariables = {
@@ -542,6 +543,7 @@ export type ListSSLJobsQuery = {
     certList?: Array< string | null > | null,
     distList?: Array< string | null > | null,
     promptInfo?: string | null,
+    dcv_validation_msg?: string | null,
   } | null > | null,
 };
 
@@ -566,5 +568,6 @@ export type GetJobInfoQuery = {
     certList?: Array< string | null > | null,
     distList?: Array< string | null > | null,
     promptInfo?: string | null,
+    dcv_validation_msg?: string | null,
   } | null,
 };

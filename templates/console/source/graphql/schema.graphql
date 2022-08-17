@@ -130,6 +130,7 @@ type SSLJob {
     certList: [String]
     distList: [String]
     promptInfo: String
+    dcv_validation_msg: String
 }
 
 

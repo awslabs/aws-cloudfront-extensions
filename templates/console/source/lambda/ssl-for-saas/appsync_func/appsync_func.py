@@ -54,6 +54,16 @@ raw_context = {}
 
 def notify_sns_subscriber(sns_msg):
     logger.info("deliver message: %s to sns topic arn: %s", str(sns_msg), snsTopicArn)
+    message_to_be_published = generate_notify_content(sns_msg)
+    # notify to sns topic for distribution event
+    sns_client.publish(
+        TopicArn=snsTopicArn,
+        Message=message_to_be_published,
+        Subject='Domain Name Need to Do DCV (Domain Control Validation)'
+    )
+
+
+def generate_notify_content(sns_msg):
     # make it a code url due to sns raw format, TBD make it a official repo url
     sample_route53_code = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
     sample_godaddy_code = 'https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93'
@@ -62,12 +72,8 @@ def notify_sns_subscriber(sns_msg):
            Sample Script for Route53 (Python): {} \n
            Sample Script for Godaddy (Python): {}
        '''.format(str(sns_msg), sample_route53_code, sample_godaddy_code)
-    # notify to sns topic for distribution event
-    sns_client.publish(
-        TopicArn=snsTopicArn,
-        Message=message_to_be_published,
-        Subject='Domain Name Need to Do DCV (Domain Control Validation)'
-    )
+    return message_to_be_published
+
 
 # describe certificate details
 @retry(wait=wait_fixed(3), stop=stop_after_attempt(5), retry=retry_if_exception_type(exceptions.Timeout))
@@ -460,7 +466,7 @@ def cert_create_or_import(input):
 
         cloudfrontTotalNumber = 0 if (auto_creation == 'false') else certTotalNumber
         job_type = body['acm_op']
-        creationDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        creationDate = str(datetime.now())
         certCreateStageStatus = 'INPROGRESS'
         certValidationStageStatus = 'NOTSTART'
         distStageStatus = 'NONEED' if (auto_creation == 'false') else 'NOTSTART'
@@ -517,6 +523,12 @@ def cert_create_or_import(input):
                                  raw_context.aws_request_id,
                                  'cert_completed_number',
                                  certTotalNumber)
+
+
+                update_job_field(JOB_INFO_TABLE_NAME,
+                                 raw_context.aws_request_id,
+                                 'dcv_validation_msg',
+                                 generate_notify_content(snsMsg))
 
                 notify_sns_subscriber(snsMsg)
             # note dist_aggregate is ignored here, we don't aggregate imported certificate

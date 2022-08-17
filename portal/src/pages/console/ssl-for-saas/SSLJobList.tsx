@@ -105,7 +105,7 @@ const SSLJobList: React.FC = () => {
           items={jobList}
           columnDefinitions={[
             {
-              width: 350,
+              width: 300,
               id: "JobId",
               header: "jobId",
               cell: (e: SSLJob) => {
@@ -124,19 +124,19 @@ const SSLJobList: React.FC = () => {
               cell: (e: SSLJob) => e.jobType,
             },
             {
-              width: 50,
+              width: 40,
               id: "cert_number",
               header: "Total Certificates",
               cell: (e: SSLJob) => e.cert_total_number,
             },
             {
-              width: 80,
+              width: 40,
               id: "cloudfront_distribution_number",
               header: "Total Distributions",
               cell: (e: SSLJob) => e.cloudfront_distribution_total_number,
             },
             {
-              width: 130,
+              width: 250,
               id: "creationDate",
               header: "Created at",
               cell: (e: SSLJob) => e.creationDate,

@@ -266,6 +266,7 @@ export const listSSLJobs = /* GraphQL */ `
       certList
       distList
       promptInfo
+      dcv_validation_msg
     }
   }
 `;
@@ -286,6 +287,7 @@ export const getJobInfo = /* GraphQL */ `
       certList
       distList
       promptInfo
+      dcv_validation_msg
     }
   }
 `;
