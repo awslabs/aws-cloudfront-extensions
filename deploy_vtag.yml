@@ -1,0 +1,209 @@
+version: 0.2
+env:
+  shell: bash
+  secrets-manager:
+    CN_AWS_ACCESS_KEY_ID: $CN_CREDENTIALS:AccessKeyId
+    CN_AWS_SECRET_ACCESS_KEY: $CN_CREDENTIALS:SecretAccessKey
+phases:
+  pre_build:
+    commands:
+      - npm install -g cdk-assets
+      - |-
+        set -euxo
+
+        # create ECR repo if it does not exits
+
+        create_repo() {
+          local name=$1
+          local region=$2
+
+          # create ecr repo
+          aws ecr create-repository --region $region --repository-name "$name" --image-tag-mutability IMMUTABLE --image-scanning-configuration scanOnPush=true --encryption-configuration encryptionType=KMS 2>/dev/null
+
+        set +e
+          # set repo permission
+        read -r -d '' POLICY_TEXT << EOM
+        {
+          "Version": "2008-10-17",
+            "Statement": [
+          {
+            "Sid": "public statement",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+              "ecr:BatchCheckLayerAvailability",
+              "ecr:BatchGetImage",
+              "ecr:GetDownloadUrlForLayer"
+            ]
+          }
+            ]
+        }
+        EOM
+        set -e
+
+          aws ecr set-repository-policy --region $region --repository-name "$name" --policy-text "$POLICY_TEXT" 2>/dev/null
+        }
+
+        create_repo_if_missing(){
+          local name=$1
+          local region=$2
+
+          echo "Initial ECR repo in region '$region'"
+
+          EXISTINGREPO=`aws ecr describe-repositories --region $region --repository-names $name --query 'repositories[].repositoryName' 2>/dev/null|jq '.[]'|jq '.'`
+          if [ -z "$EXISTINGREPO" ]
+          then
+            create_repo "$name" "$region"
+            echo "The repo with name '$name' is created in region '$region'."
+          else
+            echo "The repo with name '$name' already exists in region '$region'."
+          fi
+        }
+
+        if [ ! -z "$BSS_IMAGE_ASSET_REPOSITORY_NAME" ]
+        then
+          if [ ! -z "$AWS_ASSET_PUBLISH_ROLE" ]; then
+            json_output=$(aws sts assume-role \
+                    --role-arn "$AWS_ASSET_PUBLISH_ROLE" \
+                    --role-session-name "asset-publishing-role" \
+                    --duration-seconds "3600" \
+                    2>&1)
+            export AWS_ACCESS_KEY_ID=$(echo "${json_output}" | jq --raw-output ".Credentials[\"AccessKeyId\"]")
+            export AWS_SECRET_ACCESS_KEY=$(echo "${json_output}" | jq --raw-output ".Credentials[\"SecretAccessKey\"]")
+            export AWS_SESSION_TOKEN=$(echo "${json_output}" | jq --raw-output ".Credentials[\"SessionToken\"]")
+          fi
+          for i in `echo $REGIONS | sed -e 's/\ /\n/g'`; do create_repo_if_missing "$BSS_IMAGE_ASSET_REPOSITORY_NAME" "$i"; done
+          unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+
+          # AWS_ACCESS_KEY_ID=$CN_AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY=$CN_AWS_SECRET_ACCESS_KEY && \
+          # for i in `echo $CN_REGIONS | sed -e 's/\ /\n/g'`; do create_repo_if_missing "$BSS_IMAGE_ASSET_REPOSITORY_NAME" "$i"; done
+          # unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+        fi
+      - |- #login ECR for downloading base images
+        function login_ecr() {
+          local repos=$1
+          for i in `echo $repos | sed -e 's/\ /\n/g'`;
+          do
+            IFS='.' read -r -a part <<< "$i"
+            echo "Logging ECR repo $i..."
+            aws ecr get-login-password --region ${part[3]} | docker login --username AWS --password-stdin $i
+          done
+        }
+        if [ ! -z "$ECR_REPOS" ]
+        then
+          login_ecr "$ECR_REPOS"
+        fi
+        # if [ ! -z "$CN_ECR_REPOS" ]
+        # then
+        #   AWS_ACCESS_KEY_ID=$CN_AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY=$CN_AWS_SECRET_ACCESS_KEY && \
+        #   login_ecr "$CN_ECR_REPOS"
+        #   unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+        # fi
+  build:
+    commands:
+      - |-
+        set -euxo pipefail
+        cd templates/console/
+        ls -LR
+        publish_s3_assets() {
+            local name=$1
+            local prefix=$2
+            local region=$3
+
+            KEY=`aws s3api list-objects-v2 --bucket "$name" --prefix "$prefix" --max-item 1 --region $region | jq -r '.Contents[0].Key'`
+            if [ ! -z "$KEY" ]
+            then
+              aws s3 ls s3://$name/$prefix --recursive --region $region | awk '{print $4}' | xargs -I {} -n 1 aws s3api put-object-acl --region $region --acl public-read --bucket $name --key {}
+            fi
+        }
+
+        cdk_assets_publish() {
+          local assetsPath=$1
+          echo "publish assets in '$assetsPath'"
+
+          for path in `ls "$assetsPath"*.assets.json`
+          do
+            echo "publish assets defined in file '$path'"
+            cdk-assets publish -p "$path" -v &
+          done
+          wait
+        }
+
+        PREFIX="$SOLUTION_NAME/$BUILD_VERSION/"
+
+        if [ ! -z "$GLOBAL_ASSETS" ]
+        then
+
+          echo "publish assets to global regions"
+          for i in `echo $GLOBAL_ASSETS | sed -e 's/,/\n/g'`
+          do
+              ASSETS_PATH="deployment/global-s3-assets/$i"
+              cdk_assets_publish "$ASSETS_PATH"
+          done
+          
+          
+          if [ ! -z "$AWS_ASSET_PUBLISH_ROLE" ]; then
+            json_output=$(aws sts assume-role \
+                    --role-arn "$AWS_ASSET_PUBLISH_ROLE" \
+                    --role-session-name "asset-publishing-role" \
+                    --duration-seconds "3600" \
+                    2>&1)
+            set +x
+            export AWS_ACCESS_KEY_ID=$(echo "${json_output}" | jq --raw-output ".Credentials[\"AccessKeyId\"]")
+            export AWS_SECRET_ACCESS_KEY=$(echo "${json_output}" | jq --raw-output ".Credentials[\"SecretAccessKey\"]")
+            export AWS_SESSION_TOKEN=$(echo "${json_output}" | jq --raw-output ".Credentials[\"SessionToken\"]")
+            set -x
+          fi
+
+          publish_s3_assets "$DIST_OUTPUT_BUCKET" "$PREFIX" us-east-1
+
+          for i in `echo $REGIONS | sed -e 's/\ /\n/g'`
+          do
+              echo "Publish S3 resource in bucket '"$DIST_OUTPUT_BUCKET-$i"'"
+              publish_s3_assets "$DIST_OUTPUT_BUCKET-$i" "$PREFIX" "$i" &
+          done
+          wait
+          unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+        fi
+
+        # if [ ! -z "$CN_ASSETS" ]
+        # then
+        #   echo "publish assets to China regions"
+
+        #   set +x
+        #   export AWS_ACCESS_KEY_ID=$CN_AWS_ACCESS_KEY_ID
+        #   export AWS_SECRET_ACCESS_KEY=$CN_AWS_SECRET_ACCESS_KEY
+        #   set -x
+        #   for i in `echo $CN_ASSETS | sed -e 's/,/\n/g'`;
+        #   do
+        #     echo "publish assets in '$i' to China regions"
+        #     ASSETS_PATH="deployment/global-s3-assets/$i"
+        #     cdk_assets_publish "$ASSETS_PATH"
+        #   done
+
+        #   publish_s3_assets "$DIST_OUTPUT_BUCKET" "$PREFIX" cn-northwest-1
+
+        #   for i in `echo $CN_REGIONS | sed -e 's/,/\n/g'`
+        #   do
+        #       echo "Publish S3 resource in bucket '"$DIST_OUTPUT_BUCKET-$i"'"
+        #       publish_s3_assets "$DIST_OUTPUT_BUCKET-$i" "$PREFIX" "$i"
+        #   done
+        # fi
+
+      - |-
+        echo "=============== CFN TEMPLATES LOCATED ==================="
+        if [ ! -z "$GLOBAL_ASSETS" ]
+        then
+          for i in `echo $GLOBAL_ASSETS | sed -e 's/,/\n/g'`
+          do
+            ls deployment/global-s3-assets/${i}*.template.json | grep -v nested | sed 's/deployment\/global-s3-assets\///g' | xargs -I {} echo "https://$DIST_OUTPUT_BUCKET.s3.amazonaws.com/$SOLUTION_NAME/$BUILD_VERSION/{}"
+          done
+        fi
+        # if [ ! -z "$CN_ASSETS" ]
+        # then
+        #   for i in `echo $CN_ASSETS | sed -e 's/,/\n/g'`
+        #   do
+        #     ls deployment/global-s3-assets/${i}*.template.json | grep -v nested | sed 's/deployment\/global-s3-assets\///g' | xargs -I {} echo "https://$DIST_OUTPUT_BUCKET.s3.cn-north-1.amazonaws.com.cn/$SOLUTION_NAME/$BUILD_VERSION/{}"
+        #   done
+        # fi 
+        echo "========================================================="
