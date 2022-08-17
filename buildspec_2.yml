@@ -57,10 +57,8 @@ artifacts:
     - deployment/**/*
     - docs/**/*
     - templates/console/deployment/**/*
-    # - edge/cdk/deployment/**/*
-    # - edge/cdk/deployment/*
     - buildspec_2.yml
-    - buildspec.yml
+    - deploy_vtag.yml
     - CHANGELOG.md
     - .cfnnagignore
     - .cfnnag_*
