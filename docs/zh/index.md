@@ -6,7 +6,7 @@ CloudFront Extensions是一个方便Amazon CloudFront用户管理CloudFront分�
 
 - **分配管理**：您可以将指定的CloudFront分配的配置保存为快照、比较不同的快照、并将快照应用于其他分配；审核所有CloudFront分配的配置更改；自动化实现请求新证书或将现有SSL证书导入ACM并配置CloudFront分配的过程。
 
-- **扩展仓库**：您可以部署常用的开箱即用CloudFront扩展程序，例如Lambda@Edge、CloudFront Functions和CloudFormation模板。您可以在不进行任何编程的情况下使用这些扩展，并自定义它们以满足您的特定需求。
+- **扩展存储库**：您可以部署常用的开箱即用CloudFront扩展程序，例如Lambda@Edge、CloudFront Functions和CloudFormation模板。您可以在不进行任何编程的情况下使用这些扩展，并自定义它们以满足您的特定需求。
 
 部署解决方案后，您可以在web控制台上执行任务，也可以通过API使用这些功能。有关更多信息，请参阅*API参考指南*。
 

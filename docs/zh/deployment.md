@@ -43,7 +43,7 @@
 
 您可以在Amazon CloudFormation控制台的**状态**列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为**CREATE_COMPLETE**。
 
-您还可以选择**输出**标签页查看堆栈资源的详细信息。您可以在**WebConsoleCloudFrontURL**中找到CloudFront Extensions控制台的链接。
+您还可以选择**输出**标签页查看堆栈资源的详细信息。您可以在**WebConsoleCloudFrontURL**中找到CloudFront Extensions控制台的链接。对于监控API，本解决方案会创建一个名字包含**NonRealtimeNestedStack**或**RealtimeNestedStack**的嵌套堆栈，您可以在此嵌套堆栈的**输出**标签页中找到监控API的链接。 
 
 ## Lambda@Edge & CloudFront Functions合集
  

@@ -43,7 +43,7 @@ Use the following steps to deploy this solution on AWS.
 
 You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
 
-To see details for the stack resources, choose the **Outputs** tab. You will find CloudFront Extensions console in **WebConsoleCloudFrontURL**.
+To see details for the stack resources, choose the **Outputs** tab. You will find CloudFront Extensions console in **WebConsoleCloudFrontURL**. As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
 
 ## Lambda@Edge & CloudFront Functions collection
 
