@@ -19,6 +19,7 @@ import {
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { Rule } from "aws-cdk-lib/aws-events";
 import targets = require("aws-cdk-lib/aws-events-targets");
+import { Trail } from "aws-cdk-lib/aws-cloudtrail";
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { MyCustomResource } from "./custom-resources/cloudfront-config-custom-resource";
 import { Construct } from "constructs";
@@ -610,6 +611,11 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         roleArn: lambdaRole.roleArn,
       }
     );
+
+    const trail = new Trail(this, "cloudfront_config_update_trail", {
+      enableFileValidation: false,
+      isMultiRegionTrail: true,
+    });
 
     // Prints out the stack region to the terminal
     // new cdk.CfnOutput(this, "cloudfront_config_version_s3_bucket", {
