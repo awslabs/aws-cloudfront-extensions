@@ -74,52 +74,8 @@ export class StepFunctionRpTsConstruct extends Construct {
       })
       .scaleOnUtilization({ targetUtilizationPercent: 75 });
 
-    const snsKey = new kms.Key(this, "KmsMasterKey", {
+    const snsKey = new kms.Key(this, "snsCustomKey", {
       enableKeyRotation: true,
-      policy: new iam.PolicyDocument({
-        assignSids: true,
-        statements: [
-          new iam.PolicyStatement({
-            actions: ["kms:GenerateDataKey*", "kms:Decrypt", "kms:Encrypt"],
-            resources: ["*"],
-            effect: iam.Effect.ALLOW,
-            principals: [
-              new iam.ServicePrincipal("sns.amazonaws.com"),
-              new iam.ServicePrincipal("cloudwatch.amazonaws.com"),
-              new iam.ServicePrincipal("events.amazonaws.com"),
-              new iam.ServicePrincipal("lambda.amazonaws.com"),
-            ],
-          }),
-          new iam.PolicyStatement({
-            actions: [
-              "kms:Create*",
-              "kms:Describe*",
-              "kms:Enable*",
-              "kms:List*",
-              "kms:Put*",
-              "kms:Update*",
-              "kms:Revoke*",
-              "kms:Disable*",
-              "kms:Get*",
-              "kms:Delete*",
-              "kms:ScheduleKeyDeletion",
-              "kms:CancelKeyDeletion",
-              "kms:GenerateDataKey",
-              "kms:TagResource",
-              "kms:UntagResource",
-            ],
-            resources: ["*"],
-            effect: iam.Effect.ALLOW,
-            principals: [
-              new iam.ServicePrincipal("sns.amazonaws.com"),
-              new iam.ServicePrincipal("cloudwatch.amazonaws.com"),
-              new iam.ServicePrincipal("events.amazonaws.com"),
-              new iam.ServicePrincipal("lambda.amazonaws.com"),
-              new iam.AccountRootPrincipal(),
-            ],
-          }),
-        ],
-      }),
     });
 
     // create sns topic
@@ -129,7 +85,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       {
         displayName: "SNS Topic",
         topicName: "CloudFront_Distribution_Notification",
-        // masterKey: snsKey,
+        masterKey: snsKey,
       }
     );
 
@@ -883,15 +839,15 @@ export class StepFunctionRpTsConstruct extends Construct {
 
     new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
       value: ssl_api.path.substring(1),
-      description: "the ssl for saas post rest api "
+      description: "the ssl for saas post rest api ",
     });
     new cdk.CfnOutput(this, "list_certs", {
       value: cert_list.path.substring(1),
-      description: "the ssl for saas list certs rest api "
+      description: "the ssl for saas list certs rest api ",
     });
     new cdk.CfnOutput(this, "SSL for SAAS API key", {
       value: apiKey.keyArn,
-      description: "the ssl for saas rest api key "
+      description: "the ssl for saas rest api key ",
     });
   }
 }
