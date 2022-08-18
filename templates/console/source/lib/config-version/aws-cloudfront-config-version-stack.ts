@@ -76,9 +76,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "CloudfrontConfigVersionS3Bucket",
       {
         encryption: BucketEncryption.S3_MANAGED,
-        removalPolicy: RemovalPolicy.RETAIN,
         serverAccessLogsBucket: accessLogBucket,
         serverAccessLogsPrefix: "dataBucketAccessLog" + "-" + "config-version",
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
       }
     );
 
@@ -617,7 +618,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     new cdk.CfnOutput(this, "cloudfront_config_version_dynamodb", {
       value: cloudfront_config_version_table.tableName,
       exportName: "configVersionDDBTableName",
-      description: "the config version dynamodb table"
+      description: "the config version dynamodb table",
     });
     this.configVersionDDBTableName = cloudfront_config_version_table.tableName;
 
@@ -633,12 +634,12 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     // });
     new cdk.CfnOutput(this, "cloudfront_snapshot_rest_api", {
       value: snapshot_rest_api.restApiName,
-      description: "the api name of the snapshot rest api"
+      description: "the api name of the snapshot rest api",
     });
 
     new cdk.CfnOutput(this, "Snapshot API key", {
       value: apiKey.keyArn,
-      description: "the api keys of the snapshot rest api"
+      description: "the api keys of the snapshot rest api",
     });
   }
 }
