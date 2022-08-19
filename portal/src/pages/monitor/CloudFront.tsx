@@ -127,7 +127,10 @@ const CloudFront: React.FC = () => {
             ? ""
             : " | " + Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
         if (
-          domainList.includes(Cloudfront_info_list[cfdistlistKey].domainName)
+          domainList.includes(Cloudfront_info_list[cfdistlistKey].domainName) ||
+          domainList.includes("ALL") ||
+          domainList.includes("All") ||
+          domainList.includes("all")
         ) {
           tmpSelectedList.push({
             label: Cloudfront_info_list[cfdistlistKey].domainName + cname,
