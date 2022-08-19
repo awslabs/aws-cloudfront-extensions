@@ -649,7 +649,7 @@ def aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context):
 @app.resolver(type_name="Query", field_name="listCertifications")
 def manager_certification_list():
     # first get distribution List from current account
-    acm_client = boto3.client('acm')
+    acm_client = boto3.client('acm', region_name='us-east-1')
     response = acm_client.list_certificates()
 
     result = []
