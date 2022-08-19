@@ -1,5 +1,10 @@
 import * as path from "path";
-import { Aws, aws_lambda as lambda, StackProps } from "aws-cdk-lib";
+import {
+  Aws,
+  aws_kms as kms,
+  aws_lambda as lambda,
+  StackProps,
+} from "aws-cdk-lib";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import * as cdk from "aws-cdk-lib";
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
@@ -187,11 +192,17 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       actions: ["cloudfront:*"],
     });
 
+    const eventBridge_create_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["events:*"],
+    });
+
     lambdaRole.addToPolicy(ddb_rw_policy);
     lambdaRole.addToPolicy(s3_rw_policy);
     lambdaRole.addToPolicy(lambda_rw_policy);
     lambdaRole.addToPolicy(cloudfront_create_update_policy);
     lambdaRole.addToPolicy(lambdaRunPolicy);
+    lambdaRole.addToPolicy(eventBridge_create_policy);
 
     // define a shared lambda layer for all other lambda to use
     const powertools_layer = LayerVersion.fromLayerVersionArn(
@@ -612,9 +623,13 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       }
     );
 
+    const trailKey = new kms.Key(this, "cloudtrailCustomKey", {
+      enableKeyRotation: true,
+    });
     const trail = new Trail(this, "cloudfront_config_update_trail", {
       enableFileValidation: false,
       isMultiRegionTrail: true,
+      encryptionKey: trailKey,
     });
 
     // Prints out the stack region to the terminal
