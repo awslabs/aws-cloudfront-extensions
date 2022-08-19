@@ -95,7 +95,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "CloudFrontConfigLatestVersionTable",
       {
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
         partitionKey: {
           name: "distributionId",
           type: dynamodb.AttributeType.STRING,
@@ -110,7 +110,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "CloudFrontConfigVersionTable",
       {
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
         partitionKey: {
           name: "distributionId",
           type: dynamodb.AttributeType.STRING,
@@ -126,7 +126,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "CloudFrontConfigSnapshotTable",
       {
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
         partitionKey: {
           name: "distributionId",
           type: dynamodb.AttributeType.STRING,
@@ -197,12 +197,18 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       actions: ["events:*"],
     });
 
+    const iam_create_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: ["iam:*"],
+    });
+
     lambdaRole.addToPolicy(ddb_rw_policy);
     lambdaRole.addToPolicy(s3_rw_policy);
     lambdaRole.addToPolicy(lambda_rw_policy);
     lambdaRole.addToPolicy(cloudfront_create_update_policy);
     lambdaRole.addToPolicy(lambdaRunPolicy);
     lambdaRole.addToPolicy(eventBridge_create_policy);
+    lambdaRole.addToPolicy(iam_create_policy);
 
     // define a shared lambda layer for all other lambda to use
     const powertools_layer = LayerVersion.fromLayerVersionArn(
@@ -608,7 +614,8 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       fieldName: "deleteSnapshot",
     });
 
-    // create customer resource to init all cloudfront config data in DDB
+    // 1. create customer resource to init all cloudfront config data in DDB
+    // 2. create eventbridge rule in us-east-1 region to forward cloudfront events to other region since cloudfront events are only supported in us-east-1 region
     const resource = new MyCustomResource(
       this,
       "CloudfrontVersionConfigResource",
@@ -622,15 +629,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         roleArn: lambdaRole.roleArn,
       }
     );
-
-    const trailKey = new kms.Key(this, "cloudtrailCustomKey", {
-      enableKeyRotation: true,
-    });
-    const trail = new Trail(this, "cloudfront_config_update_trail", {
-      enableFileValidation: false,
-      isMultiRegionTrail: true,
-      encryptionKey: trailKey,
-    });
 
     // Prints out the stack region to the terminal
     // new cdk.CfnOutput(this, "cloudfront_config_version_s3_bucket", {

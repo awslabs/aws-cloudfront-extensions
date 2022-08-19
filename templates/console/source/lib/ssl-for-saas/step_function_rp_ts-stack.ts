@@ -55,6 +55,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         name: "domainName",
         type: dynamodb.AttributeType.STRING,
       },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     // dynamodb table for job info
@@ -66,6 +67,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           name: "jobId",
           type: dynamodb.AttributeType.STRING,
         },
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
       }
     );
     ssl_for_sass_job_info_table
