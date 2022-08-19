@@ -474,7 +474,7 @@ const SnapshotDetail: React.FC = () => {
               },
             },
             {
-              width: 200,
+              width: 300,
               id: "date",
               header: "Date",
               cell: (e: Snapshot) => e.dateTime,

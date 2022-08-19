@@ -299,7 +299,7 @@ const VersionDetail: React.FC = () => {
               },
             },
             {
-              width: 200,
+              width: 300,
               id: "date",
               header: "Date",
               cell: (e: Version) => e.dateTime,

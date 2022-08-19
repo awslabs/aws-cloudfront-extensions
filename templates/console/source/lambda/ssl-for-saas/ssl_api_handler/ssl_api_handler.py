@@ -649,7 +649,7 @@ def aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context):
 @app.get("/ssl_for_saas/cert_list")
 def manager_certification_list():
     # first get distribution List from current account
-    acm_client = boto3.client('acm')
+    acm_client = boto3.client('acm', region_name='us-east-1')
     response = acm_client.list_certificates()
 
     result = []
@@ -690,7 +690,7 @@ def manager_certification_list():
 @app.get("/ssl_for_saas/list_ssl_certification_with_jobId")
 def manager_certification_list_jobId():
     # first get distribution List from current account
-    acm_client = boto3.client('acm')
+    acm_client = boto3.client('acm', region_name='us-east-1')
     response = acm_client.list_certificates()
     jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
 
@@ -714,7 +714,7 @@ def manager_certification_list_jobId():
 def manager_cloudfront_arn_list_with_jobId():
     jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
     # first get distribution List from current account
-    resource_client = boto3.client('resourcegroupstaggingapi')
+    resource_client = boto3.client('resourcegroupstaggingapi', region_name='us-east-1')
     response = resource_client.get_resources(
         TagFilters=[
             {
