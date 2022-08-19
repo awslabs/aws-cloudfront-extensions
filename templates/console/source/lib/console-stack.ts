@@ -1,19 +1,19 @@
-import * as cdk from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { CommonConstruct } from "./cf-common/cf-common-stack";
-import { PortalConstruct } from "./web-portal/web_portal_stack";
-import { CloudFrontConfigVersionConstruct } from "./config-version/aws-cloudfront-config-version-stack";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
-import { StepFunctionRpTsConstruct } from "./ssl-for-saas/step_function_rp_ts-stack";
-import { NonRealtimeMonitoringStack } from "../lib/monitoring/non-realtime-monitoring-stack";
-import { RealtimeMonitoringStack } from "../lib/monitoring/realtime-monitoring-stack";
-import { RepoConstruct } from "./repo/repo-stack";
+import * as cdk from "aws-cdk-lib";
 import { aws_cognito as cognito, StackProps } from "aws-cdk-lib";
 import {
   AwsCustomResource,
   AwsCustomResourcePolicy,
-  PhysicalResourceId,
+  PhysicalResourceId
 } from "aws-cdk-lib/custom-resources";
+import { Construct } from "constructs";
+import { NonRealtimeMonitoringStack } from "../lib/monitoring/non-realtime-monitoring-stack";
+import { RealtimeMonitoringStack } from "../lib/monitoring/realtime-monitoring-stack";
+import { CommonConstruct } from "./cf-common/cf-common-stack";
+import { CloudFrontConfigVersionConstruct } from "./config-version/aws-cloudfront-config-version-stack";
+import { RepoConstruct } from "./repo/repo-stack";
+import { StepFunctionRpTsConstruct } from "./ssl-for-saas/step_function_rp_ts-stack";
+import { PortalConstruct } from "./web-portal/web_portal_stack";
 
 interface ConsoleStackProps extends StackProps {
   synthesizer: any;
@@ -45,7 +45,7 @@ export class ConsoleStack extends cdk.Stack {
 
     const consoleAdminUserName = new cdk.CfnParameter(this, "InitialUserName", {
       type: "String",
-      description: "The initial username for the web console",
+      description: "The initial username for the web console, it will be used for SSL certificates notification",
     });
 
     const consoleAdminUserEmail = new cdk.CfnParameter(
@@ -97,12 +97,14 @@ export class ConsoleStack extends cdk.Stack {
       description:
         "Delete original CloudFront standard logs in S3 bucket (true or false), this only applies to non-realtime monitoring",
       type: "String",
+      allowedValues: ["false", "true"],
       default: "false",
     });
     const useStartTime = new cdk.CfnParameter(this, "UseStartTime", {
       description:
         "Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time, this only applies to non-realtime monitoring",
       type: "String",
+      allowedValues: ["false", "true"],
       default: "false",
     });
 
@@ -329,6 +331,7 @@ export class ConsoleStack extends cdk.Stack {
       synthesizer: props.synthesizer,
       appsyncApi: commonConstruct.appsyncApi,
       configVersionDDBTableName: configVersion.configVersionDDBTableName,
+      notificationEmail: consoleAdminUserEmail.valueAsString,
     });
   }
 }

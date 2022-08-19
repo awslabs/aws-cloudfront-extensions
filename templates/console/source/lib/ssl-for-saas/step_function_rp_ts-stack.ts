@@ -23,6 +23,7 @@ import { Construct } from "constructs";
 
 export interface StepFunctionProps extends CommonProps {
   configVersionDDBTableName: string;
+  notificationEmail: string;
 }
 
 export class StepFunctionRpTsStack extends Stack {
@@ -90,12 +91,8 @@ export class StepFunctionRpTsConstruct extends Construct {
     );
 
     // create email subscription
-    const email_address = new CfnParameter(scope, "EmailAddress", {
-      description: "Email address to receive SSL certificates notification",
-      type: "String",
-    });
     sns_topic.addSubscription(
-      new subs.EmailSubscription(email_address.valueAsString)
+      new subs.EmailSubscription(props.notificationEmail)
     );
     sns_topic.addToResourcePolicy(
       new iam.PolicyStatement({
