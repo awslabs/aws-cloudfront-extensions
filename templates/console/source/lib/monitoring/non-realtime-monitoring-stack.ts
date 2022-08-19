@@ -338,7 +338,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/add_partition')),
-      architecture: lambda.Architecture.ARM_64,
       role: partitionRole,
       environment: {
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
@@ -355,7 +354,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/delete_partition')),
-      architecture: lambda.Architecture.ARM_64,
       role: partitionRole,
       environment: {
         GLUE_DATABASE_NAME: glueDatabase.databaseName,
@@ -371,7 +369,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         runtime: lambda.Runtime.PYTHON_3_9,
         handler: 'partition_s3_logs.lambda_handler',
         memorySize: 256,
-        architecture: lambda.Architecture.ARM_64,
         role: partitionRole,
         timeout: cdk.Duration.seconds(900),
         environment: {
@@ -387,7 +384,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_bandwidth_cdn')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -409,7 +405,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_bandwidth_origin')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -431,7 +426,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_chr_bandwidth')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -453,7 +447,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_chr_request')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -475,7 +468,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_request_cdn')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -497,7 +489,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_request_origin')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -519,7 +510,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_status_code_cdn')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -541,7 +531,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_status_code_origin')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -563,7 +552,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_top_url_request')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -585,7 +573,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_top_url_traffic')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -607,7 +594,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_traffic')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -629,7 +615,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       memorySize: 512,
       timeout: cdk.Duration.seconds(60),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_manager')),
-      architecture: lambda.Architecture.ARM_64,
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -650,7 +635,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       runtime: lambda.Runtime.PYTHON_3_9,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/custom_resource')),
       handler: "custom_resource.lambda_handler",
-      architecture: lambda.Architecture.ARM_64,
       role: partitionRole,
       environment: {
         LAMBDA_ARN: addPartition.functionArn,

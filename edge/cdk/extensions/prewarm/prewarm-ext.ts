@@ -271,7 +271,6 @@ export class PrewarmStack extends cdk.Stack {
       handler: 'cache_invalidator.lambda_handler',
       timeout: cdk.Duration.minutes(15),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/lib/lambda-assets/cache_invalidator.zip')),
-      architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 256,
       environment: {
@@ -287,7 +286,6 @@ export class PrewarmStack extends cdk.Stack {
       handler: 'scheduler.lambda_handler',
       timeout: cdk.Duration.minutes(15),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/scheduler')),
-      architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 256,
       environment: {
@@ -302,7 +300,6 @@ export class PrewarmStack extends cdk.Stack {
       handler: 'status_fetcher.lambda_handler',
       timeout: cdk.Duration.seconds(60),
       code: lambda.Code.fromAsset(path.join(__dirname, './lambda/status_fetcher')),
-      architecture: lambda.Architecture.ARM_64,
       role: prewarmRole,
       memorySize: 256,
       environment: {
