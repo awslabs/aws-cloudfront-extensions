@@ -1,23 +1,22 @@
-import { Cloudfront_info } from "API";
-import { AMPLIFY_CONFIG_JSON } from "assets/js/const";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
+import { AmplifyConfigType } from "assets/js/type";
+import Alert from "components/Alert";
+import { AlertType } from "components/Alert/alert";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import FormItem from "components/FormItem";
 import HeaderPanel from "components/HeaderPanel";
-import { listDistribution } from "graphql/queries";
-import { updateDomains } from "graphql/mutations";
-import React, { useEffect, useState } from "react";
-import Chart from "react-apexcharts";
-import Select from "react-select";
 import Modal from "components/Modal";
 import MultiSelect from "components/MultiSelect";
+import { updateDomains } from "graphql/mutations";
+import { listDistribution } from "graphql/queries";
 import moment from "moment";
-import { DeployExtensionObj } from "../deploy/Deploy";
+import React, { useEffect, useState } from "react";
+import Chart from "react-apexcharts";
 import { useSelector } from "react-redux";
-import { AmplifyConfigType } from "assets/js/type";
+import Select from "react-select";
 import { AppStateProps } from "reducer/appReducer";
-import RefreshIcon from "@material-ui/icons/Refresh";
 import DateRangePicker from "rsuite/DateRangePicker";
 import "rsuite/dist/rsuite.min.css";
 
@@ -403,11 +402,18 @@ const CloudFront: React.FC = () => {
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
+      {amplifyConfig.aws_monitoring_url === "" && (
+        <Alert
+          type={AlertType.Error}
+          content="Please active monitoring feature to get CloudFront distribution metrics in the dashboard."
+        />
+      )}
       <HeaderPanel
         title="Monitoring"
         action={
           <div>
             <Button
+              disabled={amplifyConfig.aws_monitoring_url === ""}
               btnType="primary"
               onClick={() => {
                 setOpenModal(true);
@@ -433,6 +439,7 @@ const CloudFront: React.FC = () => {
           >
             <Select
               options={selectDistribution}
+              isDisabled={amplifyConfig.aws_monitoring_url === ""}
               onChange={(event: any) => {
                 if (event != null) {
                   setSelectDomain(event.value);
@@ -441,6 +448,7 @@ const CloudFront: React.FC = () => {
               }}
             />
             <DateRangePicker
+              disabled={amplifyConfig.aws_monitoring_url === ""}
               format="yyyy-MM-dd HH:mm"
               defaultValue={[moment().add(-12, "hours").toDate(), new Date()]}
               disabledDate={afterToday?.()}
@@ -457,6 +465,7 @@ const CloudFront: React.FC = () => {
               }}
             />
             <Button
+              disabled={amplifyConfig.aws_monitoring_url === ""}
               onClick={() => {
                 getChartData();
               }}
