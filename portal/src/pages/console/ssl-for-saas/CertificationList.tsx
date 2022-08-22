@@ -55,7 +55,7 @@ const CertificationList: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title="Certification List"
+          title={"Certification List (" + certificationList.length + ")"}
           selectType={SelectType.NONE}
           actions={
             <div>

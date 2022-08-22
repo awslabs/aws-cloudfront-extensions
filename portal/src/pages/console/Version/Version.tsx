@@ -107,6 +107,14 @@ const Version = () => {
               cell: (e: Cloudfront_info) => e.versionCount,
             },
             {
+              width: 100,
+              id: "enabled",
+              header: "Enabled",
+              cell: (e: Cloudfront_info) => {
+                return <Status status={e.enabled || ""} />;
+              },
+            },
+            {
               width: 150,
               id: "status",
               header: "Status",

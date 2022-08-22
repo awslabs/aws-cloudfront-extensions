@@ -63,7 +63,7 @@ const SSLJobList: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title="SSL for SaaS Job List"
+          title={"SSL for SaaS Job List (" + jobList.length + ")"}
           selectType={SelectType.NONE}
           actions={
             <div>
