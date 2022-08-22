@@ -109,15 +109,19 @@ const Version = () => {
             {
               width: 100,
               id: "enabled",
-              header: "Enabled",
+              header: "Status",
               cell: (e: Cloudfront_info) => {
-                return <Status status={e.enabled || ""} />;
+                return (
+                  <Status
+                    status={e.enabled == "true" ? "Enabled" : "Disabled"}
+                  />
+                );
               },
             },
             {
               width: 150,
               id: "status",
-              header: "Status",
+              header: "Deploying",
               cell: (e: Cloudfront_info) => {
                 return <Status status={e.status || ""} />;
               },
