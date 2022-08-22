@@ -80,10 +80,10 @@ const CloudFront: React.FC = () => {
     { Time: "", Value: null },
   ]);
   const [cdnDownloadSpeedData, setCdnDownloadSpeedData] = useState([
-    { Time: "", Value: null },
+    { Time: "", Value: {} },
   ]);
   const [cdnDownloadSpeedOriginData, setCdnDownloadSpeedOriginData] = useState([
-    { Time: "", Value: null },
+    { Time: "", Value: {} },
   ]);
   const [cdnTopNUrlRequestsData, setCdnTopNUrlRequestsData] = useState([
     { Time: "", Value: [{ Path: "", Count: null }] },
@@ -163,7 +163,6 @@ const CloudFront: React.FC = () => {
     if (selectDomain != "") {
       const timeStamp = new Date().getTime();
       const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=all&Domain=${selectDomain}&timestamp=${timeStamp}`;
-      // console.log(url2);
       try {
         const response = await fetch(url2, {
           headers: {
@@ -185,7 +184,7 @@ const CloudFront: React.FC = () => {
               setCdnStatusCodeOriginData(item.DetailData);
             } else if (item.Metric == "chr") {
               setCdnChrData(item.DetailData);
-            } else if (item.Metric == "chrBandWidth") {
+            } else if (item.Metric == "chrBandWith") {
               setCdnChrBandWidthData(item.DetailData);
             } else if (item.Metric == "bandwidth") {
               setCdnBandWidthData(item.DetailData);
@@ -343,6 +342,101 @@ const CloudFront: React.FC = () => {
       series.push({
         name: url,
         data: data,
+      });
+    });
+    return series;
+  };
+
+  const speedCategory: any[] = [];
+  const getCdnDownloadSpeedData = () => {
+    speedCategory.length = 0;
+    const locations: string[] = [];
+    const series: { name: string; data: any[] }[] = [];
+    cdnDownloadSpeedData.map(function (element) {
+      Object.entries(element.Value).forEach((obj) => {
+        if (obj[0] != "domain" && obj[0] != "timestamp") {
+          Object.entries(obj[1] as object).forEach((speed) => {
+            const name = obj[0] + "(" + speed[0] + ")";
+            if (!locations.includes(name)) {
+              locations.push(name);
+            }
+          });
+        }
+      });
+    });
+    locations.map(function (locationName) {
+      const speeds: any[] = [];
+      cdnDownloadSpeedData.map(function (element) {
+        Object.entries(element.Value).forEach((obj) => {
+          if (obj[0] != "domain" && obj[0] != "timestamp") {
+            Object.entries(obj[1] as object).forEach((speed) => {
+              if (locationName == obj[0] + "(" + speed[0] + ")") {
+                const sum: number =
+                  speed[1]["250K"] * 250 +
+                  speed[1]["750K"] * 750 +
+                  speed[1]["500K"] * 500 +
+                  speed[1]["250K"] * 250 +
+                  speed[1]["1M"] * 1000 +
+                  speed[1]["2M"] * 2000 +
+                  speed[1]["3M"] * 3000 +
+                  speed[1]["4M"] * 4000;
+                speeds.push(sum);
+                speedCategory.push(speed[1]);
+              }
+            });
+          }
+        });
+      });
+      series.push({
+        name: locationName,
+        data: speeds,
+      });
+    });
+    return series;
+  };
+
+  const getCdnDownloadSpeedOriginData = () => {
+    speedCategory.length = 0;
+    const locations: string[] = [];
+    const series: { name: string; data: any[] }[] = [];
+    cdnDownloadSpeedOriginData.map(function (element) {
+      Object.entries(element.Value).forEach((obj) => {
+        if (obj[0] != "domain" && obj[0] != "timestamp") {
+          Object.entries(obj[1] as object).forEach((speed) => {
+            const name = obj[0] + "(" + speed[0] + ")";
+            if (!locations.includes(name)) {
+              locations.push(name);
+            }
+          });
+        }
+      });
+    });
+    locations.map(function (locationName) {
+      const speeds: any[] = [];
+      cdnDownloadSpeedOriginData.map(function (element) {
+        Object.entries(element.Value).forEach((obj) => {
+          if (obj[0] != "domain" && obj[0] != "timestamp") {
+            Object.entries(obj[1] as object).forEach((speed) => {
+              if (locationName == obj[0] + "(" + speed[0] + ")") {
+                const sum: number =
+                  speed[1]["250K"] * 250 +
+                  speed[1]["750K"] * 750 +
+                  speed[1]["500K"] * 500 +
+                  speed[1]["250K"] * 250 +
+                  speed[1]["1M"] * 1000 +
+                  speed[1]["2M"] * 2000 +
+                  speed[1]["3M"] * 3000 +
+                  speed[1]["4M"] * 4000;
+                speeds.push(sum);
+                speedCategory.push(speed[1]);
+              }
+            });
+          }
+        });
+      });
+      series.push({
+        name: locationName,
+        data: speeds,
       });
     });
     return series;
@@ -582,13 +676,6 @@ const CloudFront: React.FC = () => {
                   labels: {
                     show: false,
                   },
-                },
-                legend: {
-                  position: "top",
-                  horizontalAlign: "right",
-                  floating: true,
-                  offsetY: -25,
-                  offsetX: -5,
                 },
                 title: {
                   text: "Status Code",
@@ -905,15 +992,45 @@ const CloudFront: React.FC = () => {
                   width: 2,
                   curve: "smooth",
                 },
-              }}
-              series={[
-                {
-                  name: "Value",
-                  data: cdnDownloadSpeedData.map(function (item) {
-                    return item.Value;
-                  }),
+                tooltip: {
+                  custom: function ({
+                    series,
+                    seriesIndex,
+                    dataPointIndex,
+                    w,
+                  }) {
+                    return (
+                      "<table>" +
+                      "<tr><td>4M</td><td>" +
+                      speedCategory[dataPointIndex]["4M"] +
+                      "</td></tr>" +
+                      "<tr><td>3M</td><td>" +
+                      speedCategory[dataPointIndex]["3M"] +
+                      "</td></tr>" +
+                      "<tr><td>2M</td><td>" +
+                      speedCategory[dataPointIndex]["2M"] +
+                      "</td></tr>" +
+                      "<tr><td>1M</td><td>" +
+                      speedCategory[dataPointIndex]["1M"] +
+                      "</td></tr>" +
+                      "<tr><td>750K</td><td>" +
+                      speedCategory[dataPointIndex]["750K"] +
+                      "</td></tr>" +
+                      "<tr><td>500K</td><td>" +
+                      speedCategory[dataPointIndex]["500K"] +
+                      "</td></tr>" +
+                      "<tr><td>250K</td><td>" +
+                      speedCategory[dataPointIndex]["250K"] +
+                      "</td></tr>" +
+                      "<tr><td>Other</td><td>" +
+                      speedCategory[dataPointIndex]["Other"] +
+                      "</td></tr>" +
+                      "</table>"
+                    );
+                  },
                 },
-              ]}
+              }}
+              series={getCdnDownloadSpeedData()}
               type="line"
               width="90%"
             />
@@ -955,15 +1072,45 @@ const CloudFront: React.FC = () => {
                   width: 2,
                   curve: "smooth",
                 },
-              }}
-              series={[
-                {
-                  name: "Value",
-                  data: cdnDownloadSpeedOriginData.map(function (item) {
-                    return item.Value;
-                  }),
+                tooltip: {
+                  custom: function ({
+                    series,
+                    seriesIndex,
+                    dataPointIndex,
+                    w,
+                  }) {
+                    return (
+                      "<table>" +
+                      "<tr><td>4M</td><td>" +
+                      speedCategory[dataPointIndex]["4M"] +
+                      "</td></tr>" +
+                      "<tr><td>3M</td><td>" +
+                      speedCategory[dataPointIndex]["3M"] +
+                      "</td></tr>" +
+                      "<tr><td>2M</td><td>" +
+                      speedCategory[dataPointIndex]["2M"] +
+                      "</td></tr>" +
+                      "<tr><td>1M</td><td>" +
+                      speedCategory[dataPointIndex]["1M"] +
+                      "</td></tr>" +
+                      "<tr><td>750K</td><td>" +
+                      speedCategory[dataPointIndex]["750K"] +
+                      "</td></tr>" +
+                      "<tr><td>500K</td><td>" +
+                      speedCategory[dataPointIndex]["500K"] +
+                      "</td></tr>" +
+                      "<tr><td>250K</td><td>" +
+                      speedCategory[dataPointIndex]["250K"] +
+                      "</td></tr>" +
+                      "<tr><td>Other</td><td>" +
+                      speedCategory[dataPointIndex]["Other"] +
+                      "</td></tr>" +
+                      "</table>"
+                    );
+                  },
                 },
-              ]}
+              }}
+              series={getCdnDownloadSpeedOriginData()}
               type="line"
               width="90%"
             />
@@ -979,15 +1126,15 @@ const CloudFront: React.FC = () => {
                     show: false,
                   },
                 },
-                legend: {
-                  position: "top",
-                  horizontalAlign: "right",
-                  floating: true,
-                  offsetY: -25,
-                  offsetX: -5,
-                },
                 title: {
                   text: "Top N Url Requests",
+                },
+                tooltip: {
+                  shared: true,
+                  fixed: {
+                    enabled: true,
+                    offsetY: 200,
+                  },
                 },
                 chart: {
                   height: 450,
