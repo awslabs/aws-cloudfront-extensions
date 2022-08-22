@@ -29,7 +29,7 @@ Use the following steps to deploy this solution on AWS.
       | InitialUserEmail              | - | The initial user email for the web console.                                                                                                 |
       | InitialUserName  | - | The initial username for the web console.                                                                                                   |
       | InitialUserPassword | - | The Initial Password for web console.                                                                                             |
-      | Monitoring            | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth.                                    |
+      | Monitoring            | no | Active realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. See [Monitoring](../monitoring/overview)                                   |
       | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
       | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
       | DeleteLog             | false | Delete original CloudFront standard logs in S3 bucket (true or false).                                                                      |

@@ -23,7 +23,7 @@
 
     您可以从Web控制台左侧栏导航找到CloudFront监控仪表板，然后选择要在图表中查看的CloudFront分配（您可以通过CNAMEs找到），并在时间选择器中指定一个监控时间段。最后，流量指标将显示在仪表板的图表中。
 
-    ![Monitoring Dashboard](../../images/monitoring-dashboard.png)
+    ![Monitoring Dashboard](../images/monitoring-dashboard.png)
 
 - **配置待监控域名**
 

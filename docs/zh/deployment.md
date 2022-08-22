@@ -29,7 +29,7 @@
       | InitialUserEmail               | - | Web控制台的初始用户电子邮箱                                                                                                 |
       | InitialUserName  | - | Web控制台的初始用户名                                                                                                   |
       | InitialUserPassword  | - | Web控制台的初始用户密码                                                                                              |
-      | Monitoring            | no | 启用实时或非实时监控以获取CloudFront监控指标，如缓存命中率、带宽                                    |
+      | Monitoring            | no | 启用实时或非实时监控以获取CloudFront监控指标，如缓存命中率、带宽，请参阅 [监控](../monitoring/overview                                    |
       | CloudFrontDomainList  | - | CloudFront域名列表。如需监控多个域名，使用逗号分隔多个域名。填入“ALL”监视AWS帐户中的所有域名 |
       | CloudFrontLogKeepDays | 120 | 将CloudFront日志保存在S3存储桶中的天数                                                                       |
       | DeleteLog   | false | 删除S3存储桶中的原始CloudFront标准日志（true或false）                                                                      |

@@ -14,6 +14,16 @@
 5. 最终用户接口使用API Gateway
     用户接口通过API Gateway和Lambda函数MetricManager生成一个RESTful API，MetricManager会读取DynamoDB表格中的监控指标并返回相应结果。为了进一步加强安全管理限制API的访问，API Gateway中开启API key授权，访问接口的用户需在x-api-key标头中带有合法API key才能正常请求API。
 
+## 创建实时配置
+1. 打开CloudFront控制台，在**日志**设置标签下启用实时配置
+2. 点击 "创建配置 "按钮，采样率输入*100*并选择如下日志字段
+
+    !!! 请按照下图字段顺序进行选择
+        ![Monitoring Fields](../images/monitoring-fields.png)
+
+3. 在**端点**中选择cloudfront-real-time-log-data-stream数据流
+4. 在分配栏中，选择需要获取监控指标的CloudFront分配ID（即部署CloudFormation时填入域名的CloudFront分配）后，点击创建配置按钮
+
 
 ## 监控指标 
 
