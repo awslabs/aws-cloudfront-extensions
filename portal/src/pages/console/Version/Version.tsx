@@ -55,7 +55,7 @@ const Version = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title="Distributions"
+          title={"Distributions (" + cloudFrontList.length + ")"}
           selectType={SelectType.RADIO}
           actions={
             <div>
