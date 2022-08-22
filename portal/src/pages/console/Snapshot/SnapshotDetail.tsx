@@ -52,7 +52,7 @@ const SnapshotDetail: React.FC = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [loadingApply, setLoadingApply] = useState(false);
   const [snapShotName, setSnapShotName] = useState<any>("");
-  const [bindingSnapShotName, setBindingSnapShotName] = useState<any>("");
+  // const [bindingSnapShotName, setBindingSnapShotName] = useState<any>("");
   const [snapShotNote, setSnapShotNote] = useState<any>("");
   const [distributionId, setDistributionId] = useState<any>("");
   const [isDrifting, setIsDrifting] = useState<any>("NO");
@@ -147,7 +147,7 @@ const SnapshotDetail: React.FC = () => {
         distribution_id: id,
       });
       const snapshot: string = resData.data.getAppliedSnapshotName;
-      setBindingSnapShotName(snapshot);
+      // setBindingSnapShotName(snapshot);
     } catch (error) {
       console.error(error);
     }
@@ -156,51 +156,51 @@ const SnapshotDetail: React.FC = () => {
     getBindSnapshot();
   }, []);
 
-  // get Binding Snapshot drifting status
-  const getBindSnapshotDriftStatus = async () => {
-    if (
-      bindingSnapShotName === "Not binding with any Snapshot" ||
-      bindingSnapShotName === ""
-    ) {
-      setIsDrifting("NO");
-      setDriftingCompareDisable(true);
-      return;
-    }
-
-    try {
-      const resDataCurrent = await appSyncRequestQuery(
-        getConfigSnapshotContent,
-        {
-          distribution_id: id,
-          snapshot_name: bindingSnapShotName,
-        }
-      );
-      const bindSnapshotContent: string =
-        resDataCurrent.data.getConfigSnapshotContent;
-
-      const resDataLatest = await appSyncRequestQuery(
-        getConfigSnapshotContent,
-        {
-          distribution_id: id,
-          snapshot_name: "_LATEST_",
-        }
-      );
-      const currentCloudfrontContent: string =
-        resDataLatest.data.getConfigSnapshotContent;
-
-      if (bindSnapshotContent === currentCloudfrontContent) {
-        setIsDrifting("NO");
-      } else {
-        setIsDrifting("YES");
-        setDriftingCompareDisable(false);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  useEffect(() => {
-    getBindSnapshotDriftStatus();
-  }, [bindingSnapShotName]);
+  // // get Binding Snapshot drifting status
+  // const getBindSnapshotDriftStatus = async () => {
+  //   if (
+  //     bindingSnapShotName === "Not binding with any Snapshot" ||
+  //     bindingSnapShotName === ""
+  //   ) {
+  //     setIsDrifting("NO");
+  //     setDriftingCompareDisable(true);
+  //     return;
+  //   }
+  //
+  //   try {
+  //     const resDataCurrent = await appSyncRequestQuery(
+  //       getConfigSnapshotContent,
+  //       {
+  //         distribution_id: id,
+  //         snapshot_name: bindingSnapShotName,
+  //       }
+  //     );
+  //     const bindSnapshotContent: string =
+  //       resDataCurrent.data.getConfigSnapshotContent;
+  //
+  //     const resDataLatest = await appSyncRequestQuery(
+  //       getConfigSnapshotContent,
+  //       {
+  //         distribution_id: id,
+  //         snapshot_name: "_LATEST_",
+  //       }
+  //     );
+  //     const currentCloudfrontContent: string =
+  //       resDataLatest.data.getConfigSnapshotContent;
+  //
+  //     if (bindSnapshotContent === currentCloudfrontContent) {
+  //       setIsDrifting("NO");
+  //     } else {
+  //       setIsDrifting("YES");
+  //       setDriftingCompareDisable(false);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   getBindSnapshotDriftStatus();
+  // }, [bindingSnapShotName]);
 
   // Get Snapshot List By Distribution
   const applyCloudFrontSnapshot = async () => {

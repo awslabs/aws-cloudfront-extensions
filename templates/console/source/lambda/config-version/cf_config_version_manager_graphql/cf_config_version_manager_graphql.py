@@ -557,8 +557,7 @@ def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str =
             "distributionId": distribution_id,
             "snapShotName": snapshot_name
         })
-    snapshot_resp = response['Item']
-    if not snapshot_resp:
+    if not 'Item' in response:
         raise Exception(
             f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
 
