@@ -18,6 +18,7 @@ nav:
       - Real time monitoring with Amazon Kinesis: monitoring/real-time-monitoring.md
       - Metrics Dashboard: monitoring/metrics-dashboard.md
   - Distribution management: 
+      - Overview: distribution-management/overview.md 
       - Snapshot: 
           - Overview: distribution-management/snapshot/overview.md
           - Publish a snapshot: distribution-management/snapshot/publish-snapshot.md
@@ -39,6 +40,7 @@ nav:
       - Redirect by Country: extension-repository/redirect-by-country.md
       - More Extensions in Serverless Application Repository (SAR): extension-repository/more-extension-in-sar.md 
   - API reference guide: 
+      - Overview: api-reference-guide/overview.md
       - Monitoring: api-reference-guide/monitoring.md
       - Extension repository: api-reference-guide/extension-repository.md
       - Distribution Management: api-reference-guide/distribution-management.md
