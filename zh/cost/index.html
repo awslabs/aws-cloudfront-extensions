@@ -479,7 +479,7 @@
   
     <li class="md-nav__item">
       <a href="../monitoring/metrics-dashboard/" class="md-nav__link">
-        指标仪表盘
+        指标仪表板
       </a>
     </li>
   
@@ -777,14 +777,14 @@
       
       
         <label class="md-nav__link" for="__nav_9">
-          扩展仓库
+          扩展存储库
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="扩展仓库" data-md-level="1">
+      <nav class="md-nav" aria-label="扩展存储库" data-md-level="1">
         <label class="md-nav__title" for="__nav_9">
           <span class="md-nav__icon md-icon"></span>
-          扩展仓库
+          扩展存储库
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -913,7 +913,7 @@
   
     <li class="md-nav__item">
       <a href="../api-reference-guide/extension-repository/" class="md-nav__link">
-        扩展仓库
+        扩展存储库
       </a>
     </li>
   
@@ -978,21 +978,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq/" class="md-nav__link">
-        FAQ
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../source/" class="md-nav__link">
         源代码
       </a>
@@ -1009,7 +994,7 @@
   
     <li class="md-nav__item">
       <a href="../revisions/" class="md-nav__link">
-        文档发布说明
+        版本发布说明
       </a>
     </li>
   
@@ -1135,9 +1120,9 @@
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Dimensions</th>
-<th>Cost/Month</th>
+<th>服务</th>
+<th>用量</th>
+<th>费用/每月</th>
 </tr>
 </thead>
 <tbody>
@@ -1162,52 +1147,57 @@
 <td>$0.50</td>
 </tr>
 <tr>
-<td>Total</td>
+<td>总计</td>
 <td></td>
 <td>~$0.63</td>
 </tr>
 </tbody>
 </table>
 <h2 id="ssl">SSL证书</h2>
-<p>截至2022年8月，if user create 500 acm certificates and 500 cloudfront distribution per month, the estimated cost of using this solution is $0 per month in the US East (N. Virginia) Region (excludes free tier).</p>
+<p>截至2022年8月，如果创建2000个ACM证书和2000个CloudFront分配，在美国东部（弗吉尼亚北部）区域（us-east-1），使用此解决方案的估计成本为每月26.68美元。</p>
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Dimensions</th>
-<th>Cost/Month</th>
+<th>服务</th>
+<th>用量</th>
+<th>费用/每月</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>AWS Lambda</td>
-<td>11140次请求<br>average 500 millisecond and 256MB memory</td>
+<td>11140 次调用平均 500 毫秒和 256MB 内存</td>
 <td>$0</td>
 </tr>
 <tr>
 <td>Amazon API Gateway</td>
-<td>500次请求</td>
+<td>5000 次请求</td>
 <td>$0</td>
 </tr>
 <tr>
 <td>AWS Appsync</td>
-<td>500次请求</td>
-<td>$0</td>
+<td>5000 次请求</td>
+<td>$0.02</td>
 </tr>
 <tr>
 <td>Step Functions</td>
-<td>8 x 500 = 4000 states transitions</td>
+<td>8 x 500 = 4000 状态变化</td>
 <td>$0</td>
 </tr>
 <tr>
 <td>Amazon DynamoDB</td>
-<td>100MB data storage<br>2 writes per minute<br>1 read every 2 minutes</td>
-<td>$0</td>
+<td>1000MB 数据存储量</td>
+<td>$26.64</td>
 </tr>
 <tr>
-<td>Total</td>
+<td>Amazon Simple Storage Service (S3)</td>
+<td>1GB 存储</td>
+<td>$0.02</td>
+</tr>
+<tr>
+<td>总计</td>
 <td></td>
-<td>$0</td>
+<td>$26.68</td>
 </tr>
 </tbody>
 </table>
@@ -1216,9 +1206,9 @@
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Dimensions</th>
-<th>Cost/Month</th>
+<th>服务</th>
+<th>用量</th>
+<th>费用/每月</th>
 </tr>
 </thead>
 <tbody>
@@ -1248,7 +1238,7 @@
 <td>$0.72</td>
 </tr>
 <tr>
-<td>Total</td>
+<td>总计</td>
 <td></td>
 <td>$22.40</td>
 </tr>
@@ -1259,9 +1249,9 @@
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Dimensions</th>
-<th>Cost/Month</th>
+<th>服务</th>
+<th>用量</th>
+<th>费用/每月</th>
 </tr>
 </thead>
 <tbody>
@@ -1306,7 +1296,7 @@
 <td>$0.72</td>
 </tr>
 <tr>
-<td>Total</td>
+<td>总计</td>
 <td></td>
 <td>$88.56</td>
 </tr>
@@ -1318,9 +1308,9 @@
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Dimensions</th>
-<th>Cost/Month</th>
+<th>服务</th>
+<th>用量</th>
+<th>费用/每月</th>
 </tr>
 </thead>
 <tbody>
@@ -1355,7 +1345,7 @@
 <td>$0.90</td>
 </tr>
 <tr>
-<td>Total</td>
+<td>总计</td>
 <td></td>
 <td>$171.27</td>
 </tr>
@@ -1366,9 +1356,9 @@
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Dimensions</th>
-<th>Cost/Month</th>
+<th>服务</th>
+<th>用量</th>
+<th>费用/每月</th>
 </tr>
 </thead>
 <tbody>
@@ -1403,7 +1393,7 @@
 <td>$0.90</td>
 </tr>
 <tr>
-<td>Total</td>
+<td>总计</td>
 <td></td>
 <td>$11.78</td>
 </tr>

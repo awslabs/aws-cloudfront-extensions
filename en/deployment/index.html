@@ -359,6 +359,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#follow-up-actions" class="md-nav__link">
+    Follow-up Actions
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -995,21 +1002,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq/" class="md-nav__link">
-        FAQ
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../source/" class="md-nav__link">
         Source code
       </a>
@@ -1089,6 +1081,13 @@
           <li class="md-nav__item">
   <a href="#deployment-steps" class="md-nav__link">
     Deployment steps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#follow-up-actions" class="md-nav__link">
+    Follow-up Actions
   </a>
   
 </li>
@@ -1217,7 +1216,7 @@
 <tr>
 <td>Monitoring</td>
 <td>no</td>
-<td>Active realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. See <a href="../monitoring/overview">Monitoring</a></td>
+<td>Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. Set it to no, it will not deploy monitoring feature, set it to yes-Realtime to get monitoring metrics from realtime log, set it to yes-Non-Realtime to get monitoring metrics from standard log. See <a href="../monitoring/overview/">Monitoring</a></td>
 </tr>
 <tr>
 <td>CloudFrontDomainList</td>
@@ -1250,7 +1249,12 @@
 <li>Choose <strong>Create</strong> to deploy the stack. </li>
 </ol>
 <p>You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.</p>
-<p>To see details for the stack resources, choose the <strong>Outputs</strong> tab. You will find CloudFront Extensions console in <strong>WebConsoleCloudFrontURL</strong>. As for monitoring API, the solution will create a nested stack whose name contains <strong>NonRealtimeNestedStack</strong> or <strong>RealtimeNestedStack</strong>, you will find the monitoring metric API in the <strong>Outputs</strong> tab of the nested stack. </p>
+<h3 id="follow-up-actions">Follow-up Actions</h3>
+<p>To see details for the stack resources, choose the <strong>Outputs</strong> tab. You will find CloudFront Extensions console URL in <strong>WebConsoleCloudFrontURL</strong>. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. As for monitoring API, the solution will create a nested stack whose name contains <strong>NonRealtimeNestedStack</strong> or <strong>RealtimeNestedStack</strong>, you will find the monitoring metric API in the <strong>Outputs</strong> tab of the nested stack. </p>
+<p>The CloudFormation stack deploys below modules:
+- Monitoring: if you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature, see <a href="../monitoring/overview/">monitoring</a> for more details. 
+- Distribution management: you can manage snapshots and SSL certificates, see <a href="../distribution-management/overview/">distribution management</a> for more details. 
+- Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See <a href="../extension-repository/overview/">extensions repository</a> for more details.  </p>
 <h2 id="lambdaedge-cloudfront-functions-collection">Lambda@Edge &amp; CloudFront Functions collection</h2>
 <p><strong>Time to deploy</strong>: Approximately 3 minutes</p>
 <h3 id="deployment-overview_1">Deployment overview</h3>

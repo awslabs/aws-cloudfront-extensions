@@ -507,6 +507,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#why-need-to-save-snapshot" class="md-nav__link">
+    Why need to save Snapshot
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#how-does-it-work" class="md-nav__link">
     How does it work?
   </a>
@@ -516,6 +523,27 @@
           <li class="md-nav__item">
   <a href="#how-to-work-with-snapshots" class="md-nav__link">
     How to work with snapshots?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-does-snapshot-saved" class="md-nav__link">
+    What does Snapshot saved?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-long-will-snapshot-been-saved" class="md-nav__link">
+    How long will Snapshot been saved?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-much-will-snapshot-cost" class="md-nav__link">
+    How much will Snapshot cost?
   </a>
   
 </li>
@@ -952,21 +980,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../faq/" class="md-nav__link">
-        FAQ
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../source/" class="md-nav__link">
         Source code
       </a>
@@ -1037,6 +1050,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#why-need-to-save-snapshot" class="md-nav__link">
+    Why need to save Snapshot
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#how-does-it-work" class="md-nav__link">
     How does it work?
   </a>
@@ -1046,6 +1066,27 @@
           <li class="md-nav__item">
   <a href="#how-to-work-with-snapshots" class="md-nav__link">
     How to work with snapshots?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-does-snapshot-saved" class="md-nav__link">
+    What does Snapshot saved?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-long-will-snapshot-been-saved" class="md-nav__link">
+    How long will Snapshot been saved?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-much-will-snapshot-cost" class="md-nav__link">
+    How much will Snapshot cost?
   </a>
   
 </li>
@@ -1077,6 +1118,8 @@
 
 <h2 id="snapshot">Snapshot</h2>
 <p>A configuration of CloudFront distribution could be very complex, and you may want to save a specific configuration and apply it to current or other distributions in your AWS account. This solution allows you to save configuration as “snapshot” so that you can reuse it at any time.</p>
+<h3 id="why-need-to-save-snapshot">Why need to save Snapshot</h3>
+<p>Cloudfront configuration is complex, when user spent some time updating the cloudfront configuration, he/she don't want configuration been accidentally updated to wrong configuration. So we provide this Snapshot feature to let user create a snapshot so in the future user can compare the current configuration with snapshot or compare different between any two snapshots.</p>
 <h3 id="how-does-it-work">How does it work?</h3>
 <p>When you create a snapshot, the solution automatically exports the current distribution configuration file in S3 bucket. A DynamoDB table is used to store the mapping of the config file and the snapshot names. </p>
 <h3 id="how-to-work-with-snapshots">How to work with snapshots?</h3>
@@ -1097,6 +1140,12 @@
 <li><a href="../../../api-reference-guide/snapshot/apply-snapshot/">apply_snapshot</a></li>
 <li><a href="../../../api-reference-guide/snapshot/config_snapshot_tag_update/">config_snapshot_tag_update</a></li>
 </ul>
+<h3 id="what-does-snapshot-saved">What does Snapshot saved?</h3>
+<p>Snapshot saves Cloudfront configuration as a configuration file, you can get the same cloudfront configuration through CLI: <a href="https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html">get-distribution-config</a>. Our solution will save the configuration file in S3 and url in DynamoDB. You can use <a href="api-reference-guide/snapshot/list_snapshots.md">list_snapshots api</a> to list all snapshots of one distribution. </p>
+<h3 id="how-long-will-snapshot-been-saved">How long will Snapshot been saved?</h3>
+<p>The snapshot will be saved in S3 bucket and will not automatically been deleted. The snapshot can only be deleted in Web Console or through <a href="api-reference-guide/snapshot/delete_snapshot.md">delete_snapshot api</a>.</p>
+<h3 id="how-much-will-snapshot-cost">How much will Snapshot cost?</h3>
+<p>Cloudfront configuration file is in JSON format and is around 3KB. Refer to <a href="cost.md">Cost</a> for more details.</p>
 
 
 

@@ -61,6 +61,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#metrics-dashboard" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -395,9 +400,38 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Metrics Dashboard
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Metrics Dashboard
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#metrics-dashboard" class="md-nav__link">
+    Metrics dashboard
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -896,21 +930,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
-        FAQ
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../source/" class="md-nav__link">
         Source code
       </a>
@@ -966,6 +985,21 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#metrics-dashboard" class="md-nav__link">
+    Metrics dashboard
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -984,6 +1018,7 @@
 
   <h1>Metrics Dashboard</h1>
 
+<h2 id="metrics-dashboard">Metrics dashboard</h2>
 <p>Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses CloudFront standard log or realtime log to get the metrics. The solution provides a metric API if you only need to get the metric data via restful API and don't need the dashboard.</p>
 <p>With the Metrics dashboard, you can do the following:</p>
 <ul>
@@ -1021,7 +1056,7 @@
 </li>
 <li>
 <p><strong>Setup monitoring domain list</strong></p>
-<p>The monitoring domain list includes all tracked CloudFront distributions, this list can be configured in the CloudFormation template parameter during deployment, please see <a href="../../deployment/#deployment-steps_2">Non-real time monitoring API deployment</a> and <a href="../../deployment/#deployment-steps_3">Real time monitoring API deployment</a>. Once the CloudFormation stack deployed, you can set up/update the domain list in the Metrics dashboard web console.</p>
+<p>The monitoring domain list includes all tracked CloudFront distributions, this list can be configured in the CloudFormation template parameter during deployment, see <a href="../../deployment/#cloudfront-extensions-console">CloudFront Extensions Console deployment</a>. Once the CloudFormation stack deployed, you can set up/update the domain list in the Metrics dashboard web console.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you use 'ALL' to monitoring all domains in your AWS account in the deployment parameter, the update domain list function will override this setting if you change the selection in the dashboard.</p>

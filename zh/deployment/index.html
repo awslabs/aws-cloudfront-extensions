@@ -361,6 +361,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    部署后的操作
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -375,7 +382,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     部署概述
   </a>
   
@@ -498,7 +505,7 @@
   
     <li class="md-nav__item">
       <a href="../monitoring/metrics-dashboard/" class="md-nav__link">
-        指标仪表盘
+        指标仪表板
       </a>
     </li>
   
@@ -796,14 +803,14 @@
       
       
         <label class="md-nav__link" for="__nav_9">
-          扩展仓库
+          扩展存储库
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="扩展仓库" data-md-level="1">
+      <nav class="md-nav" aria-label="扩展存储库" data-md-level="1">
         <label class="md-nav__title" for="__nav_9">
           <span class="md-nav__icon md-icon"></span>
-          扩展仓库
+          扩展存储库
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -932,7 +939,7 @@
   
     <li class="md-nav__item">
       <a href="../api-reference-guide/extension-repository/" class="md-nav__link">
-        扩展仓库
+        扩展存储库
       </a>
     </li>
   
@@ -997,21 +1004,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq/" class="md-nav__link">
-        FAQ
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../source/" class="md-nav__link">
         源代码
       </a>
@@ -1028,7 +1020,7 @@
   
     <li class="md-nav__item">
       <a href="../revisions/" class="md-nav__link">
-        文档发布说明
+        版本发布说明
       </a>
     </li>
   
@@ -1095,6 +1087,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    部署后的操作
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1109,7 +1108,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     部署概述
   </a>
   
@@ -1252,10 +1251,15 @@
 <li>选择<strong>创建堆栈</strong>以部署堆栈。</li>
 </ol>
 <p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
-<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。您可以在<strong>WebConsoleCloudFrontURL</strong>中找到CloudFront Extensions控制台的链接。对于监控API，本解决方案会创建一个名字包含<strong>NonRealtimeNestedStack</strong>或<strong>RealtimeNestedStack</strong>的嵌套堆栈，您可以在此嵌套堆栈的<strong>输出</strong>标签页中找到监控API的链接。 </p>
+<h3 id="_3">部署后的操作</h3>
+<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。您可以在<strong>WebConsoleCloudFrontURL</strong>中找到CloudFront Extensions控制台的链接。登录控制台的初始用户名和密码在您部署堆栈时通过InitialUserName和InitialUserPassword参数进行定义。对于监控API，本解决方案会创建一个名字包含<strong>NonRealtimeNestedStack</strong>或<strong>RealtimeNestedStack</strong>的嵌套堆栈，您可以在此嵌套堆栈的<strong>输出</strong>标签页中找到监控API的链接。 </p>
+<p>CloudFormation堆栈部署了如下模块：
+- 监控：: 如果您在部署CloudFormation堆栈时将Monitoring参数设置为yes-Realtime或 yes-Non-Realtime，您将会部署监控模块到您的AWS账号，请参考<a href="../monitoring/overview/">监控</a>获取更多信息。
+- 分配管理：您可以通过本解决方案管理快照和SSL证书，请参考<a href="../distribution-management/overview/">分配管理</a>获取更多信息。 
+- 扩展存储库：该解决方案提供了一些这些扩展帮助您更方便的使用CloudFront。您可以从解决方案web控制台中部署它们，部署后，您可以直接使用它而无需编程，或者在需要时对其进行自定义。您可以部署一系列开箱即用的CloudFront扩展(如：Lambda@Edge函数、CloudFront Functions、CloudFormation模板），请参考<a href="../extension-repository/overview/">扩展存储库</a>获取更多信息。</p>
 <h2 id="lambdaedge-cloudfront-functions">Lambda@Edge &amp; CloudFront Functions合集</h2>
 <p>部署时间：约3分钟</p>
-<h3 id="_3">部署概述</h3>
+<h3 id="_4">部署概述</h3>
 <p>您可以点击下表中的部署链接进行部署。对于Lambda@Edge函数，您也可通过在SAR (Serverless Application Repository)中搜索关键字aws-cloudfront-extensions进行部署。</p>
 <h4 id="lambdaedge">Lambda@Edge</h4>
 <table>

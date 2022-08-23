@@ -17,7 +17,7 @@
     
     
       
-        <title>指标仪表盘 - 实施指南</title>
+        <title>指标仪表板 - 实施指南</title>
       
     
     
@@ -63,6 +63,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -92,7 +97,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              指标仪表盘
+              指标仪表板
             
           </span>
         </div>
@@ -397,9 +402,38 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          指标仪表板
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
-        指标仪表盘
+        指标仪表板
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    指标仪表板
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -697,14 +731,14 @@
       
       
         <label class="md-nav__link" for="__nav_9">
-          扩展仓库
+          扩展存储库
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="扩展仓库" data-md-level="1">
+      <nav class="md-nav" aria-label="扩展存储库" data-md-level="1">
         <label class="md-nav__title" for="__nav_9">
           <span class="md-nav__icon md-icon"></span>
-          扩展仓库
+          扩展存储库
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -833,7 +867,7 @@
   
     <li class="md-nav__item">
       <a href="../../api-reference-guide/extension-repository/" class="md-nav__link">
-        扩展仓库
+        扩展存储库
       </a>
     </li>
   
@@ -898,21 +932,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
-        FAQ
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../source/" class="md-nav__link">
         源代码
       </a>
@@ -929,7 +948,7 @@
   
     <li class="md-nav__item">
       <a href="../../revisions/" class="md-nav__link">
-        文档发布说明
+        版本发布说明
       </a>
     </li>
   
@@ -968,6 +987,21 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    指标仪表板
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -984,9 +1018,10 @@
 
 
 
-  <h1>指标仪表盘</h1>
+  <h1>指标仪表板</h1>
 
-<p>指标仪表盘以图表的方式展现指定时间内CloudFront的相关指标。仪表板通过分析CloudFront标准日志或实时日志用于生成指标。如果您只需要通过Restful API获取CloudFront性能数据，而不需要仪表盘，本解决方案也提供了一个指标API供您调用。</p>
+<h2 id="_1">指标仪表板</h2>
+<p>指标仪表板以图表的方式展现指定时间内CloudFront的相关指标。仪表板通过分析CloudFront标准日志或实时日志用于生成指标。如果您只需要通过Restful API获取CloudFront性能数据，而不需要仪表板，本解决方案也提供了一个指标API供您调用。</p>
 <p>使用指标仪表板，您可以执行以下操作：</p>
 <ul>
 <li>
@@ -1009,12 +1044,12 @@
 <tr>
 <td><a href="../real-time-monitoring/#metrics">实时流量指标</a></td>
 <td>通过分析CloudFront实时日志，延迟5分钟</td>
-<td>5 minutes</td>
+<td>5分钟</td>
 </tr>
 <tr>
 <td><a href="../non-real-time-monitoring/#metrics">非实时流量指标</a></td>
 <td>通过分析CloudFront标准日志，延迟1小时</td>
-<td>5 minutes</td>
+<td>5分钟</td>
 </tr>
 </tbody>
 </table>
@@ -1023,7 +1058,7 @@
 </li>
 <li>
 <p><strong>配置待监控域名</strong></p>
-<p>CloudFront分配列表包括所有需要监控的CloudFront分配，此列表可在部署本解决方案的时，在CloudFormation参数中配置，详情请参阅<a href="../../deployment/">部署CloudFront Extensions控制台</a>。部署CloudFormation堆栈后，您可以在指标仪表盘中设置/更新监控域名列表。</p>
+<p>CloudFront分配列表包括所有需要监控的CloudFront分配，此列表可在部署本解决方案的时，在CloudFormation参数中配置，详情请参阅<a href="../../deployment/">部署CloudFront Extensions控制台</a>。部署CloudFormation堆栈后，您可以在指标仪表板中设置/更新监控域名列表。</p>
 <div class="admonition note">
 <p class="admonition-title">说明</p>
 <p>如果在CloudFormation部署参数中填入“ALL”来监视AWS帐户中的所有域名，那么更新域名列表后，只会监控更新后的域名。</p>

@@ -26,11 +26,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/faq/</loc>
-         <lastmod>2022-08-23</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/notices/</loc>
          <lastmod>2022-08-23</lastmod>
          <changefreq>daily</changefreq>
@@ -82,6 +77,11 @@
     </url>
     <url>
          <loc>https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/api-reference-guide/monitoring/</loc>
+         <lastmod>2022-08-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/api-reference-guide/overview/</loc>
          <lastmod>2022-08-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -147,6 +147,11 @@
     </url>
     <url>
          <loc>https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/api-reference-guide/ssl-certificates/list-ssl_jobs/</loc>
+         <lastmod>2022-08-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/distribution-management/overview/</loc>
          <lastmod>2022-08-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
