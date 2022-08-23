@@ -60,8 +60,8 @@ export class StepFunctionRpTsConstruct extends Construct {
 
     callback_table
       .autoScaleReadCapacity({
-        minCapacity: 50,
-        maxCapacity: 100,
+        minCapacity: 20,
+        maxCapacity: 50,
       })
       .scaleOnUtilization({ targetUtilizationPercent: 75 });
 

@@ -18,14 +18,15 @@
  
 截至2022年8月，if user create 500 acm certificates and 500 cloudfront distribution per month, the estimated cost of using this solution is $0 per month in the US East (N. Virginia) Region (excludes free tier).
 
-| Service            | Dimensions                                                          | Cost/Month | 
-|--------------------|---------------------------------------------------------------------|------------|  
-| AWS Lambda         | 11140次请求<br>average 500 millisecond and 256MB memory       | $0         |
-| Amazon API Gateway | 500次请求                                                        | $0         |
-| AWS Appsync        | 500次请求                                                        | $0         |
-| Step Functions     | 8 x 500 = 4000 states transitions                                   | $0         |
-| Amazon DynamoDB    | 100MB data storage<br>2 writes per minute<br>1 read every 2 minutes | $0         |
-| Total              |                                                                     | $0         |
+| Service            | Dimensions                          | Cost/Month | 
+|--------------------|-------------------------------------|------------|  
+| AWS Lambda         | 11140 次调用平均 500 毫秒和 256MB 内存  | $0         |
+| Amazon API Gateway | 5000 次请求                            | $0         |
+| AWS Appsync        | 5000 次请求                            | $0.02      |
+| Step Functions     | 8 x 500 = 4000 状态变化                 | $0         |
+| Amazon DynamoDB    | 1000MB 数据存储量                        | $26.64     |
+| Amazon Simple Storage Service (S3) | 1GB 存储                              | $0.02      |
+| Total              |                                     | $26.68     |
 
 
 ##  非实时监控
