@@ -86,8 +86,6 @@
     {
         "acm_op": "import",
         "auto_creation": "true",
-        "dist_aggregate": "false",
-        "enable_cname_check": "false",
         "cnameList": [],
         "pemList": [
             {
@@ -107,8 +105,6 @@
     {
         "acm_op": "import",
         "auto_creation": "true",
-        "dist_aggregate": "false",
-        "enable_cname_check": "false",
         "cnameList": [],
         "pemList": [
             {

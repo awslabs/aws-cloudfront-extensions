@@ -3,7 +3,6 @@ Performance matters when using CDN. You can use the solution to track CloudFront
 
 - [Non-real time monitoring with Amazon S3 Standard Logs](non-real-time-monitoring.md)
 - [Real time monitoring with Amazon Kinesis](real-time-monitoring.md)
-
-
+- [Metrics dashboard](./metrics-dashboard.md)
 
 

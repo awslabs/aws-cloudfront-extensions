@@ -29,7 +29,7 @@ Use the following steps to deploy this solution on AWS.
       | InitialUserEmail              | - | The initial user email for the web console.                                                                                                 |
       | InitialUserName  | - | The initial username for the web console.                                                                                                   |
       | InitialUserPassword | - | The Initial Password for web console.                                                                                             |
-      | Monitoring            | no | Active realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. See [Monitoring](../monitoring/overview)                                   |
+      | Monitoring            | no | Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. Set it to no, it will not deploy monitoring feature, set it to yes-Realtime to get monitoring metrics from realtime log, set it to yes-Non-Realtime to get monitoring metrics from standard log. See [Monitoring](./monitoring/overview.md)                                   |
       | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
       | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
       | DeleteLog             | false | Delete original CloudFront standard logs in S3 bucket (true or false).                                                                      |
@@ -43,7 +43,18 @@ Use the following steps to deploy this solution on AWS.
 
 You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 15 minutes.
 
-To see details for the stack resources, choose the **Outputs** tab. You will find CloudFront Extensions console in **WebConsoleCloudFrontURL**. As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
+
+### Follow-up Actions
+
+To see details for the stack resources, choose the **Outputs** tab. You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
+
+The CloudFormation stack deploys below modules:
+- Monitoring: if you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature, see [monitoring](./monitoring/overview.md) for more details. 
+- Distribution management: you can manage snapshots and SSL certificates, see [distribution management](./distribution-management/overview.md) for more details. 
+- Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See [extensions repository](./extension-repository/overview.md) for more details.  
+
+
+
 
 ## Lambda@Edge & CloudFront Functions collection
 
