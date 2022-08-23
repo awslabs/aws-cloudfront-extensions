@@ -109,7 +109,7 @@ def _update_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken
     )
 
 
-@retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(15), reraise=True)
+@retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(30))
 def request_certificate(certificate):
     """[summary]
 
@@ -230,7 +230,7 @@ def is_wildcard(sanList):
 
 
 # describe certificate details
-@retry(wait=wait_fixed(3), stop=stop_after_attempt(10), retry=retry_if_exception_type(exceptions.Timeout))
+@retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(20), retry=retry_if_exception_type(exceptions.Timeout))
 def fetch_dcv_value(certArn):
     # describe certificate domainName
     resp = acm.describe_certificate(
@@ -418,6 +418,8 @@ def lambda_handler(event, context):
                          generate_notify_content(sns_msg))
 
         notify_sns_subscriber(sns_msg)
+
+        logger.info('Certificate creation job %s completed successfully', job_token)
 
         return {
             'statusCode': 200,

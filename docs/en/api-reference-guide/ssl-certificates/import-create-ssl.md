@@ -1,5 +1,8 @@
 ## import-create-ssl
 
+!!! Important "Important"
+    Please do not include more than 100 cname or pems records in one request. 
+
 - HTTP request method: `POST`
 
 - Request

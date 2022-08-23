@@ -124,13 +124,13 @@ const SSLJobList: React.FC = () => {
               cell: (e: SSLJob) => e.jobType,
             },
             {
-              width: 40,
+              width: 80,
               id: "cert_number",
               header: "Total Certificates",
               cell: (e: SSLJob) => e.cert_total_number,
             },
             {
-              width: 40,
+              width: 80,
               id: "cloudfront_distribution_number",
               header: "Total Distributions",
               cell: (e: SSLJob) => e.cloudfront_distribution_total_number,

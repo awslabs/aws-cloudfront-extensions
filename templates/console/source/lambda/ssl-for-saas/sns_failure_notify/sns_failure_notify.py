@@ -3,7 +3,7 @@ import uuid
 import boto3
 import os
 import json
-from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, get_job_info
+from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -124,6 +124,19 @@ def lambda_handler(event, context):
         Message=str(message_to_be_published),
         Subject='SSL for SaaS generation failure occurred'
     )
+
+    job_token = event['input']['aws_request_id']
+    logger.error("Exception occurred, just update the ddb table")
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     job_token,
+                     'distStageStatus',
+                     'FAILED')
+
+    cause = event['input']['error']['Cause']
+    update_job_field(JOB_INFO_TABLE_NAME,
+                     job_token,
+                     'promptInfo',
+                     cause)
 
     return {
         'statusCode': 200,
