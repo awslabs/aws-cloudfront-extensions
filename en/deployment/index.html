@@ -346,13 +346,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deployment-overview" class="md-nav__link">
-    Deployment overview
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#deployment-steps" class="md-nav__link">
     Deployment steps
   </a>
@@ -380,7 +373,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deployment-overview_1" class="md-nav__link">
+  <a href="#deployment-overview" class="md-nav__link">
     Deployment overview
   </a>
   
@@ -549,22 +542,36 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../distribution-management/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_1" type="checkbox" id="__nav_8_1" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_2" type="checkbox" id="__nav_8_2" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_8_1">
+        <label class="md-nav__link" for="__nav_8_2">
           Snapshot
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Snapshot" data-md-level="2">
-        <label class="md-nav__title" for="__nav_8_1">
+        <label class="md-nav__title" for="__nav_8_2">
           <span class="md-nav__icon md-icon"></span>
           Snapshot
         </label>
@@ -656,18 +663,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_2" type="checkbox" id="__nav_8_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_3" type="checkbox" id="__nav_8_3" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_8_2">
+        <label class="md-nav__link" for="__nav_8_3">
           SSL certificates
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="SSL certificates" data-md-level="2">
-        <label class="md-nav__title" for="__nav_8_2">
+        <label class="md-nav__title" for="__nav_8_3">
           <span class="md-nav__icon md-icon"></span>
           SSL certificates
         </label>
@@ -922,6 +929,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../api-reference-guide/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api-reference-guide/monitoring/" class="md-nav__link">
         Monitoring
       </a>
@@ -1072,13 +1093,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deployment-overview" class="md-nav__link">
-    Deployment overview
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#deployment-steps" class="md-nav__link">
     Deployment steps
   </a>
@@ -1106,7 +1120,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deployment-overview_1" class="md-nav__link">
+  <a href="#deployment-overview" class="md-nav__link">
     Deployment overview
   </a>
   
@@ -1167,16 +1181,10 @@
 <p>Before you launch the solution, review the architecture, supported regions, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.</p>
 <h2 id="cloudfront-extensions-console">CloudFront Extensions Console</h2>
 <p><strong>Time to deploy</strong>: Approximately 15 minutes</p>
-<h3 id="deployment-overview">Deployment overview</h3>
-<p>Use the following steps to deploy this solution on AWS.</p>
-<ul>
-<li>Launch the CloudFormation template into your AWS account.</li>
-<li>Review the template parameters, and adjust them if necessary.</li>
-</ul>
 <h3 id="deployment-steps">Deployment steps</h3>
 <ol>
 <li>
-<p>Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also <a href="https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json">download the template</a> as a starting point for your own implementation.</p>
+<p>Sign in to the <a href="https://console.aws.amazon.com/">AWS Management Console</a> and select the button to launch the CloudFormation template. You can also <a href="https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json">download the template</a> as a starting point for your own implementation.</p>
 <p><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></p>
 </li>
 <li>
@@ -1211,12 +1219,12 @@
 <tr>
 <td>InitialUserPassword</td>
 <td>-</td>
-<td>The Initial Password for web console.</td>
+<td>The Initial Password for the web console.</td>
 </tr>
 <tr>
 <td>Monitoring</td>
 <td>no</td>
-<td>Enable realtime or non-realtime monitoring to get CloudFront metrics such as cache hit ratio, bandwidth. Set it to no, it will not deploy monitoring feature, set it to yes-Realtime to get monitoring metrics from realtime log, set it to yes-Non-Realtime to get monitoring metrics from standard log. See <a href="../monitoring/overview/">Monitoring</a></td>
+<td>You can set it to <code>yes-Realtime</code> to get monitoring metrics from realtime loge, or set it to<code>yes-Non-Realtime</code> to get monitoring metrics from standard log. By default, it is <code>no</code>, which means it will not deploy monitoring feature. See <a href="../monitoring/overview/">Monitoring</a> for more information.</td>
 </tr>
 <tr>
 <td>CloudFrontDomainList</td>
@@ -1231,12 +1239,12 @@
 <tr>
 <td>DeleteLog</td>
 <td>false</td>
-<td>Delete original CloudFront standard logs in S3 bucket (true or false).</td>
+<td>You can set it to <code>true</code> to delete original CloudFront standard logs in S3 bucket. By default, it is <code>false</code>..</td>
 </tr>
 <tr>
 <td>UseStartTime</td>
 <td>false</td>
-<td>Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time.</td>
+<td>You can set it to <code>true</code> if the Time in metric data is based on start time, or set it to <code>false</code> if the Time in metric data is based on end time.</td>
 </tr>
 </tbody>
 </table>
@@ -1257,7 +1265,7 @@
 - Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See <a href="../extension-repository/overview/">extensions repository</a> for more details.  </p>
 <h2 id="lambdaedge-cloudfront-functions-collection">Lambda@Edge &amp; CloudFront Functions collection</h2>
 <p><strong>Time to deploy</strong>: Approximately 3 minutes</p>
-<h3 id="deployment-overview_1">Deployment overview</h3>
+<h3 id="deployment-overview">Deployment overview</h3>
 <p>Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR (Serverless Application Repository).</p>
 <h4 id="lambdaedge">Lambda@Edge</h4>
 <table>

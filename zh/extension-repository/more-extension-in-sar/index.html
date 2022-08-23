@@ -63,11 +63,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#sarlambdaedge" class="md-skip">
-          跳转至
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -296,7 +291,7 @@
   
     <li class="md-nav__item">
       <a href="../../regions/" class="md-nav__link">
-        区域支持
+        区域和配额
       </a>
     </li>
   
@@ -440,22 +435,36 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../distribution-management/overview/" class="md-nav__link">
+        概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_1" type="checkbox" id="__nav_8_1" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_2" type="checkbox" id="__nav_8_2" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_8_1">
+        <label class="md-nav__link" for="__nav_8_2">
           快照
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="快照" data-md-level="2">
-        <label class="md-nav__title" for="__nav_8_1">
+        <label class="md-nav__title" for="__nav_8_2">
           <span class="md-nav__icon md-icon"></span>
           快照
         </label>
@@ -547,18 +556,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_2" type="checkbox" id="__nav_8_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_3" type="checkbox" id="__nav_8_3" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_8_2">
+        <label class="md-nav__link" for="__nav_8_3">
           SSL证书
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="SSL证书" data-md-level="2">
-        <label class="md-nav__title" for="__nav_8_2">
+        <label class="md-nav__title" for="__nav_8_3">
           <span class="md-nav__icon md-icon"></span>
           SSL证书
         </label>
@@ -774,38 +783,9 @@
       
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          获取更多扩展
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         获取更多扩展
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#sarlambdaedge" class="md-nav__link">
-    在SAR中部署Lambda@Edge
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -845,6 +825,20 @@
           API参考指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-reference-guide/overview/" class="md-nav__link">
+        概述
+      </a>
+    </li>
+  
+
+            
           
             
               
@@ -987,21 +981,6 @@
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#sarlambdaedge" class="md-nav__link">
-    在SAR中部署Lambda@Edge
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1020,16 +999,7 @@
 
   <h1>获取更多扩展</h1>
 
-<p>对于Lambda@Edge功能，您还可以通过在Amazon SAR中搜索关键字aws-cloudfront-extensions来查找和部署它们。</p>
-<h2 id="sarlambdaedge">在SAR中部署Lambda@Edge</h2>
-<ol>
-<li>在控制台中打开<a href="https://serverlessrepo.aws.amazon.com/applications">Amazon Serverless Application Repository页面</a>。</li>
-<li>勾选<strong>显示用于创建自定义 IAM 角色或资源策略的应用程序</strong>。</li>
-<li>搜索<strong>aws-cloudfront-extensions</strong>，将显示所有扩展，选择一个应用程序（例如，serving-based-on-device）并单击<strong>部署</strong>。</li>
-<li>在应用详情页面，勾选<strong>我确认此应用程序将创建自定义 IAM 角色和资源策略</strong>。</li>
-<li>选择<strong>部署</strong>。部署完成后会重定向到Lambda应用页面，您可以将其部署到Lambda@Edge。</li>
-</ol>
-<p>请参考<a href="../../deployment/#lambdaedge">部署解决方案</a>获取更多信息。</p>
+<p>对于Lambda@Edge功能，您还可以通过在Amazon SAR中搜索关键字aws-cloudfront-extensions来查找和部署它们。请参考<a href="../../deployment/#lambdaedge">部署解决方案</a>获取更多信息。</p>
 
 
 
@@ -1064,13 +1034,13 @@
       
       
         
-        <a href="../../api-reference-guide/monitoring/" class="md-footer__link md-footer__link--next" aria-label="下一页: 监控" rel="next">
+        <a href="../../api-reference-guide/overview/" class="md-footer__link md-footer__link--next" aria-label="下一页: 概述" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 下一页
               </span>
-              监控
+              概述
             </div>
           </div>
           <div class="md-footer__button md-icon">
