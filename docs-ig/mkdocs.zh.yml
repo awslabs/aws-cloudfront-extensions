@@ -11,14 +11,15 @@ nav:
   - 成本预估: cost.md
   - 架构概览: architecture.md
   - 安全信息: security.md
-  - 区域支持: regions.md
+  - 区域和配额: regions.md
   - 部署解决方案: deployment.md
   - 监控: 
       - 概述: monitoring/overview.md
       - 非实时监控: monitoring/non-real-time-monitoring.md
       - 实时监控: monitoring/real-time-monitoring.md
       - 指标仪表板: monitoring/metrics-dashboard.md
-  - 分配管理: 
+  - 分配管理:
+      - 概述: distribution-management/overview.md 
       - 快照: 
           - 概述: distribution-management/snapshot/overview.md
           - 发布快照: distribution-management/snapshot/publish-snapshot.md
@@ -40,6 +41,7 @@ nav:
       - 根据地理位置跳转: extension-repository/redirect-by-country.md
       - 获取更多扩展: extension-repository/more-extension-in-sar.md 
   - API参考指南: 
+      - 概述: api-reference-guide/overview.md
       - 监控: api-reference-guide/monitoring.md
       - 扩展存储库: api-reference-guide/extension-repository.md
       - 分配管理: api-reference-guide/distribution-management.md
