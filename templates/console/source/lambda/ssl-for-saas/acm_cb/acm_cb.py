@@ -409,6 +409,11 @@ def lambda_handler(event, context):
 
         update_job_field(JOB_INFO_TABLE_NAME,
                          job_token,
+                         'cert_completed_number',
+                         certTotalNumber)
+
+        update_job_field(JOB_INFO_TABLE_NAME,
+                         job_token,
                          'dcv_validation_msg',
                          generate_notify_content(sns_msg))
 

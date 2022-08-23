@@ -533,7 +533,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       this,
       "ACM Callback Handler Map",
       {
-        maxConcurrency: 10,
+        maxConcurrency: 5,
         itemsPath: _step.JsonPath.stringAt("$.cnameList"),
         resultPath: "$.fn_acm_cb_handler_map",
       }
