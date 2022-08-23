@@ -43,7 +43,17 @@
 
 您可以在Amazon CloudFormation控制台的**状态**列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为**CREATE_COMPLETE**。
 
-您还可以选择**输出**标签页查看堆栈资源的详细信息。您可以在**WebConsoleCloudFrontURL**中找到CloudFront Extensions控制台的链接。对于监控API，本解决方案会创建一个名字包含**NonRealtimeNestedStack**或**RealtimeNestedStack**的嵌套堆栈，您可以在此嵌套堆栈的**输出**标签页中找到监控API的链接。 
+
+
+### 部署后的操作
+
+您还可以选择**输出**标签页查看堆栈资源的详细信息。您可以在**WebConsoleCloudFrontURL**中找到CloudFront Extensions控制台的链接。登录控制台的初始用户名和密码在您部署堆栈时通过InitialUserName和InitialUserPassword参数进行定义。对于监控API，本解决方案会创建一个名字包含**NonRealtimeNestedStack**或**RealtimeNestedStack**的嵌套堆栈，您可以在此嵌套堆栈的**输出**标签页中找到监控API的链接。 
+
+CloudFormation堆栈部署了如下模块：
+- 监控：: 如果您在部署CloudFormation堆栈时将Monitoring参数设置为yes-Realtime或 yes-Non-Realtime，您将会部署监控模块到您的AWS账号，请参考[监控](./monitoring/overview.md)获取更多信息。
+- 分配管理：您可以通过本解决方案管理快照和SSL证书，请参考[分配管理](./distribution-management/overview.md)获取更多信息。 
+- 扩展存储库：该解决方案提供了一些这些扩展帮助您更方便的使用CloudFront。您可以从解决方案web控制台中部署它们，部署后，您可以直接使用它而无需编程，或者在需要时对其进行自定义。您可以部署一系列开箱即用的CloudFront扩展(如：Lambda@Edge函数、CloudFront Functions、CloudFormation模板），请参考[扩展存储库](./extension-repository/overview.md)获取更多信息。
+
 
 ## Lambda@Edge & CloudFront Functions合集
  

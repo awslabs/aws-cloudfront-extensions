@@ -16,7 +16,7 @@ As of August 2022, if the configuration of CloudFront distributions are changed 
 
 ##  SSL certificates
  
-As of August 2022, if user create 2000 acm certificates and 2000 cloudfront distribution per month, the estimated cost of using this solution is $0 per month in the US East (N. Virginia) Region (excludes free tier).
+As of August 2022, if user create 2000 ACM certificates and 2000 CloudFront distribution per month, the estimated cost of using this solution is $0 per month in the US East (N. Virginia) Region (excludes free tier).
 
 | Service            | Dimensions                                                    | Cost/Month | 
 |--------------------|---------------------------------------------------------------|------------|  

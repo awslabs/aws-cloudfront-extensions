@@ -3,7 +3,6 @@
 
 - [非实时监控](non-real-time-monitoring.md)
 - [实时监控](real-time-monitoring.md)
-- [指标仪表板](./metrics-dashboard.md)
 
 
 

@@ -1,6 +1,6 @@
 ## SSL Certificates
 
-You can use this solution to automatically create or import SSL Certificates and associate them to new CloudFront distributions. The solution provides two kinds of jobs: Create Certificates Job and Import Certificate Job. You can use then on UI or via API calls.
+You can use this solution to automatically create or import SSL Certificates and associate them to new CloudFront distributions. The solution provides two kinds of jobs: Create Certificates Job and Import Certificate Job. You can use then on web console or via API calls.
 
 This chapter covers the following topics:
 
@@ -13,8 +13,7 @@ This chapter covers the following topics:
 
 ### Prerequisites
 
-Before you create or import certificates, make sure you meet the [Prerequisites](https://docs.aws.amazon.com/acm/latest/userguide/import-certificate-prerequisites.html) listed by ACM. 
-
+Before you create or import certificates, make sure to meet the [Prerequisites](https://docs.aws.amazon.com/acm/latest/userguide/import-certificate-prerequisites.html) listed by ACM. 
 
 
 
