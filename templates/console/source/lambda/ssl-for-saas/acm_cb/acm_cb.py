@@ -11,7 +11,7 @@ from datetime import datetime
 
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
-from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type, wait_exponential
+from tenacity import retry, wait_fixed,wait_random, stop_after_attempt, retry_if_exception_type, wait_exponential
 from requests import exceptions
 
 # certificate need to create in region us-east-1 for cloudfront to use
