@@ -58,6 +58,13 @@ export class StepFunctionRpTsConstruct extends Construct {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    callback_table
+      .autoScaleReadCapacity({
+        minCapacity: 50,
+        maxCapacity: 100,
+      })
+      .scaleOnUtilization({ targetUtilizationPercent: 75 });
+
     // dynamodb table for job info
     const ssl_for_sass_job_info_table = new dynamodb.Table(
       this,

@@ -16,16 +16,17 @@ As of August 2022, if the configuration of CloudFront distributions are changed 
 
 ##  SSL certificates
  
-As of August 2022, if user create 500 acm certificates and 500 cloudfront distribution per month, the estimated cost of using this solution is $0 per month in the US East (N. Virginia) Region (excludes free tier).
+As of August 2022, if user create 2000 acm certificates and 2000 cloudfront distribution per month, the estimated cost of using this solution is $0 per month in the US East (N. Virginia) Region (excludes free tier).
 
-| Service            | Dimensions                                                          | Cost/Month | 
-|--------------------|---------------------------------------------------------------------|------------|  
-| AWS Lambda         | 11140 invocations<br>average 500 millisecond and 256MB memory       | $0         |
-| Amazon API Gateway | 500 requests                                                        | $0         |
-| AWS Appsync        | 500 requests                                                        | $0         |
-| Step Functions     | 8 x 500 = 4000 states transitions                                   | $0         |
-| Amazon DynamoDB    | 100MB data storage<br>2 writes per minute<br>1 read every 2 minutes | $0         |
-| Total              |                                                                     | $0         |
+| Service            | Dimensions                                                    | Cost/Month | 
+|--------------------|---------------------------------------------------------------|------------|  
+| AWS Lambda         | 11140 invocations<br>average 500 millisecond and 256MB memory | $0         |
+| Amazon API Gateway | 5000 requests                                                 | $0         |
+| AWS Appsync        | 5000 requests                                                 | $0.02      |
+| Step Functions     | 8 x 500 = 4000 states transitions                             | $0         |
+| Amazon DynamoDB    | 1000MB data storage                                           | $26.64     |
+| Amazon Simple Storage Service (S3) | 1GB storage                                   | $0.02      |
+| Total              |                                                               | $26.68     |
 
 
 ##  Non-real time monitoring with CloudFront standard logs
