@@ -1,6 +1,7 @@
 INHERIT: ./mkdocs.base.yml
 docs_dir: en
 site_dir: ./site/en
+site_name: Implementation Guide
 theme:
   language: en
 nav:
