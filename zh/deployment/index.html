@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/deployment/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.6">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
     
     
       
@@ -21,11 +21,12 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.9d5733d3.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
         
+      
       
     
     
@@ -39,7 +40,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -63,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#lambdaedge-cloudfront-functions" class="md-skip">
+        <a href="#cloudfront-extensions" class="md-skip">
           跳转至
         </a>
       
@@ -80,11 +81,11 @@
     <a href=".." title="CloudFront Extensions解决方案" class="md-header__button md-logo" aria-label="CloudFront Extensions解决方案" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -108,7 +109,7 @@
         <div class="md-select">
           
           <button class="md-header__button md-icon" aria-label="选择当前语言">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
           </button>
           <div class="md-select__inner">
             <ul class="md-select__list">
@@ -132,7 +133,7 @@
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
@@ -140,13 +141,13 @@
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="查找">
         
         <button type="reset" class="md-search__icon md-icon" aria-label="清空当前内容" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
       
@@ -168,10 +169,10 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/awslabs/aws-cloudfront-extensions/" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/awslabs/aws-cloudfront-extensions" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -206,17 +207,17 @@
     <a href=".." title="CloudFront Extensions解决方案" class="md-nav__button md-logo" aria-label="CloudFront Extensions解决方案" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
     CloudFront Extensions解决方案
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/awslabs/aws-cloudfront-extensions/" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/awslabs/aws-cloudfront-extensions" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -307,21 +308,6 @@
 
   
   
-  
-    <li class="md-nav__item">
-      <a href="../template/" class="md-nav__link">
-        模板信息
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
     
   
   
@@ -354,6 +340,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cloudfront-extensions" class="md-nav__link">
+    CloudFront Extensions控制台
+  </a>
+  
+    <nav class="md-nav" aria-label="CloudFront Extensions控制台">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    部署概述
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    部署步骤
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lambdaedge-cloudfront-functions" class="md-nav__link">
     Lambda@Edge &amp; CloudFront Functions合集
   </a>
@@ -362,7 +375,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     部署概述
   </a>
   
@@ -400,64 +413,548 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#amazon-wafamazon-shieldcloudfront" class="md-nav__link">
-    基于Amazon WAF与Amazon Shield的CloudFront安全自动化
-  </a>
-  
-    <nav class="md-nav" aria-label="基于Amazon WAF与Amazon Shield的CloudFront安全自动化">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    部署概述
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    部署步骤
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cloudfrontapi" class="md-nav__link">
-    CloudFront实时日志监控API
-  </a>
-  
-    <nav class="md-nav" aria-label="CloudFront实时日志监控API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    部署概述
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    部署步骤
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7">
+          监控
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="监控" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          监控
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/overview/" class="md-nav__link">
+        概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/non-real-time-monitoring/" class="md-nav__link">
+        非实时监控
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/real-time-monitoring/" class="md-nav__link">
+        实时监控
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/metrics-dashboard/" class="md-nav__link">
+        指标仪表盘
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8">
+          分配管理
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="分配管理" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          分配管理
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_1" type="checkbox" id="__nav_8_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8_1">
+          快照
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="快照" data-md-level="2">
+        <label class="md-nav__title" for="__nav_8_1">
+          <span class="md-nav__icon md-icon"></span>
+          快照
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/snapshot/overview/" class="md-nav__link">
+        概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/snapshot/publish-snapshot/" class="md-nav__link">
+        发布快照
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/snapshot/apply-snapshot/" class="md-nav__link">
+        应用快照
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/snapshot/compare-snapshot/" class="md-nav__link">
+        比较快照
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/snapshot/delete-snapshot/" class="md-nav__link">
+        删除快照
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8_2" type="checkbox" id="__nav_8_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8_2">
+          SSL证书
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="SSL证书" data-md-level="2">
+        <label class="md-nav__title" for="__nav_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          SSL证书
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/overview/" class="md-nav__link">
+        概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/create-new-certificates/" class="md-nav__link">
+        创建新证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/import-existing-certificates/" class="md-nav__link">
+        导入已有证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/list-certificates/" class="md-nav__link">
+        查看SSL证书列表
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/dns-validation-process/" class="md-nav__link">
+        DNS验证
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/add-record-for-cname/" class="md-nav__link">
+        在DNS提供商中为CNAME添加CloudFront记录
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution-management/ssl-certificates/clean-up-resources/" class="md-nav__link">
+        清理资源
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9">
+          扩展仓库
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="扩展仓库" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          扩展仓库
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension-repository/overview/" class="md-nav__link">
+        概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension-repository/true-client-ip/" class="md-nav__link">
+        客户端IP透传
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension-repository/pre-warming/" class="md-nav__link">
+        预热
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension-repository/redirect-by-country/" class="md-nav__link">
+        根据地理位置跳转
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension-repository/more-extension-in-sar/" class="md-nav__link">
+        获取更多扩展
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10">
+          API参考指南
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API参考指南" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          API参考指南
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference-guide/monitoring/" class="md-nav__link">
+        监控
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference-guide/extension-repository/" class="md-nav__link">
+        扩展仓库
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference-guide/distribution-management/" class="md-nav__link">
+        分配管理
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -500,6 +997,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../source/" class="md-nav__link">
         源代码
       </a>
@@ -517,6 +1029,21 @@
     <li class="md-nav__item">
       <a href="../revisions/" class="md-nav__link">
         文档发布说明
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notices/" class="md-nav__link">
+        声明
       </a>
     </li>
   
@@ -547,6 +1074,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cloudfront-extensions" class="md-nav__link">
+    CloudFront Extensions控制台
+  </a>
+  
+    <nav class="md-nav" aria-label="CloudFront Extensions控制台">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    部署概述
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    部署步骤
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lambdaedge-cloudfront-functions" class="md-nav__link">
     Lambda@Edge &amp; CloudFront Functions合集
   </a>
@@ -555,7 +1109,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     部署概述
   </a>
   
@@ -593,60 +1147,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#amazon-wafamazon-shieldcloudfront" class="md-nav__link">
-    基于Amazon WAF与Amazon Shield的CloudFront安全自动化
-  </a>
-  
-    <nav class="md-nav" aria-label="基于Amazon WAF与Amazon Shield的CloudFront安全自动化">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    部署概述
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    部署步骤
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cloudfrontapi" class="md-nav__link">
-    CloudFront实时日志监控API
-  </a>
-  
-    <nav class="md-nav" aria-label="CloudFront实时日志监控API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    部署概述
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    部署步骤
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -659,20 +1159,104 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/awslabs/aws-cloudfront-extensions/edit/master/docs/deployment.md" title="编辑此页" class="md-content__button md-icon">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
-</a>
+  <a href="https://github.com/awslabs/aws-cloudfront-extensions/edit/master/docs/deployment.md" title="编辑此页" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
 
 
 
   <h1>部署解决方案</h1>
 
 <p>在部署解决方案之前，建议您先查看本指南中有关架构图和区域支持等信息。然后按照下面的说明配置解决方案并将其部署到您的帐户中。</p>
+<h2 id="cloudfront-extensions">CloudFront Extensions控制台</h2>
+<p>部署时间：约15分钟</p>
+<h3 id="_1">部署概述</h3>
+<p>使用以下步骤在Amazon Web Service上部署此解决方案。</p>
+<ul>
+<li>在您的Amazon Web Service帐户中启动CloudFormation模板。</li>
+<li>查看模板参数，并在必要时进行调整。</li>
+</ul>
+<h3 id="_2">部署步骤</h3>
+<ol>
+<li>
+<p>登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接<a href="https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json">下载模板</a> 进行部署。</p>
+<p><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></p>
+</li>
+<li>
+<p>默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。</p>
+</li>
+<li>
+<p>在参数部分，查看模板的参数，并根据需要进行修改。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EmailAddress</td>
+<td>-</td>
+<td>接收SSL证书通知的电子邮箱地址</td>
+</tr>
+<tr>
+<td>InitialUserEmail</td>
+<td>-</td>
+<td>Web控制台的初始用户电子邮箱</td>
+</tr>
+<tr>
+<td>InitialUserName</td>
+<td>-</td>
+<td>Web控制台的初始用户名</td>
+</tr>
+<tr>
+<td>InitialUserPassword</td>
+<td>-</td>
+<td>Web控制台的初始用户密码</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>no</td>
+<td>启用实时或非实时监控以获取CloudFront监控指标，如缓存命中率、带宽，请参阅 [监控](../monitoring/overview</td>
+</tr>
+<tr>
+<td>CloudFrontDomainList</td>
+<td>-</td>
+<td>CloudFront域名列表。如需监控多个域名，使用逗号分隔多个域名。填入“ALL”监视AWS帐户中的所有域名</td>
+</tr>
+<tr>
+<td>CloudFrontLogKeepDays</td>
+<td>120</td>
+<td>将CloudFront日志保存在S3存储桶中的天数</td>
+</tr>
+<tr>
+<td>DeleteLog</td>
+<td>false</td>
+<td>删除S3存储桶中的原始CloudFront标准日志（true或false）</td>
+</tr>
+<tr>
+<td>UseStartTime</td>
+<td>false</td>
+<td>如果指标数据中的时间基于开始时间，则将其设置为true；如果指标数据的时间基于结束时间，则设置为false</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>选择<strong>下一步</strong>。</p>
+</li>
+<li>在<strong>配置堆栈选项</strong>页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择<strong>下一步</strong>。</li>
+<li>在<strong>审核</strong>页面，查看并确认设置。确保选中确认模板将创建Amazon Identity and Access Management（IAM）资源的复选框。选择<strong>下一步</strong>。</li>
+<li>选择<strong>创建堆栈</strong>以部署堆栈。</li>
+</ol>
+<p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
+<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。您可以在<strong>WebConsoleCloudFrontURL</strong>中找到CloudFront Extensions控制台的链接。对于监控API，本解决方案会创建一个名字包含<strong>NonRealtimeNestedStack</strong>或<strong>RealtimeNestedStack</strong>的嵌套堆栈，您可以在此嵌套堆栈的<strong>输出</strong>标签页中找到监控API的链接。 </p>
 <h2 id="lambdaedge-cloudfront-functions">Lambda@Edge &amp; CloudFront Functions合集</h2>
 <p>部署时间：约3分钟</p>
-<h3 id="_1">部署概述</h3>
+<h3 id="_3">部署概述</h3>
 <p>您可以点击下表中的部署链接进行部署。对于Lambda@Edge函数，您也可通过在SAR (Serverless Application Repository)中搜索关键字aws-cloudfront-extensions进行部署。</p>
-<p>有关Lambda@Edge和CloudFront Functions的详细信息，可参考<a href="..">概述</a>。</p>
 <h4 id="lambdaedge">Lambda@Edge</h4>
 <table>
 <thead>
@@ -684,71 +1268,71 @@
 <tbody>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-cognito">Authentication with Cognito</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-cognito"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-cognito"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/blob/main/edge/nodejs/add-security-headers">Add security headers</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/add-security-headers"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/blob/main/edge/nodejs/add-security-headers">Adding security header</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/add-security-headers"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/serving-based-on-device">Serve content based on device type</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serving-based-on-device"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serving-based-on-device"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/cross-origin-resource-sharing">Cross origin resource sharing</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/cross-origin-resource-sharing"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/cross-origin-resource-sharing"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code">Modify response status code</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-status-code"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-status-code"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-header">Modify response header</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-header"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-header"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/access-origin-by-weight-rate">Access origin by weight rate</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/access-origin-by-weight-rate"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/access-origin-by-weight-rate"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/multiple-origin-IP-retry">Failover to alternative origin</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/multiple-origin-IP-retry"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/multiple-origin-IP-retry"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/http302-from-origin">Support 302 from origin</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/http302-from-origin"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/http302-from-origin"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/prewarm">Pre-warm</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/prewarm"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=pre-warming&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/PrewarmStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/resize-picture">Resize picture</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/resize-picture"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/ResizeImageStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking">Anti-hotlinking</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/anti-hotlinking"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/anti-hotlinking"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/normalize-query-string">Standardize query string</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/normalize-query-string"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/normalize-query-string"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/authentication-with-aliyun-cdn-typeA">Authentication with Alibaba Cloud</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-aliyun-cdn-typeA"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-aliyun-cdn-typeA"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/rewrite-url">Rewrite host for custom origin</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/rewrite-url"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/rewrite-url"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/python/serverless-load-balancer">Serverless load balancer</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serverless-load-balancer"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serverless-load-balancer"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/custom-response-with-replaced-url">Custom response with new URL</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/custom-response-with-replaced-url"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/custom-response-with-replaced-url"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 </tbody>
 </table>
@@ -763,39 +1347,39 @@
 <tbody>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers">Add security headers</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/cross-origin-resource-sharing">Cross origin resource sharing</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cross-origin-resource-sharing&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcross-origin-resource-sharing.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cross-origin-resource-sharing&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcross-origin-resource-sharing.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-cache-control-header">Add cache control headers</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-cache-control-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-cache-control-header.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-cache-control-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-cache-control-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-origin-header">Add origin headers</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-origin-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-origin-header.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-origin-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-origin-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-true-client-ip-header">Add true client IP headers</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-true-client-ip-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-true-client-ip-header.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-true-client-ip-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-true-client-ip-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/redirect-based-on-country">Redirect based on country</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=redirect-based-on-country&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fredirect-based-on-country.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=redirect-based-on-country&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fredirect-based-on-country.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/default-dir-index">Default dir index</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fdefault-dir-index.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fdefault-dir-index.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/verify-jwt">Verify JSON web token</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=verify-jwt&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fverify-jwt.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=verify-jwt&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fverify-jwt.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/custom-host">Customize request host</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=custom-host&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcustom-host.yaml"><img alt="部署" src="../images/deploy_button.png" /></a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=custom-host&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcustom-host.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 </tbody>
 </table>
@@ -807,139 +1391,13 @@
 <li>在应用详情页面，勾选<strong>我确认此应用程序将创建自定义 IAM 角色和资源策略</strong>。</li>
 <li>选择<strong>部署</strong>。部署完成后会重定向到Lambda应用页面，您可以将其部署到Lambda@Edge。</li>
 </ol>
-<h2 id="amazon-wafamazon-shieldcloudfront">基于Amazon WAF与Amazon Shield的CloudFront安全自动化</h2>
-<p>部署时间：约15分钟</p>
-<h3 id="_2">部署概述</h3>
-<p>使用以下步骤在Amazon Web Service上部署此解决方案。</p>
-<ul>
-<li>在您的Amazon Web Service帐户中启动CloudFormation模板。</li>
-<li>查看模板参数，并在必要时进行调整。</li>
-</ul>
-<h3 id="_3">部署步骤</h3>
-<ol>
-<li>
-<p>登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接<a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template">下载模板</a>进行部署。</p>
-<p><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=WAFWorkshopSampleWebApp&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/AwsCloudfrontWafStack.template"><img alt="部署" src="../images/deploy_button.png" /></a></p>
-</li>
-<li>
-<p>默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。</p>
-</li>
-<li>
-<p>在<strong>参数</strong>部分，查看模板的参数，并根据需要进行修改。</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>默认值</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>WAFBlockPeriod</td>
-<td>240</td>
-<td>阻止指定IP地址访问的时间，以分钟为单位。</td>
-</tr>
-<tr>
-<td>WAFScope</td>
-<td>CLOUDFRONT</td>
-<td>指定WAF是否配置在CloudFront。</td>
-</tr>
-<tr>
-<td>appAccessLogBucket</td>
-<td>access-log-bucket-cloudfront</td>
-<td>存储CloudFront访问日志的S3存储桶名称。</td>
-</tr>
-<tr>
-<td>errorThreshold</td>
-<td>50</td>
-<td>每分钟允许的错误数量。</td>
-</tr>
-<tr>
-<td>requestThreshold</td>
-<td>100</td>
-<td>每个IP地址每五分钟可接受的最大请求数。</td>
-</tr>
-<tr>
-<td>wafLogBucketName</td>
-<td>waf-log-bucket-cloudfront</td>
-<td>存储WAF日志的S3存储桶的名称。</td>
-</tr>
-</tbody>
-</table>
-<pre><code> !!! note "说明"
 
-    如果WAFScope取默认值CLOUDFRONT，您必须选择在美国东部（弗吉尼亚北部）区域（us-east-1）创建WAFv2资源。
-</code></pre>
-</li>
-<li>
-<p>选择<strong>下一步</strong>。</p>
-</li>
-<li>在<strong>配置堆栈选项</strong>页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择<strong>下一步</strong>。</li>
-<li>在<strong>审核</strong>页面，查看并确认设置。确保选中确认模板将创建Amazon Identity and Access Management（IAM）资源的复选框。选择<strong>下一步</strong>。</li>
-<li>选择<strong>创建堆栈</strong>以部署堆栈。</li>
-</ol>
-<p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
-<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。</p>
-<h2 id="cloudfrontapi">CloudFront实时日志监控API</h2>
-<p>部署时间：约15分钟</p>
-<h3 id="_4">部署概述</h3>
-<p>使用以下步骤在Amazon Web Service上部署此解决方案。</p>
-<ul>
-<li>在您的Amazon Web Service帐户中启动CloudFormation模板。</li>
-<li>查看模板参数，并在必要时进行调整。</li>
-</ul>
-<h3 id="_5">部署步骤</h3>
-<ol>
-<li>
-<p>登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接<a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template">下载模板</a>进行部署。</p>
-<p><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionMonitoring&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-cloudfront-extensions/latest/CloudFrontMonitoringStack.template"><img alt="部署" src="../images/deploy_button.png" /></a></p>
-</li>
-<li>
-<p>默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。</p>
-</li>
-<li>
-<p>在<strong>参数</strong>部分，查看模板的参数，并根据需要进行修改。</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>默认值</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>CloudFrontDomainList</td>
-<td>-</td>
-<td>需要获取监控指标的CloudFront域名列表，若有多个域名，中间以逗号分隔。</td>
-</tr>
-<tr>
-<td>CloudFrontLogKeepDays</td>
-<td>120</td>
-<td>Amazon S3桶中保存CloudFront实时日志的天数。</td>
-</tr>
-<tr>
-<td>deployStage</td>
-<td>prod</td>
-<td>API Gateway部署阶段。</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li>
-<p>选择<strong>下一步</strong>。</p>
-</li>
-<li>在<strong>配置堆栈选项</strong>页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择<strong>下一步</strong>。</li>
-<li>在<strong>审核</strong>页面，查看并确认设置。确保选中确认模板将创建Amazon Identity and Access Management（IAM）资源的复选框。选择<strong>下一步</strong>。</li>
-<li>选择<strong>创建堆栈</strong>以部署堆栈。</li>
-</ol>
-<p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
-<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。
-更多信息请参考<a href="https://aws.amazon.com/cn/blogs/china/quickly-build-custom-cdn-monitoring-through-amazon-cloudfront-real-time-log/">博客</a>。</p>
+
+
 
               
             </article>
+            
           </div>
         </div>
         
@@ -947,36 +1405,37 @@
       
         <footer class="md-footer">
   
-    <nav class="md-footer__inner md-grid" aria-label="页脚">
+    
+    <nav class="md-footer__inner md-grid" aria-label="页脚" >
       
         
-        <a href="../template/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 模板信息" rel="prev">
+        <a href="../regions/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 区域支持" rel="prev">
           <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 上一页
               </span>
-              模板信息
+              区域支持
             </div>
           </div>
         </a>
       
       
         
-        <a href="../additional-resources/" class="md-footer__link md-footer__link--next" aria-label="下一页: 更多资源" rel="next">
+        <a href="../monitoring/overview/" class="md-footer__link md-footer__link--next" aria-label="下一页: 概述" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 下一页
               </span>
-              更多资源
+              概述
             </div>
           </div>
           <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
           </div>
         </a>
       
@@ -1002,10 +1461,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["tabs", "search.suggest", "search.highlight"], "translations": {"clipboard.copy": "\u590d\u5236", "clipboard.copied": "\u5df2\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\uff0c\\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "search": "../assets/javascripts/workers/search.5e67fbfe.min.js"}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\uff0c\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.e87a5f81.min.js"></script>
+      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
       
     
   </body>
