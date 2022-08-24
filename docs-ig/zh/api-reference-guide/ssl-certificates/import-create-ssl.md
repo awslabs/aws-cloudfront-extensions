@@ -9,7 +9,7 @@
 
   - 创建一个ACM证书，并根据现有分配的指定配置版本自动创建新的CloudFront分配
 
-    ``` json
+``` json
     {
       "acm_op": "create",   
       "auto_creation": "true", 
@@ -28,11 +28,11 @@
         }
       ]
     }
-    ```
+```
 
   - 创建一个ACM证书，并根据现有分配的配置自动创建新的CloudFront分配
 
-    ``` json
+``` json
     {
       "acm_op": "create",   
       "auto_creation": "true", 
@@ -50,11 +50,11 @@
         }
       ]
     }
-    ```
+```
 
   - 创建两个ACM证书，并根据现有分配的配置自动创建新的CloudFront分配
 
-    ``` json
+``` json
     {
       "acm_op": "create",   
       "auto_creation": "true", 
@@ -85,11 +85,11 @@
         }
       ]
     }
-    ```
+```
 
   - 导入一个ACM证书并从现有分配的配置自动创建新的CloudFront分配
 
-    ``` json
+``` json
     {
         "acm_op": "import",
         "auto_creation": "true",
@@ -107,11 +107,11 @@
             }
         ]
     }
-    ```
+```
 
   - 导入两个ACM证书并从现有分配的指定配置版本自动创建新的CloudFront分配
   
-    ``` json
+``` json
     {
         "acm_op": "import",
         "auto_creation": "true",
@@ -137,7 +137,7 @@
             }
         ]
     }
-    ```
+```
 
 - 响应
 

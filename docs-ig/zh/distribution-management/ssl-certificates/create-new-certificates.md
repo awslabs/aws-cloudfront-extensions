@@ -6,11 +6,11 @@
 
 启动创建证书作业时，本解决方案将在AWS Step Functions中启动工作流，该工作流执行以下操作：
 
-1. 在ACM中创建证书：本解决方案将根据输入自动创建所有ACM证书。创建SSL证书后，本解决方案将向指定的电子邮件地址或HTTP端点（取决于订阅方式）发送SNS消息。之后，域名所有者需要完成DNS验证过程。有关更多信息，请参阅[DNS验证](./dns-validation-process.md)。
+1. 在ACM中创建证书：本解决方案将根据输入自动创建所有ACM证书。创建SSL证书后，本解决方案将向指定的电子邮件地址发送SNS消息。之后，域名所有者需要完成DNS验证过程。有关更多信息，请参阅[DNS验证](./dns-validation-process.md)。
 
 2. 检查ACM中的证书状态：本解决方案每5分钟检查一次DNS验证状态。DNS验证是一个手动过程，也称为域控制验证（Domain Control Validation）。域名所有者需要在DNS提供商的网站上手动添加域名的CNAME记录。ACM将每隔几分钟检查一次DNS验证状态。完成后，ACM将颁发证书。
 
-3. 创建新的CloudFront分配：当所有证书都由ACM颁发后，本解决方案将自动创建CloudFront分配。创建所有CloudFront分配后，本解决方案将向指定的电子邮件地址或HTTP端点发送SNS消息。之后，域名所有者需要添加新的CloudFront分配以映射到CNAME。有关更多信息，请参阅[向DNS提供商添加CNAME的CloudFront记录](./add-record-for-cname.md)。
+3. 创建新的CloudFront分配：当所有证书都由ACM颁发后，本解决方案将自动创建CloudFront分配。创建所有CloudFront分配后，本解决方案将向指定的电子邮件地址发送SNS消息。之后，域名所有者需要添加新的CloudFront分配以映射到CNAME。有关更多信息，请参阅[向DNS提供商添加CNAME的CloudFront记录](./add-record-for-cname.md)。
 
 
 ![certificate-workflow](../../../images/certificate-workflow.png)

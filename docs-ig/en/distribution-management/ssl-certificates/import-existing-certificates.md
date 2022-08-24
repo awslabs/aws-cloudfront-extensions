@@ -7,7 +7,7 @@ The solution will automatically import one or multiple your existing issued cert
 When you starts an Import Certificate Job, the solution starts a workflow in AWS Step Functions that does the following:
 
 1. Import certificates in ACM: The solution will automatically import certificate records in ACM.
-2. Create new CloudFront distributions: The solution will automatically create CloudFront distributions. After all distributions were created, the solution will send a SNS message to the designated email address or HTTP endpoint. 
+2. Create new CloudFront distributions: The solution will automatically create CloudFront distributions. After all distributions were created, the solution will send a SNS message to the designated email address. 
 
 ![certificate-workflow1](../../../images/certificate-workflow1.png)
 
