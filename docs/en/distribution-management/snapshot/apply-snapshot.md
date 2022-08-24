@@ -1,7 +1,7 @@
 You can apply a snapshot to other CloudFront distributions.
 
 !!! Important
-     Please be careful when apply the snapshot, the target distribution configuration will be totally replaced.
+     When you apply the snapshot, the target distribution configuration will be replaced.
 
 1. Log in to the web console.
 2. In the left sidebar, under **Configuration**, select **Snapshot**. 
