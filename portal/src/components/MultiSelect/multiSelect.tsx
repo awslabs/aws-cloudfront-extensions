@@ -123,9 +123,6 @@ const MultiSelect: React.FC<SelectProps> = (props: SelectProps) => {
                 >
                   {/* <Checkbox /> */}
                   <input
-                    onChange={(event) => {
-                      // console.info(event);
-                    }}
                     style={{ position: "absolute", margin: "6px 0 0 -20px" }}
                     type="checkbox"
                     checked={selected.indexOf(element.value) > -1}

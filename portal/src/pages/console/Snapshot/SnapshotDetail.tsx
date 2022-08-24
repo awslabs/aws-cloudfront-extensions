@@ -12,8 +12,6 @@ import MultiSelect from "components/MultiSelect";
 import { Snapshot } from "API";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import {
-  getAppliedSnapshotName,
-  getConfigSnapshotContent,
   getDistributionCname,
   listCloudfrontSnapshots,
   listDistribution,
@@ -29,19 +27,15 @@ import Swal from "sweetalert2";
 import HeaderPanel from "../../../components/HeaderPanel";
 import ValueWithLabel from "../../../components/ValueWithLabel";
 import ButtonDropdown from "components/ButtonDropdown";
+import { useTranslation } from "react-i18next";
 
 const SnapshotDetail: React.FC = () => {
   const navigate = useNavigate();
   const [snapshotFilterList, setSnapshotFilterList] = useState<Snapshot[]>([]);
-  const [snapshotList, setSnapshotList] = useState<Snapshot[]>([]);
-  const [snapshotWithNotesList, setSnapshotWithNotesList] = useState<
-    Snapshot[]
-  >([]);
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<Snapshot[]>([]);
   const [applyDisabled, setApplyDisabled] = useState(false);
   const [saveDisabled, setSaveDisabled] = useState(false);
-  const [deleteDisabled, setDeleteDisabled] = useState(false);
   const [compareDisabled, setCompareDisabled] = useState(false);
   const [compareWithCurrentDisabled, setCompareWithCurrentDisabled] =
     useState(false);
@@ -52,21 +46,18 @@ const SnapshotDetail: React.FC = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [loadingApply, setLoadingApply] = useState(false);
   const [snapShotName, setSnapShotName] = useState<any>("");
-  const [bindingSnapShotName, setBindingSnapShotName] = useState<any>("");
   const [snapShotNote, setSnapShotNote] = useState<any>("");
   const [distributionId, setDistributionId] = useState<any>("");
-  const [isDrifting, setIsDrifting] = useState<any>("NO");
-  const [driftingCompareDisable, setDriftingCompareDisable] =
-    useState<any>(true);
   const [distributionAliases, setDistributionAliases] = useState<string[]>([]);
   const { id } = useParams();
+  const { t } = useTranslation();
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Snapshot",
+      name: t("snapshot:configSnapshot"),
       link: "/config/snapshot",
     },
     {
@@ -78,19 +69,17 @@ const SnapshotDetail: React.FC = () => {
   const getSnapshotListByDistribution = async () => {
     try {
       setDistributionId(id || "");
+      setSnapshotFilterList([]);
       setLoadingData(true);
-      setSnapshotList([]);
       const resData = await appSyncRequestQuery(listCloudfrontSnapshots, {
         distribution_id: id,
       });
       const snapshotList: Snapshot[] = resData.data.listCloudfrontSnapshots;
       const snapshotWithoutLatest: Snapshot[] = snapshotList.filter(
-        (snapshot) => snapshot.snapshot_name != "_LATEST_"
+        (snapshot) => snapshot.snapshot_name !== "_LATEST_"
       );
       setLoadingData(false);
-      setSnapshotList(snapshotWithoutLatest);
       setSnapshotFilterList(snapshotWithoutLatest);
-      setSnapshotWithNotesList(snapshotWithoutLatest);
     } catch (error) {
       setLoadingData(false);
       console.error(error);
@@ -140,68 +129,6 @@ const SnapshotDetail: React.FC = () => {
     getCloudfrontAliases();
   }, []);
 
-  // get alias by Distribution
-  const getBindSnapshot = async () => {
-    try {
-      const resData = await appSyncRequestQuery(getAppliedSnapshotName, {
-        distribution_id: id,
-      });
-      const snapshot: string = resData.data.getAppliedSnapshotName;
-      setBindingSnapShotName(snapshot);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  useEffect(() => {
-    getBindSnapshot();
-  }, []);
-
-  // get Binding Snapshot drifting status
-  const getBindSnapshotDriftStatus = async () => {
-    if (
-      bindingSnapShotName === "Not binding with any Snapshot" ||
-      bindingSnapShotName === ""
-    ) {
-      setIsDrifting("NO");
-      setDriftingCompareDisable(true);
-      return;
-    }
-
-    try {
-      const resDataCurrent = await appSyncRequestQuery(
-        getConfigSnapshotContent,
-        {
-          distribution_id: id,
-          snapshot_name: bindingSnapShotName,
-        }
-      );
-      const bindSnapshotContent: string =
-        resDataCurrent.data.getConfigSnapshotContent;
-
-      const resDataLatest = await appSyncRequestQuery(
-        getConfigSnapshotContent,
-        {
-          distribution_id: id,
-          snapshot_name: "_LATEST_",
-        }
-      );
-      const currentCloudfrontContent: string =
-        resDataLatest.data.getConfigSnapshotContent;
-
-      if (bindSnapshotContent === currentCloudfrontContent) {
-        setIsDrifting("NO");
-      } else {
-        setIsDrifting("YES");
-        setDriftingCompareDisable(false);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  useEffect(() => {
-    getBindSnapshotDriftStatus();
-  }, [bindingSnapShotName]);
-
   // Get Snapshot List By Distribution
   const applyCloudFrontSnapshot = async () => {
     try {
@@ -214,7 +141,7 @@ const SnapshotDetail: React.FC = () => {
       const snapshotId = selectedItem[0].snapshot_name;
 
       setLoadingApply(true);
-      const resData = await appSyncRequestMutation(applySnapshot, {
+      await appSyncRequestMutation(applySnapshot, {
         src_distribution_id: id,
         snapshot_name: snapshotId,
         target_distribution_ids: targetDistList,
@@ -253,6 +180,9 @@ const SnapshotDetail: React.FC = () => {
         snapShotName,
         snapShotNote,
       });
+      if (resData.data) {
+        getSnapshotListByDistribution();
+      }
     } catch (error) {
       console.error(error);
     }
@@ -264,6 +194,9 @@ const SnapshotDetail: React.FC = () => {
         distributionId,
         snapShotName: selectedItem[0].snapshot_name,
       });
+      if (resData.data) {
+        getSnapshotListByDistribution();
+      }
     } catch (error) {
       console.error(error);
     }
@@ -274,13 +207,11 @@ const SnapshotDetail: React.FC = () => {
       if (selectedItem.length === 1) {
         setApplyDisabled(false);
         setSaveDisabled(false);
-        setDeleteDisabled(false);
         setCompareDisabled(true);
         setCompareWithCurrentDisabled(false);
       } else if (selectedItem.length === 2) {
         setApplyDisabled(true);
         setSaveDisabled(true);
-        setDeleteDisabled(true);
         setCompareDisabled(false);
         setCompareWithCurrentDisabled(true);
       } else {
@@ -301,54 +232,12 @@ const SnapshotDetail: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
-        {/*<HeaderPanel*/}
-        {/*  title={*/}
-        {/*    distributionId + "(" + (distributionAliases[0] || "No CNAME") + ")"*/}
-        {/*  }*/}
-        {/*>*/}
-        {/*  <div className="flex value-label-span">*/}
-        {/*    <div className="flex-1">*/}
-        {/*      <ValueWithLabel label="Applied Snapshot Name">*/}
-        {/*        <div>*/}
-        {/*          {bindingSnapShotName == ""*/}
-        {/*            ? "Not binding with any Snapshot"*/}
-        {/*            : bindingSnapShotName}*/}
-        {/*        </div>*/}
-        {/*      </ValueWithLabel>*/}
-        {/*    </div>*/}
-        {/*    <div className="flex-1 border-left-c">*/}
-        {/*      <ValueWithLabel label="Drifting from applied Snapshot?">*/}
-        {/*        <div>{isDrifting}</div>*/}
-        {/*      </ValueWithLabel>*/}
-        {/*      <ValueWithLabel label="Diff with applied Snapshot">*/}
-        {/*        <div>*/}
-        {/*          <Button*/}
-        {/*            btnType="primary"*/}
-        {/*            disabled={driftingCompareDisable}*/}
-        {/*            onClick={() => {*/}
-        {/*              const path =*/}
-        {/*                "/config/snapshot/detail/" +*/}
-        {/*                id +*/}
-        {/*                "/compare/" +*/}
-        {/*                bindingSnapShotName +*/}
-        {/*                "/" +*/}
-        {/*                "_LATEST_";*/}
-        {/*              navigate(path);*/}
-        {/*            }}*/}
-        {/*          >*/}
-        {/*            Compare with Applied Snapshot*/}
-        {/*          </Button>*/}
-        {/*        </div>*/}
-        {/*      </ValueWithLabel>*/}
-        {/*    </div>*/}
-        {/*  </div>*/}
-        {/*</HeaderPanel>*/}
         <HeaderPanel title={distributionId}>
           <div className="flex value-label-span">
-            <ValueWithLabel label="CNAME">
+            <ValueWithLabel label={t("snapshot:detail.cname")}>
               <div>
                 <div className="flex-1">
-                  {distributionAliases[0] || "No CNAME"}
+                  {distributionAliases[0] || t("snapshot:detail.nocname")}
                 </div>
               </div>
             </ValueWithLabel>
@@ -356,7 +245,7 @@ const SnapshotDetail: React.FC = () => {
         </HeaderPanel>
         <TablePanel
           loading={loadingData}
-          title="Snapshot List"
+          title={t("snapshot:detail.snapshotList")}
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
@@ -377,21 +266,29 @@ const SnapshotDetail: React.FC = () => {
                 items={[
                   {
                     id: "compareCurrent",
-                    text: "Compare with current Config",
+                    text: t("snapshot:detail.action.compareCurrent"),
                     disabled: compareWithCurrentDisabled,
                   },
-                  { id: "compare", text: "Compare", disabled: compareDisabled },
+                  {
+                    id: "compare",
+                    text: t("snapshot:detail.action.compare"),
+                    disabled: compareDisabled,
+                  },
                   {
                     id: "updateNote",
-                    text: "Update Description",
+                    text: t("snapshot:detail.action.updateDesc"),
                     disabled: saveDisabled,
                   },
                   {
                     id: "applyOther",
-                    text: "Apply to other distributions",
+                    text: t("snapshot:detail.action.applyOther"),
                     disabled: applyDisabled,
                   },
-                  { id: "delete", text: "Delete", disabled: saveDisabled },
+                  {
+                    id: "delete",
+                    text: t("snapshot:detail.action.delete"),
+                    disabled: saveDisabled,
+                  },
                 ]}
                 className="drop-down"
                 // disabled={pipelineInfo?.status !== PipelineStatus.ACTIVE}
@@ -402,8 +299,8 @@ const SnapshotDetail: React.FC = () => {
                     setLoadingApply(false);
                     getSnapshotListByDistribution();
                     Swal.fire(
-                      "Cloudfront snapshot deleted",
-                      "Cloudfront snapshot deleted",
+                      t("snapshot:detail.action.deleteTip"),
+                      t("snapshot:detail.action.deleteTip"),
                       "success"
                     );
                   }
@@ -444,7 +341,7 @@ const SnapshotDetail: React.FC = () => {
                   }
                 }}
               >
-                Actions
+                {t("button.actions")}
               </ButtonDropdown>
 
               <Button
@@ -453,7 +350,7 @@ const SnapshotDetail: React.FC = () => {
                   setSnapshotModal(true);
                 }}
               >
-                Create Snapshot
+                {t("button.createSnapshot")}
               </Button>
             </div>
           }
@@ -463,7 +360,7 @@ const SnapshotDetail: React.FC = () => {
             {
               width: 150,
               id: "snapShotName",
-              header: "Snapshot Name",
+              header: t("snapshot:detail.item.name"),
               cell: (e: Snapshot) => {
                 const path =
                   "/config/snapshot/detail/display/" +
@@ -474,43 +371,25 @@ const SnapshotDetail: React.FC = () => {
               },
             },
             {
-              width: 200,
+              width: 300,
               id: "date",
-              header: "Date",
+              header: t("snapshot:detail.item.date"),
               cell: (e: Snapshot) => e.dateTime,
             },
-            // {
-            //   id: "s3key",
-            //   header: "S3 Key",
-            //   cell: (e: Snapshot) => e.s3_key,
-            // },
             {
               // width: 200,
               id: "tags",
-              header: "Description",
+              header: t("snapshot:detail.item.desc"),
               cell: (e: Snapshot) => e.note,
             },
           ]}
-          // filter={
-          //   <div>
-          //     <TextInput
-          //       value={searchParams}
-          //       isSearch={true}
-          //       placeholder={"Search all snapshots"}
-          //       onChange={(event) => {
-          //         console.info("event:", event);
-          //         setSearchParams(event.target.value);
-          //       }}
-          //     />
-          //   </div>
-          // }
           changeSelected={(item) => {
             setSelectedItem(item);
           }}
         />
       </div>
       <Modal
-        title="Apply Settings?"
+        title={t("snapshot:detail.applySetting")}
         isOpen={openModal}
         fullWidth={true}
         closeModal={() => {
@@ -524,7 +403,7 @@ const SnapshotDetail: React.FC = () => {
                 setOpenModal(false);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               disabled={confirm !== "Confirm"}
@@ -534,22 +413,22 @@ const SnapshotDetail: React.FC = () => {
                 applyCloudFrontSnapshot();
               }}
             >
-              Apply
+              {t("button.apply")}
             </Button>
           </div>
         }
       >
         <div className="gsui-modal-content">
           <FormItem
-            optionTitle="Distribution"
-            optionDesc="Distribution to apply configurations"
+            optionTitle={t("distribution")}
+            optionDesc={t("snapshot:detail.applyConfig")}
           >
             <div className="flex">
               <div style={{ width: 800 }}>
                 <MultiSelect
                   optionList={distributionList}
                   value={selectDistribution}
-                  placeholder="Select distribution"
+                  placeholder={t("snapshot:detail.selectDistribution")}
                   onChange={(items) => {
                     setSelectDistribution(items);
                   }}
@@ -561,7 +440,7 @@ const SnapshotDetail: React.FC = () => {
                     selectAllDistributions();
                   }}
                 >
-                  Select all
+                  {t("button.selectAll")}
                 </Button>
               </div>
               <div className="ml-5">
@@ -570,15 +449,18 @@ const SnapshotDetail: React.FC = () => {
                     selectNoneDistributions();
                   }}
                 >
-                  Select None
+                  {t("button.selectNone")}
                 </Button>
               </div>
             </div>
           </FormItem>
-          <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
+          <FormItem
+            optionTitle=""
+            optionDesc={t("snapshot:detail.confirmToApply")}
+          >
             <TextInput
               value={confirm}
-              placeholder="Confirm"
+              placeholder={t("snapshot:detail.confirm")}
               onChange={(event) => {
                 setConfirm(event.target.value);
               }}
@@ -587,7 +469,7 @@ const SnapshotDetail: React.FC = () => {
         </div>
       </Modal>
       <Modal
-        title="Create new Cloudfront Snapshot"
+        title={t("snapshot:detail.createSnapshot")}
         isOpen={snapshotModal}
         fullWidth={true}
         closeModal={() => {
@@ -601,7 +483,7 @@ const SnapshotDetail: React.FC = () => {
                 setSnapshotModal(false);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               btnType="primary"
@@ -611,32 +493,35 @@ const SnapshotDetail: React.FC = () => {
                 createSnapshotRequest();
                 setLoadingApply(false);
                 Swal.fire(
-                  "Cloudfront snapshot created",
-                  "Cloudfront snapshot created",
+                  t("snapshot:detail.createTips"),
+                  t("snapshot:detail.createTips"),
                   "success"
                 );
                 setSnapshotModal(false);
                 getSnapshotListByDistribution();
               }}
             >
-              Create
+              {t("button.create")}
             </Button>
           </div>
         }
       >
         <div className="gsui-modal-content">
-          <FormItem optionTitle="Distribution" optionDesc="">
+          <FormItem optionTitle={t("distribution")} optionDesc="">
             <TextInput
               disabled
               value={id || ""}
-              onChange={(event) => {
+              onChange={() => {
                 // console.info("test");
               }}
             />
           </FormItem>
-          <FormItem optionTitle="Snapshot Name" optionDesc="">
+          <FormItem
+            optionTitle={t("snapshot:detail.snapshotName")}
+            optionDesc=""
+          >
             <TextArea
-              placeholder="Snapshot Name"
+              placeholder={t("snapshot:detail.snapshotName")}
               rows={1}
               value={snapShotName}
               onChange={(event) => {
@@ -644,9 +529,9 @@ const SnapshotDetail: React.FC = () => {
               }}
             />
           </FormItem>
-          <FormItem optionTitle="Description" optionDesc="">
+          <FormItem optionTitle={t("snapshot:detail.desc")} optionDesc="">
             <TextArea
-              placeholder="Description"
+              placeholder={t("snapshot:detail.desc")}
               rows={2}
               value={snapShotNote || ""}
               onChange={(event) => {

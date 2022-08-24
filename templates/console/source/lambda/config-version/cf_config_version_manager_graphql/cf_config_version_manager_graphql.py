@@ -139,8 +139,8 @@ def manager_snapshot_diff(distribution_id: str = "", snapshot1: str = "", snapsh
     s3_key2 = data['s3_key']
 
     s3_client = boto3.client('s3')
-    local_config_file_name_version1 = '/tmp/' + dist_id + "_" + version_1 + ".json"
-    local_config_file_name_version2 = '/tmp/' + dist_id + "_" + version_2 + ".json"
+    local_config_file_name_version1 = '/tmp/' + dist_id + "_" + str(version_1) + ".json"
+    local_config_file_name_version2 = '/tmp/' + dist_id + "_" + str(version_2) + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version1)
     s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
 
@@ -368,7 +368,7 @@ def manager_snapshot_config_tag_update(distribution_id: str = "", note: str = ""
 @app.resolver(type_name="Query", field_name="listDistribution")
 def manager_version_config_cf_list():
     # first get distribution List from current account
-    cf_client = boto3.client('cloudfront')
+    cf_client = boto3.client('cloudfront', region_name='us-east-1')
     response = cf_client.list_distributions()
 
     ddb_client = boto3.resource('dynamodb')
@@ -557,12 +557,11 @@ def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str =
             "distributionId": distribution_id,
             "snapShotName": snapshot_name
         })
-    snapshot_resp = response['Item']
-    if not snapshot_resp:
+    if not 'Item' in response:
         raise Exception(
             f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
 
-    src_version = snapshot_resp['versionId']
+    src_version = response['Item']['versionId']
 
     # get specific cloudfront distributions version info
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
@@ -686,7 +685,7 @@ def createVersionSnapShot(distributionId: str = "", snapShotName: str = "", snap
 
     # insert a record to snapshot ddb table
     # save the record to config version dynamoDB
-    current_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    current_time = str(datetime.now())
     response = ddb_table.put_item(
         Item={
             'distributionId': str(distributionId),

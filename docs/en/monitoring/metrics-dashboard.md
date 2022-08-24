@@ -1,4 +1,6 @@
-Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses CloudFront standard log or realtime log to get the metrics. The solution provides a metric API if you only need to get the metric data via restful API and don't need the dashboard.
+## Metrics dashboard
+
+Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses CloudFront standard log or realtime log to get the metrics. The solution provides a metric API if you only need to get the metric data via RESTful API and don't need the dashboard.
 
 With the Metrics dashboard, you can do the following:
 
@@ -22,11 +24,11 @@ With the Metrics dashboard, you can do the following:
 
     You can navigate to the CloudFront monitoring dashboard from the left sidebar of the Web Console under Monitoring, and click distribution (you can find it by CNAMEs) that you want to view in the distribution list and specify a time period in the time picker. The traffic metrics will be show in the graphical charts in the dashboard.
 
-    ![Monitoring Dashboard](../../images/monitoring-dashboard.png)
+    ![Monitoring Dashboard](../images/monitoring-dashboard.png)
 
 - **Setup monitoring domain list**
 
-    The monitoring domain list includes all tracked CloudFront distributions, this list can be configured in the CloudFormation template parameter during deployment, please see [Non-real time monitoring API deployment](../deployment.md#deployment-steps_2) and [Real time monitoring API deployment](../deployment.md#deployment-steps_3). Once the CloudFormation stack deployed, you can set up/update the domain list in the Metrics dashboard web console.
+    The monitoring domain list includes all tracked CloudFront distributions, this list can be configured in the CloudFormation template parameter during deployment, see [Deployment](../deployment.md#cloudfront-extensions-console). Once the CloudFormation stack deployed, you can set up/update the domain list in the Metrics dashboard web console.
 
     !!! Note "Note"
         If you use 'ALL' to monitoring all domains in your AWS account in the deployment parameter, the update domain list function will override this setting if you change the selection in the dashboard.

@@ -1,39 +1,39 @@
 {
-  "category": "Networking & Content Delivery",
+  "category": "网络与内容交付",
   "title": "CloudFront Extensions",
   "subTitle": "在不同的场景中方便地使用 Amazon CloudFront",
   "desc": "CloudFront Extensions 包括丰富的特色 Lambda@Edge、CloudFront 函数、适用于各种用户场景的 CDK 模板和开箱即用的监控解决方案。",
   "benifits": {
     "title": "优点和特点",
-    "beft1": "CloudFront best practices",
-    "beft1Desc": "You can find the code implementation of most common Amazon CloudFront use cases. All solutions and applications included are vetted by Amazon Web Services.",
-    "beft2": "Easy one-click deployment",
-    "beft2Desc": "You can easily deploy CloudFront applications or solutions into your Amazon Web Services console with just 1-click.",
-    "beft3": "Open Source & Customization",
-    "beft3Desc": "Amazon CloudFront Extensions is an open-source project. You can use the solutions and applications for free. If you have different use cases, you can take the source code as reference to make your own implementation.",
-    "beft4": "Reference for various scenario",
-    "beft4Desc": "Amazon CloudFront Extensions includes a rich ret of extensions which cover various use cases."
+    "beft1": "CloudFront 最佳实践",
+    "beft1Desc": "您可以找到最常见的 Amazon CloudFront 使用案例的代码实现。包含的所有解决方案和应用程序均由 Amazon Web Services 进行审查。",
+    "beft2": "轻松一键部署",
+    "beft2Desc": "您只需单击一下即可轻松地将 CloudFront 应用程序或解决方案部署到您的 Amazon Web Services 控制台中。",
+    "beft3": "开源和定制",
+    "beft3Desc": "Amazon CloudFront Extensions 是一个开源项目。您可以免费使用解决方案和应用程序。如果您有不同的用例，则可以将源代码作为参考来制作自己的实现。",
+    "beft4": "各种场景的参考",
+    "beft4Desc": "Amazon CloudFront Extensions 包含丰富的扩展，涵盖各种使用案例。"
   },
   "usecase": {
     "title": "使用场景",
-    "usecase1": "eCommerce Website",
-    "usecase1Desc": "This solution provides a template for using WAF and Shield Advanced on CloudFront, it will automatically deploy a set of WAF rules and Shield protection groups into your AWS account to secure your web application against DDoS attack, badbot, SQL injection attack, XSS attack and block the IP which has bad reputation.",
-    "usecase2": "Resize image on the fly",
-    "usecase2Desc": "Resize pictures on the fly according to dimensions passed by the query parameter."
+    "usecase1": "电子商务网站",
+    "usecase1Desc": "该解决方案提供了在 CloudFront 上使用 WAF 和 Shield Advanced 的模板，它会自动在您的 AWS 账户中部署一组 WAF 规则和 Shield 保护组，以保护您的 Web 应用程序免受 DDoS 攻击、机器人攻击、SQL 注入攻击、XSS 攻击，并阻止信誉不佳的 IP。",
+    "usecase2": "动态调整图像大小",
+    "usecase2Desc": "根据查询参数传递的像素动态调整图片大小。"
   },
   "getStarted": {
     "title": "开始使用",
-    "desc": "Find common extensions for your CloudFront"
+    "desc": "查找适用于您的 CloudFront 的常见扩展"
   },
   "gettingStarted": {
     "title": "入门",
-    "startCF": "Getting started with CloudFront Extensions"
+    "startCF": "入门 CloudFront Extensions"
   },
   "moreResource": {
     "title": "更多资源",
     "doc": "文档",
     "faq": "常见问题",
     "issue": "问题反馈",
-    "workshop": "Workshop"
+    "workshop": "动手实验"
   }
 }

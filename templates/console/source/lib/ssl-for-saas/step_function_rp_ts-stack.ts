@@ -55,7 +55,15 @@ export class StepFunctionRpTsConstruct extends Construct {
         name: "domainName",
         type: dynamodb.AttributeType.STRING,
       },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+
+    callback_table
+      .autoScaleReadCapacity({
+        minCapacity: 20,
+        maxCapacity: 50,
+      })
+      .scaleOnUtilization({ targetUtilizationPercent: 75 });
 
     // dynamodb table for job info
     const ssl_for_sass_job_info_table = new dynamodb.Table(
@@ -66,6 +74,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           name: "jobId",
           type: dynamodb.AttributeType.STRING,
         },
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
       }
     );
     ssl_for_sass_job_info_table
@@ -477,6 +486,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           callback: "true",
         }),
         resultPath: "$.fn_acm_cb",
+        timeout: Duration.seconds(900),
       }
     ).addCatch(failure_handling_job, {
       resultPath: "$.error",
@@ -493,6 +503,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           input: _step.JsonPath.entirePayload,
         }),
         resultPath: "$.fn_acm_import_cb",
+        timeout: Duration.seconds(900),
       }
     ).addCatch(failure_handling_job, {
       // "errors": ["$.errorMessage"],
@@ -523,6 +534,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         }),
         resultSelector: { Payload: _step.JsonPath.stringAt("$.Payload") },
         resultPath: "$.fn_acm_cb_handler",
+        timeout: Duration.seconds(900),
       }
     );
 
@@ -531,7 +543,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       this,
       "ACM Callback Handler Map",
       {
-        maxConcurrency: 10,
+        maxConcurrency: 5,
         itemsPath: _step.JsonPath.stringAt("$.cnameList"),
         resultPath: "$.fn_acm_cb_handler_map",
       }

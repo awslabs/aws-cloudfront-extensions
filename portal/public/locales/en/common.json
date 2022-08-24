@@ -1,5 +1,8 @@
 {
   "name": "CloudFront Extensions",
+  "distribution": "Distribution",
+  "distributions": "Distributions",
+  "cfDistribution": "CloudFront Distributions",
   "header": {
     "name": "AWS Solutions",
     "welcome": "Welcome",
@@ -43,15 +46,40 @@
     "deploy": "Deploy",
     "update": "Update",
     "viewStatus": "View deployment status",
-    "viewRepo": "View Repository"
+    "viewRepo": "View Repository",
+    "updateDomainList": "Update Domain List",
+    "apply": "Apply",
+    "selectAll": "Select All",
+    "clear": "Clear",
+    "download": "Download",
+    "actions": "Actions",
+    "createSnapshot": "Create Snapshot",
+    "selectNone": "Select None",
+    "addDomainNameForAnotherCert": "Add domain names for another certificate",
+    "startJob": "Start Job",
+    "showJobList": "Show Job List",
+    "showCertList": "Show Certificate List",
+    "createNewCert": "Create new certificates",
+    "importCert": "Import existing certificates",
+    "backToCert": "Back to Certificate List",
+    "backToJob": "Back to Certificate Jobs",
+    "viewCertInJob": "View SSL certificates created in this job",
+    "viewCFInJob": "View distributions created in this job",
+    "ok": "OK",
+    "updateVersionNote": "Update Version Notes",
+    "details": "Details",
+    "compare": "Compare"
   },
   "status": {
     "error": "Error"
   },
+  "confirm": "confirm",
   "yes": "Yes",
   "no": "No",
   "loading": "loading...",
   "noData": "No Data",
   "info": "Info",
-  "step": "Step"
+  "step": "Step",
+  "show": "Show",
+  "hide": "Hide"
 }

@@ -8,6 +8,18 @@ If you selected **Real time monitoring** when deploying the solution (CloudForma
 4. Save the query results in DynamoDB. Query the corresponding monitoring indicator data through Athena, such as calculating CHR (cache hit rate) and download rate through bandwidth, and finally store the monitoring indicator data in the DynamoDB table.
 5. Call APIs via API Gateway. When users send API request to API Gateway, a Lambda function called MetricManager will be triggered. The function reads the monitoring indicators and returns the corresponding results from the DynamoDB table. In order to strengthen security management and restrict API accesses, API key is enabled in API Gateway by default. Users are required to pass an x-api-key when calling the APIs.
 
+## Active monitoring
+1. Open the CloudFront console to enable the Real-time configurations under **Logs** setting tab.
+2. Click `Create configuration` button to open configuration settings, input 100 in the *Sampling rate* field and *all* fields.
+
+    !!! Note "PLEASE choose the fields by the default order"
+        ![Monitoring Fields](../images/monitoring-fields.png)
+
+3. Choose the cloudfront-real-time-log-data-stream in the `Endpoint` field.
+4. In Distributions select the distribution and in the `Cache behaviors` select **Default(*)**.
+
+
+
 ## Metrics
 
 The following metrics are provided:

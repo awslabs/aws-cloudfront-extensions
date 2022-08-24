@@ -2,19 +2,20 @@ import React from "react";
 import Breadcrumb from "components/Breadcrumb";
 import HeaderPanel from "components/HeaderPanel";
 import Button from "components/Button";
-
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "CloudFront Monitoring",
-    link: "",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const WAF: React.FC = () => {
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("monitor:waf.name"),
+      link: "",
+    },
+  ];
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -22,7 +23,7 @@ const WAF: React.FC = () => {
         title="Monitoring"
         action={
           <div>
-            <Button>Download</Button>
+            <Button>{t("button.download")}</Button>
           </div>
         }
       >

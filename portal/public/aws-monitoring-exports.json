@@ -1,4 +1,5 @@
 {
-  "monitroingUrl": "non-realtim-https://8e1tet66dl.execute-api.us-west-2.amazonaws.com/prod",
-  "secretValue": "hzXWBMmzcHqtBikIPPZL2Q=="
+  "aws_monitoring_url": "https://ucgdhmo35c.execute-api.us-west-2.amazonaws.com/prod",
+  "aws_monitoring_api_key": "Kl/XUxKyQhXQYa4fmH82oQ==",
+  "aws_monitoring_stack_name": "MonitoringStack"
 }

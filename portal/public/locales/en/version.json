@@ -1,0 +1,39 @@
+{
+  "name": "Configuration Version",
+  "compare": {
+    "name": "Compare",
+    "title": "Please select the version to compare",
+    "selectVersion": "Select version",
+    "showDiffOnly": " Show Different Sections Only",
+    "configSection": "Config Section",
+    "version": "Version",
+    "same": "Same ",
+    "diff": "Different "
+  },
+  "save": {
+    "name": "Save",
+    "title": "Save note for specific config version",
+    "versionSetting": "Version settings",
+    "note": "Note",
+    "betaTesting": "beta testing"
+  },
+  "list": {
+    "name": "Distribution List",
+    "id": "ID",
+    "cname": "Cname",
+    "domain": "Domain",
+    "versionCount": "Version count",
+    "status": "Status",
+    "deploying": "Deploying"
+  },
+  "versions": {
+    "versionId": "Version Id",
+    "date": "Date",
+    "versionNote": "Version Notes"
+  },
+  "detail": {
+    "title": "Detail Configuration of distribution: ",
+    "withVersion": " with version: ",
+    "selectVersion": "Select version"
+  }
+}

@@ -1,5 +1,8 @@
 ## import-create-ssl
 
+!!! Important "重要提示"
+    请不要在一个请求中包含超过 100 个 cname 或 pem 记录。 一个请求中的请求项目过多会导致后端 ACM 服务和 Cloudfront 服务限制我们的请求并导致后端工作流失败。
+
 - HTTP方法: `POST`
 
 - 请求

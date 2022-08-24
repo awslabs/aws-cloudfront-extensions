@@ -6,47 +6,48 @@ import HeaderPanel from "components/HeaderPanel";
 import CREATE_GUIDE_IMG from "assets/images/config/createGuide.png";
 import PagePanel from "components/PagePanel";
 import { useNavigate } from "react-router-dom";
-
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Certification List",
-    link: "/config/certification/list",
-  },
-  {
-    name: "Create new certificates",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const GUIDE_STEP_LIST = [
   {
-    title: "Step1: Request SSL Certificates in ACM",
-    subTitle: "Automatic process",
-    desc: "With given domain names, request new SSL Certificates via Amazon Certificate Management (ACM) Service. ",
+    title: "ssl:guide.create.step1",
+    subTitle: "ssl:guide.create.step1Title",
+    desc: "ssl:guide.create.step1Desc",
   },
   {
-    title: "Step2: Validate Certificates",
-    subTitle: "Manual process",
-    desc: "The step is also known as Domain Control Validation process (DCV). This step is required by Certificate Authority, (in our case, ACM) to verify you (the person who is requesting the SSL Certificate) is authroized to use the domain names (the CNAMEs). ",
+    title: "ssl:guide.create.step2",
+    subTitle: "ssl:guide.create.step2Title",
+    desc: "ssl:guide.create.step2Desc",
   },
   {
-    title: "Step3: Create Distributions (Optional) ",
-    subTitle: "Automatic process",
-    desc: "Solution will automatically create corresponding CloudFront distributions for you. This is optional.",
+    title: "ssl:guide.create.step3",
+    subTitle: "ssl:guide.create.step3Title",
+    desc: "ssl:guide.create.step3Desc",
   },
 ];
 
 const CreateGuide: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("ssl:sslList"),
+      link: "/config/certification/list",
+    },
+    {
+      name: t("ssl:createNew"),
+    },
+  ];
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-1024">
-        <PagePanel title="Create new certificates">
-          <HeaderPanel title="How it works">
+        <PagePanel title={t("ssl:createNew")}>
+          <HeaderPanel title={t("ssl:guide.howItWorks")}>
             <div className="create-cert-guide-img">
               <img width="100%" src={CREATE_GUIDE_IMG} />
             </div>
@@ -55,10 +56,10 @@ const CreateGuide: React.FC = () => {
                 return (
                   <div className="flex-1" key={index}>
                     <div className="create-cert-guide-card">
-                      <div className="card-header">{element.title}</div>
+                      <div className="card-header">{t(element.title)}</div>
                       <div className="card-body">
-                        <div className="sub-title">{element.subTitle}</div>
-                        <div className="desc">{element.desc}</div>
+                        <div className="sub-title">{t(element.subTitle)}</div>
+                        <div className="desc">{t(element.desc)}</div>
                       </div>
                     </div>
                   </div>
@@ -73,7 +74,7 @@ const CreateGuide: React.FC = () => {
                 navigate("/config/certification/create/start");
               }}
             >
-              Get Started
+              {t("button.getStarted")}
             </Button>
           </div>
         </PagePanel>

@@ -40,11 +40,11 @@ const CompareSnapshot: React.FC = () => {
 
   const BreadCrunbList = [
     {
-      name: t("snapshot:cfx"),
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Snapshot",
+      name: t("snapshot:configSnapshot"),
       link: "/config/snapshot",
     },
     {
@@ -52,7 +52,7 @@ const CompareSnapshot: React.FC = () => {
       link: "/config/snapshot/detail/" + id,
     },
     {
-      name: "Compare",
+      name: t("snapshot:compare.name"),
     },
   ];
 
@@ -98,30 +98,6 @@ const CompareSnapshot: React.FC = () => {
     getRightSnapshotContent();
   }, [rightSnapshot]);
 
-  // const isEmptyObject = function (obj: any) {
-  //   let name;
-  //   for (name in obj) {
-  //     return false;
-  //   }
-  //   return true;
-  // };
-
-  // const deepCompare = (obj1: any, obj2: any): any => {
-  //   const result: any = {};
-  //   let change;
-  //   for (const key in obj1) {
-  //     if (typeof obj2[key] === "object" && typeof obj1[key] === "object") {
-  //       change = deepCompare(obj1[key], obj2[key]);
-  //       if (isEmptyObject(change) === false) {
-  //         result[key] = change;
-  //       }
-  //     } else if (obj2[key] !== obj1[key]) {
-  //       result[key] = obj2[key];
-  //     }
-  //   }
-  //   return result;
-  // };
-
   const compare = (obj1: any, obj2: any): any => {
     const result: any = {};
     for (const key in obj1) {
@@ -130,9 +106,6 @@ const CompareSnapshot: React.FC = () => {
       result[key]["showLeft"] = false;
       result[key]["showRight"] = false;
       if (typeof obj2[key] === "object" && typeof obj1[key] === "object") {
-        // const obj1Str = JSON.stringify(obj1[key]);
-        // const obj2Str = JSON.stringify(obj2[key]);
-        // if (obj1Str !== obj2Str) {
         if (!deepEqual(obj1[key], obj2[key])) {
           result[key]["res"] = COMPARE_RESULT.DIFF;
           result[key]["data1"] = obj1[key];
@@ -176,10 +149,6 @@ const CompareSnapshot: React.FC = () => {
     if (leftContent && rightContent) {
       const leftJSON = JSON.parse(leftContent.toString());
       const rightJSON = JSON.parse(rightContent.toString());
-      // const leftJSON = JSON.parse(leftContent.replace(/\s+/g, "").toString());
-      // Test First Have & Second Have Start
-      // delete leftJSON.WebACLId;
-      // delete rightJSON.IsIPV6Enabled;
       // Test First Have & Second Have End
       const res = compare(leftJSON, rightJSON);
       setSnapshotDiffRes(res);
@@ -237,7 +206,7 @@ const CompareSnapshot: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel title={t("snapshot.headTitle")}>
+        <HeaderPanel title={t("snapshot:compare.headTitle")}>
           {loadingDistribution ? (
             <LoadingText />
           ) : (
@@ -248,7 +217,7 @@ const CompareSnapshot: React.FC = () => {
                     // className="m-w-320"
                     value={leftSnapshot}
                     optionList={snapshotList}
-                    placeholder="Select snapshot"
+                    placeholder={t("snapshot:compare.selectSnapshot")}
                     onChange={(event) => {
                       setLeftSnapshot(event.target.value);
                     }}
@@ -260,7 +229,7 @@ const CompareSnapshot: React.FC = () => {
                       // className="m-w-320"
                       value={rightSnapshot}
                       optionList={snapshotList}
-                      placeholder="Select snapshot"
+                      placeholder={t("snapshot:compare.selectSnapshot")}
                       onChange={(event) => {
                         setRightSnapshot(event.target.value);
                       }}
@@ -276,27 +245,9 @@ const CompareSnapshot: React.FC = () => {
                     onChange={(event) => {
                       setOnlyShowDiff(event.target.checked);
                     }}
-                  />{" "}
-                  Show Different Sections Only
+                  />
+                  {t("snapshot:compare.showDiffOnly")}
                 </label>
-                {/* {onlyShowDiff && (
-                  <Button
-                    onClick={() => {
-                      setOnlyShowDiff(false);
-                    }}
-                  >
-                    Show All Sections
-                  </Button>
-                )}
-                {!onlyShowDiff && (
-                  <Button
-                    onClick={() => {
-                      setOnlyShowDiff(true);
-                    }}
-                  >
-                    Only Show Different Sections
-                  </Button>
-                )} */}
               </div>
               <div className="mt-10 version-compare">
                 {loadingChangeSnapshot ? (
@@ -306,15 +257,17 @@ const CompareSnapshot: React.FC = () => {
                     <table className="compare" width="100%">
                       <thead>
                         <tr>
-                          <th style={{ width: 200 }}>Config Section</th>
+                          <th style={{ width: 200 }}>
+                            {t("snapshot:compare.configSection")}
+                          </th>
                           <th align="center">
                             <div className="text-center">
-                              Snapshot {leftSnapshot}
+                              {t("snapshot:compare.snapshot")} {leftSnapshot}
                             </div>
                           </th>
                           <th align="center">
                             <div className="text-center">
-                              Snapshot {rightSnapshot}
+                              {t("snapshot:compare.snapshot")} {rightSnapshot}
                             </div>
                           </th>
                         </tr>
@@ -333,7 +286,7 @@ const CompareSnapshot: React.FC = () => {
                                     <td colSpan={2} align="center">
                                       <div className="same">
                                         <span>
-                                          Same{" "}
+                                          {t("snapshot:compare.same")}
                                           <PauseCircleFilledIcon className="icon reverse-90" />
                                         </span>
                                         <span className="show-btn">
@@ -348,7 +301,9 @@ const CompareSnapshot: React.FC = () => {
                                                 );
                                               }}
                                             >
-                                              <b>Show</b>
+                                              <b>
+                                                {t("snapshot:compare.show")}
+                                              </b>
                                             </span>
                                           )}
                                           {snapshotDiffRes[key].show && (
@@ -361,7 +316,9 @@ const CompareSnapshot: React.FC = () => {
                                                 );
                                               }}
                                             >
-                                              <b>Hide</b>
+                                              <b>
+                                                {t("snapshot:compare.hide")}
+                                              </b>
                                             </span>
                                           )}
                                           )
@@ -390,7 +347,8 @@ const CompareSnapshot: React.FC = () => {
                                   <td colSpan={2} align="center">
                                     <div className="diff">
                                       <span>
-                                        Different <SwapHorizontalCircleIcon />
+                                        {t("snapshot:compare.diff")}
+                                        <SwapHorizontalCircleIcon />
                                       </span>
                                       <span className="show-btn">
                                         (
@@ -417,7 +375,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Hide</b>
+                                            <b>{t("snapshot:compare.hide")}</b>
                                           </span>
                                         )}
                                         )
@@ -464,7 +422,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Show</b>
+                                            <b>{t("snapshot:compare.show")}</b>
                                           </span>
                                         )}
                                         {snapshotDiffRes[key].showLeft && (
@@ -477,7 +435,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Hide</b>
+                                            <b>{t("snapshot:compare.hide")}</b>
                                           </span>
                                         )}
                                         )
@@ -520,7 +478,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Show</b>
+                                            <b>{t("snapshot:compare.show")}</b>
                                           </span>
                                         )}
                                         {snapshotDiffRes[key].showRight && (
@@ -533,7 +491,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Hide</b>
+                                            <b>{t("snapshot:compare.hide")}</b>
                                           </span>
                                         )}
                                         )

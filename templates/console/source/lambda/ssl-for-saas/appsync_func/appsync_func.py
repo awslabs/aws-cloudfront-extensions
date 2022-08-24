@@ -649,7 +649,7 @@ def aggregate_cert_operation(certTotalNumber, domain_name_list, raw_context):
 @app.resolver(type_name="Query", field_name="listCertifications")
 def manager_certification_list():
     # first get distribution List from current account
-    acm_client = boto3.client('acm')
+    acm_client = boto3.client('acm', region_name='us-east-1')
     response = acm_client.list_certificates()
 
     result = []
@@ -689,7 +689,7 @@ def manager_certification_list():
 @app.resolver(type_name="Query", field_name="listCertificationsWithJobId")
 def manager_certification_list_with_jobId(jobId):
     # first get distribution List from current account
-    acm_client = boto3.client('acm')
+    acm_client = boto3.client('acm', region_name='us-east-1')
     response = acm_client.list_certificates()
 
     result = []
@@ -710,7 +710,7 @@ def manager_certification_list_with_jobId(jobId):
 @app.resolver(type_name="Query", field_name="listCloudFrontArnWithJobId")
 def manager_cloudfront_arn_list_with_jobId(jobId):
     # first get distribution List from current account
-    resource_client = boto3.client('resourcegroupstaggingapi')
+    resource_client = boto3.client('resourcegroupstaggingapi', region_name='us-east-1')
     response = resource_client.get_resources(
         TagFilters=[
             {

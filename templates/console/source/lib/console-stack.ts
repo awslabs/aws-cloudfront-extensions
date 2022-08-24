@@ -45,7 +45,7 @@ export class ConsoleStack extends cdk.Stack {
 
     const consoleAdminUserName = new cdk.CfnParameter(this, "InitialUserName", {
       type: "String",
-      description: "The initial username for the web console, it will be used for SSL certificates notification",
+      description: "The initial username for the web console",
     });
 
     const consoleAdminUserEmail = new cdk.CfnParameter(
@@ -108,6 +108,12 @@ export class ConsoleStack extends cdk.Stack {
       default: "false",
     });
 
+    // create email SSL subscription
+    const sslEmailAddress = new cdk.CfnParameter(this, "EmailAddress", {
+      description: "Email address to receive SSL certificates notification",
+      type: "String",
+    });
+
     this.templateOptions.metadata = {
       "AWS::CloudFormation::Interface": {
         ParameterGroups: [
@@ -131,6 +137,14 @@ export class ConsoleStack extends cdk.Stack {
               logKeepingDays.logicalId,
               deleteLog.logicalId,
               useStartTime.logicalId,
+            ],
+          },
+          {
+            Label: {
+              default: "SSL Certificates",
+            },
+            Parameters: [
+              sslEmailAddress.logicalId,
             ],
           },
         ],
@@ -159,6 +173,9 @@ export class ConsoleStack extends cdk.Stack {
           },
           [useStartTime.logicalId]: {
             default: "Use Start Time (Non-Realtime Only)",
+          },
+          [sslEmailAddress.logicalId]: {
+            default: "Notification Email",
           },
         },
       },
@@ -331,7 +348,7 @@ export class ConsoleStack extends cdk.Stack {
       synthesizer: props.synthesizer,
       appsyncApi: commonConstruct.appsyncApi,
       configVersionDDBTableName: configVersion.configVersionDDBTableName,
-      notificationEmail: consoleAdminUserEmail.valueAsString,
+      notificationEmail: sslEmailAddress.valueAsString,
     });
   }
 }

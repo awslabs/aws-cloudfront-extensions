@@ -5,23 +5,14 @@ import { SelectType, TablePanel } from "components/TablePanel";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { useNavigate, useParams } from "react-router-dom";
-import TextInput from "components/TextInput";
-import Modal from "components/Modal";
-import FormItem from "components/FormItem";
-import MultiSelect from "components/MultiSelect";
-import { Cloudfront_info, Version } from "API";
+import { Version } from "API";
 import { appSyncRequestQuery } from "assets/js/request";
-import {
-  applyConfig,
-  getDistributionCname,
-  listCloudfrontVersions,
-  listDistribution,
-} from "graphql/queries";
+import { getDistributionCname, listCloudfrontVersions } from "graphql/queries";
 import LoadingText from "../../../components/LoadingText";
+import { useTranslation } from "react-i18next";
 
 const VersionDetail: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useState("");
   const [versionFilterList, setVersionFilterList] = useState<Version[]>([]);
   const [versionList, setVersionList] = useState<Version[]>([]);
   const [versionWithNotesList, setVersionWithNotesList] = useState<Version[]>(
@@ -29,27 +20,23 @@ const VersionDetail: React.FC = () => {
   );
   const [withNote, setWithNote] = useState(true);
   const [withNoteText, setWithNoteText] = useState("Version with note");
-  const [distributionList, setDistributionList] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<Version[]>([]);
-  const [applyDisabled, setApplyDisabled] = useState(false);
   const [saveDisabled, setSaveDisabled] = useState(false);
   const [detailDisabled, setDetailDisabled] = useState(false);
   const [compareDisabled, setCompareDisabled] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectDistribution, setSelectDistribution] = useState<any>([]);
-  const [confirm, setConfirm] = useState("");
   const [loadingData, setLoadingData] = useState(false);
-  const [loadingApply, setLoadingApply] = useState(false);
   const [distributionId, setDistributionId] = useState<any>("");
   const [distributionAliases, setDistributionAliases] = useState<string[]>([]);
   const { id } = useParams();
+  const { t } = useTranslation();
+
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Version",
+      name: t("version:name"),
       link: "/config/version",
     },
     {
@@ -68,7 +55,7 @@ const VersionDetail: React.FC = () => {
       });
       const versionList: Version[] = resData.data.listCloudfrontVersions;
       const versionWithNoteList: Version[] = versionList.filter(
-        (version) => version.note != ""
+        (version) => version.note !== ""
       );
       setLoadingData(false);
       setVersionList(versionList);
@@ -100,91 +87,22 @@ const VersionDetail: React.FC = () => {
     getCloudfrontAliases();
   }, []);
 
-  // Get Version List By Distribution
-  const getDistributionList = async () => {
-    try {
-      setDistributionList([]);
-      const resData = await appSyncRequestQuery(listDistribution);
-      const Cloudfront_info_list: any[] = resData.data.listDistribution;
-      const tmpList = [];
-      for (const cfdistlistKey in Cloudfront_info_list) {
-        const cname =
-          Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
-            ? ""
-            : Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
-        tmpList.push({
-          name: Cloudfront_info_list[cfdistlistKey].id + " | " + cname,
-          value: Cloudfront_info_list[cfdistlistKey].id,
-        });
-      }
-      setDistributionList(tmpList);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Get Version List By Distribution
-  const applyCloudFrontConfig = async () => {
-    try {
-      //convert the selected dist list
-      const targetDistList: string[] = [];
-      for (const index in selectDistribution) {
-        targetDistList.push(selectDistribution[index]);
-      }
-
-      const versionId = selectedItem[0].versionId;
-
-      setLoadingApply(true);
-      const resData = await appSyncRequestQuery(applyConfig, {
-        src_distribution_id: id,
-        version: versionId,
-        target_distribution_ids: targetDistList,
-      });
-      setLoadingApply(false);
-      setOpenModal(false);
-    } catch (error) {
-      setLoadingApply(false);
-      console.error(error);
-    }
-  };
-
-  const selectAllDistributions = () => {
-    const selectList: any = [];
-    for (const index in distributionList) {
-      selectList.push(distributionList[index].name);
-    }
-    setSelectDistribution(() => {
-      return selectList;
-    });
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  useEffect(() => {}, [selectDistribution]);
-
-  const selectNoneDistributions = async () => {
-    setSelectDistribution([]);
-  };
-
   useEffect(() => {
     if (selectedItem.length > 0) {
       if (selectedItem.length === 1) {
-        setApplyDisabled(false);
         setSaveDisabled(false);
         setDetailDisabled(false);
         setCompareDisabled(true);
       } else if (selectedItem.length === 2) {
-        setApplyDisabled(true);
         setSaveDisabled(true);
         setDetailDisabled(true);
         setCompareDisabled(false);
       } else {
-        setApplyDisabled(true);
         setSaveDisabled(true);
         setDetailDisabled(true);
         setCompareDisabled(true);
       }
     } else {
-      setApplyDisabled(true);
       setSaveDisabled(true);
       setDetailDisabled(true);
       setCompareDisabled(true);
@@ -214,15 +132,7 @@ const VersionDetail: React.FC = () => {
                   <RefreshIcon fontSize="small" />
                 )}
               </Button>
-              {/*<Button*/}
-              {/*  disabled={applyDisabled}*/}
-              {/*  onClick={() => {*/}
-              {/*    setOpenModal(true);*/}
-              {/*    getDistributionList();*/}
-              {/*  }}*/}
-              {/*>*/}
-              {/*  Apply Config*/}
-              {/*</Button>*/}
+
               <Button
                 disabled={saveDisabled}
                 onClick={() => {
@@ -237,8 +147,9 @@ const VersionDetail: React.FC = () => {
                   navigate(path);
                 }}
               >
-                Update Version Notes
+                {t("button.updateVersionNote")}
               </Button>
+
               <Button
                 disabled={detailDisabled}
                 onClick={() => {
@@ -250,7 +161,7 @@ const VersionDetail: React.FC = () => {
                   navigate(path);
                 }}
               >
-                Details
+                {t("button.details")}
               </Button>
               <Button
                 onClick={() => {
@@ -281,7 +192,7 @@ const VersionDetail: React.FC = () => {
                   navigate(path);
                 }}
               >
-                Compare
+                {t("button.compare")}
               </Button>
             </div>
           }
@@ -291,7 +202,7 @@ const VersionDetail: React.FC = () => {
             {
               width: 150,
               id: "id",
-              header: "Version Id",
+              header: t("version:versions.versionId"),
               cell: (e: Version) => {
                 const path =
                   "/config/version/detail/display/" + id + "/" + e.versionId;
@@ -299,20 +210,16 @@ const VersionDetail: React.FC = () => {
               },
             },
             {
-              width: 200,
+              width: 300,
               id: "date",
-              header: "Date",
+              header: t("version:versions.date"),
               cell: (e: Version) => e.dateTime,
             },
-            // {
-            //   id: "s3key",
-            //   header: "S3 Key",
-            //   cell: (e: Version) => e.s3_key,
-            // },
+
             {
               // width: 200,
               id: "tags",
-              header: "Version Notes",
+              header: t("version:versions.versionNote"),
               cell: (e: Version) => e.note,
             },
           ]}
@@ -334,83 +241,6 @@ const VersionDetail: React.FC = () => {
           }}
         />
       </div>
-      <Modal
-        title="Apply Settings?"
-        isOpen={openModal}
-        fullWidth={true}
-        closeModal={() => {
-          setOpenModal(false);
-        }}
-        actions={
-          <div className="button-action no-pb text-right">
-            <Button
-              onClick={() => {
-                setConfirm("");
-                setOpenModal(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={confirm !== "Confirm"}
-              btnType="primary"
-              loading={loadingApply}
-              onClick={() => {
-                applyCloudFrontConfig();
-              }}
-            >
-              Apply
-            </Button>
-          </div>
-        }
-      >
-        <div className="gsui-modal-content">
-          <FormItem
-            optionTitle="Distribution"
-            optionDesc="Distribution to apply configurations"
-          >
-            <div className="flex">
-              <div style={{ width: 800 }}>
-                <MultiSelect
-                  optionList={distributionList}
-                  value={selectDistribution}
-                  placeholder="Select distribution"
-                  onChange={(items) => {
-                    setSelectDistribution(items);
-                  }}
-                />
-              </div>
-              <div className="ml-5">
-                <Button
-                  onClick={() => {
-                    selectAllDistributions();
-                  }}
-                >
-                  Select all
-                </Button>
-              </div>
-              <div className="ml-5">
-                <Button
-                  onClick={() => {
-                    selectNoneDistributions();
-                  }}
-                >
-                  Select None
-                </Button>
-              </div>
-            </div>
-          </FormItem>
-          <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
-            <TextInput
-              value={confirm}
-              placeholder="Confirm"
-              onChange={(event) => {
-                setConfirm(event.target.value);
-              }}
-            />
-          </FormItem>
-        </div>
-      </Modal>
     </div>
   );
 };

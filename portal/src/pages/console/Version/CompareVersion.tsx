@@ -14,6 +14,7 @@ import {
 } from "../../../graphql/queries";
 import { Version } from "../../../API";
 import LoadingText from "components/LoadingText";
+import { useTranslation } from "react-i18next";
 
 export enum COMPARE_RESULT {
   SAME = "SAME",
@@ -36,13 +37,14 @@ const CompareVersion: React.FC = () => {
   const [loadingChangeVersion, setLoadingChangeVersion] = useState(false);
   const [onlyShowDiff, setOnlyShowDiff] = useState(false);
 
+  const { t } = useTranslation();
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Version",
+      name: t("version:name"),
       link: "/config/version",
     },
     {
@@ -50,7 +52,7 @@ const CompareVersion: React.FC = () => {
       link: "/config/version/detail/" + id,
     },
     {
-      name: "Compare",
+      name: t("version:compare.name"),
     },
   ];
 
@@ -96,30 +98,6 @@ const CompareVersion: React.FC = () => {
     getRightVersionContent();
   }, [rightVersion]);
 
-  // const isEmptyObject = function (obj: any) {
-  //   let name;
-  //   for (name in obj) {
-  //     return false;
-  //   }
-  //   return true;
-  // };
-
-  // const deepCompare = (obj1: any, obj2: any): any => {
-  //   const result: any = {};
-  //   let change;
-  //   for (const key in obj1) {
-  //     if (typeof obj2[key] === "object" && typeof obj1[key] === "object") {
-  //       change = deepCompare(obj1[key], obj2[key]);
-  //       if (isEmptyObject(change) === false) {
-  //         result[key] = change;
-  //       }
-  //     } else if (obj2[key] !== obj1[key]) {
-  //       result[key] = obj2[key];
-  //     }
-  //   }
-  //   return result;
-  // };
-
   const compare = (obj1: any, obj2: any): any => {
     const result: any = {};
     for (const key in obj1) {
@@ -128,9 +106,6 @@ const CompareVersion: React.FC = () => {
       result[key]["showLeft"] = false;
       result[key]["showRight"] = false;
       if (typeof obj2[key] === "object" && typeof obj1[key] === "object") {
-        // const obj1Str = JSON.stringify(obj1[key]);
-        // const obj2Str = JSON.stringify(obj2[key]);
-        // if (obj1Str !== obj2Str) {
         if (!deepEqual(obj1[key], obj2[key])) {
           result[key]["res"] = COMPARE_RESULT.DIFF;
           result[key]["data1"] = obj1[key];
@@ -174,10 +149,6 @@ const CompareVersion: React.FC = () => {
     if (leftContent && rightContent) {
       const leftJSON = JSON.parse(leftContent.toString());
       const rightJSON = JSON.parse(rightContent.toString());
-      // const leftJSON = JSON.parse(leftContent.replace(/\s+/g, "").toString());
-      // Test First Have & Second Have Start
-      // delete leftJSON.WebACLId;
-      // delete rightJSON.IsIPV6Enabled;
       // Test First Have & Second Have End
       const res = compare(leftJSON, rightJSON);
       setVersionDiffRes(res);
@@ -235,7 +206,7 @@ const CompareVersion: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel title="Please select the version to compare">
+        <HeaderPanel title={t("version:compare.title")}>
           {loadingDistribution ? (
             <LoadingText />
           ) : (
@@ -246,7 +217,7 @@ const CompareVersion: React.FC = () => {
                     // className="m-w-320"
                     value={leftVersion}
                     optionList={versionList}
-                    placeholder="Select version"
+                    placeholder={t("version:compare.selectVersion")}
                     onChange={(event) => {
                       setLeftVersion(event.target.value);
                     }}
@@ -258,7 +229,7 @@ const CompareVersion: React.FC = () => {
                       // className="m-w-320"
                       value={rightVersion}
                       optionList={versionList}
-                      placeholder="Select version"
+                      placeholder={t("version:compare.selectVersion")}
                       onChange={(event) => {
                         setRightVersion(event.target.value);
                       }}
@@ -274,27 +245,9 @@ const CompareVersion: React.FC = () => {
                     onChange={(event) => {
                       setOnlyShowDiff(event.target.checked);
                     }}
-                  />{" "}
-                  Show Different Sections Only
+                  />
+                  {t("version:compare.showDiffOnly")}
                 </label>
-                {/* {onlyShowDiff && (
-                  <Button
-                    onClick={() => {
-                      setOnlyShowDiff(false);
-                    }}
-                  >
-                    Show All Sections
-                  </Button>
-                )}
-                {!onlyShowDiff && (
-                  <Button
-                    onClick={() => {
-                      setOnlyShowDiff(true);
-                    }}
-                  >
-                    Only Show Different Sections
-                  </Button>
-                )} */}
               </div>
               <div className="mt-10 version-compare">
                 {loadingChangeVersion ? (
@@ -304,15 +257,17 @@ const CompareVersion: React.FC = () => {
                     <table className="compare" width="100%">
                       <thead>
                         <tr>
-                          <th style={{ width: 200 }}>Config Section</th>
+                          <th style={{ width: 200 }}>
+                            {t("version:compare.configSection")}
+                          </th>
                           <th align="center">
                             <div className="text-center">
-                              Version {leftVersion}
+                              {t("version:compare.version")} {leftVersion}
                             </div>
                           </th>
                           <th align="center">
                             <div className="text-center">
-                              Version {rightVersion}
+                              {t("version:compare.version")} {rightVersion}
                             </div>
                           </th>
                         </tr>
@@ -331,7 +286,7 @@ const CompareVersion: React.FC = () => {
                                     <td colSpan={2} align="center">
                                       <div className="same">
                                         <span>
-                                          Same{" "}
+                                          {t("version:compare.same")}
                                           <PauseCircleFilledIcon className="icon reverse-90" />
                                         </span>
                                         <span className="show-btn">
@@ -346,7 +301,7 @@ const CompareVersion: React.FC = () => {
                                                 );
                                               }}
                                             >
-                                              <b>Show</b>
+                                              <b>{t("show")}</b>
                                             </span>
                                           )}
                                           {versionDiffRes[key].show && (
@@ -359,7 +314,7 @@ const CompareVersion: React.FC = () => {
                                                 );
                                               }}
                                             >
-                                              <b>Hide</b>
+                                              <b>{t("hide")}</b>
                                             </span>
                                           )}
                                           )
@@ -388,7 +343,8 @@ const CompareVersion: React.FC = () => {
                                   <td colSpan={2} align="center">
                                     <div className="diff">
                                       <span>
-                                        Different <SwapHorizontalCircleIcon />
+                                        {t("version:compare.diff")}
+                                        <SwapHorizontalCircleIcon />
                                       </span>
                                       <span className="show-btn">
                                         (
@@ -402,7 +358,7 @@ const CompareVersion: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Show</b>
+                                            <b>{t("show")}</b>
                                           </span>
                                         )}
                                         {versionDiffRes[key].show && (
@@ -415,7 +371,7 @@ const CompareVersion: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Hide</b>
+                                            <b>{t("hide")}</b>
                                           </span>
                                         )}
                                         )
@@ -462,7 +418,7 @@ const CompareVersion: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Show</b>
+                                            <b>{t("show")}</b>
                                           </span>
                                         )}
                                         {versionDiffRes[key].showLeft && (
@@ -475,7 +431,7 @@ const CompareVersion: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Hide</b>
+                                            <b>{t("hide")}</b>
                                           </span>
                                         )}
                                         )
@@ -518,7 +474,7 @@ const CompareVersion: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Show</b>
+                                            <b>{t("show")}</b>
                                           </span>
                                         )}
                                         {versionDiffRes[key].showRight && (
@@ -531,7 +487,7 @@ const CompareVersion: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>Hide</b>
+                                            <b>{t("hide")}</b>
                                           </span>
                                         )}
                                         )

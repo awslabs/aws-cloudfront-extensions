@@ -1,10 +1,10 @@
-使用默认参数部署CloudFront Extensions解决方案将在AWS中构建以下服务。
+使用默认参数部署此解决方案会在AWS云中构建以下环境。
 
 ![architecture](../images/arch.png)
 
-Figure 1: CloudFront Extensions architecture
+Figure 1: CloudFront Extensions架构图
 
-1. Amazon CloudFront分发托管在Amazon S3桶中的解决方案web UI。
+1. Amazon CloudFront分发托管在Amazon S3桶中的解决方案web控制台。
 2. Amazon Cognito用户池为后端提供身份验证。
 3. Amazon AppSync提供了后端GraphQL API。
 4. Amazon API Gateway为SSL证书和监控功能提供了Restful API。

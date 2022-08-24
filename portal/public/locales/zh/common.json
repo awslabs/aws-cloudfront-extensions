@@ -1,5 +1,8 @@
 {
   "name": "CloudFront Extensions",
+  "distribution": "Distribution",
+  "distributions": "Distributions",
+  "cfDistribution": "CloudFront Distributions",
   "header": {
     "name": "亚马逊云科技解决方案",
     "welcome": "欢迎您",
@@ -8,7 +11,6 @@
   "menu": {
     "home": "首页",
     "monitoring": "监控",
-
     "cloudFrontTraffic": "CloudFront 流量",
     "distributionMgmt": "Distribution 管理",
     "snapshot": "快照",
@@ -17,7 +19,7 @@
     "extensions": "扩展插件",
     "repository": "存储库",
     "doc": "文档",
-    "cfext": "CloudFront Extensions",
+    "cfext": "CloudFront 插件",
     "deploy": "部署"
   },
   "bottom": {
@@ -44,15 +46,40 @@
     "deploy": "部署",
     "update": "更新",
     "viewStatus": "查看部署状态",
-    "viewRepo": "查看存储库"
+    "viewRepo": "查看存储库",
+    "updateDomainList": "更新域名列表",
+    "apply": "应用",
+    "selectAll": "选择全部",
+    "clear": "清除",
+    "download": "下载",
+    "actions": "操作",
+    "createSnapshot": "创建快照",
+    "selectNone": "取消选择",
+    "addDomainNameForAnotherCert": "为其他证书添加域名",
+    "startJob": "启动任务",
+    "showJobList": "显示任务列表",
+    "showCertList": "显示证书列表",
+    "createNewCert": "创建新证书",
+    "importCert": "导入现有证书",
+    "backToCert": "返回证书列表",
+    "backToJob": "返回证书任务",
+    "viewCertInJob": "查看在此任务中创建的 SSL 证书",
+    "viewCFInJob": "查看在此作业中创建的 Distribution",
+    "ok": "好的",
+    "updateVersionNote": "更新版本说明",
+    "details": "详情",
+    "compare": "比较"
   },
   "status": {
-    "error": "Error"
+    "error": "错误"
   },
+  "confirm": "确认",
   "yes": "是",
   "no": "否",
   "loading": "加载中...",
   "noData": "暂无数据",
   "info": "信息",
-  "step": "步骤"
+  "step": "步骤",
+  "show": "显示",
+  "hide": "隐藏"
 }

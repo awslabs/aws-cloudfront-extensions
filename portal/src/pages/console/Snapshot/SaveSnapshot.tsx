@@ -5,11 +5,11 @@ import HeaderPanel from "components/HeaderPanel";
 import PagePanel from "components/PagePanel";
 import TextInput from "components/TextInput";
 import TextArea from "components/TextArea";
-import TagList from "components/TagList";
 import Button from "components/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
-import { updateConfigSnapshotTag, updateConfigTag } from "graphql/queries";
+import { updateConfigSnapshotTag } from "graphql/queries";
+import { useTranslation } from "react-i18next";
 
 const SaveSnapshot: React.FC = () => {
   const [distribution, setDistribution] = useState<any>("");
@@ -18,13 +18,14 @@ const SaveSnapshot: React.FC = () => {
   const { snapshot } = useParams<string>();
   const { note } = useParams<string>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Snapshot",
+      name: t("snapshot:configSnapshot"),
       link: "/config/snapshot",
     },
     {
@@ -32,7 +33,7 @@ const SaveSnapshot: React.FC = () => {
       link: "/config/snapshot/detail/" + distribution,
     },
     {
-      name: "Save",
+      name: t("snapshot:save.name"),
     },
   ];
 
@@ -66,10 +67,10 @@ const SaveSnapshot: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Save note for specific config snapshot">
-          <HeaderPanel title="Snapshot settings">
+        <PagePanel title={t("snapshot:save.saveNote")}>
+          <HeaderPanel title={t("snapshot:save.setting")}>
             <div className="m-w-75p">
-              <FormItem optionTitle="Distribution" optionDesc="">
+              <FormItem optionTitle={t("distribution")} optionDesc="">
                 <TextInput
                   disabled
                   value={distribution}
@@ -78,9 +79,9 @@ const SaveSnapshot: React.FC = () => {
                   }}
                 />
               </FormItem>
-              <FormItem optionTitle="Description" optionDesc="">
+              <FormItem optionTitle={t("snapshot:save.desc")} optionDesc="">
                 <TextArea
-                  placeholder="beta testing"
+                  placeholder={t("snapshot:save.betaTest")}
                   rows={2}
                   value={snapshotDesc}
                   onChange={(event) => {
@@ -91,30 +92,13 @@ const SaveSnapshot: React.FC = () => {
             </div>
           </HeaderPanel>
 
-          {/* <HeaderPanel
-            title="Tags"
-            desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."
-          >
-            <TagList
-              tagList={[]}
-              addTag={() => {
-                console.info("add");
-              }}
-              removeTag={(e) => {
-                console.info(e);
-              }}
-              onChange={(e) => {
-                console.info(e);
-              }}
-            />
-          </HeaderPanel> */}
           <div className="button-action text-right">
             <Button
               onClick={() => {
                 navigate("/config/snapshot/detail/" + id);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               btnType="primary"
@@ -129,7 +113,7 @@ const SaveSnapshot: React.FC = () => {
                 navigate("/config/snapshot/detail/" + id);
               }}
             >
-              Save
+              {t("button.save")}
             </Button>
           </div>
         </PagePanel>

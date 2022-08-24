@@ -129,6 +129,130 @@ def update_config_version(distribution_id):
             })
         log.info("Snapshot Latest version does not exist, just create a new one")
 
+def create_iam_role(context):
+    iam = boto3.client("iam")
+
+    assume_role_policy_document = json.dumps({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "events.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    })
+
+    role_name = "cloudfrontExtensionEventBridgeRule" + context.aws_request_id
+    MAX_ROLE_NAME_LENGTH = 64
+    try:
+        response = iam.get_role(
+            RoleName = role_name[:MAX_ROLE_NAME_LENGTH]
+        )
+        if 'Role' in response:
+            log.info('cloudfrontExtensionEventBridgeRule already exist')
+            return response['Role']['Arn']
+    except iam.exceptions.NoSuchEntityException:
+        log.info('cloudfrontExtensionEventBridgeRule does not exist, will trying to create one')
+
+        response = iam.create_role(
+            RoleName = role_name[:MAX_ROLE_NAME_LENGTH],
+            AssumeRolePolicyDocument = assume_role_policy_document
+        )
+
+        create_role_result = response['Role']
+        role_name = create_role_result['RoleName']
+        role_arn = create_role_result['Arn']
+
+        runtime_region = os.environ['AWS_REGION']
+
+        account_id = context.invoked_function_arn.split(":")[4]
+
+        # Create a policy
+        put_event_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": "events:PutEvents",
+                    "Resource": 'arn:aws:events:' + runtime_region + ':' + account_id + ':event-bus/default',
+                    "Effect": "Allow"
+                }
+            ]
+        }
+
+        policy_name = "cloudfrontExtensionEventBridgePolicy" + context.aws_request_id
+        MAX_POLICY_NAME_LENGTH = 64
+
+        response = iam.create_policy(
+            PolicyName = policy_name[:MAX_POLICY_NAME_LENGTH],
+            PolicyDocument = json.dumps(put_event_policy)
+        )
+        policy_result = response['Policy']
+        policy_arn = policy_result['Arn']
+
+        log.info(response)
+
+        response = iam.attach_role_policy(
+            RoleName = role_name,
+            PolicyArn = policy_arn
+        )
+
+        return role_arn
+
+
+def create_eventbridge_in_us_east_1(context):
+    runtime_region = os.environ['AWS_REGION']
+    if runtime_region == 'us-east-1':
+        log.info("no need create eventbridge in us-east-1")
+        return
+
+    iam = boto3.resource('iam')
+    account_id = context.invoked_function_arn.split(":")[4]
+
+    # Only create the eventbridge in us-east-1
+    eventclient = boto3.client('events',region_name='us-east-1')
+
+    target_rule_name = 'eventbridge-receive-cf-event' + '-' + runtime_region
+
+    # first check whether target rule is existing
+    response = eventclient.list_rules(
+        NamePrefix = target_rule_name
+    )
+    record_list = response['Rules']
+
+    if len(record_list) != 0:
+        log.info(record_list)
+        log.info("target rule already exist, just return")
+        return
+
+    # create the target rules
+    role_name = create_iam_role(context)
+
+    evtbridgeRulePattern = '{\n  "source": ["aws.cloudfront"],\n  "detail": {\n    "eventName": ["UpdateDistribution", "CreateDistribution", "CreateDistributionWithTags"]\n  }\n}'
+    response = eventclient.put_rule(
+        Name = target_rule_name,
+        EventPattern = evtbridgeRulePattern,
+        State = 'ENABLED',
+        Description = 'receive cloudfront update event'
+    )
+
+    response = eventclient.put_targets(
+        Rule=target_rule_name,
+        Targets=[
+            {
+                'Id': 'cf-update-event',
+                'Arn': 'arn:aws:events:' + runtime_region + ':' + account_id + ':event-bus/default',
+                'RoleArn': role_name
+            }
+        ]
+    )
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
+
 def main(event, context):
     import logging as log
     import cfnresponse
@@ -159,6 +283,10 @@ def main(event, context):
                 if(len(response['Items']) == 0):
                     # try to insert meta data to our ddb
                     update_config_version(distribution_id)
+
+        if (event['RequestType'] == 'Create'):
+            create_eventbridge_in_us_east_1(context)
+
 
         message = event['ResourceProperties']['message']
         attributes = {

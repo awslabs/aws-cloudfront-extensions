@@ -21,6 +21,7 @@ import { certCreateOrImport } from "../../../../graphql/mutations";
 import Modal from "../../../../components/Modal";
 import Swal from "sweetalert2";
 import TextInput from "../../../../components/TextInput";
+import { useTranslation } from "react-i18next";
 
 const enum ImportMethod {
   CREATE = "create",
@@ -28,22 +29,12 @@ const enum ImportMethod {
   NONE = "NONE",
 }
 
-const enum ImportCertificate {
-  IMPORT_ONE = "ImportOne",
-  IMPORT_MULTI = "ImportMulti",
-}
-
-const enum CreateCertificate {
-  CREATE_ONE = "CreateOne",
-  CREATE_MULTI = "CreateMulti",
-}
-
-interface CertInfo {
-  name: string;
-  body: string;
-  privateKey: string;
-  chain: string;
-}
+// interface CertInfo {
+//   name: string;
+//   body: string;
+//   privateKey: string;
+//   chain: string;
+// }
 
 interface ExistingCfInfo {
   distribution_id: string;
@@ -57,20 +48,6 @@ interface CNameInfo {
   existing_cf_info: ExistingCfInfo;
 }
 
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Certification List",
-    link: "/config/certification/list",
-  },
-  {
-    name: "Create new certificates",
-  },
-];
-
 const CreateStart: React.FC = () => {
   const navigate = useNavigate();
   const [domainCertList, setDomainCertList] = useState([
@@ -78,10 +55,12 @@ const CreateStart: React.FC = () => {
       domainList: "",
     },
   ]);
-  const [snapshot, setSnapshot] = useState([]);
-  const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
-  const [aggregation, setAggregation] = useState(false);
-  const [checkCName, setCheckCName] = useState(false);
+  const importMethod = ImportMethod.CREATE;
+  // const [importMethod, setImportMethod] = useState<string>(ImportMethod.CREATE);
+  const aggregation = false;
+  // const [aggregation, setAggregation] = useState(false);
+  const checkCName = false;
+  // const [checkCName, setCheckCName] = useState(false);
   const [createAuto, setCreateAuto] = useState("true");
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [versionList, setVersionList] = useState<any[]>([]);
@@ -92,13 +71,7 @@ const CreateStart: React.FC = () => {
     useState<any>("1");
   const [confirm, setConfirm] = useState("");
 
-  const [importCert, setImportCert] = useState<string>(
-    ImportCertificate.IMPORT_ONE
-  );
-  const [createCert, setCreateCert] = useState<string>(
-    CreateCertificate.CREATE_ONE
-  );
-  const [cnameInfo, setCnameInfo] = useState<CNameInfo>({
+  const cnameInfo = {
     domainName: "",
     sanList: [],
     originsItemsDomainName: "",
@@ -106,7 +79,16 @@ const CreateStart: React.FC = () => {
       distribution_id: "",
       config_version_id: "",
     },
-  });
+  };
+  // const [cnameInfo, setCnameInfo] = useState<CNameInfo>({
+  //   domainName: "",
+  //   sanList: [],
+  //   originsItemsDomainName: "",
+  //   existing_cf_info: {
+  //     distribution_id: "",
+  //     config_version_id: "",
+  //   },
+  // });
   const [cnameInfoList, setCnameInfoList] = useState<[CNameInfo]>([
     {
       domainName: "",
@@ -119,13 +101,33 @@ const CreateStart: React.FC = () => {
     },
   ]);
 
-  const [certInfo, setCertInfo] = useState<CertInfo>({
+  const certInfo = {
     name: "",
     body: "",
     privateKey: "",
     chain: "",
-  });
-  const [s3FilePath, setS3FilePath] = useState("");
+  };
+  // const [certInfo, setCertInfo] = useState<CertInfo>({
+  //   name: "",
+  //   body: "",
+  //   privateKey: "",
+  //   chain: "",
+  // });
+
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("ssl:sslList"),
+      link: "/config/certification/list",
+    },
+    {
+      name: t("ssl:createNew"),
+    },
+  ];
 
   // Get Version List By Distribution
   const getVersionListByDistribution = async () => {
@@ -329,22 +331,22 @@ const CreateStart: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Create new certificates">
-          <HeaderPanel title="Domain names (CNAMEs) for Certificates">
+        <PagePanel title={t("ssl:createNew")}>
+          <HeaderPanel title={t("ssl:create.domainNames")}>
             <div>
               {domainCertList.map((element, index) => {
                 return (
                   <FormItem
                     key={index}
-                    optionTitle="Domain names for a certificate"
+                    optionTitle={t("ssl:create.domainNameForCert")}
                     optionDesc={
-                      index === 0 ? "Paste in custom domain names" : ""
+                      index === 0 ? t("ssl:create.pasteDomainNames") : ""
                     }
                   >
                     <div className="flex">
                       <div className="flex-1">
                         <TextArea
-                          placeholder="domain name, sanlist[0] ,sanlist[1], sanlist[2], ….sanlist[120]"
+                          placeholder={t("ssl:create.domainNamePlaceHolder")}
                           rows={2}
                           value={element.domainList}
                           onChange={(event) => {
@@ -358,7 +360,7 @@ const CreateStart: React.FC = () => {
                             removeDomain(index);
                           }}
                         >
-                          Remove
+                          {t("button.remove")}
                         </Button>
                       </div>
                     </div>
@@ -374,7 +376,7 @@ const CreateStart: React.FC = () => {
                     addDomainList();
                   }}
                 >
-                  Add domain names for another certificate
+                  {t("button.addDomainNameForAnotherCert")}
                 </Button>
               </div>
             ) : (
@@ -382,8 +384,8 @@ const CreateStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          <HeaderPanel title="CloudFront Distributions">
-            <FormItem optionTitle="Import method" optionDesc="">
+          <HeaderPanel title={t("cfDistribution")}>
+            <FormItem optionTitle={t("ssl:importMethod")} optionDesc="">
               <Tiles
                 name="autoCreate"
                 value={createAuto}
@@ -392,14 +394,13 @@ const CreateStart: React.FC = () => {
                 }}
                 items={[
                   {
-                    label: "Automatically create distributions",
-                    description:
-                      "Request certificates and then create distributions",
+                    label: t("ssl:autoCreateDistribution"),
+                    description: t("ssl:autoCreateDistributionDesc"),
                     value: "true",
                   },
                   {
-                    label: "Do not create distributions",
-                    description: "Only request certificates",
+                    label: t("ssl:donotCreateDistribution"),
+                    description: t("ssl:donotCreateDistributionDesc"),
                     value: "false",
                   },
                 ]}
@@ -408,12 +409,12 @@ const CreateStart: React.FC = () => {
 
             {createAuto === "true" ? (
               <FormItem
-                optionTitle="Source distribution"
-                optionDesc="Apply the origin setting from an existing CloudFront distribution. It will use the "
+                optionTitle={t("ssl:sourceDistribution")}
+                optionDesc={t("ssl:sourceDistributionDesc")}
               >
                 <div>
                   <Select
-                    placeholder="Choose a CloudFront distribution as source"
+                    placeholder={t("ssl:chooseDistributionAsSource")}
                     optionList={distributionList}
                     value={selectDistributionId}
                     onChange={(event) => {
@@ -427,7 +428,7 @@ const CreateStart: React.FC = () => {
                   <Select
                     optionList={versionList}
                     value={selectDistributionVersionId}
-                    placeholder="Select version "
+                    placeholder={t("ssl:selectVersion")}
                     onChange={(event) => {
                       setSelectDistributionVersionId(event.target.value);
                     }}
@@ -439,62 +440,12 @@ const CreateStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          {/*{createAuto === "true" ? (*/}
-          {/*  <HeaderPanel title="Advanced Settings">*/}
-          {/*    <Switch*/}
-          {/*      label="Create as less as distibutions as possible"*/}
-          {/*      desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"*/}
-          {/*      isOn={aggregation}*/}
-          {/*      handleToggle={() => {*/}
-          {/*        setAggregation(!aggregation);*/}
-          {/*      }}*/}
-          {/*    />*/}
-          {/*  </HeaderPanel>*/}
-          {/*) : (*/}
-          {/*  ""*/}
-          {/*)}*/}
-
-          {/*<HeaderPanel*/}
-          {/*  title="Tags"*/}
-          {/*  desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."*/}
-          {/*>*/}
-          {/*  <TagList*/}
-          {/*    tagList={tagList}*/}
-          {/*    addTag={() => {*/}
-          {/*      setTagList((prev) => {*/}
-          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
-          {/*        tmpList.push({*/}
-          {/*          key: "",*/}
-          {/*          value: "",*/}
-          {/*        });*/}
-          {/*        return tmpList;*/}
-          {/*      });*/}
-          {/*    }}*/}
-          {/*    removeTag={(index) => {*/}
-          {/*      setTagList((prev) => {*/}
-          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
-          {/*        tmpList.splice(index, 1);*/}
-          {/*        return tmpList;*/}
-          {/*      });*/}
-          {/*    }}*/}
-          {/*    onChange={(index, key, value) => {*/}
-          {/*      setTagList((prev) => {*/}
-          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
-          {/*        tmpList[index].key = key;*/}
-          {/*        tmpList[index].value = value;*/}
-          {/*        // changeTags(tmpList);*/}
-          {/*        return tmpList;*/}
-          {/*      });*/}
-          {/*    }}*/}
-          {/*  />*/}
-          {/*</HeaderPanel>*/}
-
           <div className="button-action text-right">
             <Button
               btnType="text"
               onClick={() => navigate("/config/certification/list")}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               btnType="primary"
@@ -503,61 +454,69 @@ const CreateStart: React.FC = () => {
                   selectDistributionId,
                   selectDistributionVersionId
                 );
-                const requestParam = generateCertCreateImportParam();
+                generateCertCreateImportParam();
                 // console.info(requestParam);
                 // startCertRequest(requestParam);
                 setOpenModal(true);
               }}
             >
-              Start Job
+              {t("button.startJob")}
             </Button>
           </div>
         </PagePanel>
         <Modal
-          title="Confirm Certification Settings?"
+          title={t("ssl:confirmSetting")}
           isOpen={openModal}
           fullWidth={true}
           closeModal={() => {
             setOpenModal(false);
           }}
           actions={
-            <div className="button-action no-pb text-right">
-              <Button
-                onClick={() => {
-                  setConfirm("");
-                  setOpenModal(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                disabled={confirm !== "Confirm"}
-                btnType="primary"
-                loading={loadingApply}
-                onClick={() => {
-                  // startWorkflow();
-                  setLoadingApply(true);
-                  const requestParam = generateCertCreateImportParam();
-                  startCertRequest(requestParam);
-                  setLoadingApply(false);
-                  Swal.fire(
-                    "Cert create Sent",
-                    "Cert creation triggered",
-                    "success"
-                  );
-                }}
-              >
-                Apply
-              </Button>
+            <div>
+              <FormItem optionTitle="" optionDesc={t("ssl:confirmApply")}>
+                <TextInput
+                  value={confirm}
+                  placeholder={t("confirm")}
+                  onChange={(event) => {
+                    setConfirm(event.target.value);
+                  }}
+                />
+              </FormItem>
+              <div className="button-action no-pb text-right">
+                <Button
+                  onClick={() => {
+                    setConfirm("");
+                    setOpenModal(false);
+                  }}
+                >
+                  {t("button.cancel")}
+                </Button>
+                <Button
+                  disabled={confirm !== t("confirm")}
+                  btnType="primary"
+                  loading={loadingApply}
+                  onClick={() => {
+                    // startWorkflow();
+                    setLoadingApply(true);
+                    const requestParam = generateCertCreateImportParam();
+                    startCertRequest(requestParam);
+                    setLoadingApply(false);
+                    Swal.fire(
+                      t("ssl:create.certCreateSent"),
+                      t("ssl:create.certCreationTrigger"),
+                      "success"
+                    );
+                  }}
+                >
+                  {t("button.apply")}
+                </Button>
+              </div>
             </div>
           }
         >
           <div className="gsui-modal-content">
-            <HeaderPanel title="Please confirm the SSL request parameters">
-              <FormItem
-                optionTitle="Current SSL for SaaS request parameters"
-                optionDesc=""
-              >
+            <HeaderPanel title={t("ssl:confirmRequestParam")}>
+              <FormItem optionTitle={t("ssl:curSSLParam")} optionDesc="">
                 <div>
                   <TextArea
                     rows={20}
@@ -567,22 +526,13 @@ const CreateStart: React.FC = () => {
                       null,
                       4
                     )}
-                    onChange={(event) => {
+                    onChange={() => {
                       //do nothing
                     }}
                   />
                 </div>
               </FormItem>
             </HeaderPanel>
-            <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
-              <TextInput
-                value={confirm}
-                placeholder="Confirm"
-                onChange={(event) => {
-                  setConfirm(event.target.value);
-                }}
-              />
-            </FormItem>
           </div>
         </Modal>
       </div>

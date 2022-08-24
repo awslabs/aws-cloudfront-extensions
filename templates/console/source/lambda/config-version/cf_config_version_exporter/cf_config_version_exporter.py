@@ -27,6 +27,9 @@ def lambda_handler(event, context):
     if event['detail']['eventName'] == 'CreateDistribution':
         response_parameters = event["detail"]["responseElements"]
         distribution_id = response_parameters['distribution']['id']
+    if event['detail']['eventName'] == 'CreateDistributionWithTags':
+        response_parameters = event["detail"]["responseElements"]
+        distribution_id = response_parameters['distribution']['id']
     else:
         request_parameters = event["detail"]["requestParameters"]
         distribution_id = request_parameters["id"]
@@ -98,7 +101,7 @@ def update_config_version(distribution_id):
             'distributionId': str(distribution_id),
             'versionId': new_version,
             'id': new_version,
-            'dateTime': current_time,
+            'dateTime': str(datetime.now()),
             'note': '',
             'config_link': s3_path,
             's3_bucket': S3_BUCKET,
@@ -146,7 +149,7 @@ def update_config_version(distribution_id):
                 'distributionId': distribution_id,
                 'snapShotName': "_LATEST_",
                 'versionId': new_version,
-                'dateTime': current_time,
+                'dateTime': str(datetime.now()),
                 'note': ""
             })
         log.info("Snapshot Latest version does not exist, just create a new one")

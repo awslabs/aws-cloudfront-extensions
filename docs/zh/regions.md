@@ -24,14 +24,14 @@
 
 ## 服务配额 
 
-在配置CloudFront的SSL/TLS证书时有服务配额。请参考[documentation](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-limits.html)获取更多信息。
+在配置CloudFront的SSL/TLS证书时有服务配额。请参考[相关文档](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-limits.html)获取更多信息。
 
 
 |  名称  | 服务配额 | 说明 | 
 |  ----  | ----  | ----  |  
 | 每个CloudFront分配关联的最大证书数量 | 1 |  |
 | 可以导入ACM的最大证书数 | 2500 |  |
-| 每个AWS帐户的最大证书数（仅限专用IP地址） | 2 | 一个用于日常使用，另一个用于需要为多个分配轮换证书时 |
+| 每个AWS帐户的最大证书数（仅限专用IP地址） | 2 | 一个供日常使用，另一个当需要为多个分配轮换证书时使用 |
 | 对使用不同AWS帐户创建的CloudFront分配使用相同的证书 | No |  |
 | 对CloudFront和其他AWS服务使用相同的证书 | Yes |  |
 

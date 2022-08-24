@@ -8,7 +8,7 @@ import requests
 from requests_aws4auth import AWS4Auth
 from job_table_utils import get_job_info, create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
 
-from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type, wait_exponential
+from tenacity import retry, wait_fixed, wait_random, stop_after_attempt, retry_if_exception_type, wait_exponential
 from requests import exceptions
 
 # certificate need to create in region us-east-1 for cloudfront to use
@@ -158,7 +158,7 @@ def create_distribution(config):
     #         time.sleep(10)
 
 # create CloudFront distribution
-@retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(15), reraise=True)
+@retry(wait=wait_fixed(2) + wait_random(0, 2), stop=stop_after_attempt(100))
 def create_distribution_with_tags(config):
     """[summary]
 
@@ -179,7 +179,7 @@ def create_distribution_with_tags(config):
     return resp
 
 # scan dynamodb table for certificate
-@retry(wait=wait_fixed(3), stop=stop_after_attempt(5), retry=retry_if_exception_type(exceptions.Timeout))
+@retry(wait=wait_fixed(1) + wait_random(0, 5), stop=stop_after_attempt(500), retry=retry_if_exception_type(exceptions.Timeout))
 def scan_for_cert(callback_table, domain_name):
     response = dynamo_client.scan(
         TableName=callback_table,

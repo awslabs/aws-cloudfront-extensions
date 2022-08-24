@@ -5,28 +5,26 @@ import { SelectType, TablePanel } from "components/TablePanel";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Status from "components/Status/Status";
-import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
 import { listDistribution } from "graphql/queries";
 import { Cloudfront_info } from "../../../API";
-
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Distribution List",
-    link: "",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const Version = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [cloudFrontList, setCloudFrontList] = useState<Cloudfront_info[]>([]);
-  const [searchParams, setSearchParams] = useState("");
-
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("version:list.name"),
+      link: "",
+    },
+  ];
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
     try {
@@ -55,7 +53,7 @@ const Version = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title="Distributions"
+          title={t("distributions")}
           selectType={SelectType.RADIO}
           actions={
             <div>
@@ -74,7 +72,7 @@ const Version = () => {
           columnDefinitions={[
             {
               id: "Id",
-              header: "ID",
+              header: t("version:list.id"),
               cell: (e: Cloudfront_info) => {
                 return (
                   <Link to={`/config/version/detail/${e.id}`}>{e.id}</Link>
@@ -83,9 +81,9 @@ const Version = () => {
             },
             {
               id: "cname",
-              header: "Cname",
+              header: t("version:list.cname"),
               cell: (e: Cloudfront_info) => {
-                if (e.aliases.Quantity == 0) {
+                if (e.aliases.Quantity === 0) {
                   return "";
                 } else {
                   let cnameList = "";
@@ -98,18 +96,30 @@ const Version = () => {
             },
             {
               id: "domain",
-              header: "Domain",
+              header: t("version:list.domain"),
               cell: (e: Cloudfront_info) => e.domainName,
             },
             {
               id: "versionCount",
-              header: "Version count",
+              header: t("version:list.versionCount"),
               cell: (e: Cloudfront_info) => e.versionCount,
+            },
+            {
+              width: 100,
+              id: "enabled",
+              header: t("version:list.status"),
+              cell: (e: Cloudfront_info) => {
+                return (
+                  <Status
+                    status={e.enabled === "true" ? "Enabled" : "Disabled"}
+                  />
+                );
+              },
             },
             {
               width: 150,
               id: "status",
-              header: "Status",
+              header: t("version:list.deploying"),
               cell: (e: Cloudfront_info) => {
                 return <Status status={e.status || ""} />;
               },

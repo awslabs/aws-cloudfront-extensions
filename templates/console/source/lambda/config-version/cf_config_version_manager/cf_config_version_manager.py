@@ -391,7 +391,7 @@ def manager_snapshot_config_tag_update():
 @app.get("/cf_list")
 def manager_version_config_cf_list():
     # first get distribution List from current account
-    cf_client = boto3.client('cloudfront')
+    cf_client = boto3.client('cloudfront', region_name='us-east-1')
     response = cf_client.list_distributions()
 
     ddb_client = boto3.resource('dynamodb')
@@ -685,7 +685,7 @@ def createVersionSnapShot():
 
     # insert a record to snapshot ddb table
     # save the record to config version dynamoDB
-    current_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    current_time = str(datetime.now())
     response = ddb_table.put_item(
         Item={
             'distributionId': str(distributionId),
