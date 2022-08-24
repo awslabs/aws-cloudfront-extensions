@@ -1,6 +1,6 @@
 ## 指标仪表板
 
-指标仪表板以图表的方式展现指定时间内CloudFront的相关指标。仪表板通过分析CloudFront标准日志或实时日志用于生成指标。如果您只需要通过Restful API获取CloudFront性能数据，而不需要仪表板，本解决方案也提供了一个指标API供您调用。
+指标仪表板以图表的方式展现指定时间内CloudFront的相关指标。仪表板通过分析CloudFront标准日志或实时日志用于生成指标。如果您只需要通过RESTful API获取CloudFront性能数据，而不需要仪表板，本解决方案也提供了一个指标API供您调用。
 
 使用指标仪表板，您可以执行以下操作：
 
@@ -29,7 +29,7 @@
 
 - **配置待监控域名**
 
-    CloudFront分配列表包括所有需要监控的CloudFront分配，此列表可在部署本解决方案的时，在CloudFormation参数中配置，详情请参阅[部署CloudFront Extensions控制台](../deployment.md)。部署CloudFormation堆栈后，您可以在指标仪表板中设置/更新监控域名列表。
+    CloudFront分配列表包括所有需要监控的CloudFront分配，此列表可在部署本解决方案的时，在CloudFormation参数中配置，详情请参阅[部署解决方案](../deployment.md)。部署CloudFormation堆栈后，您可以在指标仪表板中设置/更新监控域名列表。
 
     !!! Note "说明"
         如果在CloudFormation部署参数中填入“ALL”来监视AWS帐户中的所有域名，那么更新域名列表后，只会监控更新后的域名。

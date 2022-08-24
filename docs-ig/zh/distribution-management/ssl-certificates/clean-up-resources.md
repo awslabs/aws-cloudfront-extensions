@@ -11,13 +11,6 @@
 
 ## 清理CloudFront中的分配
 
-1. On the **** page, choose ****. You will be redirected to distribution list, where shows all the distributions created in this job.
-2. Click a specific distribution. You will be redirected to ACM web console.
-3. Delete the distribution.
-4. For all other distributions found in Step 1, delete them in ACM.
-5. Repeat Step 1 to check whether all distributions in this job were cleaned up.
-
-
 1. 在**Job Status**页面上，选择**View distributions created in this job**中创建的分发。您将被重定向到分配列表，其中显示在此作业中创建的所有分配。
 2. 选择特定CloudFront分配。
 3. 删除分配。

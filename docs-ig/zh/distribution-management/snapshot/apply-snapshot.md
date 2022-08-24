@@ -1,7 +1,7 @@
 您可以将快照中的配置应用于其他CloudFront分配。
 
 !!! Important "注意"
-     应用快照时目标CloudFront分配配置将被完全替换。
+     应用快照时，目标CloudFront分配配置将被完全替换。
 
 
 1. 登录到web控制台。

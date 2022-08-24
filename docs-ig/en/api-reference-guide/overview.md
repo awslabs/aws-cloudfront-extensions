@@ -1,8 +1,8 @@
 ## API reference guide 
 
-Beside web console, you can also invoke it by API
+You can use the functions through the web console or via API calls:
 
-- [Distribution management](./distribution-management.md)
-- [Extensions repository](./extension-repository.md)
 - [Monitoring](./monitoring.md)
+- [Extensions repository](./extension-repository.md)
+- [Distribution management](./distribution-management.md)
 
