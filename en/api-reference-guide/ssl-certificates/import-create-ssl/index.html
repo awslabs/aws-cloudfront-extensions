@@ -1020,127 +1020,127 @@
 <p>Request</p>
 </li>
 <li>
-<p>Create one ACM certificate and auto create CloudFront distribution from existing distribution id and version id
-    <code>json
+<p>Create one ACM certificate and auto create CloudFront distribution from existing distribution id and version id</p>
+<p><code>json
+{
+  "acm_op": "create",   
+  "auto_creation": "true", 
+  "cnameList": [  
     {
-      "acm_op": "create",   
-      "auto_creation": "true", 
-      "cnameList": [  
-        {
-          "domainName": "YOURDOMAINNAME.COM", 
-          "sanList": [
-            "YOURDOMAINNAME.COM",
-            "YOURDOMAINNAMEALIAS1.COM"
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-            "config_version_id": "1"
-          }
-        }
-      ]
-    }</code></p>
+      "domainName": "YOURDOMAINNAME.COM", 
+      "sanList": [
+        "YOURDOMAINNAME.COM",
+        "YOURDOMAINNAMEALIAS1.COM"
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+        "config_version_id": "1"
+      }
+    }
+  ]
+}</code></p>
 </li>
 <li>
-<p>Create one ACM certificate and auto create CloudFront distribution from existing distribution id
-    <code>json
+<p>Create one ACM certificate and auto create CloudFront distribution from existing distribution id</p>
+<p><code>json
+{
+  "acm_op": "create",   
+  "auto_creation": "true", 
+  "cnameList": [  
     {
-      "acm_op": "create",   
-      "auto_creation": "true", 
-      "cnameList": [  
-        {
-          "domainName": "YOURDOMAINNAME.COM", 
-          "sanList": [
-            "YOURDOMAINNAME.COM",
-            "YOURDOMAINNAMEALIAS1.COM"
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-          }
-        }
-      ]
-    }</code></p>
+      "domainName": "YOURDOMAINNAME.COM", 
+      "sanList": [
+        "YOURDOMAINNAME.COM",
+        "YOURDOMAINNAMEALIAS1.COM"
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+      }
+    }
+  ]
+}</code></p>
 </li>
 <li>
-<p>Create two ACM certificates and auto create CloudFront distribution from existing distribution id 
-    <code>json
+<p>Create two ACM certificates and auto create CloudFront distribution from existing distribution id </p>
+<p><code>json
+{
+  "acm_op": "create",   
+  "auto_creation": "true", 
+  "cnameList": [  
     {
-      "acm_op": "create",   
-      "auto_creation": "true", 
-      "cnameList": [  
+      "domainName": "YOURDOMAINNAME1.COM", 
+      "sanList": [
+        "YOURDOMAINNAME1.COM",
+        "YOURDOMAINNAME1ALIAS1.COM",
+        "YOURDOMAINNAME1ALIAS2.COM" 
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+      }
+    },
+    {
+      "domainName": "YOURDOMAINNAME2.COM", 
+      "sanList": [
+        "YOURDOMAINNAME2.COM",
+        "YOURDOMAINNAME2ALIAS1.COM",
+        "YOURDOMAINNAME2ALIAS1.COM" 
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+      }
+    }
+  ]
+}</code></p>
+</li>
+<li>
+<p>Import one ACM certificate and auto create CloudFront distribution from existing distribution id</p>
+<p><code>json
+{
+    "acm_op": "import",
+    "auto_creation": "true",
+    "cnameList": [],
+    "pemList": [
         {
-          "domainName": "YOURDOMAINNAME1.COM", 
-          "sanList": [
-            "YOURDOMAINNAME1.COM",
-            "YOURDOMAINNAME1ALIAS1.COM",
-            "YOURDOMAINNAME1ALIAS2.COM" 
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-          }
+            "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
+            "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
+            "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
+            "existing_cf_info": {
+                "distribution_id": "E1DACGTRXKKWCH"
+            }
+        }
+    ]
+}</code></p>
+</li>
+<li>
+<p>Import two ACM certificates and auto create CloudFront distribution from existing distribution id</p>
+<p><code>json
+{
+    "acm_op": "import",
+    "auto_creation": "true",
+    "cnameList": [],
+    "pemList": [
+        {
+            "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
+            "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
+            "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
+            "existing_cf_info": {
+                "distribution_id": "E1DACGTRXKKWCH"
+            }
         },
         {
-          "domainName": "YOURDOMAINNAME2.COM", 
-          "sanList": [
-            "YOURDOMAINNAME2.COM",
-            "YOURDOMAINNAME2ALIAS1.COM",
-            "YOURDOMAINNAME2ALIAS1.COM" 
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-          }
+            "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
+            "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
+            "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
+            "existing_cf_info": {
+                "distribution_id": "E1DACGTRXKKWCH"
+            }
         }
-      ]
-    }</code></p>
-</li>
-<li>
-<p>Import one ACM certificate and auto create CloudFront distribution from existing distribution id
-    <code>json
-    {
-        "acm_op": "import",
-        "auto_creation": "true",
-        "cnameList": [],
-        "pemList": [
-            {
-                "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
-                "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
-                "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
-                "existing_cf_info": {
-                    "distribution_id": "E1DACGTRXKKWCH"
-                }
-            }
-        ]
-    }</code></p>
-</li>
-<li>
-<p>Import two ACM certificates and auto create CloudFront distribution from existing distribution id
-    <code>json
-    {
-        "acm_op": "import",
-        "auto_creation": "true",
-        "cnameList": [],
-        "pemList": [
-            {
-                "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
-                "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
-                "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
-                "existing_cf_info": {
-                    "distribution_id": "E1DACGTRXKKWCH"
-                }
-            },
-            {
-                "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
-                "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
-                "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
-                "existing_cf_info": {
-                    "distribution_id": "E1DACGTRXKKWCH"
-                }
-            }
-        ]
-    }</code></p>
+    ]
+}</code></p>
 </li>
 <li>
 <p>Response</p>

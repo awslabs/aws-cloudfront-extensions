@@ -1196,7 +1196,7 @@
 <li>Find out the hosted zone ID from the aws console under Route53/YOUR_DOMAIN_NAME/Hosted zone details tab.</li>
 <li>Open the file and update the data based on your email, for example:</li>
 </ol>
-<p>```python</p>
+<p>``` python</p>
 <p>import boto3</p>
 <p>route53 = boto3.client('route53')
    def add_cname_record(cnameName, cnameValue, hostedZoneId):
@@ -1229,8 +1229,10 @@
        for i, val in enumerate(cnameList):
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
-   <code>``
-6. Run your script by</code>python route53Cert.py`. it will be success add record to your domain if there is no error output.</p>
+   ```</p>
+<ol>
+<li>Run your script by <code>python route53Cert.py</code>. it will be success add record to your domain if there is no error output.</li>
+</ol>
 <h2 id="adding-cnames-record-for-dcv-validation-in-godaddy">Adding CNAMEs record for DCV validation in GoDaddy</h2>
 <h3 id="adding-through-godaddy-console">Adding Through GoDaddy Console</h3>
 <ol>
