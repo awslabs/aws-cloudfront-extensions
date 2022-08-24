@@ -10,7 +10,7 @@
 
 - Request body parameters
     - src_distribution_id: String
-    - target_distribution_ids: String (use "," to seperate multiple target distribution)
+    - target_distribution_ids: String (use "," to separate multiple target distribution)
     - snapshot_name: String
 
 
