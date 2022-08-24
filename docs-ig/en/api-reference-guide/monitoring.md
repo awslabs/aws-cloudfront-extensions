@@ -123,7 +123,7 @@ CloudFront real-time log analysis and standard log analysis have the same API fo
     - RequestId: a unique ID for each request
     - Interval: the interval for collecting metric data, and the default value is 5 minutes
 
-## More example API
+## More API examples
 
 ### URI format
 
