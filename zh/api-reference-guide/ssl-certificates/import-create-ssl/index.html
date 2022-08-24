@@ -1022,81 +1022,81 @@
 <p>请求</p>
 </li>
 <li>
-<p>创建一个ACM证书，并根据现有分配的指定配置版本自动创建新的CloudFront分配 
-    <code>json
+<p>创建一个ACM证书，并根据现有分配的指定配置版本自动创建新的CloudFront分配</p>
+<p><code>json
+{
+  "acm_op": "create",   
+  "auto_creation": "true", 
+  "cnameList": [  
     {
-      "acm_op": "create",   
-      "auto_creation": "true", 
-      "cnameList": [  
-        {
-          "domainName": "YOURDOMAINNAME.COM", 
-          "sanList": [
-            "YOURDOMAINNAME.COM",
-            "YOURDOMAINNAMEALIAS1.COM"
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-            "config_version_id": "1"
-          }
-        }
-      ]
-    }</code></p>
+      "domainName": "YOURDOMAINNAME.COM", 
+      "sanList": [
+        "YOURDOMAINNAME.COM",
+        "YOURDOMAINNAMEALIAS1.COM"
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+        "config_version_id": "1"
+      }
+    }
+  ]
+}</code></p>
 </li>
 <li>
-<p>创建一个ACM证书，并根据现有分配的配置自动创建新的CloudFront分配
-    <code>json
+<p>创建一个ACM证书，并根据现有分配的配置自动创建新的CloudFront分配</p>
+<p><code>json
+{
+  "acm_op": "create",   
+  "auto_creation": "true", 
+  "cnameList": [  
     {
-      "acm_op": "create",   
-      "auto_creation": "true", 
-      "cnameList": [  
-        {
-          "domainName": "YOURDOMAINNAME.COM", 
-          "sanList": [
-            "YOURDOMAINNAME.COM",
-            "YOURDOMAINNAMEALIAS1.COM"
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-          }
-        }
-      ]
-    }</code></p>
+      "domainName": "YOURDOMAINNAME.COM", 
+      "sanList": [
+        "YOURDOMAINNAME.COM",
+        "YOURDOMAINNAMEALIAS1.COM"
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+      }
+    }
+  ]
+}</code></p>
 </li>
 <li>
-<p>创建两个ACM证书，并根据现有分配的配置自动创建新的CloudFront分配
-    <code>json
+<p>创建两个ACM证书，并根据现有分配的配置自动创建新的CloudFront分配</p>
+<p><code>json
+{
+  "acm_op": "create",   
+  "auto_creation": "true", 
+  "cnameList": [  
     {
-      "acm_op": "create",   
-      "auto_creation": "true", 
-      "cnameList": [  
-        {
-          "domainName": "YOURDOMAINNAME1.COM", 
-          "sanList": [
-            "YOURDOMAINNAME1.COM",
-            "YOURDOMAINNAME1ALIAS1.COM",
-            "YOURDOMAINNAME1ALIAS2.COM" 
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-          }
-        },
-        {
-          "domainName": "YOURDOMAINNAME2.COM", 
-          "sanList": [
-            "YOURDOMAINNAME2.COM",
-            "YOURDOMAINNAME2ALIAS1.COM",
-            "YOURDOMAINNAME2ALIAS1.COM" 
-          ],
-          "existing_cf_info": 
-          {
-            "distribution_id": "E195R1W5GIVPF5", 
-          }
-        }
-      ]
-    }</code></p>
+      "domainName": "YOURDOMAINNAME1.COM", 
+      "sanList": [
+        "YOURDOMAINNAME1.COM",
+        "YOURDOMAINNAME1ALIAS1.COM",
+        "YOURDOMAINNAME1ALIAS2.COM" 
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+      }
+    },
+    {
+      "domainName": "YOURDOMAINNAME2.COM", 
+      "sanList": [
+        "YOURDOMAINNAME2.COM",
+        "YOURDOMAINNAME2ALIAS1.COM",
+        "YOURDOMAINNAME2ALIAS1.COM" 
+      ],
+      "existing_cf_info": 
+      {
+        "distribution_id": "E195R1W5GIVPF5", 
+      }
+    }
+  ]
+}</code></p>
 </li>
 <li>
 <p>导入一个ACM证书并从现有分配的配置自动创建新的CloudFront分配</p>
@@ -1120,33 +1120,33 @@
 }</code></p>
 </li>
 <li>
-<p>导入两个ACM证书并从现有分配的指定配置版本自动创建新的CloudFront分配
-    <code>json
-    {
-        "acm_op": "import",
-        "auto_creation": "true",
-        "dist_aggregate": "false",
-        "enable_cname_check": "false",
-        "cnameList": [],
-        "pemList": [
-            {
-                "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
-                "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
-                "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
-                "existing_cf_info": {
-                    "distribution_id": "E1DACGTRXKKWCH"
-                }
-            },
-            {
-                "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
-                "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
-                "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
-                "existing_cf_info": {
-                    "distribution_id": "E1DACGTRXKKWCH"
-                }
+<p>导入两个ACM证书并从现有分配的指定配置版本自动创建新的CloudFront分配</p>
+<p><code>json
+{
+    "acm_op": "import",
+    "auto_creation": "true",
+    "dist_aggregate": "false",
+    "enable_cname_check": "false",
+    "cnameList": [],
+    "pemList": [
+        {
+            "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
+            "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
+            "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
+            "existing_cf_info": {
+                "distribution_id": "E1DACGTRXKKWCH"
             }
-        ]
-    }</code></p>
+        },
+        {
+            "CertPem": "-----BEGIN CERTIFICATE-----\nXXXXXXXXXXXX\n-----END CERTIFICATE-----",
+            "PrivateKeyPem": "-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXX\n-----END PRIVATE KEY-----",
+            "ChainPem": "-----BEGIN CERTIFICATE-----\nAAAAAAAAAAA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nBBBBBBBBBBB\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nCCCCCCCCCCC\n-----END CERTIFICATE-----",
+            "existing_cf_info": {
+                "distribution_id": "E1DACGTRXKKWCH"
+            }
+        }
+    ]
+}</code></p>
 </li>
 <li>
 <p>响应</p>
