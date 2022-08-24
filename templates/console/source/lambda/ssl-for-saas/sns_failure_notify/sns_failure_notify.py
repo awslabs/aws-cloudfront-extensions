@@ -133,6 +133,9 @@ def lambda_handler(event, context):
                      'FAILED')
 
     cause = event['input']['error']['Cause']
+    if cause == "":
+        cause = event['input']['error']['Error']
+
     update_job_field(JOB_INFO_TABLE_NAME,
                      job_token,
                      'promptInfo',
