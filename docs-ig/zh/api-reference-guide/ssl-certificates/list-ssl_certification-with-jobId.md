@@ -3,7 +3,7 @@
 - HTTP方法: `GET`
 
 - 请求
-```http request
+```json
 /ssl_for_saas/list_ssl_certification_with_jobId?jobId=f98d3afb-4956-4ddc-b227-88c7a1f2384c
 ```
 

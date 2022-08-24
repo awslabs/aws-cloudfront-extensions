@@ -5,7 +5,7 @@ Get snapshot json file in S3 bucket
 - HTTP方法: `POST`
 
 - 请求
-```http request
+```json
 /snapshot/get_snapshot_link?distributionId=E20GR9AX7K798K&snapShotName=snapshot2
 ```
 

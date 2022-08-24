@@ -3,7 +3,8 @@
 - HTTP request method: `POST`
 
 - Request
-```http request
+
+```json
 /snapshot/delete_snapshot?distributionId=E20GR9AX7K798K&snapShotName=dfdfd
 ```
 
@@ -13,6 +14,7 @@
 
 
 - Response
+
 ```json
 {
   "statusCode": 200,

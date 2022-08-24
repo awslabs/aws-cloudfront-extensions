@@ -3,7 +3,7 @@
 - HTTP方法: `POST`
 
 - 请求
-```http request
+```json
 /snapshot/diff_cloudfront_snapshot?distribution_id=E20GR9AX7K798K&snapshot1=FirstSnapshot&snapshot2=SecondSnapshot
 ```
 

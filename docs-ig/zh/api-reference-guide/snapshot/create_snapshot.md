@@ -3,7 +3,7 @@
 - HTTP方法: `POST`
 
 - 请求
-```http request
+```json
 /snapshot/create_snapshot?distributionId=E20GR9AX7K798K&snapShotName=ReleaseSnapshot&snapShotNote="This is for Testing"
 ```
 

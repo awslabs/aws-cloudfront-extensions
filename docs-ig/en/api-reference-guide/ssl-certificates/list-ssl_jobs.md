@@ -3,10 +3,12 @@
 - HTTP request method: `GET`
 
 - Request
-```http request
+
+```json
 /ssl_for_saas/list_ssl_jobs
 ```
 - Response
+
 ```json
 [
   {

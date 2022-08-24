@@ -3,7 +3,7 @@
 - HTTP方法: `POST`
 
 - 请求
-```http request
+```json
 /snapshot/config_snapshot_tag_update?distribution_id=E3K4JDLORL0EUD&snapshot_name=snapshot1&note=Test
 ```
 

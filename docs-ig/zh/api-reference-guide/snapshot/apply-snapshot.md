@@ -4,7 +4,7 @@
 
 - 请求
 
-```http request
+```json
 /snapshot/apply_snapshot?src_distribution_id=E3K4JDLORL0EUD&target_distribution_ids=E3K4JDLORL0EUD&snapshot_name=snapshot1
 ```
 

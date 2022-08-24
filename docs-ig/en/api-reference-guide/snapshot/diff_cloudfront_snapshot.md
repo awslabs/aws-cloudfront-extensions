@@ -3,7 +3,7 @@
 - HTTP request method: `POST`
 
 - Request
-```http request
+```json
 /snapshot/diff_cloudfront_snapshot?distribution_id=E20GR9AX7K798K&snapshot1=first Snapshot&snapshot2=snapshot2
 ```
 

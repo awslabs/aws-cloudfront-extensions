@@ -20,6 +20,7 @@
 
 
 - Response
+
 ```json
 {
   "statusCode": 200,
