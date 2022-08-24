@@ -96,11 +96,10 @@ If you want to update the email, you need to update the email parameter in the C
 ### Adding Through Provided Script
 
 1. Prepare python environment based on your os: [install python](https://www.python.org/downloads/).
-2. Download the file by this [url](https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806) and save to file `goDaddyCert.py`.
+2. Download the file by this [url](https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93) and save to file `goDaddyCert.py`.
 3. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
-4. Download script and save as `goDaddyCert.py`.
-5. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
-6. Modify the godaddyCert.py with your api key, secret and the cname data:
+4. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
+5. Modify the godaddyCert.py with your api key, secret and the cname data:
 
 ```python
    #!/usr/bin/env python
@@ -124,7 +123,7 @@ If you want to update the email, you need to update the email parameter in the C
        for i, val in enumerate(cnameList):
            add_cname_record(val['Name'], val['Value'], domain)
 ```
-7. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
+6. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
 
 
 
