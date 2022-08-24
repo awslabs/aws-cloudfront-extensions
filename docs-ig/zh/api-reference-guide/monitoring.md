@@ -15,9 +15,9 @@ CloudFront实时日志分析和标准日志分析具有相同的API格式。指�
 
 - 请求参数
 
-   - StartTime: 获取指标数据的起始时间
-   - EndTime: 获取指标数据的结束时间
-   - Metric: 指标类型，使用`all`来获取所有指标
+        - StartTime: 获取指标数据的起始时间
+        - EndTime: 获取指标数据的结束时间
+        - Metric: 指标类型，使用`all`来获取所有指标
 
 - 响应
 
@@ -55,11 +55,11 @@ CloudFront实时日志分析和标准日志分析具有相同的API格式。指�
 
 - 参数
 
-  - CdnData: CloudFront指标数据
-  - Metric: 指标类型
-  - DetailData: 具体指标数据
-  - RequestId: 请求ID
-  - Interval: 收集指标数据的间隔，默认值为5分钟
+    - CdnData: CloudFront指标数据
+    - Metric: 指标类型
+    - DetailData: 具体指标数据
+    - RequestId: 请求ID
+    - Interval: 收集指标数据的间隔，默认值为5分钟
 
 ## RealTimeMonitoringMetrics
 
@@ -76,9 +76,9 @@ CloudFront实时日志分析和标准日志分析具有相同的API格式。指�
 
 - 请求参数
 
-   - StartTime: 获取指标数据的起始时间
-   - EndTime: 获取指标数据的结束时间
-   - Metric: 指标类型，使用`all`来获取所有指标
+    - StartTime: 获取指标数据的起始时间
+    - EndTime: 获取指标数据的结束时间
+    - Metric: 指标类型，使用`all`来获取所有指标
 
 - 响应
 
@@ -116,11 +116,11 @@ CloudFront实时日志分析和标准日志分析具有相同的API格式。指�
 
 - 参数
 
-  - CdnData: CloudFront指标数据
-  - Metric: 指标类型
-  - DetailData: 具体指标数据
-  - RequestId: 请求ID
-  - Interval: 收集指标数据的间隔，默认值为5分钟
+    - CdnData: CloudFront指标数据
+    - Metric: 指标类型
+    - DetailData: 具体指标数据
+    - RequestId: 请求ID
+    - Interval: 收集指标数据的间隔，默认值为5分钟
 
 ## 更多API示例
 
