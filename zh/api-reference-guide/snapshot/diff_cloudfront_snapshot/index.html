@@ -1015,21 +1015,25 @@
 <p>HTTP方法: <code>POST</code></p>
 </li>
 <li>
-<p>请求
-```http request
-/snapshot/diff_cloudfront_snapshot?distribution_id=E20GR9AX7K798K&amp;snapshot1=FirstSnapshot&amp;snapshot2=SecondSnapshot</p>
+<p>请求</p>
 </li>
 </ul>
-<pre><code>
-- 请求参数
-    - distribution_id: String
-    - snapshot1: String
-    - snapshot2: String
-
-
-- 响应
-```json
-&quot;diff --git a/tmp/E20GR9AX7K798K_3.json b/tmp/E20GR9AX7K798K_6.json\nindex 4bded46..cb7824e 100644\n--- a/tmp/E20GR9AX7K798K_3.json\n+++ b/tmp/E20GR9AX7K798K_6.json\n@@ -99,7 +99,7 @@\n     \&quot;CustomErrorResponses\&quot;: {\n         \&quot;Quantity\&quot;: 0\n     },\n-    \&quot;Comment\&quot;: \&quot;my test for cf\&quot;,\n+    \&quot;Comment\&quot;: \&quot;my test for cf a new one\&quot;,\n     \&quot;Logging\&quot;: {\n         \&quot;Enabled\&quot;: false,\n         \&quot;IncludeCookies\&quot;: false,\n&quot;
+<pre><code class="language-json">/snapshot/diff_cloudfront_snapshot?distribution_id=E20GR9AX7K798K&amp;snapshot1=FirstSnapshot&amp;snapshot2=SecondSnapshot
+</code></pre>
+<ul>
+<li>
+<p>请求参数</p>
+<ul>
+<li>distribution_id: String</li>
+<li>snapshot1: String</li>
+<li>snapshot2: String</li>
+</ul>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">&quot;diff --git a/tmp/E20GR9AX7K798K_3.json b/tmp/E20GR9AX7K798K_6.json\nindex 4bded46..cb7824e 100644\n--- a/tmp/E20GR9AX7K798K_3.json\n+++ b/tmp/E20GR9AX7K798K_6.json\n@@ -99,7 +99,7 @@\n     \&quot;CustomErrorResponses\&quot;: {\n         \&quot;Quantity\&quot;: 0\n     },\n-    \&quot;Comment\&quot;: \&quot;my test for cf\&quot;,\n+    \&quot;Comment\&quot;: \&quot;my test for cf a new one\&quot;,\n     \&quot;Logging\&quot;: {\n         \&quot;Enabled\&quot;: false,\n         \&quot;IncludeCookies\&quot;: false,\n&quot;
 </code></pre>
 
 

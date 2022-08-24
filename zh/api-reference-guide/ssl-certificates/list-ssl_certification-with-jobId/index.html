@@ -1015,18 +1015,23 @@
 <p>HTTP方法: <code>GET</code></p>
 </li>
 <li>
-<p>请求
-```http request
-/ssl_for_saas/list_ssl_certification_with_jobId?jobId=f98d3afb-4956-4ddc-b227-88c7a1f2384c</p>
+<p>请求</p>
 </li>
 </ul>
-<pre><code>
-- 请求参数
-    - jobId: String
-
-- 响应
-```json
-[
+<pre><code class="language-json">/ssl_for_saas/list_ssl_certification_with_jobId?jobId=f98d3afb-4956-4ddc-b227-88c7a1f2384c
+</code></pre>
+<ul>
+<li>
+<p>请求参数</p>
+<ul>
+<li>jobId: String</li>
+</ul>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">[
   &quot;arn:aws:acm:us-east-1:596963228260:certificate/7559c140-a6e0-4c25-8605-c6525561471e&quot;,
   &quot;arn:aws:acm:us-east-1:596963228260:certificate/4389ceb0-271c-4a39-a59d-3ddf65705b68&quot;,
   &quot;arn:aws:acm:us-east-1:596963228260:certificate/cf3323cb-feab-4688-bdfa-412de32beaf4&quot;

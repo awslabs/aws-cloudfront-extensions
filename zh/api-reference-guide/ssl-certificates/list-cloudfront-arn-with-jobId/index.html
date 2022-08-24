@@ -1015,18 +1015,21 @@
 <p>HTTP方法: <code>GET</code></p>
 </li>
 <li>
-<p>请求
-```http request
-/ssl_for_saas/list_cloudfront_arn_with_jobId?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42</p>
+<p>请求</p>
 </li>
 </ul>
-<pre><code>
-- 请求参数
-  - jobId: String
-
-- 响应
-```json
-[
+<pre><code class="language-json">/ssl_for_saas/list_cloudfront_arn_with_jobId?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42
+</code></pre>
+<ul>
+<li>请求参数</li>
+<li>
+<p>jobId: String</p>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">[
   &quot;arn:aws:cloudfront::596963228260:distribution/E3I7SS3FT9440Q&quot;,
   &quot;arn:aws:cloudfront::596963228260:distribution/EHZP3M6MW4FRU&quot;,
   &quot;arn:aws:cloudfront::596963228260:distribution/E2OH67LDYUMZTG&quot;

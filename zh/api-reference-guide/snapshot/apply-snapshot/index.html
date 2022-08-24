@@ -1018,18 +1018,22 @@
 <p>请求</p>
 </li>
 </ul>
-<p>```http request
-/snapshot/apply_snapshot?src_distribution_id=E3K4JDLORL0EUD&amp;target_distribution_ids=E3K4JDLORL0EUD&amp;snapshot_name=snapshot1</p>
-<pre><code>
-- 请求参数 
-    - src_distribution_id: String
-    - target_distribution_ids: String (当有多个分配时，需要使用逗号分隔)
-    - snapshot_name: String
-
-
-- 响应
-```json
-{
+<pre><code class="language-json">/snapshot/apply_snapshot?src_distribution_id=E3K4JDLORL0EUD&amp;target_distribution_ids=E3K4JDLORL0EUD&amp;snapshot_name=snapshot1
+</code></pre>
+<ul>
+<li>
+<p>请求参数 </p>
+<ul>
+<li>src_distribution_id: String</li>
+<li>target_distribution_ids: String (当有多个分配时，需要使用逗号分隔)</li>
+<li>snapshot_name: String</li>
+</ul>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;statusCode&quot;: 200,
   &quot;body&quot;: &quot;succeed apply snapshot to target distributions&quot;
 }

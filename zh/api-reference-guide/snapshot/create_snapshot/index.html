@@ -1015,21 +1015,25 @@
 <p>HTTP方法: <code>POST</code></p>
 </li>
 <li>
-<p>请求
-```http request
-/snapshot/create_snapshot?distributionId=E20GR9AX7K798K&amp;snapShotName=ReleaseSnapshot&amp;snapShotNote="This is for Testing"</p>
+<p>请求</p>
 </li>
 </ul>
-<pre><code>
-- 请求参数
-    - distributionId: String
-    - snapShotName: String
-    - snapShotNote: String
-
-
-- 响应
-```json
-{
+<pre><code class="language-json">/snapshot/create_snapshot?distributionId=E20GR9AX7K798K&amp;snapShotName=ReleaseSnapshot&amp;snapShotNote=&quot;This is for Testing&quot;
+</code></pre>
+<ul>
+<li>
+<p>请求参数</p>
+<ul>
+<li>distributionId: String</li>
+<li>snapShotName: String</li>
+<li>snapShotNote: String</li>
+</ul>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;statusCode&quot;: 200,
   &quot;body&quot;: &quot;succeed create new snapshot&quot;
 }

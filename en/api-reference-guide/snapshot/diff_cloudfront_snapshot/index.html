@@ -1013,21 +1013,25 @@
 <p>HTTP request method: <code>POST</code></p>
 </li>
 <li>
-<p>Request
-```http request
-/snapshot/diff_cloudfront_snapshot?distribution_id=E20GR9AX7K798K&amp;snapshot1=first Snapshot&amp;snapshot2=snapshot2</p>
+<p>Request</p>
 </li>
 </ul>
-<pre><code>
-- Request body parameters
-    - distribution_id: String
-    - snapshot1: String
-    - snapshot2: String
-
-
-- Response
-```json
-&quot;diff --git a/tmp/E20GR9AX7K798K_3.json b/tmp/E20GR9AX7K798K_6.json\nindex 4bded46..cb7824e 100644\n--- a/tmp/E20GR9AX7K798K_3.json\n+++ b/tmp/E20GR9AX7K798K_6.json\n@@ -99,7 +99,7 @@\n     \&quot;CustomErrorResponses\&quot;: {\n         \&quot;Quantity\&quot;: 0\n     },\n-    \&quot;Comment\&quot;: \&quot;my test for cf\&quot;,\n+    \&quot;Comment\&quot;: \&quot;my test for cf a new one\&quot;,\n     \&quot;Logging\&quot;: {\n         \&quot;Enabled\&quot;: false,\n         \&quot;IncludeCookies\&quot;: false,\n&quot;
+<pre><code class="language-json">/snapshot/diff_cloudfront_snapshot?distribution_id=E20GR9AX7K798K&amp;snapshot1=first Snapshot&amp;snapshot2=snapshot2
+</code></pre>
+<ul>
+<li>
+<p>Request body parameters</p>
+<ul>
+<li>distribution_id: String</li>
+<li>snapshot1: String</li>
+<li>snapshot2: String</li>
+</ul>
+</li>
+<li>
+<p>Response</p>
+</li>
+</ul>
+<pre><code class="language-json">&quot;diff --git a/tmp/E20GR9AX7K798K_3.json b/tmp/E20GR9AX7K798K_6.json\nindex 4bded46..cb7824e 100644\n--- a/tmp/E20GR9AX7K798K_3.json\n+++ b/tmp/E20GR9AX7K798K_6.json\n@@ -99,7 +99,7 @@\n     \&quot;CustomErrorResponses\&quot;: {\n         \&quot;Quantity\&quot;: 0\n     },\n-    \&quot;Comment\&quot;: \&quot;my test for cf\&quot;,\n+    \&quot;Comment\&quot;: \&quot;my test for cf a new one\&quot;,\n     \&quot;Logging\&quot;: {\n         \&quot;Enabled\&quot;: false,\n         \&quot;IncludeCookies\&quot;: false,\n&quot;
 </code></pre>
 
 

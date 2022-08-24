@@ -1013,19 +1013,23 @@
 <p>HTTP request method: <code>POST</code></p>
 </li>
 <li>
-<p>Request
-```http request
-/snapshot/list_snapshots?distributionId=E20GR9AX7K798K</p>
+<p>Request</p>
 </li>
 </ul>
-<pre><code>
-- Request body parameters
-    - distributionId: String
-
-
-- Response
-```json
-[
+<pre><code class="language-json">/snapshot/list_snapshots?distributionId=E20GR9AX7K798K
+</code></pre>
+<ul>
+<li>
+<p>Request body parameters</p>
+<ul>
+<li>distributionId: String</li>
+</ul>
+</li>
+<li>
+<p>Response</p>
+</li>
+</ul>
+<pre><code class="language-json">[
   {
     &quot;id&quot;: &quot;snapshot2&quot;,
     &quot;distribution_id&quot;: &quot;E20GR9AX7K798K&quot;,

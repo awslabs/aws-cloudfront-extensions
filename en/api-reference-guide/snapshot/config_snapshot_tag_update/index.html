@@ -1013,21 +1013,25 @@
 <p>HTTP request method: <code>POST</code></p>
 </li>
 <li>
-<p>Request
-```http request
-/snapshot/config_snapshot_tag_update?distribution_id=E3K4JDLORL0EUD&amp;snapshot_name=snapshot1&amp;note=测试版本snapshot</p>
+<p>Request</p>
 </li>
 </ul>
-<pre><code>
-- Request body parameters
-    - distribution_id: String
-    - note: String
-    - snapshot_name: String
-
-
-- Response
-```json
-{
+<pre><code class="language-json">/snapshot/config_snapshot_tag_update?distribution_id=E3K4JDLORL0EUD&amp;snapshot_name=snapshot1&amp;note=测试版本snapshot
+</code></pre>
+<ul>
+<li>
+<p>Request body parameters</p>
+<ul>
+<li>distribution_id: String</li>
+<li>note: String</li>
+<li>snapshot_name: String</li>
+</ul>
+</li>
+<li>
+<p>Response</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;Attributes&quot;: {
     &quot;note&quot;: &quot;Test snapshot&quot;
   },

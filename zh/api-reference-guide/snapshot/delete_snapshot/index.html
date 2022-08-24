@@ -1015,20 +1015,24 @@
 <p>HTTP方法: <code>POST</code></p>
 </li>
 <li>
-<p>请求
-```http request
-/snapshot/delete_snapshot?distributionId=E20GR9AX7K798K&amp;snapShotName=ReleaseVersion</p>
+<p>请求</p>
 </li>
 </ul>
-<pre><code>
-- 请求参数
-    - distributionId: String
-    - snapShotName: String
-
-
-- 响应
-```json
-{
+<pre><code class="language-json">/snapshot/delete_snapshot?distributionId=E20GR9AX7K798K&amp;snapShotName=ReleaseVersion
+</code></pre>
+<ul>
+<li>
+<p>请求参数</p>
+<ul>
+<li>distributionId: String</li>
+<li>snapShotName: String</li>
+</ul>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;statusCode&quot;: 200,
   &quot;body&quot;: &quot;succeed delete snapshot&quot;
 }

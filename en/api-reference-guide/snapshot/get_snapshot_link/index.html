@@ -1013,20 +1013,24 @@
 <p>HTTP request method: <code>POST</code></p>
 </li>
 <li>
-<p>Request
-```http request
-/snapshot/get_snapshot_link?distributionId=E20GR9AX7K798K&amp;snapShotName=snapshot2</p>
+<p>Request</p>
 </li>
 </ul>
-<pre><code>
-- Request body parameters
-    - distributionId: String
-    - snapShotName: String
-
-
-- Response
-```json
-{
+<pre><code class="language-json">/snapshot/get_snapshot_link?distributionId=E20GR9AX7K798K&amp;snapShotName=snapshot2
+</code></pre>
+<ul>
+<li>
+<p>Request body parameters</p>
+<ul>
+<li>distributionId: String</li>
+<li>snapShotName: String</li>
+</ul>
+</li>
+<li>
+<p>Response</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;config_link&quot;: &quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json&quot;
 }
 </code></pre>

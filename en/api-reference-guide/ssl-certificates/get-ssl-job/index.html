@@ -1013,19 +1013,21 @@
 <p>HTTP request method: <code>GET</code></p>
 </li>
 <li>
-<p>Request
-```http request
-/ssl_for_saas/get_ssl_job?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42</p>
+<p>Request</p>
 </li>
 </ul>
-<pre><code>
-- Request body parameters
-  - jobId: String
-
-
-- Response
-```json
-{
+<pre><code class="language-json">/ssl_for_saas/get_ssl_job?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42
+</code></pre>
+<ul>
+<li>Request body parameters</li>
+<li>
+<p>jobId: String</p>
+</li>
+<li>
+<p>Response</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;distList&quot;: [],
   &quot;jobId&quot;: &quot;f48db3b2-90e4-43b2-a46d-bd0e8530bc42&quot;,
   &quot;creationDate&quot;: &quot;2022-08-01-06-44-44&quot;,

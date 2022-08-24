@@ -1016,20 +1016,24 @@
 <p>HTTP方法: <code>POST</code></p>
 </li>
 <li>
-<p>请求
-```http request
-/snapshot/get_snapshot_link?distributionId=E20GR9AX7K798K&amp;snapShotName=snapshot2</p>
+<p>请求</p>
 </li>
 </ul>
-<pre><code>
-- 请求参数
-    - distributionId: String
-    - snapShotName: String
-
-
-- 响应
-```json
-{
+<pre><code class="language-json">/snapshot/get_snapshot_link?distributionId=E20GR9AX7K798K&amp;snapShotName=snapshot2
+</code></pre>
+<ul>
+<li>
+<p>请求参数</p>
+<ul>
+<li>distributionId: String</li>
+<li>snapShotName: String</li>
+</ul>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;config_link&quot;: &quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json&quot;
 }
 </code></pre>
