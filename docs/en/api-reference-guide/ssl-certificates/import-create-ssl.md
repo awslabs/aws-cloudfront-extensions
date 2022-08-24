@@ -1,5 +1,8 @@
 ## import-create-ssl
 
+!!! Important "Important"
+    Please do not include more than 100 cname or pems records in one request. Too many requesting items in one request will cause backend ACM service and Cloudfront service throttle our request and cause the backend workflow failure.
+
 - HTTP request method: `POST`
 
 - Request

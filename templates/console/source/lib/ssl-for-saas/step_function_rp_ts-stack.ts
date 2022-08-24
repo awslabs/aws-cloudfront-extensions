@@ -486,6 +486,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           callback: "true",
         }),
         resultPath: "$.fn_acm_cb",
+        timeout: Duration.seconds(900),
       }
     ).addCatch(failure_handling_job, {
       resultPath: "$.error",
@@ -502,6 +503,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           input: _step.JsonPath.entirePayload,
         }),
         resultPath: "$.fn_acm_import_cb",
+        timeout: Duration.seconds(900),
       }
     ).addCatch(failure_handling_job, {
       // "errors": ["$.errorMessage"],
@@ -532,6 +534,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         }),
         resultSelector: { Payload: _step.JsonPath.stringAt("$.Payload") },
         resultPath: "$.fn_acm_cb_handler",
+        timeout: Duration.seconds(900),
       }
     );
 
