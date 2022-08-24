@@ -1021,26 +1021,28 @@
 </li>
 <li>
 <p>Create one ACM certificate and auto create CloudFront distribution from existing distribution id and version id</p>
-<p><code>json
-{
-  "acm_op": "create",   
-  "auto_creation": "true", 
-  "cnameList": [  
-    {
-      "domainName": "YOURDOMAINNAME.COM", 
-      "sanList": [
-        "YOURDOMAINNAME.COM",
-        "YOURDOMAINNAMEALIAS1.COM"
-      ],
-      "existing_cf_info": 
-      {
-        "distribution_id": "E195R1W5GIVPF5", 
-        "config_version_id": "1"
-      }
-    }
-  ]
-}</code></p>
 </li>
+</ul>
+<pre><code class="language-json">    {
+      &quot;acm_op&quot;: &quot;create&quot;,   
+      &quot;auto_creation&quot;: &quot;true&quot;, 
+      &quot;cnameList&quot;: [  
+        {
+          &quot;domainName&quot;: &quot;YOURDOMAINNAME.COM&quot;, 
+          &quot;sanList&quot;: [
+            &quot;YOURDOMAINNAME.COM&quot;,
+            &quot;YOURDOMAINNAMEALIAS1.COM&quot;
+          ],
+          &quot;existing_cf_info&quot;: 
+          {
+            &quot;distribution_id&quot;: &quot;E195R1W5GIVPF5&quot;, 
+            &quot;config_version_id&quot;: &quot;1&quot;
+          }
+        }
+      ]
+    }
+</code></pre>
+<ul>
 <li>
 <p>Create one ACM certificate and auto create CloudFront distribution from existing distribution id</p>
 <p><code>json
