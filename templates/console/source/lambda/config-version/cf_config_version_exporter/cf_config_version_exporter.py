@@ -24,10 +24,7 @@ log.setLevel('INFO')
 def lambda_handler(event, context):
     # extract the distribution id from the input
     log.info(event['detail'])
-    if event['detail']['eventName'] == 'CreateDistribution':
-        response_parameters = event["detail"]["responseElements"]
-        distribution_id = response_parameters['distribution']['id']
-    if event['detail']['eventName'] == 'CreateDistributionWithTags':
+    if event['detail']['eventName'] == 'CreateDistribution' or event['detail']['eventName'] == 'CreateDistributionWithTags':
         response_parameters = event["detail"]["responseElements"]
         distribution_id = response_parameters['distribution']['id']
     else:

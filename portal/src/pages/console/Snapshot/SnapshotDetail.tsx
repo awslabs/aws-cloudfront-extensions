@@ -76,7 +76,7 @@ const SnapshotDetail: React.FC = () => {
       });
       const snapshotList: Snapshot[] = resData.data.listCloudfrontSnapshots;
       const snapshotWithoutLatest: Snapshot[] = snapshotList.filter(
-        (snapshot) => snapshot.snapshot_name !== "_LATEST_"
+        (snapshot) => snapshot.snapshot_name != "_LATEST_"
       );
       setLoadingData(false);
       setSnapshotFilterList(snapshotWithoutLatest);
@@ -180,9 +180,6 @@ const SnapshotDetail: React.FC = () => {
         snapShotName,
         snapShotNote,
       });
-      if (resData.data) {
-        getSnapshotListByDistribution();
-      }
     } catch (error) {
       console.error(error);
     }
@@ -194,9 +191,6 @@ const SnapshotDetail: React.FC = () => {
         distributionId,
         snapShotName: selectedItem[0].snapshot_name,
       });
-      if (resData.data) {
-        getSnapshotListByDistribution();
-      }
     } catch (error) {
       console.error(error);
     }
@@ -232,12 +226,54 @@ const SnapshotDetail: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="mt-10">
+        {/*<HeaderPanel*/}
+        {/*  title={*/}
+        {/*    distributionId + "(" + (distributionAliases[0] || "No CNAME") + ")"*/}
+        {/*  }*/}
+        {/*>*/}
+        {/*  <div className="flex value-label-span">*/}
+        {/*    <div className="flex-1">*/}
+        {/*      <ValueWithLabel label="Applied Snapshot Name">*/}
+        {/*        <div>*/}
+        {/*          {bindingSnapShotName == ""*/}
+        {/*            ? "Not binding with any Snapshot"*/}
+        {/*            : bindingSnapShotName}*/}
+        {/*        </div>*/}
+        {/*      </ValueWithLabel>*/}
+        {/*    </div>*/}
+        {/*    <div className="flex-1 border-left-c">*/}
+        {/*      <ValueWithLabel label="Drifting from applied Snapshot?">*/}
+        {/*        <div>{isDrifting}</div>*/}
+        {/*      </ValueWithLabel>*/}
+        {/*      <ValueWithLabel label="Diff with applied Snapshot">*/}
+        {/*        <div>*/}
+        {/*          <Button*/}
+        {/*            btnType="primary"*/}
+        {/*            disabled={driftingCompareDisable}*/}
+        {/*            onClick={() => {*/}
+        {/*              const path =*/}
+        {/*                "/config/snapshot/detail/" +*/}
+        {/*                id +*/}
+        {/*                "/compare/" +*/}
+        {/*                bindingSnapShotName +*/}
+        {/*                "/" +*/}
+        {/*                "_LATEST_";*/}
+        {/*              navigate(path);*/}
+        {/*            }}*/}
+        {/*          >*/}
+        {/*            Compare with Applied Snapshot*/}
+        {/*          </Button>*/}
+        {/*        </div>*/}
+        {/*      </ValueWithLabel>*/}
+        {/*    </div>*/}
+        {/*  </div>*/}
+        {/*</HeaderPanel>*/}
         <HeaderPanel title={distributionId}>
           <div className="flex value-label-span">
-            <ValueWithLabel label={t("snapshot:detail.cname")}>
+            <ValueWithLabel label="CNAME">
               <div>
                 <div className="flex-1">
-                  {distributionAliases[0] || t("snapshot:detail.nocname")}
+                  {distributionAliases[0] || "No CNAME"}
                 </div>
               </div>
             </ValueWithLabel>
@@ -245,7 +281,7 @@ const SnapshotDetail: React.FC = () => {
         </HeaderPanel>
         <TablePanel
           loading={loadingData}
-          title={t("snapshot:detail.snapshotList")}
+          title="Snapshot List"
           selectType={SelectType.CHECKBOX}
           actions={
             <div>
