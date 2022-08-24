@@ -1077,17 +1077,17 @@
 <ul>
 <li>
 <p>Request body parameters</p>
-</li>
-<li>
-<p>url_list: The list of urls for prewarm.</p>
-</li>
+<ul>
+<li>url_list: The list of urls for prewarm.</li>
 <li>cf_domain: CloudFront domain name which ends with <a href="http://cloudfront.net/">cloudfront.net</a>. If not set, it will find cf_domain according to CNAME in the url list.</li>
 <li>
 <p>region: The region for prewarm. You can specify 3 types of value.</p>
-<ul>
-<li>all: prewarm in all regions</li>
+</li>
+<li>
+<p>all: prewarm in all regions</p>
+</li>
 <li>pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list</li>
-<li>region code: pre-warm in a specific region, the available regions are:</li>
+<li>region code: pre-warm in a specific region, the available regions are:<ul>
 <li>apac: Asia-Pacific</li>
 <li>au: Australia</li>
 <li>ca: Canada</li>
@@ -1095,6 +1095,8 @@
 <li>eu: Europe</li>
 <li>jp: Japan</li>
 <li>us: United States</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>

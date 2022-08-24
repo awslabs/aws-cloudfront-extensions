@@ -1079,17 +1079,17 @@
 <ul>
 <li>
 <p>请求参数</p>
-</li>
-<li>
-<p>url_list： 预热的url列表</p>
-</li>
+<ul>
+<li>url_list： 预热的url列表</li>
 <li>cf_domain： 以<a href="http://cloudfront.net/">cloudfront.net</a>结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain</li>
 <li>
 <p>region： 预热区域。您可以指定3种类型的值</p>
-<ul>
-<li>all： 在所有区域进行预热</li>
+</li>
+<li>
+<p>all： 在所有区域进行预热</p>
+</li>
 <li>pop id列表，例如["ATL56-C1", "DFW55-C3"]: 在列表中指定的边缘节点进行预热</li>
-<li>区域代码: 在特定区域进行预热，可用区域为：</li>
+<li>区域代码: 在特定区域进行预热，可用区域为：<ul>
 <li>apac： Asia-Pacific</li>
 <li>au： Australia</li>
 <li>ca： Canada</li>
@@ -1097,6 +1097,8 @@
 <li>eu： Europe</li>
 <li>jp： Japan</li>
 <li>us： United States</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
