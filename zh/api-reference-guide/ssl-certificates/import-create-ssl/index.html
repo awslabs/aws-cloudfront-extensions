@@ -1010,6 +1010,10 @@
   <h1>Import create ssl</h1>
 
 <h2 id="import-create-ssl">import-create-ssl</h2>
+<div class="admonition important">
+<p class="admonition-title">重要提示</p>
+<p>请不要在一个请求中包含超过 100 个 cname 或 pem 记录。 一个请求中的请求项目过多会导致后端 ACM 服务和 Cloudfront 服务限制我们的请求并导致后端工作流失败。</p>
+</div>
 <ul>
 <li>
 <p>HTTP方法: <code>POST</code></p>

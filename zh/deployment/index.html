@@ -1246,7 +1246,7 @@
 <tr>
 <td>UseStartTime</td>
 <td>false</td>
-<td>如果指标数据中的时间基于开始时间，可以将其设置为“true”，如果指标数据的时间基于结束时间，则可以将其设为“false” 。</td>
+<td>如果指标数据的时间基于开始时间，可以将其设置为“true”，如果指标数据的时间基于结束时间，则可以将其设置为“false” 。</td>
 </tr>
 </tbody>
 </table>
@@ -1260,11 +1260,17 @@
 </ol>
 <p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
 <h3 id="_2">部署后的操作</h3>
-<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。您可以在<strong>WebConsoleCloudFrontURL</strong>中找到CloudFront Extensions控制台的链接。登录控制台的初始用户名和密码在您部署堆栈时通过InitialUserName和InitialUserPassword参数进行定义。对于监控API，本解决方案会创建一个名字包含<strong>NonRealtimeNestedStack</strong>或<strong>RealtimeNestedStack</strong>的嵌套堆栈，您可以在此嵌套堆栈的<strong>输出</strong>标签页中找到监控API的链接。 </p>
-<p>CloudFormation堆栈部署了如下模块：
-- 监控：: 如果您在部署CloudFormation堆栈时将Monitoring参数设置为yes-Realtime或 yes-Non-Realtime，您将会部署监控模块到您的AWS账号，请参考<a href="../monitoring/overview/">监控</a>获取更多信息。
-- 分配管理：您可以通过本解决方案管理快照和SSL证书，请参考<a href="../distribution-management/overview/">分配管理</a>获取更多信息。 
-- 扩展存储库：该解决方案提供了一些这些扩展帮助您更方便的使用CloudFront。您可以从解决方案web控制台中部署它们，部署后，您可以直接使用它而无需编程，或者在需要时对其进行自定义。您可以部署一系列开箱即用的CloudFront扩展(如：Lambda@Edge函数、CloudFront Functions、CloudFormation模板），请参考<a href="../extension-repository/overview/">扩展存储库</a>获取更多信息。</p>
+<p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。</p>
+<ul>
+<li>您可以在<strong>WebConsoleCloudFrontURL</strong>中找到CloudFront Extensions控制台的链接。登录控制台时输入初始用户名和密码，它们在您部署堆栈时通过InitialUserName和InitialUserPassword参数进行定义。</li>
+<li>对于监控API，本解决方案会创建一个名字包含<strong>NonRealtimeNestedStack</strong>或<strong>RealtimeNestedStack</strong>的嵌套堆栈，您可以在此嵌套堆栈的<strong>输出</strong>标签页中找到监控API的链接。 </li>
+</ul>
+<p>CloudFormation堆栈部署了如下模块：</p>
+<ul>
+<li>监控：如果您在部署CloudFormation堆栈时将Monitoring参数设置为yes-Realtime或 yes-Non-Realtime，您将会部署监控模块到您的AWS账号，请参考<a href="../monitoring/overview/">监控</a>获取更多信息。</li>
+<li>分配管理：您可以通过本解决方案管理快照和SSL证书，请参考<a href="../distribution-management/overview/">分配管理</a>获取更多信息。 </li>
+<li>扩展存储库：该解决方案提供了一些扩展帮助您更方便的使用CloudFront。您可以从解决方案web控制台中部署它们，部署后，您可以直接使用它而无需编程，或者在需要时对其进行自定义。您可以部署一系列开箱即用的CloudFront扩展(如：Lambda@Edge函数、CloudFront Functions、CloudFormation模板），请参考<a href="../extension-repository/overview/">扩展存储库</a>获取更多信息。</li>
+</ul>
 <h2 id="lambdaedge-cloudfront-functions">Lambda@Edge &amp; CloudFront Functions合集</h2>
 <p>部署时间：约3分钟</p>
 <h3 id="_3">部署概述</h3>

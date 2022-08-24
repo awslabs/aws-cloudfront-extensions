@@ -1008,6 +1008,10 @@
   <h1>Import create ssl</h1>
 
 <h2 id="import-create-ssl">import-create-ssl</h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Please do not include more than 100 cname or pems records in one request. Too many requesting items in one request will cause backend ACM service and Cloudfront service throttle our request and cause the backend workflow failure.</p>
+</div>
 <ul>
 <li>
 <p>HTTP request method: <code>POST</code></p>
