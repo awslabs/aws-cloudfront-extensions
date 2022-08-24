@@ -6,38 +6,22 @@ CloudFront Extensions GitHub project offers an open source package consisting of
 
 
 ## Overview
-Ultimately, we want to provide out-of-box experience from three dimensions
 
-<img src='docs/images/aws-cloudfront-extensions.png'>
+Deploying CloudFront Extensions solution with the default parameters builds the following environment in the AWS Cloud.
 
-## Lambda@Edge & CloudFront Functions
-* **One stop to find Lambda@Edge and CloudFront Function scripts for various use cases**
-
-This project offers production level Lambda@Edge scripts for common CloudFront use cases, such as Redirect, Header Rewriting, Authentication, Pre-warm etc. The solution aims to optimize the user experience of CloudFront configuration in global regions (where Lambda@Edge and CloudFront Function services are available), and help you to simplify global CloudFront configuration via Lambda functions. You can directly deploy them from the [workshop](https://awslabs.github.io/aws-cloudfront-extensions/).
+<img src='docs/images/arch.png'>
 
 
-## CloudFront Quick Start
-
-* **One-Click to deploy commonly used CloudFront solutions**
-
-This project offers common solutions for using CloudFront. These solutions are provided in form of pre-baked [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates. With 1-click, you can have solution launched into your own AWS console. 
-
-|        **Name**    | **Description**      |
-|------------------|--------------------|
-| [WAF & Shield Deployment for CloudFront](templates/aws-cloudfront-waf/README.md) | Prepared templates to quickly launch distribution and pre-configured rules, such as AWS managed common rules, whitelist, blacklist, HTTP flood, SQL injection, XSS, Bad bot, etc.   | 
-
-
-
-## CloudFront Monitoring API
-
-* **Out-of-box experience when integrating with external monitoring system** 
-
-This project also provides out-of-box monitoring solution to enhance the overall observability and simplify the integration of CloudFront and customers’ existing monitoring system.
-
-
-|        *Name*    | *Description*      |
-|------------------|--------------------|
-| [CloudFront Monitoring API](templates/aws-cloudfront-monitoring/README.md) | CloudFront Extensions provides a monitoring API, it obtains metrics such as cache hit rate and download rate by analyzing CloudFront real-time logs, and outputs them through Restful API.   | 
+1. Amazon CloudFront distributes the solution frontend web UI assets hosted in Amazon S3 bucket.
+2. Amazon Cognito user pool provides authentication for backend.
+3. Amazon AppSync provides the backend GraphQL APIs.
+4. Amazon API Gateway provides the backend RESTful APIs for SSL certificates and Monitoring features.
+5. Amazon DynamoDB stores the solution related information as backend database.
+6. Amazon Lambda interacts with other Amazon Services to process core logic of monitoring, SSL certificates and extensions repository, and obtains information updated in DynamoDB tables.
+7. AWS Step Functions orchestrate workflows for creating ACM certificates, importing existed certificates and creating CloudFront distributions. 
+8. Extensions are shown in Extensions repository. AWS CloudFormation and AWS Serverless Application Repository will be triggered if you want to deploy an extension into your AWS account.
+9. AWS Lambda stores CloudFront configuration changes into S3 bucket, and you can view the difference between two CloudFront configuration versions and apply the configuration.
+10. Amazon Athena queries CloudFront standard logs or real-time logs to get CloudFront metrics and output it by API Gateway. You can also view the metrics by monitoring dashboard.
 
 ## Tutorial
 
