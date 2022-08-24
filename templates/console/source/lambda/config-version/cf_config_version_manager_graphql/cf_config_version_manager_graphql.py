@@ -561,7 +561,7 @@ def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str =
         raise Exception(
             f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
 
-    src_version = snapshot_resp['versionId']
+    src_version = response['Item']['versionId']
 
     # get specific cloudfront distributions version info
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)

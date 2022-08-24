@@ -2,13 +2,13 @@ CloudFront Extensions is an out-of-box solution for advanced Amazon CloudFront u
 
 The solution has the following major features:
 
-- **Monitoring**: You can monitor CloudFront traffic such as cache hit ratio, bandwidth, and status code on the web console dashboard or retrieve them via API calls.
+- **Monitoring**: You can monitor CloudFront traffic such as cache hit ratio, bandwidth, and status code. For more information, refer to [Monitoring](./monitoring/overview.md).
 
-- **Distribution management**: You can save one specific CloudFront distribution configuration as a snapshot, compare different snapshots and apply a snapshot to other distributions; audit all CloudFront distribution changes which will be saved automatically; automate the process from requesting new certificate or importing existing SSL certificates to CloudFront distributions.
+- **Distribution management**: You can save one specific CloudFront distribution configuration as a snapshot, compare different snapshots and apply a snapshot to other distributions; audit all CloudFront distribution changes which will be saved automatically; automate the process from requesting new certificate or importing existing SSL certificates to CloudFront distributions. For more information, refer to [Distribution Management](./distribution-management/overview.md).
 
-- **Extension repository**: You can deploy commonly used out-of-box extensions such as Lambda@Edge functions, CloudFront functions, and CloudFormation templates through friendly user interface. You can use these extensions without any programming, and customize them to fit your specific needs.
+- **Extension repository**: You can deploy commonly used out-of-box extensions such as Lambda@Edge functions, CloudFront functions, and CloudFormation templates through friendly user interface. You can use these extensions without any programming, and customize them to fit your specific needs. For more information, refer to [Extensions Repository](./extension-repository/overview.md).
 
-After deploying the solution, you can perform tasks on a web console or use the functions via APIs. For more information, see *API Reference Guide*.
+After deploying the solution, you can perform tasks on a web console or use the functions via APIs. For more information, see [API Reference Guide](./api-reference-guide/overview.md).
 
 This implementation guide describes architectural considerations and configuration steps for deploying CloudFront Extensions in the AWS Cloud. It includes links to an AWS [CloudFormation][cloudformation] template that launches and configures the services required to deploy this solution using AWS best practices for security and availability.
 

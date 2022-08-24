@@ -16,7 +16,7 @@
 - 请求参数
 
   url_list: The list of urls for prewarm.
-  cf_domain: CloudFront domain name which ends with [cloudfront.net] (http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
+  cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
   region: The region for prewarm. You can specify 3 types of value.
 
   * all: prewarm in all regions

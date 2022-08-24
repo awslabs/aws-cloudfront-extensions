@@ -11,6 +11,7 @@ import string
 from datetime import datetime
 
 from job_table_utils import create_job_info, update_job_cert_completed_number, update_job_cloudfront_distribution_created_number, update_job_field
+from tenacity import retry, wait_fixed, stop_after_attempt, retry_if_exception_type, wait_exponential
 
 # certificate need to create in region us-east-1 for cloudfront to use
 acm = boto3.client('acm', region_name='us-east-1')
@@ -54,6 +55,7 @@ def transform_json_to_bytes(json_data):
 
 
 # import existing certificate into ACM
+@retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(30))
 def import_certificate(certificate):
     """[summary]
     Import cerfiticate created by certbot with command below:

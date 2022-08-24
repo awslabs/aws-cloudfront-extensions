@@ -27,6 +27,9 @@ def lambda_handler(event, context):
     if event['detail']['eventName'] == 'CreateDistribution':
         response_parameters = event["detail"]["responseElements"]
         distribution_id = response_parameters['distribution']['id']
+    if event['detail']['eventName'] == 'CreateDistributionWithTags':
+        response_parameters = event["detail"]["responseElements"]
+        distribution_id = response_parameters['distribution']['id']
     else:
         request_parameters = event["detail"]["requestParameters"]
         distribution_id = request_parameters["id"]

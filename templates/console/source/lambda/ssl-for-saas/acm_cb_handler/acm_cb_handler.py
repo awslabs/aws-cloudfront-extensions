@@ -158,7 +158,7 @@ def create_distribution(config):
     #         time.sleep(10)
 
 # create CloudFront distribution
-@retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(100))
+@retry(wait=wait_fixed(2) + wait_random(0, 2), stop=stop_after_attempt(100))
 def create_distribution_with_tags(config):
     """[summary]
 
@@ -179,7 +179,7 @@ def create_distribution_with_tags(config):
     return resp
 
 # scan dynamodb table for certificate
-@retry(wait=wait_fixed(3) + wait_random(0, 2), stop=stop_after_attempt(100), retry=retry_if_exception_type(exceptions.Timeout))
+@retry(wait=wait_fixed(1) + wait_random(0, 5), stop=stop_after_attempt(500), retry=retry_if_exception_type(exceptions.Timeout))
 def scan_for_cert(callback_table, domain_name):
     response = dynamo_client.scan(
         TableName=callback_table,
