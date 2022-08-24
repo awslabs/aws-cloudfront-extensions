@@ -124,7 +124,7 @@ def update_config_version(distribution_id):
                 'distributionId': distribution_id,
                 'snapShotName': "_LATEST_",
                 'versionId': new_version,
-                'dateTime': current_time,
+                'dateTime': str(datetime.now()),
                 'note': ""
             })
         log.info("Snapshot Latest version does not exist, just create a new one")
