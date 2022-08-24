@@ -124,6 +124,7 @@ export const Button: FC<ButtonProps> = (props) => {
                     onClick={() => {
                       if (onItemClick) {
                         if (!element.disabled) {
+                          setShowDropdown(false);
                           onItemClick(element);
                         }
                       }

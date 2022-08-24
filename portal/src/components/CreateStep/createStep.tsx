@@ -7,7 +7,7 @@ type StepType = {
 interface CreateStepProps {
   className?: string;
   activeIndex: number;
-  selectStep: (step: number) => void;
+  selectStep?: (step: number) => void;
   list: StepType[];
 }
 
@@ -29,7 +29,7 @@ export const CreateStep: React.FC<CreateStepProps> = (
                 <div className="step-name">
                   <span
                     onClick={() => {
-                      selectStep(index);
+                      selectStep && selectStep(index);
                     }}
                     className={activeIndex !== index ? "link" : ""}
                   >

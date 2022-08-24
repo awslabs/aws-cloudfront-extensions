@@ -249,9 +249,6 @@ const Deploy: React.FC = () => {
                       { name: t("repository:deploy.step.review") },
                     ]
               }
-              selectStep={(step) => {
-                // console.info("step:", step);
-              }}
             />
           </div>
           <div className="create-content m-w-800">

@@ -5,27 +5,26 @@ import { SelectType, TablePanel } from "components/TablePanel";
 import { Pagination } from "@material-ui/lab";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Status from "components/Status/Status";
-import TextInput from "components/TextInput";
 import { Link } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
 import { listDistribution } from "graphql/queries";
 import { Cloudfront_info } from "../../../API";
-
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Distribution List",
-    link: "",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const Snapshot = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [cloudFrontList, setCloudFrontList] = useState<Cloudfront_info[]>([]);
-  const [searchParams, setSearchParams] = useState("");
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("snapshot:list.title"),
+      link: "",
+    },
+  ];
 
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
@@ -55,7 +54,7 @@ const Snapshot = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title={"Distributions (" + cloudFrontList.length + ")"}
+          title={t("distributions")}
           selectType={SelectType.RADIO}
           actions={
             <div>
@@ -74,7 +73,7 @@ const Snapshot = () => {
           columnDefinitions={[
             {
               id: "Id",
-              header: "ID",
+              header: t("snapshot:list.id"),
               cell: (e: Cloudfront_info) => {
                 return (
                   <Link to={`/config/snapshot/detail/${e.id}`}>{e.id}</Link>
@@ -83,9 +82,9 @@ const Snapshot = () => {
             },
             {
               id: "cname",
-              header: "CNAME",
+              header: t("snapshot:list.cname"),
               cell: (e: Cloudfront_info) => {
-                if (e.aliases.Quantity == 0) {
+                if (e.aliases.Quantity === 0) {
                   return "";
                 } else {
                   let cnameList = "";
@@ -98,22 +97,22 @@ const Snapshot = () => {
             },
             {
               id: "domain",
-              header: "Distribution domain name",
+              header: t("snapshot:list.domainName"),
               cell: (e: Cloudfront_info) => e.domainName,
             },
             {
               id: "snapshotCount",
-              header: "Snapshot count",
+              header: t("snapshot:list.snapshotCount"),
               cell: (e: Cloudfront_info) => e.snapshotCount,
             },
             {
               width: 100,
               id: "enabled",
-              header: "Status",
+              header: t("snapshot:list.status"),
               cell: (e: Cloudfront_info) => {
                 return (
                   <Status
-                    status={e.enabled == "true" ? "Enabled" : "Disabled"}
+                    status={e.enabled === "true" ? "Enabled" : "Disabled"}
                   />
                 );
               },
@@ -121,7 +120,7 @@ const Snapshot = () => {
             {
               width: 150,
               id: "status",
-              header: "Deploying",
+              header: t("snapshot:list.deploying"),
               cell: (e: Cloudfront_info) => {
                 return <Status status={e.status || ""} />;
               },
@@ -130,19 +129,6 @@ const Snapshot = () => {
           changeSelected={() => {
             // setCloudFrontList(MOCK_CLOUDFRONT_LIST);
           }}
-          // filter={
-          //   <div>
-          //     <TextInput
-          //       value={searchParams}
-          //       isSearch={true}
-          //       placeholder={"Search all contributions"}
-          //       onChange={(event) => {
-          //         console.info("event:", event);
-          //         setSearchParams(event.target.value);
-          //       }}
-          //     />
-          //   </div>
-          // }
         />
       </div>
     </div>

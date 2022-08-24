@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import HeaderPanel from "components/HeaderPanel";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ValueWithLabel from "components/ValueWithLabel";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { useDispatch } from "react-redux";
 import { ActionType } from "reducer/appReducer";
 import ArrowDown from "assets/images/config/arrowDown.png";
-import StatusItem, { StatusType, StatusTypeStep } from "./StatusItem";
+import StatusItem, { StatusTypeStep } from "./StatusItem";
 import { appSyncRequestQuery } from "../../../assets/js/request";
 import {
   getJobInfo,
@@ -17,13 +17,8 @@ import {
 } from "../../../graphql/queries";
 import { SSLJob } from "../../../API";
 import Modal from "../../../components/Modal";
-import Swal from "sweetalert2";
-import FormItem from "../../../components/FormItem";
-import TextArea from "../../../components/TextArea";
-import TextInput from "../../../components/TextInput";
 import { SelectType, TablePanel } from "../../../components/TablePanel";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import { Pagination } from "@material-ui/lab";
+import { useTranslation } from "react-i18next";
 
 const JobDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -52,14 +47,14 @@ const JobDetail: React.FC = () => {
   const [openCloudfrontModal, setOpenCloudfrontModal] = useState(false);
   const [certArnList, setCertArnList] = useState<any>([]);
   const [cloudfrontArnList, setCloudFrontArnList] = useState<any>([]);
-
+  const { t } = useTranslation();
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Certification Jobs",
+      name: t("ssl:certJobList"),
       link: "/config/certification/jobs",
     },
     {
@@ -74,14 +69,14 @@ const JobDetail: React.FC = () => {
   // Get Version List By Distribution
   const fetchJobInfo = async () => {
     try {
-      setLoadingData(true);
+      // setLoadingData(true);
       const resData = await appSyncRequestQuery(getJobInfo, {
         jobId: jobId,
       });
       const jobInfo: SSLJob = resData.data.getJobInfo;
       setJobInfo(jobInfo);
     } catch (error) {
-      setLoadingData(false);
+      // setLoadingData(false);
       console.error(error);
     }
   };
@@ -111,7 +106,7 @@ const JobDetail: React.FC = () => {
   // Get Distribution by job Id
   const fetchCloudFrontList = async () => {
     try {
-      setLoadingData(true);
+      // setLoadingData(true);
       const resData = await appSyncRequestQuery(listCloudFrontArnWithJobId, {
         jobId: jobId,
       });
@@ -119,7 +114,7 @@ const JobDetail: React.FC = () => {
         resData.data.listCloudFrontArnWithJobId;
       setCloudFrontArnList(cloudfrontArnList);
     } catch (error) {
-      setLoadingData(false);
+      // setLoadingData(false);
       console.error(error);
     }
   };
@@ -190,7 +185,7 @@ const JobDetail: React.FC = () => {
       <Breadcrumb list={BreadCrunbList} />
       <div className="pb-50">
         <HeaderPanel
-          title="Job overview"
+          title={t("ssl:jobDetail.jobOverview")}
           desc={jobInfo.jobType}
           action={
             <div>
@@ -200,7 +195,7 @@ const JobDetail: React.FC = () => {
                   navigate("/config/certification/list");
                 }}
               >
-                Back to Certificate List
+                {t("button.backToCert")}
               </Button>
               <Button
                 className="ml-10"
@@ -209,21 +204,21 @@ const JobDetail: React.FC = () => {
                   navigate("/config/certification/jobs");
                 }}
               >
-                Back to Certificate Jobs
+                {t("button.backToJob")}
               </Button>
             </div>
           }
         >
           <div className="flex value-label-span">
             <div>
-              <ValueWithLabel label="Overall Job Status">
+              <ValueWithLabel label={t("ssl:jobDetail.overallStatus")}>
                 <div className={overallStatus?.toLocaleLowerCase()}>
                   {overallStatus}
                 </div>
               </ValueWithLabel>
             </div>
             <div className="flex-1 border-left-c">
-              <ValueWithLabel label="Current / Expected Certificates	">
+              <ValueWithLabel label={t("ssl:jobDetail.curExpCert")}>
                 <div className="flex">
                   <div className="job-status-number">
                     {jobInfo.cert_completed_number +
@@ -236,7 +231,7 @@ const JobDetail: React.FC = () => {
                         setOpenModal(true);
                       }}
                     >
-                      View SSL certificates created in this job
+                      {t("button.viewCertInJob")}
                       <span>
                         <OpenInNewIcon />
                       </span>
@@ -246,7 +241,7 @@ const JobDetail: React.FC = () => {
               </ValueWithLabel>
             </div>
             <div className="flex-1 border-left-c">
-              <ValueWithLabel label="Current / Expected CloudFront Distribution">
+              <ValueWithLabel label={t("ssl:jobDetail.curExpCF")}>
                 <div className="flex">
                   <div className="job-status-number">
                     {jobInfo.cloudfront_distribution_created_number +
@@ -259,7 +254,7 @@ const JobDetail: React.FC = () => {
                         setOpenCloudfrontModal(true);
                       }}
                     >
-                      View distributions created in this job
+                      {t("button.viewCFInJob")}
                       <span>
                         <OpenInNewIcon />
                       </span>
@@ -272,7 +267,7 @@ const JobDetail: React.FC = () => {
         </HeaderPanel>
 
         <HeaderPanel
-          title="Job Status"
+          title={t("ssl:jobDetail.jobStatus")}
           action={
             <div>{/*<Button btnType="text">More resources</Button>*/}</div>
           }
@@ -290,12 +285,12 @@ const JobDetail: React.FC = () => {
                       jobInfo.cert_total_number) *
                     100
                   }
-                  progressTopText="Request ACM Certificates"
+                  progressTopText={t("ssl:jobDetail.requestCert")}
                   // progressBottomText="The step will be completed if all SSL certificates were created"
                   progressBottomText={
                     jobInfo.certCreateStageStatus === "FAILED"
                       ? jobInfo.promptInfo
-                      : "The step will be completed if all SSL certificates were created"
+                      : t("ssl:jobDetail.promptInfo")
                   }
                 />
                 <div>
@@ -307,9 +302,9 @@ const JobDetail: React.FC = () => {
                   step={StatusTypeStep.ValidateCert}
                   status={jobInfo.certValidationStageStatus}
                   progress={certValidationPercentage}
-                  progressTopText="Validate certificate (manual)"
+                  progressTopText={t("ssl:jobDetail.validateCertTop")}
                   progressBottomText={
-                    "The step will be completed if all SSL certificates were issued" +
+                    t("ssl:jobDetail.validateCertBottom") +
                     "\n" +
                     jobInfo.dcv_validation_msg
                   }
@@ -327,11 +322,11 @@ const JobDetail: React.FC = () => {
                       jobInfo.cloudfront_distribution_total_number) *
                     100
                   }
-                  progressTopText="Create CloudFront distribution"
+                  progressTopText={t("ssl:jobDetail.createCFTop")}
                   progressBottomText={
                     jobInfo.distStageStatus === "FAILED"
                       ? jobInfo.promptInfo
-                      : "The step will be completed if all SSL certificates were created"
+                      : t("ssl:jobDetail.createCFBottom")
                   }
                 />
               </div>
@@ -352,13 +347,13 @@ const JobDetail: React.FC = () => {
                   setOpenModal(false);
                 }}
               >
-                OK
+                {t("button.ok")}
               </Button>
             </div>
           }
         >
           <TablePanel
-            // loading={loadingData}
+            loading={loadingData}
             title=""
             selectType={SelectType.NONE}
             actions={<div></div>}
@@ -367,7 +362,7 @@ const JobDetail: React.FC = () => {
             columnDefinitions={[
               {
                 id: "Arn",
-                header: "Cert Arn",
+                header: t("ssl:jobDetail.certArn"),
                 cell: (e: string) => {
                   return (
                     <a
@@ -382,7 +377,7 @@ const JobDetail: React.FC = () => {
                 // sortingField: "alt",
               },
             ]}
-            changeSelected={(item) => {
+            changeSelected={() => {
               // console.info("select item:", item);
               // setSelectedItems(item);
               // setcnameList(MOCK_REPOSITORY_LIST);
@@ -403,7 +398,7 @@ const JobDetail: React.FC = () => {
                   setOpenCloudfrontModal(false);
                 }}
               >
-                OK
+                {t("button.ok")}
               </Button>
             </div>
           }
@@ -418,7 +413,7 @@ const JobDetail: React.FC = () => {
             columnDefinitions={[
               {
                 id: "Arn",
-                header: "CloudFront Arn",
+                header: t("ssl:jobDetail.cfArn"),
                 cell: (e: string) => {
                   return (
                     <a
@@ -435,7 +430,7 @@ const JobDetail: React.FC = () => {
                 },
               },
             ]}
-            changeSelected={(item) => {
+            changeSelected={() => {
               // console.info("select item:", item);
             }}
           />

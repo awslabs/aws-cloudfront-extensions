@@ -5,29 +5,29 @@ import Breadcrumb from "components/Breadcrumb";
 import { SelectType, TablePanel } from "components/TablePanel";
 import Button from "components/Button";
 import { Pagination } from "@material-ui/lab";
-import TextInput from "components/TextInput";
-import { certification_info, Cloudfront_info } from "../../../API";
+import { certification_info } from "../../../API";
 import { appSyncRequestQuery } from "../../../assets/js/request";
-import { listCertifications, listDistribution } from "../../../graphql/queries";
-
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Certification List",
-    link: "",
-  },
-];
+import { listCertifications } from "../../../graphql/queries";
+import { useTranslation } from "react-i18next";
 
 const CertificationList: React.FC = () => {
   const navigate = useNavigate();
   const [loadingData, setLoadingData] = useState(false);
-  const [searchParams, setSearchParams] = useState("");
   const [certificationList, setCertificationList] = useState<
     certification_info[]
   >([]);
+  const { t } = useTranslation();
+
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("ssl:sslList"),
+      link: "",
+    },
+  ];
 
   // Get Distribution List
   const getCertificationList = async () => {
@@ -55,7 +55,7 @@ const CertificationList: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title={"Certification List (" + certificationList.length + ")"}
+          title={t("ssl:sslList")}
           selectType={SelectType.NONE}
           actions={
             <div>
@@ -73,7 +73,7 @@ const CertificationList: React.FC = () => {
                   navigate("/config/certification/jobs");
                 }}
               >
-                Show Job List
+                {t("button.showJobList")}
               </Button>
               <Button
                 btnType="primary"
@@ -81,7 +81,7 @@ const CertificationList: React.FC = () => {
                   navigate("/config/certification/createGuide");
                 }}
               >
-                Create new certificates
+                {t("button.createNewCert")}
               </Button>
               <Button
                 btnType="primary"
@@ -89,7 +89,7 @@ const CertificationList: React.FC = () => {
                   navigate("/config/certification/importGuide");
                 }}
               >
-                Import existing certificates
+                {t("button.importCert")}
               </Button>
             </div>
           }
@@ -99,39 +99,39 @@ const CertificationList: React.FC = () => {
             {
               // width: 350,
               id: "DomainName",
-              header: "CNAMEs",
+              header: t("ssl:list.cnames"),
               cell: (e: certification_info) => e.DomainName,
               // sortingField: "alt",
             },
             {
               // width: 300,
               id: "CertificateArn",
-              header: "CertificateArn",
+              header: t("ssl:list.certArn"),
               cell: (e: certification_info) => e.CertificateArn,
             },
 
             {
               // width: 80,
               id: "Issuer",
-              header: "Issuer",
+              header: t("ssl:list.issuer"),
               cell: (e: certification_info) => e.Issuer,
             },
             {
               // width: 160,
               id: "Status",
-              header: "SSL/TLS certificate status",
+              header: t("ssl:list.status"),
               cell: (e: certification_info) => e.Status,
             },
             {
               // width: 160,
               id: "KeyAlgorithm",
-              header: "KeyAlgorithm",
+              header: t("ssl:list.keyAlgorithm"),
               cell: (e: certification_info) => e.KeyAlgorithm,
             },
             {
               // width: 160,
               id: "certExpireOn",
-              header: "Certificate expires on",
+              header: t("ssl:list.expiresOn"),
               cell: (e: certification_info) => e.NotAfter,
             },
           ]}
@@ -148,7 +148,7 @@ const CertificationList: React.FC = () => {
           //     />
           //   </div>
           // }
-          changeSelected={(item) => {
+          changeSelected={() => {
             // console.info("select item:", item);
             // setSelectedItems(item);
             // setcnameList(MOCK_REPOSITORY_LIST);

@@ -2,40 +2,39 @@ import React, { useEffect, useState } from "react";
 import ReactDiffViewer from "react-diff-viewer";
 import Breadcrumb from "components/Breadcrumb";
 import HeaderPanel from "components/HeaderPanel";
-import Button from "components/Button";
 import Select from "components/Select";
 import { useParams } from "react-router-dom";
 import { appSyncRequestQuery } from "../../../assets/js/request";
 import {
-  getConfigContent,
   getConfigSnapshotContent,
   listCloudfrontSnapshots,
 } from "../../../graphql/queries";
 import { Snapshot } from "../../../API";
+import { useTranslation } from "react-i18next";
 
 const SnapshotDetailDisplay: React.FC = () => {
   const { id } = useParams();
   const { snapshot } = useParams();
   const [currentSnapshot, setCurrentSnapshot] = useState<any>(snapshot);
   const [snapshotContent, setSnapshotContent] = useState<any>("");
-  const [distribution, setDistribution] = useState<any>(id);
   const [snapshotList, setSnapshotList] = useState<any[]>([]);
+  const { t } = useTranslation();
 
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Snapshot",
+      name: t("snapshot:configSnapshot"),
       link: "/config/snapshot",
     },
     {
-      name: distribution,
-      link: "/config/snapshot/detail/" + distribution,
+      name: id || "",
+      link: "/config/snapshot/detail/" + id,
     },
     {
-      name: "",
+      name: t("snapshot:name"),
     },
   ];
 
@@ -75,7 +74,7 @@ const SnapshotDetailDisplay: React.FC = () => {
       const snapshotList: Snapshot[] = resData.data.listCloudfrontSnapshots;
       const tmpList = [];
       for (const snapshotKey in snapshotList) {
-        if (snapshotList[snapshotKey].snapshot_name != "_LATEST_") {
+        if (snapshotList[snapshotKey].snapshot_name !== "_LATEST_") {
           tmpList.push({
             name:
               snapshotList[snapshotKey].snapshot_name +
@@ -99,9 +98,9 @@ const SnapshotDetailDisplay: React.FC = () => {
       <div>
         <HeaderPanel
           title={
-            "Detail Configuration of distribution: " +
-            distribution +
-            " with snapshot: " +
+            t("snapshot:detailConfig") +
+            id +
+            t("snapshot:withSnapshot") +
             currentSnapshot
           }
         >
@@ -112,7 +111,7 @@ const SnapshotDetailDisplay: React.FC = () => {
                   // className="m-w-320"
                   value={currentSnapshot}
                   optionList={snapshotList}
-                  placeholder="Select snapshot"
+                  placeholder={t("snapshot:selectSnapshot")}
                   onChange={(event) => {
                     setCurrentSnapshot(event.target.value);
                     getSnapshotContent();

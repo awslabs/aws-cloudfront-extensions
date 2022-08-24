@@ -21,12 +21,13 @@ import { certCreateOrImport } from "../../../../graphql/mutations";
 import Modal from "../../../../components/Modal";
 import Swal from "sweetalert2";
 import TextInput from "../../../../components/TextInput";
+import { useTranslation } from "react-i18next";
 
-const enum ImportMethod {
-  CREATE = "create",
-  IMPORT = "import",
-  NONE = "NONE",
-}
+// const enum ImportMethod {
+//   CREATE = "create",
+//   IMPORT = "import",
+//   NONE = "NONE",
+// }
 
 const enum ImportCertificate {
   IMPORT_ONE = "ImportOne",
@@ -43,17 +44,17 @@ interface CertInfo {
   };
 }
 
-interface ExistingCfInfo {
-  distribution_id: string;
-  config_version_id: string;
-}
+// interface ExistingCfInfo {
+//   distribution_id: string;
+//   config_version_id: string;
+// }
 
-interface CNameInfo {
-  domainName: string;
-  sanList: string[];
-  originsItemsDomainName: string;
-  existing_cf_info: ExistingCfInfo;
-}
+// interface CNameInfo {
+//   domainName: string;
+//   sanList: string[];
+//   originsItemsDomainName: string;
+//   existing_cf_info: ExistingCfInfo;
+// }
 
 // interface CNameInfo {
 //   domainName: string;
@@ -65,31 +66,32 @@ interface CNameInfo {
 //   };
 // }
 
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "Certification List",
-    link: "/config/certification/list",
-  },
-  {
-    name: "Import existing certificates",
-  },
-];
+const ACM_PLACEHOLDER_BODY =
+  "-----BEGIN CERTIFICATE----- \nXXXXXX \n-----END CERTIFICATE-----";
+
+const ACM_PLACEHOLDER_PRIVKEY =
+  "-----BEGIN PRIVATE KEY----- \nXXXXXX \n-----END PRIVATE KEY-----";
+
+const ACM_PLACEHOLDER_CHAIN =
+  "-----BEGIN CERTIFICATE----- \nXXXXXX \n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE----- \nXXXXXX \n-----END CERTIFICATE-----";
 
 const ImportStart: React.FC = () => {
   const navigate = useNavigate();
-  const [domainCertList, setDomainCertList] = useState([
-    {
-      domainList: "",
-    },
-  ]);
-  const [snapshot, setSnapshot] = useState([]);
-  const [importMethod, setImportMethod] = useState<string>(ImportMethod.IMPORT);
-  const [aggregation, setAggregation] = useState(false);
-  const [checkCName, setCheckCName] = useState(false);
+  // const domainCertList = [
+  //   {
+  //     domainList: "",
+  //   },
+  // ];
+  // const [domainCertList, setDomainCertList] = useState([
+  //   {
+  //     domainList: "",
+  //   },
+  // ]);
+  // const [importMethod, setImportMethod] = useState<string>(ImportMethod.IMPORT);
+  const aggregation = false;
+  // const [aggregation, setAggregation] = useState(false);
+  const checkCName = false;
+  // const [checkCName, setCheckCName] = useState(false);
   const [createAuto, setCreateAuto] = useState("true");
   const [distributionList, setDistributionList] = useState<any[]>([]);
   const [versionList, setVersionList] = useState<any[]>([]);
@@ -104,7 +106,7 @@ const ImportStart: React.FC = () => {
     ImportCertificate.IMPORT_ONE
   );
 
-  const [cnameInfo, setCnameInfo] = useState<CNameInfo>({
+  const cnameInfo = {
     domainName: "",
     sanList: [],
     originsItemsDomainName: "",
@@ -112,18 +114,27 @@ const ImportStart: React.FC = () => {
       distribution_id: "",
       config_version_id: "",
     },
-  });
-  const [cnameInfoList, setCnameInfoList] = useState<[CNameInfo]>([
-    {
-      domainName: "",
-      sanList: [""],
-      originsItemsDomainName: "",
-      existing_cf_info: {
-        distribution_id: "",
-        config_version_id: "",
-      },
-    },
-  ]);
+  };
+  // const [cnameInfo, setCnameInfo] = useState<CNameInfo>({
+  //   domainName: "",
+  //   sanList: [],
+  //   originsItemsDomainName: "",
+  //   existing_cf_info: {
+  //     distribution_id: "",
+  //     config_version_id: "",
+  //   },
+  // });
+  // const [cnameInfoList, setCnameInfoList] = useState<[CNameInfo]>([
+  //   {
+  //     domainName: "",
+  //     sanList: [""],
+  //     originsItemsDomainName: "",
+  //     existing_cf_info: {
+  //       distribution_id: "",
+  //       config_version_id: "",
+  //     },
+  //   },
+  // ]);
 
   const [certInfo, setCertInfo] = useState<CertInfo>({
     body: "",
@@ -134,7 +145,21 @@ const ImportStart: React.FC = () => {
       config_version_id: "",
     },
   });
-  const [s3FilePath, setS3FilePath] = useState("");
+
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("ssl:sslList"),
+      link: "/config/certification/list",
+    },
+    {
+      name: t("ssl:importExist"),
+    },
+  ];
 
   // Get Version List By Distribution
   const getVersionListByDistribution = async () => {
@@ -200,7 +225,8 @@ const ImportStart: React.FC = () => {
     cnameInfo.existing_cf_info.distribution_id = selectDistributionId;
     cnameInfo.existing_cf_info.config_version_id = selectDistributionVersionId;
     const sslForSaasRequest = {
-      acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
+      // acm_op: importMethod === ImportMethod.CREATE ? "create" : "import",
+      acm_op: "import",
       auto_creation: createAuto,
       dist_aggregate: aggregation ? "true" : "false",
       enable_cname_check: checkCName ? "true" : "false",
@@ -235,81 +261,6 @@ const ImportStart: React.FC = () => {
     }
   };
 
-  const changeDomainList = (index: number, value: string) => {
-    const tmpList = JSON.parse(JSON.stringify(domainCertList));
-    tmpList[index].domainList = value;
-    setDomainCertList(tmpList);
-  };
-
-  const addDomainList = () => {
-    setDomainCertList((prev) => {
-      return [
-        ...prev,
-        {
-          domainList: "",
-        },
-      ];
-    });
-  };
-
-  const removeDomain = (index: number) => {
-    const tmpList = JSON.parse(JSON.stringify(domainCertList));
-    tmpList.splice(index, 1);
-    setDomainCertList(tmpList);
-  };
-
-  const updateCnameInfoList = () => {
-    // traverse the domainCertList and assign the value to cnameInfoList
-    setCnameInfoList([
-      {
-        domainName: "",
-        sanList: [""],
-        originsItemsDomainName: "",
-        existing_cf_info: {
-          distribution_id: "",
-          config_version_id: "",
-        },
-      },
-    ]);
-    const tmpCnameInfoList: [CNameInfo] = [
-      {
-        domainName: "",
-        sanList: [""],
-        originsItemsDomainName: "",
-        existing_cf_info: {
-          distribution_id: "",
-          config_version_id: "",
-        },
-      },
-    ];
-    cnameInfoList.splice(0, 1);
-    tmpCnameInfoList.splice(0, 1);
-    for (let i = 0; i < domainCertList.length; i++) {
-      // first split the domainName with ","
-      const tmpCnameInfo = {
-        domainName: "",
-        sanList: [""],
-        originsItemsDomainName: "",
-        existing_cf_info: {
-          distribution_id: "",
-          config_version_id: "",
-        },
-      };
-
-      const splitDomainList = domainCertList[i].domainList.split(",");
-      // console.info("domainList is " + splitDomainList);
-      //assign the domain to CnameInfoList
-      tmpCnameInfo.domainName = splitDomainList[0].trim();
-      tmpCnameInfo.sanList = [];
-      for (let j = 0; j < splitDomainList.length; j++) {
-        tmpCnameInfo.sanList.push(splitDomainList[j].trim());
-      }
-      tmpCnameInfoList.push(tmpCnameInfo);
-    }
-    setCnameInfoList(tmpCnameInfoList);
-    // console.info("CnameInfoList is " + JSON.stringify(tmpCnameInfoList));
-  };
-
   const updateCertInfoWithDistributionIdVersion = (
     distributionId: string,
     version: string
@@ -319,10 +270,6 @@ const ImportStart: React.FC = () => {
     certInfo.existing_cf_info.distribution_id = distributionId;
     certInfo.existing_cf_info.config_version_id = version;
   };
-
-  useEffect(() => {
-    updateCnameInfoList();
-  }, [domainCertList]);
 
   useEffect(() => {
     updateCertInfoWithDistributionIdVersion(
@@ -335,12 +282,9 @@ const ImportStart: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Import existing certificates">
-          <HeaderPanel title="Certification details">
-            <FormItem
-              optionTitle="Import one or more Certification"
-              optionDesc=""
-            >
+        <PagePanel title={t("ssl:importExist")}>
+          <HeaderPanel title={t("ssl:import.certDetail")}>
+            <FormItem optionTitle={t("ssl:import.importCerts")} optionDesc="">
               <Tiles
                 name="importCertificate"
                 value={importCert}
@@ -349,14 +293,13 @@ const ImportStart: React.FC = () => {
                 }}
                 items={[
                   {
-                    label: "Import one certification",
-                    description: "Import one",
+                    label: t("ssl:import.importOne"),
+                    description: t("ssl:import.importOneDesc"),
                     value: ImportCertificate.IMPORT_ONE,
                   },
                   {
-                    label: "Import multiple certifications",
-                    description:
-                      "Import multiple certification by providing cert link, etc.",
+                    label: t("ssl:import.importMulti"),
+                    description: t("ssl:import.importMultiDesc"),
                     value: ImportCertificate.IMPORT_MULTI,
                   },
                 ]}
@@ -365,12 +308,12 @@ const ImportStart: React.FC = () => {
             {importCert === ImportCertificate.IMPORT_ONE ? (
               <div>
                 <FormItem
-                  optionTitle="Certificate body"
-                  optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                  optionTitle={t("ssl:import.certBody")}
+                  optionDesc={t("ssl:import.certBodyDesc")}
                 >
                   <TextArea
-                    rows={3}
-                    placeholder="PEM-encoded certificate"
+                    rows={4}
+                    placeholder={ACM_PLACEHOLDER_BODY}
                     value={certInfo.body}
                     onChange={(event) => {
                       setCertInfo((prev) => {
@@ -380,12 +323,12 @@ const ImportStart: React.FC = () => {
                   />
                 </FormItem>
                 <FormItem
-                  optionTitle="Certificate private key"
-                  optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                  optionTitle={t("ssl:import.certPrivkey")}
+                  optionDesc={t("ssl:import.certPrivKeyDesc")}
                 >
                   <TextArea
-                    rows={3}
-                    placeholder="PEM-encoded certificate"
+                    rows={4}
+                    placeholder={ACM_PLACEHOLDER_PRIVKEY}
                     value={certInfo.privateKey}
                     onChange={(event) => {
                       setCertInfo((prev) => {
@@ -395,12 +338,12 @@ const ImportStart: React.FC = () => {
                   />
                 </FormItem>
                 <FormItem
-                  optionTitle="Certificate chain"
-                  optionDesc="List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files."
+                  optionTitle={t("ssl:import.certChain")}
+                  optionDesc={t("ssl:import.certChainDesc")}
                 >
                   <TextArea
-                    rows={3}
-                    placeholder="PEM-encoded certificate"
+                    rows={7}
+                    placeholder={ACM_PLACEHOLDER_CHAIN}
                     value={certInfo.chain}
                     onChange={(event) => {
                       setCertInfo((prev) => {
@@ -412,7 +355,7 @@ const ImportStart: React.FC = () => {
               </div>
             ) : (
               <FormItem
-                optionTitle="Will be comming in later releases"
+                optionTitle={t("ssl:import.commingLater")}
                 optionDesc=""
                 // optionDesc="S3 bucket path"
               >
@@ -427,8 +370,8 @@ const ImportStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          <HeaderPanel title="CloudFront distributions">
-            <FormItem optionTitle="Import method" optionDesc="">
+          <HeaderPanel title={t("cfDistribution")}>
+            <FormItem optionTitle={t("ssl:importMethod")} optionDesc="">
               <Tiles
                 name="importMethod"
                 value={createAuto}
@@ -437,14 +380,13 @@ const ImportStart: React.FC = () => {
                 }}
                 items={[
                   {
-                    label: "Automatically create distributions",
-                    description:
-                      "Request certificates and then create distributions",
+                    label: t("ssl:autoCreateDistribution"),
+                    description: t("ssl:autoCreateDistributionDesc"),
                     value: "true",
                   },
                   {
-                    label: "Do not create distributions",
-                    description: "Only request certificates",
+                    label: t("ssl:donotCreateDistribution"),
+                    description: t("ssl:donotCreateDistributionDesc"),
                     value: "false",
                   },
                 ]}
@@ -453,12 +395,12 @@ const ImportStart: React.FC = () => {
 
             {createAuto === "true" ? (
               <FormItem
-                optionTitle="Source distribution"
-                optionDesc="Apply the origin setting from an existing CloudFront distribution. It will use the "
+                optionTitle={t("ssl:sourceDistribution")}
+                optionDesc={t("ssl:sourceDistributionDesc")}
               >
                 <div>
                   <Select
-                    placeholder="Choose a CloudFront distribution as source"
+                    placeholder={t("ssl:chooseDistributionAsSource")}
                     optionList={distributionList}
                     value={selectDistributionId}
                     onChange={(event) => {
@@ -472,7 +414,7 @@ const ImportStart: React.FC = () => {
                   <Select
                     optionList={versionList}
                     value={selectDistributionVersionId}
-                    placeholder="Select version "
+                    placeholder={t("ssl:selectVersion")}
                     onChange={(event) => {
                       setSelectDistributionVersionId(event.target.value);
                     }}
@@ -484,62 +426,12 @@ const ImportStart: React.FC = () => {
             )}
           </HeaderPanel>
 
-          {/*{createAuto === "true" ? (*/}
-          {/*  <HeaderPanel title="Advanced Settings">*/}
-          {/*    <Switch*/}
-          {/*      label="Create as less as distibutions as possible"*/}
-          {/*      desc="Aggregate CNAMEs. For example, x1.example.com, x2.example.com, will be a aggregated to *.example.com"*/}
-          {/*      isOn={aggregation}*/}
-          {/*      handleToggle={() => {*/}
-          {/*        setAggregation(!aggregation);*/}
-          {/*      }}*/}
-          {/*    />*/}
-          {/*  </HeaderPanel>*/}
-          {/*) : (*/}
-          {/*  ""*/}
-          {/*)}*/}
-
-          {/*<HeaderPanel*/}
-          {/*  title="Tags"*/}
-          {/*  desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."*/}
-          {/*>*/}
-          {/*  <TagList*/}
-          {/*    tagList={tagList}*/}
-          {/*    addTag={() => {*/}
-          {/*      setTagList((prev) => {*/}
-          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
-          {/*        tmpList.push({*/}
-          {/*          key: "",*/}
-          {/*          value: "",*/}
-          {/*        });*/}
-          {/*        return tmpList;*/}
-          {/*      });*/}
-          {/*    }}*/}
-          {/*    removeTag={(index) => {*/}
-          {/*      setTagList((prev) => {*/}
-          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
-          {/*        tmpList.splice(index, 1);*/}
-          {/*        return tmpList;*/}
-          {/*      });*/}
-          {/*    }}*/}
-          {/*    onChange={(index, key, value) => {*/}
-          {/*      setTagList((prev) => {*/}
-          {/*        const tmpList = JSON.parse(JSON.stringify(prev));*/}
-          {/*        tmpList[index].key = key;*/}
-          {/*        tmpList[index].value = value;*/}
-          {/*        // changeTags(tmpList);*/}
-          {/*        return tmpList;*/}
-          {/*      });*/}
-          {/*    }}*/}
-          {/*  />*/}
-          {/*</HeaderPanel>*/}
-
           <div className="button-action text-right">
             <Button
               btnType="text"
               onClick={() => navigate("/config/certification/list")}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               btnType="primary"
@@ -549,60 +441,68 @@ const ImportStart: React.FC = () => {
                   selectDistributionId,
                   selectDistributionVersionId
                 );
-                const requestParam = generateCertCreateImportParam();
+                generateCertCreateImportParam();
                 // startCertRequest(requestParam);
                 setOpenModal(true);
               }}
             >
-              Start Job
+              {t("button.startJob")}
             </Button>
           </div>
         </PagePanel>
         <Modal
-          title="Confirm Certification Settings?"
+          title={t("ssl:confirmSetting")}
           isOpen={openModal}
           fullWidth={true}
           closeModal={() => {
             setOpenModal(false);
           }}
           actions={
-            <div className="button-action no-pb text-right">
-              <Button
-                onClick={() => {
-                  setConfirm("");
-                  setOpenModal(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                disabled={confirm !== "Confirm"}
-                btnType="primary"
-                loading={loadingApply}
-                onClick={() => {
-                  // startWorkflow();
-                  setLoadingApply(true);
-                  const requestParam = generateCertCreateImportParam();
-                  startCertRequest(requestParam);
-                  setLoadingApply(false);
-                  Swal.fire(
-                    "Cert import Sent",
-                    "Cert import triggered",
-                    "success"
-                  );
-                }}
-              >
-                Apply
-              </Button>
+            <div>
+              <FormItem optionTitle="" optionDesc={t("ssl:confirmApply")}>
+                <TextInput
+                  value={confirm}
+                  placeholder={t("confirm")}
+                  onChange={(event) => {
+                    setConfirm(event.target.value);
+                  }}
+                />
+              </FormItem>
+              <div className="button-action no-pb text-right">
+                <Button
+                  onClick={() => {
+                    setConfirm("");
+                    setOpenModal(false);
+                  }}
+                >
+                  {t("button.cancel")}
+                </Button>
+                <Button
+                  disabled={confirm !== t("confirm")}
+                  btnType="primary"
+                  loading={loadingApply}
+                  onClick={() => {
+                    // startWorkflow();
+                    setLoadingApply(true);
+                    const requestParam = generateCertCreateImportParam();
+                    startCertRequest(requestParam);
+                    setLoadingApply(false);
+                    Swal.fire(
+                      t("ssl:import.certImportSent"),
+                      t("ssl:import.certImportTrigger"),
+                      "success"
+                    );
+                  }}
+                >
+                  {t("button.apply")}
+                </Button>
+              </div>
             </div>
           }
         >
           <div className="gsui-modal-content">
-            <HeaderPanel title="Please confirm the SSL request parameters">
-              <FormItem
-                optionTitle="Current SSL for SasS request parameters"
-                optionDesc=""
-              >
+            <HeaderPanel title={t("ssl:confirmRequestParam")}>
+              <FormItem optionTitle={t("ssl:curSSLParam")} optionDesc="">
                 <div>
                   <TextArea
                     rows={20}
@@ -612,22 +512,13 @@ const ImportStart: React.FC = () => {
                       null,
                       4
                     )}
-                    onChange={(event) => {
+                    onChange={() => {
                       //do nothing
                     }}
                   />
                 </div>
               </FormItem>
             </HeaderPanel>
-            <FormItem optionTitle="" optionDesc="Please input Confirm to apply">
-              <TextInput
-                value={confirm}
-                placeholder="Confirm"
-                onChange={(event) => {
-                  setConfirm(event.target.value);
-                }}
-              />
-            </FormItem>
           </div>
         </Modal>
       </div>

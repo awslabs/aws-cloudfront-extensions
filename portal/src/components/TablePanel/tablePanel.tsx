@@ -7,6 +7,7 @@ import IndeterminateCheckbox, {
   UNCHECKED,
 } from "components/Checkbox/IndeterminateCheckbox";
 import Checkbox from "components/Checkbox/CheckBox";
+import { useTranslation } from "react-i18next";
 
 interface ColumnDefProps {
   id: string;
@@ -64,15 +65,16 @@ const TablePanel: React.FC<TablePanelProps> = (props: TablePanelProps) => {
   );
   // const [selectItems, setSelectItems] = useState<any>([]);
   const [checkAllStatus, setCheckAllStatus] = useState(UNCHECKED);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if (items == null) {
+    if (!items) {
       setDataList([]);
     } else {
       setDataList(items);
     }
 
-    if (items == null || items.length === 0) {
+    if (!items || items.length === 0) {
       setCheckAllStatus(UNCHECKED);
     }
   }, [items]);
@@ -221,11 +223,7 @@ const TablePanel: React.FC<TablePanelProps> = (props: TablePanelProps) => {
                           <input
                             name="tableItem"
                             type="radio"
-                            // value={element?.id || ""}
                             checked={element?.isChecked || false}
-                            onChange={(event) => {
-                              // console.info("event:", event);
-                            }}
                           />
                         )}
                       </div>
@@ -252,12 +250,12 @@ const TablePanel: React.FC<TablePanelProps> = (props: TablePanelProps) => {
             })}
             {loading && (
               <div className="table-loading">
-                <LoadingText text="Loading Data" />
+                <LoadingText text={t("loading")} />
               </div>
             )}
             {!loading && dataList.length === 0 && (
               <div className="table-empty">
-                {emptyText ? emptyText : "No Data"}
+                {emptyText ? emptyText : t("noData")}
               </div>
             )}
           </div>

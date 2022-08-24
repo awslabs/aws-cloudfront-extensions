@@ -5,32 +5,26 @@ import Breadcrumb from "components/Breadcrumb";
 import { SelectType, TablePanel } from "components/TablePanel";
 import Button from "components/Button";
 import { Pagination } from "@material-ui/lab";
-import TextInput from "components/TextInput";
-import { certification_info, Cloudfront_info, SSLJob } from "../../../API";
+import { SSLJob } from "../../../API";
 import { appSyncRequestQuery } from "../../../assets/js/request";
-import {
-  listCertifications,
-  listDistribution,
-  listSSLJobs,
-} from "../../../graphql/queries";
-
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "SSL for SaaS Job List",
-    link: "",
-  },
-];
+import { listSSLJobs } from "../../../graphql/queries";
+import { useTranslation } from "react-i18next";
 
 const SSLJobList: React.FC = () => {
   const navigate = useNavigate();
   const [loadingData, setLoadingData] = useState(false);
-  const [searchParams, setSearchParams] = useState("");
   const [jobList, setJobList] = useState<SSLJob[]>([]);
-
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
+    },
+    {
+      name: t("ssl:sslJobList"),
+      link: "",
+    },
+  ];
   // Get Distribution List
   const getJobList = async () => {
     try {
@@ -46,13 +40,6 @@ const SSLJobList: React.FC = () => {
     }
   };
 
-  // convert timestamp to date format
-  const convertTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    // console.info("===>" + date);
-    return date;
-  };
-
   useEffect(() => {
     getJobList();
   }, []);
@@ -63,7 +50,7 @@ const SSLJobList: React.FC = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title={"SSL for SaaS Job List (" + jobList.length + ")"}
+          title={t("ssl:sslJobList")}
           selectType={SelectType.NONE}
           actions={
             <div>
@@ -81,7 +68,7 @@ const SSLJobList: React.FC = () => {
                   navigate("/config/certification/list");
                 }}
               >
-                Show Certificate List
+                {t("button.showCertList")}
               </Button>
               <Button
                 btnType="primary"
@@ -89,7 +76,7 @@ const SSLJobList: React.FC = () => {
                   navigate("/config/certification/createGuide");
                 }}
               >
-                Request New Certificates
+                {t("button.createNewCert")}
               </Button>
               <Button
                 btnType="primary"
@@ -97,7 +84,7 @@ const SSLJobList: React.FC = () => {
                   navigate("/config/certification/importGuide");
                 }}
               >
-                Import Existing Certificates
+                {t("button.importCert")}
               </Button>
             </div>
           }
@@ -107,7 +94,7 @@ const SSLJobList: React.FC = () => {
             {
               width: 300,
               id: "JobId",
-              header: "jobId",
+              header: t("ssl:jobList.jobId"),
               cell: (e: SSLJob) => {
                 return (
                   <Link to={`/config/certification/job/${e.jobId}`}>
@@ -120,25 +107,25 @@ const SSLJobList: React.FC = () => {
             {
               width: 80,
               id: "jobType",
-              header: "jobType",
+              header: t("ssl:jobList.jobType"),
               cell: (e: SSLJob) => e.jobType,
             },
             {
               width: 40,
               id: "cert_number",
-              header: "Total Certificates",
+              header: t("ssl:jobList.totalCerts"),
               cell: (e: SSLJob) => e.cert_total_number,
             },
             {
               width: 40,
               id: "cloudfront_distribution_number",
-              header: "Total Distributions",
+              header: t("ssl:jobList.totalCF"),
               cell: (e: SSLJob) => e.cloudfront_distribution_total_number,
             },
             {
               width: 250,
               id: "creationDate",
-              header: "Created at",
+              header: t("ssl:jobList.createdAt"),
               cell: (e: SSLJob) => e.creationDate,
             },
           ]}
@@ -155,7 +142,7 @@ const SSLJobList: React.FC = () => {
           //   //   />
           //   // </div>
           // }
-          changeSelected={(item) => {
+          changeSelected={() => {
             // console.info("select item:", item);
             // setSelectedItems(item);
             // setcnameList(MOCK_REPOSITORY_LIST);

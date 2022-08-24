@@ -5,11 +5,11 @@ import HeaderPanel from "components/HeaderPanel";
 import PagePanel from "components/PagePanel";
 import TextInput from "components/TextInput";
 import TextArea from "components/TextArea";
-import TagList from "components/TagList";
 import Button from "components/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import { appSyncRequestQuery } from "assets/js/request";
 import { updateConfigTag } from "graphql/queries";
+import { useTranslation } from "react-i18next";
 
 const SaveVersion: React.FC = () => {
   const [distribution, setDistribution] = useState<any>("");
@@ -18,13 +18,14 @@ const SaveVersion: React.FC = () => {
   const { version } = useParams<string>();
   const { note } = useParams<string>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Version",
+      name: t("version:name"),
       link: "/config/version",
     },
     {
@@ -32,7 +33,7 @@ const SaveVersion: React.FC = () => {
       link: "/config/version/detail/" + distribution,
     },
     {
-      name: "Save",
+      name: t("version:save.name"),
     },
   ];
 
@@ -66,10 +67,10 @@ const SaveVersion: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div className="m-w-800">
-        <PagePanel title="Save note for specific config version">
-          <HeaderPanel title="Version settings">
+        <PagePanel title={t("version:save.title")}>
+          <HeaderPanel title={t("version:save.versionSetting")}>
             <div className="m-w-75p">
-              <FormItem optionTitle="Distribution" optionDesc="">
+              <FormItem optionTitle={t("distribution")} optionDesc="">
                 <TextInput
                   disabled
                   value={distribution}
@@ -78,9 +79,9 @@ const SaveVersion: React.FC = () => {
                   }}
                 />
               </FormItem>
-              <FormItem optionTitle="Note" optionDesc="">
+              <FormItem optionTitle={t("version:save.note")} optionDesc="">
                 <TextArea
-                  placeholder="beta testing"
+                  placeholder={t("version:save.betaTesting")}
                   rows={2}
                   value={versionDesc}
                   onChange={(event) => {
@@ -91,30 +92,13 @@ const SaveVersion: React.FC = () => {
             </div>
           </HeaderPanel>
 
-          {/* <HeaderPanel
-            title="Tags"
-            desc="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."
-          >
-            <TagList
-              tagList={[]}
-              addTag={() => {
-                console.info("add");
-              }}
-              removeTag={(e) => {
-                console.info(e);
-              }}
-              onChange={(e) => {
-                console.info(e);
-              }}
-            />
-          </HeaderPanel> */}
           <div className="button-action text-right">
             <Button
               onClick={() => {
                 navigate("/config/version/detail/" + id);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               btnType="primary"
@@ -125,7 +109,7 @@ const SaveVersion: React.FC = () => {
                 navigate("/config/version/detail/" + id);
               }}
             >
-              Save
+              {t("button.save")}
             </Button>
           </div>
         </PagePanel>

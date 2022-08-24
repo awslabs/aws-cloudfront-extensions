@@ -14,39 +14,27 @@ import { listDistribution } from "graphql/queries";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import Select from "react-select";
 import { AppStateProps } from "reducer/appReducer";
 import DateRangePicker from "rsuite/DateRangePicker";
 import "rsuite/dist/rsuite.min.css";
 
-const BreadCrunbList = [
-  {
-    name: "CloudFront Extensions",
-    link: "/",
-  },
-  {
-    name: "CloudFront Monitoring",
-    link: "",
-  },
-];
-
 const CloudFront: React.FC = () => {
-  const chartOption = {
-    chart: {
-      height: 450,
-      type: "line",
-      zoom: {
-        enabled: false,
-      },
-      animations: {
-        enabled: false,
-      },
+  const { t } = useTranslation();
+  const BreadCrunbList = [
+    {
+      name: t("name"),
+      link: "/",
     },
-  };
+    {
+      name: t("monitor:name"),
+      link: "",
+    },
+  ];
 
-  const { allowedMaxDays, combine, allowedRange, afterToday } = DateRangePicker;
-  const [loadingData, setLoadingData] = useState(false);
+  const { afterToday } = DateRangePicker;
   const [cloudFrontList, setCloudFrontList] = useState<any[]>([]);
   const [selectDistribution, setSelectDistribution] = useState<any>([]);
   const [selectDistributionName, setSelectDistributionName] = useState<any>([]);
@@ -54,7 +42,6 @@ const CloudFront: React.FC = () => {
   const [loadingApply, setLoadingApply] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [selectDomain, setSelectDomain] = useState("");
 
   const [cdnRequestData, setCdnRequestData] = useState([
@@ -160,7 +147,7 @@ const CloudFront: React.FC = () => {
   };
 
   const getChartData = async () => {
-    if (selectDomain != "") {
+    if (selectDomain) {
       const timeStamp = new Date().getTime();
       const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=all&Domain=${selectDomain}&timestamp=${timeStamp}`;
       try {
@@ -174,31 +161,31 @@ const CloudFront: React.FC = () => {
         const data = await response.json();
         await data.Response.Data[0].CdnData.forEach(
           (item: { Metric: string; DetailData: [] }) => {
-            if (item.Metric == "request") {
+            if (item.Metric === "request") {
               setCdnRequestData(item.DetailData);
-            } else if (item.Metric == "requestOrigin") {
+            } else if (item.Metric === "requestOrigin") {
               setCdnRequestOriginData(item.DetailData);
-            } else if (item.Metric == "statusCode") {
+            } else if (item.Metric === "statusCode") {
               setCdnStatusCodeData(item.DetailData);
-            } else if (item.Metric == "statusCodeOrigin") {
+            } else if (item.Metric === "statusCodeOrigin") {
               setCdnStatusCodeOriginData(item.DetailData);
-            } else if (item.Metric == "chr") {
+            } else if (item.Metric === "chr") {
               setCdnChrData(item.DetailData);
-            } else if (item.Metric == "chrBandWith") {
+            } else if (item.Metric === "chrBandWith") {
               setCdnChrBandWidthData(item.DetailData);
-            } else if (item.Metric == "bandwidth") {
+            } else if (item.Metric === "bandwidth") {
               setCdnBandWidthData(item.DetailData);
-            } else if (item.Metric == "bandwidthOrigin") {
+            } else if (item.Metric === "bandwidthOrigin") {
               setCdnBandWidthOriginData(item.DetailData);
-            } else if (item.Metric == "downloadSpeed") {
+            } else if (item.Metric === "downloadSpeed") {
               setCdnDownloadSpeedData(item.DetailData);
-            } else if (item.Metric == "downloadSpeedOrigin") {
+            } else if (item.Metric === "downloadSpeedOrigin") {
               setCdnDownloadSpeedOriginData(item.DetailData);
-            } else if (item.Metric == "topNUrlRequests") {
+            } else if (item.Metric === "topNUrlRequests") {
               setCdnTopNUrlRequestsData(item.DetailData);
-            } else if (item.Metric == "topNUrlSize") {
+            } else if (item.Metric === "topNUrlSize") {
               setCdnTopNUrlSizeData(item.DetailData);
-            } else if (item.Metric == "downstreamTraffic") {
+            } else if (item.Metric === "downstreamTraffic") {
               setCdnDownstreamTrafficData(item.DetailData);
             }
           }
@@ -283,7 +270,6 @@ const CloudFront: React.FC = () => {
 
   const getCdnTopNUrlRequestsData = () => {
     const topurl: string[] = [];
-    const count: number[][] = [];
     cdnTopNUrlRequestsData.map(function (element) {
       element.Value.map(function (obj) {
         if (!topurl.includes(obj.Path)) {
@@ -316,7 +302,6 @@ const CloudFront: React.FC = () => {
 
   const getCdnTopNUrlSizeData = () => {
     const topurl: string[] = [];
-    const count: number[][] = [];
     cdnTopNUrlSizeData.map(function (element) {
       element.Value.map(function (obj) {
         if (!topurl.includes(obj.Path)) {
@@ -354,7 +339,7 @@ const CloudFront: React.FC = () => {
     const series: { name: string; data: any[] }[] = [];
     cdnDownloadSpeedData.map(function (element) {
       Object.entries(element.Value).forEach((obj) => {
-        if (obj[0] != "domain" && obj[0] != "timestamp") {
+        if (obj[0] !== "domain" && obj[0] !== "timestamp") {
           Object.entries(obj[1] as object).forEach((speed) => {
             const name = obj[0] + "(" + speed[0] + ")";
             if (!locations.includes(name)) {
@@ -368,9 +353,9 @@ const CloudFront: React.FC = () => {
       const speeds: any[] = [];
       cdnDownloadSpeedData.map(function (element) {
         Object.entries(element.Value).forEach((obj) => {
-          if (obj[0] != "domain" && obj[0] != "timestamp") {
+          if (obj[0] !== "domain" && obj[0] !== "timestamp") {
             Object.entries(obj[1] as object).forEach((speed) => {
-              if (locationName == obj[0] + "(" + speed[0] + ")") {
+              if (locationName === obj[0] + "(" + speed[0] + ")") {
                 const sum: number =
                   speed[1]["250K"] * 250 +
                   speed[1]["750K"] * 750 +
@@ -401,7 +386,7 @@ const CloudFront: React.FC = () => {
     const series: { name: string; data: any[] }[] = [];
     cdnDownloadSpeedOriginData.map(function (element) {
       Object.entries(element.Value).forEach((obj) => {
-        if (obj[0] != "domain" && obj[0] != "timestamp") {
+        if (obj[0] !== "domain" && obj[0] !== "timestamp") {
           Object.entries(obj[1] as object).forEach((speed) => {
             const name = obj[0] + "(" + speed[0] + ")";
             if (!locations.includes(name)) {
@@ -415,9 +400,9 @@ const CloudFront: React.FC = () => {
       const speeds: any[] = [];
       cdnDownloadSpeedOriginData.map(function (element) {
         Object.entries(element.Value).forEach((obj) => {
-          if (obj[0] != "domain" && obj[0] != "timestamp") {
+          if (obj[0] !== "domain" && obj[0] !== "timestamp") {
             Object.entries(obj[1] as object).forEach((speed) => {
-              if (locationName == obj[0] + "(" + speed[0] + ")") {
+              if (locationName === obj[0] + "(" + speed[0] + ")") {
                 const sum: number =
                   speed[1]["250K"] * 250 +
                   speed[1]["750K"] * 750 +
@@ -455,10 +440,6 @@ const CloudFront: React.FC = () => {
     });
   };
 
-  // useEffect(() => {}, [selectDistribution]);
-
-  // useEffect(() => {}, [selectDistributionName]);
-
   const selectNoneDistributions = async () => {
     setSelectDistributionName([]);
     setSelectDistribution([]);
@@ -467,7 +448,7 @@ const CloudFront: React.FC = () => {
   const applyDomainList = async () => {
     try {
       setLoadingApply(true);
-      const resData = await appSyncRequestMutation(updateDomains, {
+      await appSyncRequestMutation(updateDomains, {
         stack_name: amplifyConfig.aws_monitoring_stack_name,
         domains: selectDistribution,
       });
@@ -479,34 +460,14 @@ const CloudFront: React.FC = () => {
     }
   };
 
-  const selectDomainList = async () => {
-    try {
-      const resData = await appSyncRequestMutation(updateDomains, {
-        stack_name: "MonitoringStack",
-        domains: ["0"],
-      });
-      const selectList: any = [];
-      for (const index in selectDistribution) {
-        selectList.push(selectDistribution[index].value);
-      }
-      setSelectDistribution(() => {
-        return selectList;
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
       {amplifyConfig.aws_monitoring_url === "" && (
-        <Alert
-          type={AlertType.Error}
-          content="Please active monitoring feature to get CloudFront distribution metrics in the dashboard."
-        />
+        <Alert type={AlertType.Error} content={t("monitor:cloudfront.alert")} />
       )}
       <HeaderPanel
-        title="Monitoring"
+        title={t("monitor:cloudFront.monitoring")}
         action={
           <div>
             <Button
@@ -514,18 +475,16 @@ const CloudFront: React.FC = () => {
               btnType="primary"
               onClick={() => {
                 setOpenModal(true);
-                // getCloudfrontDistributionList();
-                // selectDomainList();
               }}
             >
-              Update Domain List
+              {t("button.updateDomainList")}
             </Button>
           </div>
         }
       >
         <FormItem
-          optionTitle="Distributions"
-          optionDesc={<div>Choose a CloudFront distribution</div>}
+          optionTitle={t("distributions")}
+          optionDesc={<div>{t("monitor:cloudFront.chooseDistribution")}</div>}
         >
           <div
             style={{
@@ -538,7 +497,7 @@ const CloudFront: React.FC = () => {
               options={selectDistribution}
               isDisabled={amplifyConfig.aws_monitoring_url === ""}
               onChange={(event: any) => {
-                if (event != null) {
+                if (event !== null) {
                   setSelectDomain(event.value);
                   getChartData();
                 }
@@ -550,7 +509,7 @@ const CloudFront: React.FC = () => {
               defaultValue={[moment().add(-12, "hours").toDate(), new Date()]}
               disabledDate={afterToday?.()}
               onChange={(range) => {
-                if (range != null) {
+                if (range !== null) {
                   setStartDate(
                     encodeURI(moment(range[0]).format("YYYY-MM-DD HH:mm:ss"))
                   );
@@ -582,7 +541,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Request",
+                  text: t("monitor:cloudFront.chart.request"),
                 },
                 chart: {
                   height: 450,
@@ -630,7 +589,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Request Origin",
+                  text: t("monitor:cloudFront.chart.requestOrigin"),
                 },
                 chart: {
                   height: 450,
@@ -678,7 +637,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Status Code",
+                  text: t("monitor:cloudFront.chart.statusCode"),
                 },
                 chart: {
                   height: 450,
@@ -728,7 +687,7 @@ const CloudFront: React.FC = () => {
                   offsetX: -5,
                 },
                 title: {
-                  text: "Status Code Origin",
+                  text: t("monitor:cloudFront.chart.statusCodeOrigin"),
                 },
                 chart: {
                   height: 450,
@@ -769,7 +728,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Cache Hit Rate",
+                  text: t("monitor:cloudFront.chart.cacheHitRate"),
                 },
                 chart: {
                   height: 450,
@@ -819,7 +778,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Cache Hit Rate BandWidth",
+                  text: t("monitor:cloudFront.chart.cacheHitRateBW"),
                 },
                 chart: {
                   height: 450,
@@ -867,7 +826,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "BandWidth",
+                  text: t("monitor:cloudFront.chart.bandWidth"),
                 },
                 chart: {
                   height: 450,
@@ -917,7 +876,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "BandWidth Origin",
+                  text: t("monitor:cloudFront.chart.bandWidthOrigin"),
                 },
                 chart: {
                   height: 450,
@@ -967,7 +926,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Download Speed",
+                  text: t("monitor:cloudFront.chart.downloadSpeed"),
                 },
                 chart: {
                   height: 450,
@@ -993,12 +952,7 @@ const CloudFront: React.FC = () => {
                   curve: "smooth",
                 },
                 tooltip: {
-                  custom: function ({
-                    series,
-                    seriesIndex,
-                    dataPointIndex,
-                    w,
-                  }) {
+                  custom: function ({ dataPointIndex }) {
                     return (
                       "<table>" +
                       "<tr><td>4M</td><td>" +
@@ -1047,7 +1001,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Download Speed Origin",
+                  text: t("monitor:cloudFront.chart.downloadSpeedOrigin"),
                 },
                 chart: {
                   height: 450,
@@ -1073,12 +1027,7 @@ const CloudFront: React.FC = () => {
                   curve: "smooth",
                 },
                 tooltip: {
-                  custom: function ({
-                    series,
-                    seriesIndex,
-                    dataPointIndex,
-                    w,
-                  }) {
+                  custom: function ({ dataPointIndex }) {
                     return (
                       "<table>" +
                       "<tr><td>4M</td><td>" +
@@ -1127,7 +1076,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Top N Url Requests",
+                  text: t("monitor:cloudFront.chart.topNUrlReq"),
                 },
                 tooltip: {
                   shared: true,
@@ -1175,7 +1124,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Top N Url Size",
+                  text: t("monitor:cloudFront.chart.topNUrlSize"),
                 },
                 chart: {
                   height: 450,
@@ -1216,7 +1165,7 @@ const CloudFront: React.FC = () => {
                   },
                 },
                 title: {
-                  text: "Downstream Traffic",
+                  text: t("monitor:cloudFront.chart.downStreamTraffic"),
                 },
                 chart: {
                   height: 450,
@@ -1257,7 +1206,7 @@ const CloudFront: React.FC = () => {
         </div>
       </HeaderPanel>
       <Modal
-        title="Update Domain List"
+        title={t("monitor:cloudFront.updateDomainList")}
         isOpen={openModal}
         fullWidth={true}
         closeModal={() => {
@@ -1267,11 +1216,10 @@ const CloudFront: React.FC = () => {
           <div className="button-action no-pb text-right">
             <Button
               onClick={() => {
-                setConfirm("");
                 setOpenModal(false);
               }}
             >
-              Cancel
+              {t("button.cancel")}
             </Button>
             <Button
               btnType="primary"
@@ -1280,22 +1228,22 @@ const CloudFront: React.FC = () => {
                 applyDomainList();
               }}
             >
-              Apply
+              {t("button.apply")}
             </Button>
           </div>
         }
       >
         <div className="gsui-modal-content">
           <FormItem
-            optionTitle="Distribution"
-            optionDesc="Distribution to apply configurations"
+            optionTitle={t("distribution")}
+            optionDesc={t("monitor:cloudFront.applyConfig")}
           >
             <div className="flex">
               <div style={{ width: 800 }}>
                 <MultiSelect
                   optionList={cloudFrontList}
                   value={selectDistributionName}
-                  placeholder="Select distribution"
+                  placeholder={t("monitor:cloudFront.selectDistribution")}
                   onChange={(items) => {
                     setSelectDistribution(items);
                   }}
@@ -1307,7 +1255,7 @@ const CloudFront: React.FC = () => {
                     selectAllDistributions();
                   }}
                 >
-                  Select All
+                  {t("button.selectAll")}
                 </Button>
               </div>
               <div className="ml-5">
@@ -1316,7 +1264,7 @@ const CloudFront: React.FC = () => {
                     selectNoneDistributions();
                   }}
                 >
-                  Clear
+                  {t("button.clear")}
                 </Button>
               </div>
             </div>

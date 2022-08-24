@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import ReactDiffViewer from "react-diff-viewer";
 import Breadcrumb from "components/Breadcrumb";
 import HeaderPanel from "components/HeaderPanel";
-import Button from "components/Button";
 import Select from "components/Select";
 import { useParams } from "react-router-dom";
 import { appSyncRequestQuery } from "../../../assets/js/request";
@@ -11,30 +10,28 @@ import {
   listCloudfrontVersions,
 } from "../../../graphql/queries";
 import { Version } from "../../../API";
+import { useTranslation } from "react-i18next";
 
 const VersionDetailDisplay: React.FC = () => {
   const { id } = useParams();
   const { version } = useParams();
   const [currentVersion, setCurrentVersion] = useState<any>(version);
   const [versionContent, setVersionContent] = useState<any>("");
-  const [distribution, setDistribution] = useState<any>(id);
   const [versionList, setVersionList] = useState<any[]>([]);
+  const { t } = useTranslation();
 
   const BreadCrunbList = [
     {
-      name: "CloudFront Extensions",
+      name: t("name"),
       link: "/",
     },
     {
-      name: "Configuration Version",
+      name: t("version:name"),
       link: "/config/version",
     },
     {
-      name: distribution,
-      link: "/config/version/detail/" + distribution,
-    },
-    {
-      name: "",
+      name: id || "",
+      link: "/config/version/detail/" + id,
     },
   ];
 
@@ -96,9 +93,9 @@ const VersionDetailDisplay: React.FC = () => {
       <div>
         <HeaderPanel
           title={
-            "Detail Configuration of distribution: " +
-            distribution +
-            " with version: " +
+            t("version:detail.title") +
+            id +
+            t("version:detail.withVersion") +
             currentVersion
           }
         >
@@ -109,7 +106,7 @@ const VersionDetailDisplay: React.FC = () => {
                   // className="m-w-320"
                   value={currentVersion}
                   optionList={versionList}
-                  placeholder="Select version"
+                  placeholder={t("version:detail.selectVersion")}
                   onChange={(event) => {
                     setCurrentVersion(event.target.value);
                     getVersionContent();
