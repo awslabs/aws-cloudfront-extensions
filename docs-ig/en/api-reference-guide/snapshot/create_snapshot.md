@@ -3,9 +3,12 @@
 - HTTP request method: `POST`
 
 - Request
+
+
 ```http request
 /snapshot/create_snapshot?distributionId=E20GR9AX7K798K&snapShotName=ReleaseSnapshot&snapShotNote="This is for Testing"
 ```
+
 
 - Request body parameters
     - distributionId: String
