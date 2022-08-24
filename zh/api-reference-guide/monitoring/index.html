@@ -1211,69 +1211,15 @@
 }
 </code></pre>
 <ul>
-<li>请求参数</li>
-</ul>
-<p>StartTime: 获取指标数据的起始时间
-   EndTime: 获取指标数据的结束时间
-   Metric: 指标类型，使用<code>all</code>来获取所有指标</p>
-<ul>
-<li>响应</li>
-</ul>
-<pre><code class="language-json">{
-    &quot;Response&quot;: {
-        &quot;Data&quot;: [
-            {
-                &quot;CdnData&quot;: [
-                    {
-                        &quot;Metric&quot;: &quot;request&quot;,
-                        &quot;DetailData&quot;: [
-                            {
-                                &quot;Time&quot;: &quot;2022-06-23 12:50:00&quot;,
-                                &quot;Value&quot;: &quot;41&quot;
-                            },
-                            {
-                                &quot;Time&quot;: &quot;2022-06-23 12:55:00&quot;,
-                                &quot;Value&quot;: &quot;45&quot;
-                            },
-                            {
-                                &quot;Time&quot;: &quot;2022-06-23 13:00:00&quot;,
-                                &quot;Value&quot;: &quot;39&quot;
-                            }
-                        ]
-                    }
-                ]
-            }
-        ],
-        &quot;RequestId&quot;: &quot;05228fbe-65b1-4670-85ba-0d7307ece749&quot;,
-        &quot;Interval&quot;: &quot;5min&quot;
-    }
-}
-</code></pre>
-<ul>
-<li>参数</li>
-</ul>
-<p>CdnData: CloudFront指标数据
-  Metric: 指标类型
-  DetailData: 具体指标数据
-  RequestId: 请求ID
-  Interval: 收集指标数据的间隔，默认值为5分钟</p>
-<h2 id="realtimemonitoringmetrics">RealTimeMonitoringMetrics</h2>
-<ul>
-<li>HTTP方法: <code>GET</code></li>
-<li>请求</li>
-</ul>
-<pre><code class="language-json">{
-  &quot;StartTime&quot;: &quot;2021-10-21 11:00:00&quot;,
-  &quot;EndTime&quot;: &quot;2021-10-21 11:00:00&quot;,
-  &quot;Metric&quot;: &quot;all&quot; | &quot;request&quot; | &quot;requestOrigin&quot; | &quot;statusCode&quot; | &quot;statusCodeOrigin&quot; | &quot;chr&quot; | &quot;chrBandWith&quot; | &quot;bandwidth&quot; | &quot;bandwidthOrigin&quot; | &quot;downloadSpeed&quot; | &quot;downloadSpeedOrigin&quot; | &quot;topNUrlRequests&quot; | &quot;topNUrlSize&quot; | &quot;downstreamTraffic&quot;
-}
-</code></pre>
-<ul>
 <li>
-<p>请求参数
-   StartTime: 获取指标数据的起始时间
-   EndTime: 获取指标数据的结束时间
-   Metric: 指标类型，使用<code>all</code>来获取所有指标</p>
+<p>请求参数</p>
+</li>
+<li>
+<p>StartTime: 获取指标数据的起始时间</p>
+</li>
+<li>EndTime: 获取指标数据的结束时间</li>
+<li>
+<p>Metric: 指标类型，使用<code>all</code>来获取所有指标</p>
 </li>
 <li>
 <p>响应</p>
@@ -1310,18 +1256,90 @@
 }
 </code></pre>
 <ul>
-<li>参数</li>
+<li>
+<p>参数</p>
+</li>
+<li>
+<p>CdnData: CloudFront指标数据</p>
+</li>
+<li>Metric: 指标类型</li>
+<li>DetailData: 具体指标数据</li>
+<li>RequestId: 请求ID</li>
+<li>Interval: 收集指标数据的间隔，默认值为5分钟</li>
 </ul>
-<p>CdnData: CloudFront指标数据
-  Metric: 指标类型
-  DetailData: 具体指标数据
-  RequestId: 请求ID
-  Interval: 收集指标数据的间隔，默认值为5分钟</p>
+<h2 id="realtimemonitoringmetrics">RealTimeMonitoringMetrics</h2>
+<ul>
+<li>HTTP方法: <code>GET</code></li>
+<li>请求</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;StartTime&quot;: &quot;2021-10-21 11:00:00&quot;,
+  &quot;EndTime&quot;: &quot;2021-10-21 11:00:00&quot;,
+  &quot;Metric&quot;: &quot;all&quot; | &quot;request&quot; | &quot;requestOrigin&quot; | &quot;statusCode&quot; | &quot;statusCodeOrigin&quot; | &quot;chr&quot; | &quot;chrBandWith&quot; | &quot;bandwidth&quot; | &quot;bandwidthOrigin&quot; | &quot;downloadSpeed&quot; | &quot;downloadSpeedOrigin&quot; | &quot;topNUrlRequests&quot; | &quot;topNUrlSize&quot; | &quot;downstreamTraffic&quot;
+}
+</code></pre>
+<ul>
+<li>
+<p>请求参数</p>
+</li>
+<li>
+<p>StartTime: 获取指标数据的起始时间</p>
+</li>
+<li>EndTime: 获取指标数据的结束时间</li>
+<li>
+<p>Metric: 指标类型，使用<code>all</code>来获取所有指标</p>
+</li>
+<li>
+<p>响应</p>
+</li>
+</ul>
+<pre><code class="language-json">{
+    &quot;Response&quot;: {
+        &quot;Data&quot;: [
+            {
+                &quot;CdnData&quot;: [
+                    {
+                        &quot;Metric&quot;: &quot;request&quot;,
+                        &quot;DetailData&quot;: [
+                            {
+                                &quot;Time&quot;: &quot;2022-06-23 12:50:00&quot;,
+                                &quot;Value&quot;: &quot;41&quot;
+                            },
+                            {
+                                &quot;Time&quot;: &quot;2022-06-23 12:55:00&quot;,
+                                &quot;Value&quot;: &quot;45&quot;
+                            },
+                            {
+                                &quot;Time&quot;: &quot;2022-06-23 13:00:00&quot;,
+                                &quot;Value&quot;: &quot;39&quot;
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        &quot;RequestId&quot;: &quot;05228fbe-65b1-4670-85ba-0d7307ece749&quot;,
+        &quot;Interval&quot;: &quot;5min&quot;
+    }
+}
+</code></pre>
+<ul>
+<li>
+<p>参数</p>
+</li>
+<li>
+<p>CdnData: CloudFront指标数据</p>
+</li>
+<li>Metric: 指标类型</li>
+<li>DetailData: 具体指标数据</li>
+<li>RequestId: 请求ID</li>
+<li>Interval: 收集指标数据的间隔，默认值为5分钟</li>
+</ul>
 <h2 id="api">更多API示例</h2>
 <h3 id="url">URL格式</h3>
 <p>https://domain-name.com/prod/metric?StartTime=2021-10-21%2011:00:00&amp;EndTime=2021-10-21%2011:30:00&amp;Metric=all&amp;Domain=example.cloudfront.net</p>
 <h3 id="_1">响应</h3>
-<p>The metric data are collected every 5 minutes, you can customize it by update the metricCollector Lambda functions</p>
+<p>指标数据每5分钟收集一次，您可以通过更新metricCollector Lambda函数对其进行自定义。</p>
 <h4 id="_2">请求数量</h4>
 <pre><code class="language-json">{
     &quot;Response&quot;: {

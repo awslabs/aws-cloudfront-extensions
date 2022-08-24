@@ -1209,13 +1209,19 @@
 }
 </code></pre>
 <ul>
-<li>Request body parameters</li>
-</ul>
-<p>StartTime: start time to get the metric data
-   EndTime: end time to get the metric data
-   Metric: metric type, use <code>all</code> if you want to get all metrics</p>
-<ul>
-<li>Response</li>
+<li>
+<p>Request body parameters</p>
+</li>
+<li>
+<p>StartTime: start time to get the metric data</p>
+</li>
+<li>EndTime: end time to get the metric data</li>
+<li>
+<p>Metric: metric type, use <code>all</code> if you want to get all metrics</p>
+</li>
+<li>
+<p>Response</p>
+</li>
 </ul>
 <pre><code class="language-json">{
     &quot;Response&quot;: {
@@ -1248,13 +1254,17 @@
 }
 </code></pre>
 <ul>
-<li>Parameters</li>
+<li>
+<p>Parameters</p>
+</li>
+<li>
+<p>CdnData: CloudFront metric data</p>
+</li>
+<li>Metric: the metric type</li>
+<li>DetailData: detailed metric data in each timestamp</li>
+<li>RequestId: a unique ID for each request</li>
+<li>Interval: the interval for collecting metric data, and the default value is 5 minutes</li>
 </ul>
-<p>CdnData: CloudFront metric data
-  Metric: the metric type
-  DetailData: detailed metric data in each timestamp
-  RequestId: a unique ID for each request
-  Interval: the interval for collecting metric data, and the default value is 5 minutes</p>
 <h2 id="realtimemonitoringmetrics">RealTimeMonitoringMetrics</h2>
 <ul>
 <li>HTTP request method: <code>GET</code></li>
@@ -1267,13 +1277,19 @@
 }
 </code></pre>
 <ul>
-<li>Request body parameters</li>
-</ul>
-<p>StartTime: start time to get the metric data
-   EndTime: end time to get the metric data
-   Metric: metric type, use <code>all</code> if you want to get all metrics</p>
-<ul>
-<li>Response</li>
+<li>
+<p>Request body parameters</p>
+</li>
+<li>
+<p>StartTime: start time to get the metric data</p>
+</li>
+<li>EndTime: end time to get the metric data</li>
+<li>
+<p>Metric: metric type, use <code>all</code> if you want to get all metrics</p>
+</li>
+<li>
+<p>Response</p>
+</li>
 </ul>
 <pre><code class="language-json">{
     &quot;Response&quot;: {
@@ -1306,13 +1322,17 @@
 }
 </code></pre>
 <ul>
-<li>Parameters</li>
+<li>
+<p>Parameters</p>
+</li>
+<li>
+<p>CdnData: CloudFront metric data</p>
+</li>
+<li>Metric: the metric type</li>
+<li>DetailData: detailed metric data in each timestamp</li>
+<li>RequestId: a unique ID for each request</li>
+<li>Interval: the interval for collecting metric data, and the default value is 5 minutes</li>
 </ul>
-<p>CdnData: CloudFront metric data
-  Metric: the metric type
-  DetailData: detailed metric data in each timestamp
-  RequestId: a unique ID for each request
-  Interval: the interval for collecting metric data, and the default value is 5 minutes</p>
 <h2 id="more-example-api">More example API</h2>
 <h3 id="uri-format">URI format</h3>
 <p>https://domain-name.com/prod/metric?StartTime=2021-10-21%2011:00:00&amp;EndTime=2021-10-21%2011:30:00&amp;Metric=all&amp;Domain=example.cloudfront.net</p>

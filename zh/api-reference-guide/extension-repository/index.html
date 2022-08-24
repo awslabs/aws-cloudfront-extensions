@@ -1077,24 +1077,26 @@
 }
 </code></pre>
 <ul>
-<li>请求参数</li>
-</ul>
-<p>url_list: The list of urls for prewarm.
-  cf_domain: CloudFront domain name which ends with <a href="http://cloudfront.net/">cloudfront.net</a>. If not set, it will find cf_domain according to CNAME in the url list.
-  region: The region for prewarm. You can specify 3 types of value.</p>
-<ul>
-<li>all: prewarm in all regions</li>
-<li>pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list</li>
 <li>
-<p>region code: pre-warm in a specific region, the available regions are:</p>
+<p>请求参数</p>
+</li>
+<li>
+<p>url_list： 预热的url列表</p>
+</li>
+<li>cf_domain： 以<a href="http://cloudfront.net/">cloudfront.net</a>结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain</li>
+<li>
+<p>region： 预热区域。您可以指定3种类型的值</p>
 <ul>
-<li>apac: Asia-Pacific</li>
-<li>au: Australia</li>
-<li>ca: Canada</li>
-<li>sa: South Africa</li>
-<li>eu: Europe</li>
-<li>jp: Japan</li>
-<li>us: United States</li>
+<li>all： 在所有区域进行预热</li>
+<li>pop id列表，例如["ATL56-C1", "DFW55-C3"]: 在列表中指定的边缘节点进行预热</li>
+<li>区域代码: 在特定区域进行预热，可用区域为：</li>
+<li>apac： Asia-Pacific</li>
+<li>au： Australia</li>
+<li>ca： Canada</li>
+<li>sa： South Africa</li>
+<li>eu： Europe</li>
+<li>jp： Japan</li>
+<li>us： United States</li>
 </ul>
 </li>
 <li>
@@ -1138,13 +1140,13 @@
 <ul>
 <li>响应参数</li>
 </ul>
-<p><code>status</code>: the overall prewarm status</p>
-<p><code>total</code>: total url count to pre-warm</p>
-<p><code>completed</code>: the count of urls which are prewarmed</p>
-<p><code>inProgress</code>: the count of urls which are being prewarmed</p>
-<p><code>failedUrl</code>: the list of urls which are failed to prewarm</p>
-<p><code>inProgressUrl</code>: the list of urls which are being prewarmed</p>
-<p><code>successUrl</code>: the list of urls which are successfully prewarmed</p>
+<p><code>status</code>：整体预热状态</p>
+<p><code>total</code>： 预热的URL总数</p>
+<p><code>completed</code>：已预热的URL的计数</p>
+<p><code>inProgress</code>：正在预热的URL的计数</p>
+<p><code>failedUrl</code>： 未能预热的URL列表</p>
+<p><code>inProgressUrl</code>：正在预热的URL列表</p>
+<p><code>successUrl</code>：已成功预热的URL列表</p>
 
 
 
