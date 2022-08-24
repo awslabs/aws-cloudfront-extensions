@@ -1,5 +1,4 @@
-您负责运行此解决方案时使用的AWS服务的成本。我们建议通过[AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/)创建预算以帮助管理成本。有关详细信息，请参阅本解决方案中使用的每项服务的定价页面。
-
+您需要承担运行解决方案时使用亚马逊云科技各个服务的成本费用。我们建议通过[AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/)创建预算以帮助管理成本。有关详细信息，请参阅本解决方案中使用的每项服务的定价页面。
 
 ##  CloudFront配置快照
 

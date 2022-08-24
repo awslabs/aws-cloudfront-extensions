@@ -41,9 +41,13 @@ You can view the status of the stack in the CloudFormation Console in the Status
 
 ### Follow-up Actions
 
-To see details for the stack resources, choose the **Outputs** tab. You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
+To see details for the stack resources, choose the **Outputs** tab.
+
+- You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. 
+- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
 
 The CloudFormation stack deploys below modules:
+
 - Monitoring: if you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature, see [monitoring](./monitoring/overview.md) for more details. 
 - Distribution management: you can manage snapshots and SSL certificates, see [distribution management](./distribution-management/overview.md) for more details. 
 - Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See [extensions repository](./extension-repository/overview.md) for more details.  
