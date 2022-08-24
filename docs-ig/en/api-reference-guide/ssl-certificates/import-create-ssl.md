@@ -9,7 +9,7 @@
 
   - Create one ACM certificate and auto create CloudFront distribution from existing distribution id and version id
     
-    ``` json
+``` json
     {
       "acm_op": "create",   
       "auto_creation": "true", 
@@ -28,7 +28,7 @@
         }
       ]
     }
-    ```
+```
 
   - Create one ACM certificate and auto create CloudFront distribution from existing distribution id
     
