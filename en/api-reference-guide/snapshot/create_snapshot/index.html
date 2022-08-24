@@ -1016,19 +1016,24 @@
 <p>Request</p>
 </li>
 </ul>
-<p>```http request
-/snapshot/create_snapshot?distributionId=E20GR9AX7K798K&amp;snapShotName=ReleaseSnapshot&amp;snapShotNote="This is for Testing"</p>
-<pre><code>
+<pre><code class="language-json">
+/snapshot/create_snapshot?distributionId=E20GR9AX7K798K&amp;snapShotName=ReleaseSnapshot&amp;snapShotNote=&quot;This is for Testing&quot;
 
-- Request body parameters
-    - distributionId: String
-    - snapShotName: String
-    - snapShotNote: String
-
-
-- Response
-```json
-{
+</code></pre>
+<ul>
+<li>
+<p>Request body parameters</p>
+<ul>
+<li>distributionId: String</li>
+<li>snapShotName: String</li>
+<li>snapShotNote: String</li>
+</ul>
+</li>
+<li>
+<p>Response</p>
+</li>
+</ul>
+<pre><code class="language-json">{
   &quot;statusCode&quot;: 200,
   &quot;body&quot;: &quot;succeed create new snapshot&quot;
 }
