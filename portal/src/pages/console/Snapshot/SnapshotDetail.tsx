@@ -157,7 +157,7 @@ const SnapshotDetail: React.FC = () => {
   const selectAllDistributions = () => {
     const selectList: any = [];
     for (const index in distributionList) {
-      selectList.push(distributionList[index].name);
+      selectList.push(distributionList[index].value);
     }
     setSelectDistribution(() => {
       return selectList;

@@ -140,11 +140,11 @@ const MultiSelect: React.FC<SelectProps> = (props: SelectProps) => {
               return (
                 <div className="gsui-multi-select-item-box" key={index}>
                   <div className="item-content">
-                    <div className="item-title">
+                    {/* <div className="item-title">{item}</div> */}
+                    <div>
                       {optionList.find((element) => element.value === item)
-                        ?.optTitle || ""}
+                        ?.name || ""}
                     </div>
-                    <div>{item}</div>
                   </div>
                   <div
                     className="icon-remove"
