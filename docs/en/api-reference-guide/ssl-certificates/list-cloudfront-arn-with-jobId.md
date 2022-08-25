@@ -10,7 +10,7 @@
 
 - Request body parameters
 
-  - jobId: String
+    - jobId: String
 
 - Response
 

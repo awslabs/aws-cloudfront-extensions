@@ -16,7 +16,7 @@ nav:
       - Overview: monitoring/overview.md
       - Non-real time monitoring with Amazon S3 Standard Logs: monitoring/non-real-time-monitoring.md
       - Real time monitoring with Amazon Kinesis: monitoring/real-time-monitoring.md
-      - Metrics Dashboard: monitoring/metrics-dashboard.md
+      - Metrics dashboard: monitoring/metrics-dashboard.md
   - Distribution management: 
       - Overview: distribution-management/overview.md 
       - Snapshot: 
@@ -43,8 +43,8 @@ nav:
   - API reference guide: 
       - Overview: api-reference-guide/overview.md
       - Monitoring: api-reference-guide/monitoring.md
-      - Extension repository: api-reference-guide/extension-repository.md
-      - Distribution Management: api-reference-guide/distribution-management.md
+      - Extensions repository: api-reference-guide/extension-repository.md
+      - Distribution management: api-reference-guide/distribution-management.md
   - Additional resources: additional-resources.md
   - Uninstall the solution: uninstall.md
   - Source code: source.md

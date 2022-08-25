@@ -1,3 +1,11 @@
+## Snapshot related API
+- [create_snapshot](snapshot/create_snapshot.md)
+- [delete_snapshot](snapshot/delete_snapshot.md)
+- [list_snapshots](snapshot/list_snapshots.md)
+- [diff_cloudfront_snapshot](snapshot/diff_cloudfront_snapshot.md)
+- [get_snapshot_link](snapshot/get_snapshot_link.md)
+- [apply_snapshot](snapshot/apply-snapshot.md)
+- [config_snapshot_tag_update](snapshot/config_snapshot_tag_update.md)
 
 ## SSL Certificate related API
 
@@ -8,12 +16,5 @@
 - [list_ssl_jobs](ssl-certificates/list-ssl_jobs.md)
 - [get_ssl_job](ssl-certificates/get-ssl-job.md)
 
-## Snapshot related API
-- [create_snapshot](snapshot/create_snapshot.md)
-- [delete_snapshot](snapshot/delete_snapshot.md)
-- [list_snapshots](snapshot/list_snapshots.md)
-- [diff_cloudfront_snapshot](snapshot/diff_cloudfront_snapshot.md)
-- [get_snapshot_link](snapshot/get_snapshot_link.md)
-- [apply_snapshot](snapshot/apply-snapshot.md)
-- [config_snapshot_tag_update](snapshot/config_snapshot_tag_update.md)
+
 

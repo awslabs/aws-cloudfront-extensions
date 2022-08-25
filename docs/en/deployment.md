@@ -1,11 +1,8 @@
-Before you launch the solution, review the architecture, supported regions, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.
+Before you launch the solution, review the architecture, [supported regions](./regions.md), and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.
 
-
-## CloudFront Extensions Console
+## Deploy the Web Console
  
 **Time to deploy**: Approximately 15 minutes
-
-
 
 ### Deployment steps
 
@@ -14,7 +11,7 @@ Before you launch the solution, review the architecture, supported regions, and 
       [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json)
 
 
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar. See [region list](./regions.md) for all the supported regions. 
+2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar. See [regional deployment](./regions.md) for all the supported regions. 
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
 
@@ -44,26 +41,23 @@ You can view the status of the stack in the CloudFormation Console in the Status
 To see details for the stack resources, choose the **Outputs** tab.
 
 - You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. The API keys of snapshot and SSL certificates can be found in **Outputs** tab, For testing your API with API key, see [test usage plans](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-rest-api.html#api-gateway-usage-plan-test-with-postman).
-- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API and API key in the **Outputs** tab of the nested stack.
+- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, and you will find the monitoring metric API and API key in the **Outputs** tab of the nested stack.
 
 The CloudFormation stack deploys below modules:
 
-- Monitoring: if you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature, see [monitoring](./monitoring/overview.md) for more details. 
-- Distribution management: you can manage snapshots and SSL certificates, see [distribution management](./distribution-management/overview.md) for more details. 
+- Monitoring: If you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature. See [monitoring](./monitoring/overview.md) for more details. 
+- Distribution management: you can manage snapshots and SSL certificates. See [distribution management](./distribution-management/overview.md) for more details. 
 - Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See [extensions repository](./extension-repository/overview.md) for more details.  
 
 
 
-
-## Lambda@Edge & CloudFront Functions collection
+## Deploy Lambda@Edge & CloudFront Functions collection
 
 **Time to deploy**: Approximately 3 minutes
 
 ### Deployment overview
 
 Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR (Serverless Application Repository).
-
-
 
 #### Lambda@Edge
 

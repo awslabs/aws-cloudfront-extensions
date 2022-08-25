@@ -1,7 +1,7 @@
 ## import-create-ssl
 
 !!! Important "Important"
-    Please do not include more than 100 cname or pems records in one request. Too many requesting items in one request will cause backend ACM service and Cloudfront service throttle our request and cause the backend workflow failure.
+    You are not recommended to include more than 100 cname or pems records in one request. Too many requesting items in one request will cause backend ACM service and Cloudfront service throttle our request and cause the backend workflow failure.
 
 - HTTP request method: `POST`
 
@@ -149,5 +149,5 @@
 | **Name**   | **Type** | **Description**                                                                                                         |
 |------------|----------|-------------------------------------------------------------------------------------------------------------------------|
 | statusCode | *String* | 200                                                                                                                     |
-| body       | *String* | jobId of the backend processing, you can use returned jobId to get current status of backend workflow, please refer to [get_ssl_job](ssl-certificates/get-ssl-job.md) |
+| body       | *String* | jobId of the backend processing, you can use returned jobId to get current status of backend workflow, please refer to [get_ssl_job](get-ssl-job.md) |
 

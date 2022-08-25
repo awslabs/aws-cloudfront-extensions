@@ -2,7 +2,7 @@ The solution will automatically import one or multiple your existing issued cert
 
 ![import-certificate-job](../../../images/import-certificate-job.png)
 
-### How does it work
+### Workflow
 
 When you starts an Import Certificate Job, the solution starts a workflow in AWS Step Functions that does the following:
 
@@ -16,7 +16,7 @@ When you starts an Import Certificate Job, the solution starts a workflow in AWS
 
 !!! Important "Important"
 
-    Currently, the solution only supports importing one certificate in a job on the Web UI. But user can use api to import multiple certificates through our api. Please refer to the api documentation.
+    Currently, the solution only supports importing one certificate in a job on the Web console. Alternatively, you can use API to import multiple certificates, see API reference guide for details.
 
 1. Log in to the web console.
 2. In the left sidebar, under **Configuration**, select **SSL Certification**. 
