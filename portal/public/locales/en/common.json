@@ -54,7 +54,7 @@
     "download": "Download",
     "actions": "Actions",
     "createSnapshot": "Create Snapshot",
-    "selectNone": "Select None",
+    "selectNone": "Clear",
     "addDomainNameForAnotherCert": "Add domain names for another certificate",
     "startJob": "Start Job",
     "showJobList": "Show Job List",
@@ -68,7 +68,9 @@
     "ok": "OK",
     "updateVersionNote": "Update Version Notes",
     "details": "Details",
-    "compare": "Compare"
+    "compare": "Compare",
+    "versionWithNote": "Version with Note",
+    "allVersion": "All Versions"
   },
   "status": {
     "error": "Error"

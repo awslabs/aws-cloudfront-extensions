@@ -19,7 +19,7 @@ const VersionDetail: React.FC = () => {
     []
   );
   const [withNote, setWithNote] = useState(true);
-  const [withNoteText, setWithNoteText] = useState("Version with note");
+  const [withNoteText, setWithNoteText] = useState("button.versionWithNote");
   const [selectedItem, setSelectedItem] = useState<Version[]>([]);
   const [saveDisabled, setSaveDisabled] = useState(false);
   const [detailDisabled, setDetailDisabled] = useState(false);
@@ -167,16 +167,16 @@ const VersionDetail: React.FC = () => {
                 onClick={() => {
                   if (withNote) {
                     setVersionFilterList(versionWithNotesList);
-                    setWithNoteText("All versions");
+                    setWithNoteText("button.allVersion");
                     setWithNote(false);
                   } else {
                     setVersionFilterList(versionList);
-                    setWithNoteText("Versions with note");
+                    setWithNoteText("button.versionWithNote");
                     setWithNote(true);
                   }
                 }}
               >
-                {withNoteText}
+                {t(withNoteText)}
               </Button>
               <Button
                 disabled={compareDisabled}
