@@ -35,27 +35,27 @@ const USECASE_LIST = [
 const GETTING_START_LIST = [
   {
     title: "home:gettingStarted.startCF",
-    link: "/",
+    link: "https://awslabs.github.io/aws-cloudfront-extensions/",
   },
 ];
 
 const MORE_RESOURCE_LIST = [
-  {
-    title: "home:moreResource.doc",
-    link: "/",
-  },
-  {
-    title: "home:moreResource.faq",
-    link: "/",
-  },
+  // {
+  //   title: "home:moreResource.doc",
+  //   link: "https://awslabs.github.io/aws-cloudfront-extensions/",
+  // },
+  // {
+  //   title: "home:moreResource.faq",
+  //   link: "/",
+  // },
   {
     title: "home:moreResource.issue",
-    link: "/",
+    link: "https://github.com/awslabs/aws-cloudfront-extensions/issues",
   },
-  {
-    title: "home:moreResource.workshop",
-    link: "/",
-  },
+  // {
+  //   title: "home:moreResource.workshop",
+  //   link: "/",
+  // },
 ];
 
 const Home: React.FC = () => {

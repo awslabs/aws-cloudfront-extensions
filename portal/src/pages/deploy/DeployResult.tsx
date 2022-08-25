@@ -64,11 +64,11 @@ const DeployResult: React.FC<DeployResultProps> = (
         title={t("repository:result.howToUse")}
         desc={deployExtensionObj.desc}
       >
-        <div className="d-status-content ptb-20">
+        {/* <div className="d-status-content ptb-20">
           {t("repository:result.fromHere")}
-        </div>
+        </div> */}
       </PagePanel>
-      <PagePanel title={t("repository:result.helpful")}>
+      {/* <PagePanel title={t("repository:result.helpful")}>
         <div className="m-w-45p">
           <div className="flex">
             <div className="flex-1">
@@ -87,7 +87,7 @@ const DeployResult: React.FC<DeployResultProps> = (
             </div>
           </div>
         </div>
-      </PagePanel>
+      </PagePanel> */}
       <div className="mt-20 button-action text-right">
         <a href={deployExtensionObj.codeUri} target="_blank" rel="noreferrer">
           <Button>{t("button.viewRepo")}</Button>
