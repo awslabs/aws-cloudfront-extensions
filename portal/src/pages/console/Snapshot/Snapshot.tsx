@@ -54,7 +54,7 @@ const Snapshot = () => {
       <div className="mt-10">
         <TablePanel
           loading={loadingData}
-          title={t("distributions")}
+          title={t("distributions") + " (" + cloudFrontList.length + ")"}
           selectType={SelectType.RADIO}
           actions={
             <div>
