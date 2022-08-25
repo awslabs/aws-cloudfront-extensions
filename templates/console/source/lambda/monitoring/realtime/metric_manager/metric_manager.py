@@ -12,7 +12,7 @@ athena_client = boto3.client('athena')
 INTERVAL = 5
 METRIC_DICT = [
     "request", "requestOrigin", "statusCode", "statusCodeOrigin", "chr",
-    "chrBandWith", "bandwidth", "bandwidthOrigin", "downloadSpeed",
+    "chrBandWidth", "bandwidth", "bandwidthOrigin", "downloadSpeed",
     "downloadSpeedOrigin", "topNUrlRequests", "topNUrlSize", "downstreamTraffic"
 ]
 

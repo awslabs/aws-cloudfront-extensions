@@ -9,7 +9,7 @@ CloudFront实时日志分析和标准日志分析具有相同的API格式。指�
 {
   "StartTime": "2021-10-21 11:00:00",
   "EndTime": "2021-10-21 11:00:00",
-  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWith" | "bandwidth" | "bandwidthOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
+  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWidth" | "bandwidth" | "bandwidthOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
 }
 ```
 
@@ -70,7 +70,7 @@ CloudFront实时日志分析和标准日志分析具有相同的API格式。指�
 {
   "StartTime": "2021-10-21 11:00:00",
   "EndTime": "2021-10-21 11:00:00",
-  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWith" | "bandwidth" | "bandwidthOrigin" | "downloadSpeed" | "downloadSpeedOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
+  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWidth" | "bandwidth" | "bandwidthOrigin" | "downloadSpeed" | "downloadSpeedOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
 }
 ```
 

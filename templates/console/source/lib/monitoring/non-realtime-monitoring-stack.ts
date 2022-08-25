@@ -833,7 +833,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
           Body: JSON.stringify({
             'aws_monitoring_url': this.monitroingUrl,
             'aws_monitoring_api_key': this.secretValue,
-            'aws_monitoring_stack_name': 'MonitoringStack'
+            'aws_monitoring_stack_name': 'NonRealtimeMonitoringStack'
           }),
           Bucket: props.portalBucket.bucketName,
           CacheControl: 'max-age=0, no-cache, no-store, must-revalidate',

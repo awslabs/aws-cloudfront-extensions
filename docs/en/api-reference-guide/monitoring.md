@@ -9,7 +9,7 @@ CloudFront real-time log analysis and standard log analysis have the same API fo
 {
   "StartTime": "2021-10-21 11:00:00",
   "EndTime": "2021-10-21 11:00:00",
-  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWith" | "bandwidth" | "bandwidthOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
+  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWidth" | "bandwidth" | "bandwidthOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
 }
 ```
 
@@ -71,7 +71,7 @@ CloudFront real-time log analysis and standard log analysis have the same API fo
 {
   "StartTime": "2021-10-21 11:00:00",
   "EndTime": "2021-10-21 11:00:00",
-  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWith" | "bandwidth" | "bandwidthOrigin" | "downloadSpeed" | "downloadSpeedOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
+  "Metric": "all" | "request" | "requestOrigin" | "statusCode" | "statusCodeOrigin" | "chr" | "chrBandWidth" | "bandwidth" | "bandwidthOrigin" | "downloadSpeed" | "downloadSpeedOrigin" | "topNUrlRequests" | "topNUrlSize" | "downstreamTraffic"
 }
 ```
 

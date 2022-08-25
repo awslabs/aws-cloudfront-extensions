@@ -35,7 +35,7 @@ def lambda_handler(event, context):
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    metric = "chrBandWith"
+    metric = "chrBandWidth"
 
     try:
         gen_data = {}

@@ -31,7 +31,7 @@ The following metrics are provided:
 - bandwidth: the bandwidth from the client to CloudFront
 - bandwidthOrigin: bandwidth back to origin
 - chr: cache hit rate calculated by the number of requests
-- chrBandWith: cache hit ratio calculated by bandwidth
+- chrBandWidth: cache hit ratio calculated by bandwidth
 - downloadSpeed: download speed from client to CloudFront
 - downloadSpeedOrigin: the download speed of the back-to-origin
 - topNUrlRequests: top url calculated by the number of requests
