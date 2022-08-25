@@ -96,14 +96,7 @@ const SnapshotDetailDisplay: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel
-          title={
-            t("snapshot:detailConfig") +
-            id +
-            t("snapshot:withSnapshot") +
-            currentSnapshot
-          }
-        >
+        <HeaderPanel title={t("snapshot:detailConfig") + currentSnapshot}>
           <div>
             <div className="flex">
               <div className="flex-1">

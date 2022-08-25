@@ -270,10 +270,10 @@ const SnapshotDetail: React.FC = () => {
         {/*</HeaderPanel>*/}
         <HeaderPanel title={distributionId}>
           <div className="flex value-label-span">
-            <ValueWithLabel label="CNAME">
+            <ValueWithLabel label={t("snapshot:list.cname")}>
               <div>
                 <div className="flex-1">
-                  {distributionAliases[0] || "No CNAME"}
+                  {distributionAliases[0] || t("noCname")}
                 </div>
               </div>
             </ValueWithLabel>
@@ -281,7 +281,7 @@ const SnapshotDetail: React.FC = () => {
         </HeaderPanel>
         <TablePanel
           loading={loadingData}
-          title="Snapshot List"
+          title={t("snapshot:list.snapshotList")}
           selectType={SelectType.CHECKBOX}
           actions={
             <div>

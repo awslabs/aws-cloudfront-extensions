@@ -27,7 +27,8 @@
     "domainName": "Distribution domain name",
     "snapshotCount": "Snapshot count",
     "status": "Status",
-    "deploying": "Deploying"
+    "deploying": "Deploying",
+    "snapshotList": "Snapshot List"
   },
   "detail": {
     "cname": "CNAME",

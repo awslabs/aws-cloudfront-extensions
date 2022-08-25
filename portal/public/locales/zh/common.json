@@ -1,8 +1,8 @@
 {
   "name": "CloudFront Extensions",
-  "distribution": "Distribution",
-  "distributions": "Distributions",
-  "cfDistribution": "CloudFront Distributions",
+  "distribution": "分配",
+  "distributions": "分配",
+  "cfDistribution": "分配",
   "header": {
     "name": "亚马逊云科技解决方案",
     "welcome": "欢迎您",
@@ -12,7 +12,7 @@
     "home": "首页",
     "monitoring": "监控",
     "cloudFrontTraffic": "CloudFront 流量",
-    "distributionMgmt": "Distribution 管理",
+    "distributionMgmt": "分配管理",
     "snapshot": "快照",
     "changeHistory": "变更历史",
     "certificates": "证书",
@@ -64,7 +64,7 @@
     "backToCert": "返回证书列表",
     "backToJob": "返回证书任务",
     "viewCertInJob": "查看在此任务中创建的 SSL 证书",
-    "viewCFInJob": "查看在此作业中创建的 Distribution",
+    "viewCFInJob": "查看在此作业中创建的分配",
     "ok": "好的",
     "updateVersionNote": "更新版本说明",
     "details": "详情",
@@ -83,5 +83,6 @@
   "info": "信息",
   "step": "步骤",
   "show": "显示",
-  "hide": "隐藏"
+  "hide": "隐藏",
+  "noCname": "无备用域名"
 }

@@ -13,25 +13,25 @@
       "step2": "步骤 2：验证证书",
       "step2Title": "手动流程",
       "step2Desc": "该步骤也称为域控制验证过程 （DCV）。证书颁发机构（在本例中为 ACM）需要此步骤来验证您（请求 SSL 证书的人员）是否已授权使用域名（CNAME）。",
-      "step3": "步骤 3：创建 Distribution（可选）",
+      "step3": "步骤 3：创建分配可选）",
       "step3Title": "自动化流程",
-      "step3Desc": "解决方案将自动为您创建相应的 CloudFront Distribution。这是可选的。"
+      "step3Desc": "解决方案将自动为您创建相应的分配。这是可选的。"
     },
     "import": {
       "step1": "步骤 1：导入 SSL 证书",
       "step1Desc": "将现有 SSL 证书导入 Amazon Certificate Management （ACM） Service。请确保输入的 SSL 证书由公共证书自动认证 （CA） 颁发。",
-      "step2": "步骤 2：自动创建 CloudFront Distribution（可选） ",
-      "step2Desc": "如果您在步骤 1 中打开开关“自动创建 CloudFront Distribution”，则解决方案将自动为您创建相应的 CloudFront Distribution。"
+      "step2": "步骤 2：自动创建分配（可选） ",
+      "step2Desc": "如果您在步骤 1 中打开开关“自动创建分配则解决方案将自动为您创建相应的分配。"
     }
   },
   "importMethod": "导入方式",
-  "autoCreateDistribution": "自动创建 Distribution",
-  "autoCreateDistributionDesc": "请求证书，然后创建 Distribution",
+  "autoCreateDistribution": "自动创建分配",
+  "autoCreateDistributionDesc": "请求证书，然后创建分配",
   "donotCreateDistribution": "不创建分配",
   "donotCreateDistributionDesc": "仅请求证书",
-  "sourceDistribution": "源 Distribution",
-  "sourceDistributionDesc": "应用现有 CloudFront distribution中的源设置。它将使用 ",
-  "chooseDistributionAsSource": "选择 CloudFront distribution 作为源",
+  "sourceDistribution": "源分配 ",
+  "sourceDistributionDesc": "应用现有分配中的源设置。它将使用 ",
+  "chooseDistributionAsSource": "选择分配作为源",
   "selectVersion": "选择版本 ",
   "confirmSetting": "确认认证设置？",
   "confirmRequestParam": "请确认 SSL 请求参数 ",
@@ -64,7 +64,7 @@
     "certImportTrigger": "证书导入已触发"
   },
   "list": {
-    "cnames": "CNAMEs",
+    "cnames": "域名",
     "certArn": "证书 ARN",
     "issuer": "Issuer",
     "status": "SSL/TLS 证书状态",
@@ -75,22 +75,22 @@
     "jobOverview": "任务概述",
     "overallStatus": "总体任务状态",
     "curExpCert": "当前/预期证书",
-    "curExpCF": "当前/预期 CloudFront Distribution",
+    "curExpCF": "当前/预期 分配",
     "jobStatus": "任务状态",
     "requestCert": "申请 ACM 证书",
     "promptInfo": "如果创建了所有 SSL 证书，则将完成该步骤",
     "validateCertTop": "验证证书（手动）",
     "validateCertBottom": "如果颁发了所有 SSL 证书，则将完成该步骤",
-    "createCFTop": "创建 CloudFront distribution",
+    "createCFTop": "创建分配 ",
     "createCFBottom": "如果创建了所有 SSL 证书，则将完成该步骤",
     "certArn": "证书 ARN",
-    "cfArn": "CloudFront ARN"
+    "cfArn": "分配 ARN"
   },
   "jobList": {
     "jobId": "任务 ID",
     "jobType": "任务类型",
     "totalCerts": "证书总数",
-    "totalCF": "Distributions 总数",
+    "totalCF": "分配总数",
     "createdAt": "创建时间"
   },
   "status": {
@@ -103,8 +103,8 @@
     "requestDesc": "使用给定的域名，通过 AWS 证书管理 （ACM） 服务请求新的 SSL 证书。",
     "validName": "验证证书",
     "validDesc": "该步骤也称为域控制验证过程 （DCV）。证书颁发机构（在本例中为 ACM）需要此步骤来验证您（请求 SSL 证书的人员）是否已授权使用域名（CNAME）。",
-    "createName": "创建 CloudFront Distributions",
-    "createDesc": "如果您在步骤 1 中打开开关“自动创建 CloudFront Distribution”，则解决方案将自动为您创建相应的 CloudFront Distribution。",
+    "createName": "创建分配",
+    "createDesc": "如果您在步骤 1 中打开开关“自动创建分配”，则解决方案将自动为您创建相应的分配。",
     "step": "步骤 ",
     "auto": "自动化流程",
     "manual": "手动过程"

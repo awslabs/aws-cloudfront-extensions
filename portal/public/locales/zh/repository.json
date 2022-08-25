@@ -22,19 +22,19 @@
     "step": {
       "fa": "函数关联",
       "review": "检查",
-      "chooseCFD": "选择 CloudFront Distribution",
+      "chooseCFD": "选择分配",
       "specifyParam": "指定参数"
     },
     "chooseCF": {
       "distribution": "Distributions",
-      "distributionDesc1": "选择 CloudFront Distribution 或在",
+      "distributionDesc1": "选择分配 或在",
       "distributionDesc2": "CloudFront 控制台",
       "distributionDesc3": "部署 CloudFront 扩展。",
-      "chooseCFD": "选择 CloudFront distribution",
+      "chooseCFD": "选择分配",
       "behaviors": "行为",
       "behaviorsDesc": "选择一种行为来部署扩展",
       "selectBehavior": "选择行为",
-      "chooseCFDError": "请选择 CloudFront Distribution",
+      "chooseCFDError": "请选择分配",
       "selectBehaviorError": "请选择行为"
     },
     "fa": {
@@ -51,7 +51,7 @@
       "param": "参数",
       "key": "键",
       "value": "值",
-      "distributionId": "Distribution ID",
+      "distributionId": "分配 ID",
       "behaviors": "行为",
       "cfStage": "CloudFront 阶段"
     }
@@ -59,7 +59,7 @@
   "result": {
     "status": "部署状态",
     "notDeployed": "现在正在部署您的扩展程序",
-    "beingDeploy": "扩展正在部署到 CloudFront distribution",
+    "beingDeploy": "扩展正在部署到分配",
     "howToUse": "如何使用扩展",
     "fromHere": "表单部分来自。",
     "helpful": "以下是一些有用的入门资源",

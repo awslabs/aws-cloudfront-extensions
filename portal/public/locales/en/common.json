@@ -83,5 +83,6 @@
   "info": "Info",
   "step": "Step",
   "show": "Show",
-  "hide": "Hide"
+  "hide": "Hide",
+  "noCname": "No CNname"
 }

@@ -14,14 +14,14 @@
     "name": "保存",
     "title": "保存特定配置版本的注释",
     "versionSetting": "版本设置",
-    "note": "注释",
+    "note": "版本说明",
     "betaTesting": "beta testing"
   },
   "list": {
-    "name": "Distribution 列表",
+    "name": "分配列表",
     "id": "ID",
-    "cname": "CNAME",
-    "domain": "域名",
+    "cname": "备用域名",
+    "domain": "分配域名",
     "versionCount": "版本数量",
     "status": "状态",
     "deploying": "部署"
@@ -29,10 +29,10 @@
   "versions": {
     "versionId": "版本 ID",
     "date": "日期",
-    "versionNote": "版本注释"
+    "versionNote": "版本说明"
   },
   "detail": {
-    "title": "Distribution 的详细配置: ",
+    "title": "分配的详细配置: ",
     "withVersion": " 和版本: ",
     "selectVersion": "选择版本"
   }

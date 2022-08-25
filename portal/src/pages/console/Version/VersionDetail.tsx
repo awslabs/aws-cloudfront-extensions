@@ -116,7 +116,10 @@ const VersionDetail: React.FC = () => {
         <TablePanel
           loading={loadingData}
           title={
-            distributionId + "(" + (distributionAliases[0] || "No CName") + ")"
+            distributionId +
+            "(" +
+            (distributionAliases[0] || t("noCname")) +
+            ")"
           }
           selectType={SelectType.CHECKBOX}
           actions={

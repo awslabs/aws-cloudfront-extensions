@@ -3,7 +3,7 @@
   "cloudFront": {
     "alert": "请主动监控功能，在控制面板中获取 CloudFront 分布指标。",
     "monitoring": "监控",
-    "chooseDistribution": "选择一个 CloudFront distribution",
+    "chooseDistribution": "选择一个分配",
     "chart": {
       "request": "请求",
       "requestOrigin": "请求来源",
@@ -21,7 +21,7 @@
     },
     "updateDomainList": "更新域列表",
     "applyConfig": "分发以应用配置",
-    "selectDistribution": "选择 distribution"
+    "selectDistribution": "选择分配"
   },
   "waf": {
     "name": "WAF 监控"

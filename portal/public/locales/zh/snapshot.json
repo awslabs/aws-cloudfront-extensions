@@ -23,21 +23,22 @@
   "list": {
     "title": "Distribution 列表",
     "id": "ID",
-    "cname": "CNAME",
-    "domainName": "Distribution 域名",
+    "cname": "备用域名",
+    "domainName": "分配域名",
     "snapshotCount": "快照数量",
     "status": "状态",
-    "deploying": "部署"
+    "deploying": "部署",
+    "snapshotList": "快照列表"
   },
   "detail": {
-    "cname": "CNAME",
-    "nocname": "没有 CNAME",
+    "cname": "备用域名",
+    "nocname": "没有备用域名",
     "snapshotList": "快照列表",
     "action": {
       "compareCurrent": "与当前配置比较",
       "compare": "比较",
       "updateDesc": "更新描述",
-      "applyOther": "应用于于其他 Distribution",
+      "applyOther": "应用于于其他分配",
       "delete": "删除",
       "deleteTip": "已删除 CloudFront 快照"
     },
@@ -47,8 +48,8 @@
       "desc": "描述"
     },
     "applySetting": "应用设置？",
-    "applyConfig": "Distribution 以应用配置",
-    "selectDistribution": "选择 distribution",
+    "applyConfig": "应用配置",
+    "selectDistribution": "选择分配",
     "confirmToApply": "请输入确认以应用",
     "confirm": "确认",
     "createSnapshot": "创建新的 CloudFront 快照",
@@ -56,7 +57,7 @@
     "snapshotName": "快照名称",
     "desc": "描述"
   },
-  "detailConfig": "Distribution 的详细配置：: ",
+  "detailConfig": "快照的详细配置:",
   "withSnapshot": " 和快照: ",
   "selectSnapshot": "选择快照"
 }

@@ -91,14 +91,7 @@ const VersionDetailDisplay: React.FC = () => {
     <div>
       <Breadcrumb list={BreadCrunbList} />
       <div>
-        <HeaderPanel
-          title={
-            t("version:detail.title") +
-            id +
-            t("version:detail.withVersion") +
-            currentVersion
-          }
-        >
+        <HeaderPanel title={t("version:detail.title") + currentVersion}>
           <div>
             <div className="flex">
               <div className="flex-1">
