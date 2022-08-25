@@ -339,6 +339,7 @@ const SnapshotDetail: React.FC = () => {
                       t("snapshot:detail.action.deleteTip"),
                       "success"
                     );
+                    getSnapshotListByDistribution();
                   }
                   if (item.id === "compareCurrent") {
                     const path =
@@ -533,6 +534,7 @@ const SnapshotDetail: React.FC = () => {
                   t("snapshot:detail.createTips"),
                   "success"
                 );
+                getSnapshotListByDistribution();
                 setSnapshotModal(false);
                 getSnapshotListByDistribution();
               }}
