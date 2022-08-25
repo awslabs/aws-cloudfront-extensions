@@ -3,7 +3,7 @@
 - HTTP方法: `GET`
 
 - 请求
-```http request
+```json
 /ssl_for_saas/cert_list
 ```
 

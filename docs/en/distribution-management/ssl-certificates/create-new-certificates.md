@@ -6,11 +6,11 @@ The solution will create one or multiple certificates in ACM and create the asso
 
 When you start a Create Certificates Job, the solution starts a workflow in AWS Step Functions that does the following:
 
-1. Create certificates in ACM: The solution will automatically create all ACM based on input. After all SSL Certificates were created, the solution will automatically sent SNS message to the designated email address or HTTP endpoint (depending on subscription). After this step, the domain owners are expected to complete DNS validation process. For more information, see [DNS validation process with your DNS Provider](./dns-validation-process.md).
+1. Create certificates in ACM: The solution will automatically create all ACM based on input. After all SSL Certificates were created, the solution will automatically sent SNS message to the designated email address (depending on subscription). After this step, the domain owners are expected to complete DNS validation process. For more information, see [DNS validation process with your DNS Provider](./dns-validation-process.md).
 
 2. Check certificates status in ACM: The solution checks the progress of DNS validation status every 5 minutes. The DNS validation is a manual process, also known as Domain Control Validation. Domain owner needs to manually add a CNAME record for your domain name on the website of your DNS providers. ACM will check the DNS validation status every few minutes. Once done, ACM will issue certificates. 
 
-3. Create new CloudFront distributions: Once all certificates were issued by ACM, the solution will automatically create CloudFront distributions. After all distributions were created, the solution will send an SNS message to the designated email address or HTTP endpoint. After this step, the domain owners are expected to add new CloudFront distribution to map to CNAME. For more information, see [Adding CloudFront record for CNAME with your DNS Provider](./add-record-for-cname.md).
+3. Create new CloudFront distributions: Once all certificates were issued by ACM, the solution will automatically create CloudFront distributions. After all distributions were created, the solution will send an SNS message to the designated email address. After this step, the domain owners are expected to add new CloudFront distribution to map to CNAME. For more information, see [Adding CloudFront record for CNAME with your DNS Provider](./add-record-for-cname.md).
 
 ![certificate-workflow](../../../images/certificate-workflow.png)
 

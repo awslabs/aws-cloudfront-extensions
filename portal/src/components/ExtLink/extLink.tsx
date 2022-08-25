@@ -23,7 +23,7 @@ const extLink: React.FC<ExtLinkProps> = (props: ExtLinkProps) => {
     <a
       target="_blank"
       className="gsui-extlink"
-      href={`//${to}`}
+      href="https://awslabs.github.io/aws-cloudfront-extensions/"
       rel="noreferrer"
     >
       {children}

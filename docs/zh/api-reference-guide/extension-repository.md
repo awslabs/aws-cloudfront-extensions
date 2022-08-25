@@ -15,20 +15,20 @@
 
 - 请求参数
 
-  url_list: The list of urls for prewarm.
-  cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
-  region: The region for prewarm. You can specify 3 types of value.
+    - url_list： 预热的url列表
+    - cf_domain： 以[cloudfront.net](http://cloudfront.net/)结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain
+    - region： 预热区域。您可以指定3种类型的值
 
-  * all: prewarm in all regions
-  * pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list
-  * region code: pre-warm in a specific region, the available regions are:
-    * apac: Asia-Pacific
-    * au: Australia
-    * ca: Canada
-    * sa: South Africa
-    * eu: Europe
-    * jp: Japan
-    * us: United States
+      * all： 在所有区域进行预热
+      * pop id列表，例如["ATL56-C1", "DFW55-C3"]: 在列表中指定的边缘节点进行预热
+      * 区域代码: 在特定区域进行预热，可用区域为：
+        * apac： Asia-Pacific
+        * au： Australia
+        * ca： Canada
+        * sa： South Africa
+        * eu： Europe
+        * jp： Japan
+        * us： United States
 
 - 响应
 
@@ -71,18 +71,18 @@
 ```
 - 响应参数
 
-  `status`: the overall prewarm status
+  `status`：整体预热状态
 
-  `total`: total url count to pre-warm
+  `total`： 预热的URL总数
 
-  `completed`: the count of urls which are prewarmed
+  `completed`：已预热的URL的计数
 
-  `inProgress`: the count of urls which are being prewarmed
+  `inProgress`：正在预热的URL的计数
 
-  `failedUrl`: the list of urls which are failed to prewarm
+  `failedUrl`： 未能预热的URL列表
 
-  `inProgressUrl`: the list of urls which are being prewarmed
+  `inProgressUrl`：正在预热的URL列表
 
-  `successUrl`: the list of urls which are successfully prewarmed
+  `successUrl`：已成功预热的URL列表
 
 

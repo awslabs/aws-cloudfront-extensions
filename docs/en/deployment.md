@@ -14,7 +14,7 @@ Before you launch the solution, review the architecture, supported regions, and 
       [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json)
 
 
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
+2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar. See [region list](./regions.md) for all the supported regions. 
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
 
@@ -43,8 +43,8 @@ You can view the status of the stack in the CloudFormation Console in the Status
 
 To see details for the stack resources, choose the **Outputs** tab.
 
-- You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. 
-- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
+- You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. The API keys of snapshot and SSL certificates can be found in **Outputs** tab, For testing your API with API key, see [test usage plans](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-rest-api.html#api-gateway-usage-plan-test-with-postman).
+- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API and API key in the **Outputs** tab of the nested stack.
 
 The CloudFormation stack deploys below modules:
 

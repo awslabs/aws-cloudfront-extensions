@@ -42,7 +42,8 @@ If you want to update the email, you need to update the email parameter in the C
 4. Find out the hosted zone ID from the aws console under Route53/YOUR_DOMAIN_NAME/Hosted zone details tab.
 5. Open the file and update the data based on your email, for example:
 
-   ```python
+
+``` python
      
    import boto3
    
@@ -78,7 +79,8 @@ If you want to update the email, you need to update the email parameter in the C
        for i, val in enumerate(cnameList):
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
-   ```
+```
+
 6. Run your script by `python route53Cert.py`. it will be success add record to your domain if there is no error output.
 
 ## Adding CNAMEs record for DCV validation in GoDaddy
@@ -101,7 +103,8 @@ If you want to update the email, you need to update the email parameter in the C
 4. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
 5. Modify the godaddyCert.py with your api key, secret and the cname data:
 
-```python
+
+``` python
    #!/usr/bin/env python
    from godaddypy import Client, Account
    

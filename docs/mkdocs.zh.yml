@@ -38,6 +38,7 @@ nav:
       - 概述: extension-repository/overview.md
       - 客户端IP透传: extension-repository/true-client-ip.md
       - 预热: extension-repository/pre-warming.md
+      - 图片缩放: extension-repository/resize-image.md
       - 根据地理位置跳转: extension-repository/redirect-by-country.md
       - 获取更多扩展: extension-repository/more-extension-in-sar.md 
   - API参考指南: 

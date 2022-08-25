@@ -30,11 +30,11 @@ You can also perform the following operations on snapshots via API:
 
 
 ### What does Snapshot saved?
-Snapshot saves Cloudfront configuration as a configuration file, you can get the same cloudfront configuration through CLI: [get-distribution-config](https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html). Our solution will save the configuration file in S3 and url in DynamoDB. You can use [list_snapshots api](api-reference-guide/snapshot/list_snapshots.md) to list all snapshots of one distribution. 
+Snapshot saves Cloudfront configuration as a configuration file, you can get the same cloudfront configuration through CLI: [get-distribution-config](https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html). Our solution will save the configuration file in S3 and url in DynamoDB. You can use [list_snapshots api](../../api-reference-guide/snapshot/list_snapshots.md) to list all snapshots of one distribution. 
  
 
 ### How long will Snapshot been saved?
-The snapshot will be saved in S3 bucket and will not automatically been deleted. The snapshot can only be deleted in Web Console or through [delete_snapshot api](api-reference-guide/snapshot/delete_snapshot.md).
+The snapshot will be saved in S3 bucket and will not automatically been deleted. The snapshot can only be deleted in Web Console or through [delete_snapshot api](../../api-reference-guide/snapshot/delete_snapshot.md).
 
 ### How much will Snapshot cost?
 Cloudfront configuration file is in JSON format and is around 3KB. Refer to [Cost](cost.md) for more details.

@@ -7,7 +7,7 @@
 启动导入证书作业时，解决方案将在AWS Step Functions中启动工作流，该工作流执行以下操作：
 
 1. 在ACM中导入证书：解决方案将自动导入ACM中的证书记录。
-2. 创建新的CloudFront分配：解决方案将自动创建CloudFront分配。创建所有CloudFront分配后，解决方案将向指定的电子邮件地址或HTTP端点发送SNS消息。
+2. 创建新的CloudFront分配：解决方案将自动创建CloudFront分配。创建所有CloudFront分配后，解决方案将向指定的电子邮件地址发送SNS消息。
 
 
 ![certificate-workflow1](../../../images/certificate-workflow1.png)

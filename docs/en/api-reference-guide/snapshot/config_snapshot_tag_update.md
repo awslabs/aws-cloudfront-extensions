@@ -3,7 +3,8 @@
 - HTTP request method: `POST`
 
 - Request
-```http request
+
+```json
 /snapshot/config_snapshot_tag_update?distribution_id=E3K4JDLORL0EUD&snapshot_name=snapshot1&note=测试版本snapshot
 ```
 
@@ -14,6 +15,7 @@
 
 
 - Response
+
 ```json
 {
   "Attributes": {

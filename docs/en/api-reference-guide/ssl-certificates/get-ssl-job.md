@@ -3,15 +3,18 @@
 - HTTP request method: `GET`
 
 - Request
-```http request
+
+```json
 /ssl_for_saas/get_ssl_job?jobId=f48db3b2-90e4-43b2-a46d-bd0e8530bc42
 ```
 
 - Request body parameters
+
   - jobId: String
 
 
 - Response
+
 ```json
 {
   "distList": [],

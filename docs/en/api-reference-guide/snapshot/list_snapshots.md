@@ -3,7 +3,8 @@
 - HTTP request method: `POST`
 
 - Request
-```http request
+
+```json
 /snapshot/list_snapshots?distributionId=E20GR9AX7K798K
 ```
 
@@ -12,6 +13,7 @@
 
 
 - Response
+
 ```json
 [
   {
