@@ -113,7 +113,7 @@ const CloudFront: React.FC = () => {
       for (const cfdistlistKey in Cloudfront_info_list) {
         const cname =
           Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
-            ? " | www.google.com"
+            ? ""
             : " | " + Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
         if (
           domainList.includes(Cloudfront_info_list[cfdistlistKey].domainName) ||
