@@ -1,4 +1,5 @@
 import RefreshIcon from "@material-ui/icons/Refresh";
+import { LinearProgress } from "@material-ui/core";
 import { appSyncRequestMutation, appSyncRequestQuery } from "assets/js/request";
 import { AmplifyConfigType } from "assets/js/type";
 import Alert from "components/Alert";
@@ -43,6 +44,7 @@ const CloudFront: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectDomain, setSelectDomain] = useState("");
+  const [showProgress, setShowProgress] = useState(false);
 
   const [cdnRequestData, setCdnRequestData] = useState([
     { Time: "", Value: null },
@@ -111,7 +113,7 @@ const CloudFront: React.FC = () => {
       for (const cfdistlistKey in Cloudfront_info_list) {
         const cname =
           Cloudfront_info_list[cfdistlistKey].aliases.Quantity === 0
-            ? ""
+            ? " | www.google.com"
             : " | " + Cloudfront_info_list[cfdistlistKey].aliases.Items[0];
         if (
           domainList.includes(Cloudfront_info_list[cfdistlistKey].domainName) ||
@@ -148,6 +150,7 @@ const CloudFront: React.FC = () => {
 
   const getChartData = async () => {
     if (selectDomain) {
+      setShowProgress(true);
       const timeStamp = new Date().getTime();
       const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=all&Domain=${selectDomain}&timestamp=${timeStamp}`;
       try {
@@ -190,8 +193,10 @@ const CloudFront: React.FC = () => {
             }
           }
         );
+        setShowProgress(false);
       } catch (error) {
         console.error(error);
+        setShowProgress(false);
       }
     }
   };
@@ -466,6 +471,7 @@ const CloudFront: React.FC = () => {
       {amplifyConfig.aws_monitoring_url === "" && (
         <Alert type={AlertType.Error} content={t("monitor:cloudfront.alert")} />
       )}
+      {showProgress && <LinearProgress />}
       <HeaderPanel
         title={t("monitor:cloudFront.monitoring")}
         action={
