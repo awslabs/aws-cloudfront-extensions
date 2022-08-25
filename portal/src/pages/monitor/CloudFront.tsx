@@ -171,7 +171,7 @@ const CloudFront: React.FC = () => {
               setCdnStatusCodeOriginData(item.DetailData);
             } else if (item.Metric === "chr") {
               setCdnChrData(item.DetailData);
-            } else if (item.Metric === "chrBandWith") {
+            } else if (item.Metric === "chrBandWidth") {
               setCdnChrBandWidthData(item.DetailData);
             } else if (item.Metric === "bandwidth") {
               setCdnBandWidthData(item.DetailData);
@@ -199,9 +199,9 @@ const CloudFront: React.FC = () => {
   useEffect(() => {
     getCloudfrontDistributionList();
     setStartDate(
-      encodeURI(moment().add(-12, "hours").format("YYYY-MM-DD HH:mm:ss"))
+      encodeURI(moment().utc().add(-12, "hours").format("YYYY-MM-DD HH:mm:ss"))
     );
-    setEndDate(encodeURI(moment(new Date()).format("YYYY-MM-DD HH:mm:ss")));
+    setEndDate(encodeURI(moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")));
   }, []);
 
   const getCdnStatusCode = () => {
@@ -511,10 +511,14 @@ const CloudFront: React.FC = () => {
               onChange={(range) => {
                 if (range !== null) {
                   setStartDate(
-                    encodeURI(moment(range[0]).format("YYYY-MM-DD HH:mm:ss"))
+                    encodeURI(
+                      moment.utc(range[0]).format("YYYY-MM-DD HH:mm:ss")
+                    )
                   );
                   setEndDate(
-                    encodeURI(moment(range[1]).format("YYYY-MM-DD HH:mm:ss"))
+                    encodeURI(
+                      moment.utc(range[1]).format("YYYY-MM-DD HH:mm:ss")
+                    )
                   );
                   getChartData();
                 }
@@ -914,156 +918,162 @@ const CloudFront: React.FC = () => {
               width="90%"
             />
           </div>
-          <div className="chart-item">
-            <Chart
-              options={{
-                xaxis: {
-                  categories: cdnDownloadSpeedData.map(
-                    (element) => element.Time
-                  ),
-                  labels: {
-                    show: false,
-                  },
-                },
-                title: {
-                  text: t("monitor:cloudFront.chart.downloadSpeed"),
-                },
-                chart: {
-                  height: 450,
-                  type: "line",
-                  zoom: {
-                    enabled: false,
-                  },
-                  animations: {
-                    enabled: false,
-                  },
-                  toolbar: {
-                    show: false,
-                    tools: {
-                      download: false,
+          {amplifyConfig.aws_monitoring_stack_name ===
+            "RealtimeMonitoringStack" && (
+            <div className="chart-item">
+              <Chart
+                options={{
+                  xaxis: {
+                    categories: cdnDownloadSpeedData.map(
+                      (element) => element.Time
+                    ),
+                    labels: {
+                      show: false,
                     },
                   },
-                },
-                dataLabels: {
-                  enabled: false,
-                },
-                stroke: {
-                  width: 2,
-                  curve: "smooth",
-                },
-                tooltip: {
-                  custom: function ({ dataPointIndex }) {
-                    return (
-                      "<table>" +
-                      "<tr><td>4M</td><td>" +
-                      speedCategory[dataPointIndex]["4M"] +
-                      "</td></tr>" +
-                      "<tr><td>3M</td><td>" +
-                      speedCategory[dataPointIndex]["3M"] +
-                      "</td></tr>" +
-                      "<tr><td>2M</td><td>" +
-                      speedCategory[dataPointIndex]["2M"] +
-                      "</td></tr>" +
-                      "<tr><td>1M</td><td>" +
-                      speedCategory[dataPointIndex]["1M"] +
-                      "</td></tr>" +
-                      "<tr><td>750K</td><td>" +
-                      speedCategory[dataPointIndex]["750K"] +
-                      "</td></tr>" +
-                      "<tr><td>500K</td><td>" +
-                      speedCategory[dataPointIndex]["500K"] +
-                      "</td></tr>" +
-                      "<tr><td>250K</td><td>" +
-                      speedCategory[dataPointIndex]["250K"] +
-                      "</td></tr>" +
-                      "<tr><td>Other</td><td>" +
-                      speedCategory[dataPointIndex]["Other"] +
-                      "</td></tr>" +
-                      "</table>"
-                    );
+                  title: {
+                    text: t("monitor:cloudFront.chart.downloadSpeed"),
                   },
-                },
-              }}
-              series={getCdnDownloadSpeedData()}
-              type="line"
-              width="90%"
-            />
-          </div>
-          <div className="chart-item">
-            <Chart
-              options={{
-                xaxis: {
-                  categories: cdnDownloadSpeedOriginData.map(
-                    (element) => element.Time
-                  ),
-                  labels: {
-                    show: false,
-                  },
-                },
-                title: {
-                  text: t("monitor:cloudFront.chart.downloadSpeedOrigin"),
-                },
-                chart: {
-                  height: 450,
-                  type: "line",
-                  zoom: {
-                    enabled: false,
-                  },
-                  animations: {
-                    enabled: false,
-                  },
-                  toolbar: {
-                    show: false,
-                    tools: {
-                      download: false,
+                  chart: {
+                    height: 450,
+                    type: "line",
+                    zoom: {
+                      enabled: false,
+                    },
+                    animations: {
+                      enabled: false,
+                    },
+                    toolbar: {
+                      show: false,
+                      tools: {
+                        download: false,
+                      },
                     },
                   },
-                },
-                dataLabels: {
-                  enabled: false,
-                },
-                stroke: {
-                  width: 2,
-                  curve: "smooth",
-                },
-                tooltip: {
-                  custom: function ({ dataPointIndex }) {
-                    return (
-                      "<table>" +
-                      "<tr><td>4M</td><td>" +
-                      speedCategory[dataPointIndex]["4M"] +
-                      "</td></tr>" +
-                      "<tr><td>3M</td><td>" +
-                      speedCategory[dataPointIndex]["3M"] +
-                      "</td></tr>" +
-                      "<tr><td>2M</td><td>" +
-                      speedCategory[dataPointIndex]["2M"] +
-                      "</td></tr>" +
-                      "<tr><td>1M</td><td>" +
-                      speedCategory[dataPointIndex]["1M"] +
-                      "</td></tr>" +
-                      "<tr><td>750K</td><td>" +
-                      speedCategory[dataPointIndex]["750K"] +
-                      "</td></tr>" +
-                      "<tr><td>500K</td><td>" +
-                      speedCategory[dataPointIndex]["500K"] +
-                      "</td></tr>" +
-                      "<tr><td>250K</td><td>" +
-                      speedCategory[dataPointIndex]["250K"] +
-                      "</td></tr>" +
-                      "<tr><td>Other</td><td>" +
-                      speedCategory[dataPointIndex]["Other"] +
-                      "</td></tr>" +
-                      "</table>"
-                    );
+                  dataLabels: {
+                    enabled: false,
                   },
-                },
-              }}
-              series={getCdnDownloadSpeedOriginData()}
-              type="line"
-              width="90%"
-            />
-          </div>
+                  stroke: {
+                    width: 2,
+                    curve: "smooth",
+                  },
+                  tooltip: {
+                    custom: function ({ dataPointIndex }) {
+                      return (
+                        "<table>" +
+                        "<tr><td>4M</td><td>" +
+                        speedCategory[dataPointIndex]["4M"] +
+                        "</td></tr>" +
+                        "<tr><td>3M</td><td>" +
+                        speedCategory[dataPointIndex]["3M"] +
+                        "</td></tr>" +
+                        "<tr><td>2M</td><td>" +
+                        speedCategory[dataPointIndex]["2M"] +
+                        "</td></tr>" +
+                        "<tr><td>1M</td><td>" +
+                        speedCategory[dataPointIndex]["1M"] +
+                        "</td></tr>" +
+                        "<tr><td>750K</td><td>" +
+                        speedCategory[dataPointIndex]["750K"] +
+                        "</td></tr>" +
+                        "<tr><td>500K</td><td>" +
+                        speedCategory[dataPointIndex]["500K"] +
+                        "</td></tr>" +
+                        "<tr><td>250K</td><td>" +
+                        speedCategory[dataPointIndex]["250K"] +
+                        "</td></tr>" +
+                        "<tr><td>Other</td><td>" +
+                        speedCategory[dataPointIndex]["Other"] +
+                        "</td></tr>" +
+                        "</table>"
+                      );
+                    },
+                  },
+                }}
+                series={getCdnDownloadSpeedData()}
+                type="line"
+                width="90%"
+              />
+            </div>
+          )}
+          {amplifyConfig.aws_monitoring_stack_name ===
+            "RealtimeMonitoringStack" && (
+            <div className="chart-item">
+              <Chart
+                options={{
+                  xaxis: {
+                    categories: cdnDownloadSpeedOriginData.map(
+                      (element) => element.Time
+                    ),
+                    labels: {
+                      show: false,
+                    },
+                  },
+                  title: {
+                    text: t("monitor:cloudFront.chart.downloadSpeedOrigin"),
+                  },
+                  chart: {
+                    height: 450,
+                    type: "line",
+                    zoom: {
+                      enabled: false,
+                    },
+                    animations: {
+                      enabled: false,
+                    },
+                    toolbar: {
+                      show: false,
+                      tools: {
+                        download: false,
+                      },
+                    },
+                  },
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  stroke: {
+                    width: 2,
+                    curve: "smooth",
+                  },
+                  tooltip: {
+                    custom: function ({ dataPointIndex }) {
+                      return (
+                        "<table>" +
+                        "<tr><td>4M</td><td>" +
+                        speedCategory[dataPointIndex]["4M"] +
+                        "</td></tr>" +
+                        "<tr><td>3M</td><td>" +
+                        speedCategory[dataPointIndex]["3M"] +
+                        "</td></tr>" +
+                        "<tr><td>2M</td><td>" +
+                        speedCategory[dataPointIndex]["2M"] +
+                        "</td></tr>" +
+                        "<tr><td>1M</td><td>" +
+                        speedCategory[dataPointIndex]["1M"] +
+                        "</td></tr>" +
+                        "<tr><td>750K</td><td>" +
+                        speedCategory[dataPointIndex]["750K"] +
+                        "</td></tr>" +
+                        "<tr><td>500K</td><td>" +
+                        speedCategory[dataPointIndex]["500K"] +
+                        "</td></tr>" +
+                        "<tr><td>250K</td><td>" +
+                        speedCategory[dataPointIndex]["250K"] +
+                        "</td></tr>" +
+                        "<tr><td>Other</td><td>" +
+                        speedCategory[dataPointIndex]["Other"] +
+                        "</td></tr>" +
+                        "</table>"
+                      );
+                    },
+                  },
+                }}
+                series={getCdnDownloadSpeedOriginData()}
+                type="line"
+                width="90%"
+              />
+            </div>
+          )}
           <div className="chart-item">
             <Chart
               options={{
