@@ -5,14 +5,7 @@
 您将收到一封电子邮件，其中包含DNS验证所需的信息。以下是SNS通知的示例：
 
 ```
-
-        CNAME value need to add into DNS hostzone to finish DCV: [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-
-        Sample Script for Route53 (Python): https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806
-
-        Sample Script for Godaddy (Python): https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93
-
-
+CNAME value need to add into DNS hostzone to finish DCV: [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
 ```
 
 如果您不知道电子邮件发送到哪里，您可以在部署本解决方案的CloudFormation堆栈中找到它。
@@ -29,7 +22,6 @@
    - 要将互联网流量路由到您的资源，如Amazon S3存储桶或Amazon EC2实例，请参阅[创建公共托管区域](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html)。
    - 要在VPC中路由流量，请参阅[创建专用托管区域](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zone-private-creating.html)。
 
-
 4. 在**托管区域**页面上，选择要在其中创建记录的托管区域的名称。
 5. 选择**创建记录**。
 6. 在类型为CNAME的创建记录表单中输入名称和值。
@@ -37,10 +29,8 @@
 ### 通过脚本添加DCV验证
 
 1. 准备python环境: [安装python3](https://www.python.org/downloads/)。
-2. 下载python脚本 [url](https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806) ，然后保存到 `route53Cert.py`。
-3. 安装python脚本所需要的相关以来，可以参考[这里](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html)。
-4. 在Route53/YOUR_DOMAIN_NAME/Hosted zone details tab下找出hosted zone ID。
-5. 打开python脚本，并根据收到的email中的信息更新脚本参数, 可以参考下面的例子:
+2. 在Route53/YOUR_DOMAIN_NAME/Hosted zone details tab下找出hosted zone ID。
+3. 复制以下脚本的内容 ，然后保存到 `route53Cert.py`。 打开python脚本，并根据收到的email中的信息更新脚本参数, 可以参考下面的例子:
 
    ```python
      
@@ -79,7 +69,9 @@
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
    ```
-6. 在terminal中运行命令 `python route53Cert.py`，没有任何错误信息后，脚本成功运行。
+   
+4. 安装python脚本所需要的相关依赖，可以参考[这里](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html)。
+5. 在terminal中运行命令 `python route53Cert.py`，没有任何错误信息后，脚本成功运行。
 
 ## 在GoDaddy中添加用于DCV验证的CNAME记录
 
@@ -97,10 +89,8 @@
 ### 通过脚本添加DCV验证
 
 1. 准备python环境: [安装python3](https://www.python.org/downloads/)。
-2. 下载python脚本 [url](https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93) ，然后保存到 `goDaddyCert.py`。
-3. 安装python脚本所需要的相关以来，可以参考[这里](https://pypi.org/project/GoDaddyPy/)。
-4. 从[goDaddy Console](https://developer.godaddy.com/keys) 找出api Key 和 Secret。
-5. 更新`godaddyCert.py` 中的api key、secret、cname部分，示例如下:
+2. 从[goDaddy Console](https://developer.godaddy.com/keys) 找出api Key 和 Secret。
+3. 复制以下脚本的内容，然后保存到 `goDaddyCert.py`。更新`godaddyCert.py`中的api key、secret、cname部分，示例如下:
 
 ```python
    #!/usr/bin/env python
@@ -125,6 +115,7 @@
            add_cname_record(val['Name'], val['Value'], domain)
 ```
 
+4. 安装python脚本所需要的相关依赖，可以参考[这里](https://pypi.org/project/GoDaddyPy/)。
 6. 在terminal中运行命令 `python goDaddyCert.py`，没有任何错误信息后，脚本成功运行。
 
 

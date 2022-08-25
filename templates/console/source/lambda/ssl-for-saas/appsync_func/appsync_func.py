@@ -65,13 +65,10 @@ def notify_sns_subscriber(sns_msg):
 
 def generate_notify_content(sns_msg):
     # make it a code url due to sns raw format, TBD make it a official repo url
-    sample_route53_code = 'https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806'
-    sample_godaddy_code = 'https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93'
     message_to_be_published = '''
-           CNAME value need to add into DNS hostzone to finish DCV: {} \n
-           Sample Script for Route53 (Python): {} \n
-           Sample Script for Godaddy (Python): {}
-       '''.format(str(sns_msg), sample_route53_code, sample_godaddy_code)
+           CNAME value need to add into DNS hostzone to finish DCV: {} \n           
+           Sample script for different dns providers can be found in this document: https://awslabs.github.io/aws-cloudfront-extensions/en/distribution-management/ssl-certificates/dns-validation-process/
+       '''.format(str(sns_msg))
     return message_to_be_published
 
 
