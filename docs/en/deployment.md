@@ -18,18 +18,18 @@ Before you launch the solution, review the architecture, supported regions, and 
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
 
-      | Parameter             | Default value | Description                                                                                                                                 |
+      | Parameter              | Default value | Description                                                                                                                                 |
       |-----------|---------------------------------------------------------------------------------------------------------------------------------------------|---------|
-      | EmailAddress          | - | Email address to receive SSL certificates notification.                                                                                     |
-      | InitialUserEmail              | - | The initial user email for the web console.                                                                                                 |
-      | InitialUserName  | - | The initial username for the web console.                                                                                                   |
-      | InitialUserPassword | - | The Initial Password for the web console.                                                                                             |
-      | Monitoring            | no | You can set it to `yes-Realtime` to get monitoring metrics from realtime loge, or set it to` yes-Non-Realtime` to get monitoring metrics from standard log. By default, it is `no`, which means it will not deploy monitoring feature. See [Monitoring](./monitoring/overview.md) for more information.                                 |
-      | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
-      | DeleteLog             | false | You can set it to `true` to delete original CloudFront standard logs in S3 bucket. By default, it is `false`..                                                                      |
-      | UseStartTime          | false | You can set it to `true` if the Time in metric data is based on start time, or set it to `false` if the Time in metric data is based on end time.          |
-  
+      | Initial User Email     | - | The initial user email for the web console.                                                                                                 |
+      | Initial User Name      | - | The initial username for the web console.                                                                                                   |
+      | Initial User Password  | - | The Initial Password for the web console.                                                                                             |
+      | Notification Email     | - | Email address to receive SSL certificates notification.                                                                                     |
+      | CloudFront Log Type    | no | You can set it to `yes-Realtime` to get monitoring metrics from realtime loge, or set it to` yes-Non-Realtime` to get monitoring metrics from standard log. By default, it is `no`, which means it will not deploy monitoring feature. See [Monitoring](./monitoring/overview.md) for more information.                                 |
+      | CloudFront Domain List | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
+      | Log Keeping Days       | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
+      | Delete Log             | false | You can set it to `true` to delete original CloudFront standard logs in S3 bucket. By default, it is `false`. This only applies to non-realtime monitoring |
+      | Use Start Time         | false | You can set it to `true` if the Time in metric data is based on start time, or set it to `false` if the Time in metric data is based on end time. This only applies to non-realtime monitoring |
+
 
 4. Choose **Next**.
 5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
