@@ -68,7 +68,9 @@
     "ok": "好的",
     "updateVersionNote": "更新版本说明",
     "details": "详情",
-    "compare": "比较"
+    "compare": "比较",
+    "versionWithNote": "带有说明的版本",
+    "allVersion": "所有版本"
   },
   "status": {
     "error": "错误"

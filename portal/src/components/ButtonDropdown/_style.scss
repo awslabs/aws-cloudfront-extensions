@@ -21,6 +21,7 @@
     // box-shadow: 1px 1px 1px #888;
     text-align: left;
     .menu-item {
+      font-weight: bold;
       cursor: pointer;
       border-bottom: 1px solid #ccc;
       padding: 8px 12px;
@@ -34,6 +35,7 @@
         }
       }
       &.disabled {
+        font-weight: normal;
         color: #999;
         cursor: default;
         &:hover {
