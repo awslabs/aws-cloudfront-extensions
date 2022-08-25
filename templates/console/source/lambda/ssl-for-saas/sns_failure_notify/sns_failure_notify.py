@@ -127,10 +127,17 @@ def lambda_handler(event, context):
 
     job_token = event['input']['aws_request_id']
     logger.error("Exception occurred, just update the ddb table")
-    update_job_field(JOB_INFO_TABLE_NAME,
-                     job_token,
-                     'distStageStatus',
-                     'FAILED')
+    resp = get_job_info(JOB_INFO_TABLE_NAME,job_token)
+    if 'Items' in resp:
+        ddb_record = resp['Items'][0]
+        distStageStatus = ddb_record['distStageStatus']
+        if distStageStatus == 'INPROGRESS':
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             job_token,
+                             'distStageStatus',
+                             'FAILED')
+    else:
+        logger.error(f"failed to get the job info of job_id:{job_token} ")
 
     cause = event['input']['error']['Cause']
     if cause == "":

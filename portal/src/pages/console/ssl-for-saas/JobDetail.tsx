@@ -221,9 +221,7 @@ const JobDetail: React.FC = () => {
               <ValueWithLabel label={t("ssl:jobDetail.curExpCert")}>
                 <div className="flex">
                   <div className="job-status-number">
-                    {jobInfo.cert_completed_number +
-                      "/" +
-                      jobInfo.cert_total_number}
+                    {certArnList.length + "/" + jobInfo.cert_total_number}
                   </div>
                   <div className="flex-1">
                     <Button
