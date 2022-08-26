@@ -854,6 +854,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../extension-repository/resize-image/" class="md-nav__link">
+        图片缩放
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../extension-repository/redirect-by-country/" class="md-nav__link">
         根据地理位置跳转
       </a>
@@ -1171,9 +1185,9 @@
 <h3 id="_4">快照是如何工作的？</h3>
 <p>创建快照时，本解决方案会自动将指定CloudFront分配的配置导出并存储成S3桶中的文件，并将此配置文件和快照名称的映射等信息存储在DynamoDB表中。</p>
 <h3 id="_5">快照保存了什么？</h3>
-<p>Snapshot将Cloudfront配置保存为一个配置文件，您可以通过<a href="https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html">get-distribution-config</a>获取到同样的配置。我们的解决方案将配置文件保存在S3中，url保存在DynamoDB中。您可以通过调用<a href="api-reference-guide/snapshot/list_snapshots.md">list_snapshots api</a>获取指定分配的所有快照。</p>
+<p>Snapshot将Cloudfront配置保存为一个配置文件，您可以通过<a href="https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html">get-distribution-config</a>获取到同样的配置。我们的解决方案将配置文件保存在S3中，url保存在DynamoDB中。您可以通过调用<a href="../../../api-reference-guide/snapshot/list_snapshots/">list_snapshots api</a>获取指定分配的所有快照。</p>
 <h3 id="_6">快照将保存多长时间？</h3>
-<p>快照将保存在S3存储桶中，不会自动删除。您可以在Web控制台或通过<a href="api-reference-guide/snapshot/delete_snapshot.md">delete_snapshot api</a>删除快照。</p>
+<p>快照将保存在S3存储桶中，不会自动删除。您可以在Web控制台或通过<a href="../../../api-reference-guide/snapshot/delete_snapshot/">delete_snapshot api</a>删除快照。</p>
 <h3 id="_7">快照价格是多少？</h3>
 <p>Cloudfront配置文件是JSON格式，大约3KB。请参考<a href="cost.md">Cost</a>获取更多信息。</p>
 

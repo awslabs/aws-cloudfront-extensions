@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cloudfront-extensions-console" class="md-skip">
+        <a href="#deploy-the-web-console" class="md-skip">
           Skip to content
         </a>
       
@@ -338,11 +338,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cloudfront-extensions-console" class="md-nav__link">
-    CloudFront Extensions Console
+  <a href="#deploy-the-web-console" class="md-nav__link">
+    Deploy the Web Console
   </a>
   
-    <nav class="md-nav" aria-label="CloudFront Extensions Console">
+    <nav class="md-nav" aria-label="Deploy the Web Console">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -365,11 +365,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lambdaedge-cloudfront-functions-collection" class="md-nav__link">
-    Lambda@Edge &amp; CloudFront Functions collection
+  <a href="#deploy-lambdaedge-cloudfront-functions-collection" class="md-nav__link">
+    Deploy Lambda@Edge &amp; CloudFront Functions collection
   </a>
   
-    <nav class="md-nav" aria-label="Lambda@Edge &amp; CloudFront Functions collection">
+    <nav class="md-nav" aria-label="Deploy Lambda@Edge &amp; CloudFront Functions collection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -496,7 +496,7 @@
   
     <li class="md-nav__item">
       <a href="../monitoring/metrics-dashboard/" class="md-nav__link">
-        Metrics Dashboard
+        Metrics dashboard
       </a>
     </li>
   
@@ -867,6 +867,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../extension-repository/resize-image/" class="md-nav__link">
+        Resize Image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../extension-repository/redirect-by-country/" class="md-nav__link">
         Redirect by Country
       </a>
@@ -958,7 +972,7 @@
   
     <li class="md-nav__item">
       <a href="../api-reference-guide/extension-repository/" class="md-nav__link">
-        Extension repository
+        Extensions repository
       </a>
     </li>
   
@@ -972,7 +986,7 @@
   
     <li class="md-nav__item">
       <a href="../api-reference-guide/distribution-management/" class="md-nav__link">
-        Distribution Management
+        Distribution management
       </a>
     </li>
   
@@ -1085,11 +1099,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cloudfront-extensions-console" class="md-nav__link">
-    CloudFront Extensions Console
+  <a href="#deploy-the-web-console" class="md-nav__link">
+    Deploy the Web Console
   </a>
   
-    <nav class="md-nav" aria-label="CloudFront Extensions Console">
+    <nav class="md-nav" aria-label="Deploy the Web Console">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1112,11 +1126,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lambdaedge-cloudfront-functions-collection" class="md-nav__link">
-    Lambda@Edge &amp; CloudFront Functions collection
+  <a href="#deploy-lambdaedge-cloudfront-functions-collection" class="md-nav__link">
+    Deploy Lambda@Edge &amp; CloudFront Functions collection
   </a>
   
-    <nav class="md-nav" aria-label="Lambda@Edge &amp; CloudFront Functions collection">
+    <nav class="md-nav" aria-label="Deploy Lambda@Edge &amp; CloudFront Functions collection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1178,8 +1192,8 @@
 
   <h1>Deploy the solution</h1>
 
-<p>Before you launch the solution, review the architecture, supported regions, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.</p>
-<h2 id="cloudfront-extensions-console">CloudFront Extensions Console</h2>
+<p>Before you launch the solution, review the architecture, <a href="../regions/">supported regions</a>, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.</p>
+<h2 id="deploy-the-web-console">Deploy the Web Console</h2>
 <p><strong>Time to deploy</strong>: Approximately 15 minutes</p>
 <h3 id="deployment-steps">Deployment steps</h3>
 <ol>
@@ -1188,7 +1202,7 @@
 <p><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></p>
 </li>
 <li>
-<p>The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.</p>
+<p>The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar. See <a href="../regions/">regional deployment</a> for all the supported regions. </p>
 </li>
 <li>
 <p>Under Parameters, review the parameters for the template, and modify them as necessary.</p>
@@ -1202,49 +1216,49 @@
 </thead>
 <tbody>
 <tr>
-<td>EmailAddress</td>
-<td>-</td>
-<td>Email address to receive SSL certificates notification.</td>
-</tr>
-<tr>
-<td>InitialUserEmail</td>
+<td>Initial User Email</td>
 <td>-</td>
 <td>The initial user email for the web console.</td>
 </tr>
 <tr>
-<td>InitialUserName</td>
+<td>Initial User Name</td>
 <td>-</td>
 <td>The initial username for the web console.</td>
 </tr>
 <tr>
-<td>InitialUserPassword</td>
+<td>Initial User Password</td>
 <td>-</td>
 <td>The Initial Password for the web console.</td>
 </tr>
 <tr>
-<td>Monitoring</td>
+<td>Notification Email</td>
+<td>-</td>
+<td>Email address to receive SSL certificates notification.</td>
+</tr>
+<tr>
+<td>CloudFront Log Type</td>
 <td>no</td>
 <td>You can set it to <code>yes-Realtime</code> to get monitoring metrics from realtime loge, or set it to<code>yes-Non-Realtime</code> to get monitoring metrics from standard log. By default, it is <code>no</code>, which means it will not deploy monitoring feature. See <a href="../monitoring/overview/">Monitoring</a> for more information.</td>
 </tr>
 <tr>
-<td>CloudFrontDomainList</td>
+<td>CloudFront Domain List</td>
 <td>-</td>
 <td>The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account</td>
 </tr>
 <tr>
-<td>CloudFrontLogKeepDays</td>
+<td>Log Keeping Days</td>
 <td>120</td>
 <td>The number of days to keep CloudFront logs in the S3 bucket.</td>
 </tr>
 <tr>
-<td>DeleteLog</td>
+<td>Delete Log</td>
 <td>false</td>
-<td>You can set it to <code>true</code> to delete original CloudFront standard logs in S3 bucket. By default, it is <code>false</code>..</td>
+<td>You can set it to <code>true</code> to delete original CloudFront standard logs in S3 bucket. By default, it is <code>false</code>. This only applies to non-realtime monitoring</td>
 </tr>
 <tr>
-<td>UseStartTime</td>
+<td>Use Start Time</td>
 <td>false</td>
-<td>You can set it to <code>true</code> if the Time in metric data is based on start time, or set it to <code>false</code> if the Time in metric data is based on end time.</td>
+<td>You can set it to <code>true</code> if the Time in metric data is based on start time, or set it to <code>false</code> if the Time in metric data is based on end time. This only applies to non-realtime monitoring</td>
 </tr>
 </tbody>
 </table>
@@ -1260,16 +1274,16 @@
 <h3 id="follow-up-actions">Follow-up Actions</h3>
 <p>To see details for the stack resources, choose the <strong>Outputs</strong> tab.</p>
 <ul>
-<li>You will find CloudFront Extensions console URL in <strong>WebConsoleCloudFrontURL</strong>. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. </li>
-<li>As for monitoring API, the solution will create a nested stack whose name contains <strong>NonRealtimeNestedStack</strong> or <strong>RealtimeNestedStack</strong>, you will find the monitoring metric API in the <strong>Outputs</strong> tab of the nested stack. </li>
+<li>You will find CloudFront Extensions console URL in <strong>WebConsoleCloudFrontURL</strong>. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. The API keys of snapshot and SSL certificates can be found in <strong>Outputs</strong> tab, For testing your API with API key, see <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-rest-api.html#api-gateway-usage-plan-test-with-postman">test usage plans</a>.</li>
+<li>As for monitoring API, the solution will create a nested stack whose name contains <strong>NonRealtimeNestedStack</strong> or <strong>RealtimeNestedStack</strong>, and you will find the monitoring metric API and API key in the <strong>Outputs</strong> tab of the nested stack.</li>
 </ul>
 <p>The CloudFormation stack deploys below modules:</p>
 <ul>
-<li>Monitoring: if you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature, see <a href="../monitoring/overview/">monitoring</a> for more details. </li>
-<li>Distribution management: you can manage snapshots and SSL certificates, see <a href="../distribution-management/overview/">distribution management</a> for more details. </li>
+<li>Monitoring: If you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature. See <a href="../monitoring/overview/">monitoring</a> for more details. </li>
+<li>Distribution management: you can manage snapshots and SSL certificates. See <a href="../distribution-management/overview/">distribution management</a> for more details. </li>
 <li>Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See <a href="../extension-repository/overview/">extensions repository</a> for more details.  </li>
 </ul>
-<h2 id="lambdaedge-cloudfront-functions-collection">Lambda@Edge &amp; CloudFront Functions collection</h2>
+<h2 id="deploy-lambdaedge-cloudfront-functions-collection">Deploy Lambda@Edge &amp; CloudFront Functions collection</h2>
 <p><strong>Time to deploy</strong>: Approximately 3 minutes</p>
 <h3 id="deployment-overview">Deployment overview</h3>
 <p>Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR (Serverless Application Repository).</p>

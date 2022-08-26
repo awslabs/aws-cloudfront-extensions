@@ -431,7 +431,7 @@
   
     <li class="md-nav__item">
       <a href="../metrics-dashboard/" class="md-nav__link">
-        Metrics Dashboard
+        Metrics dashboard
       </a>
     </li>
   
@@ -802,6 +802,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../extension-repository/resize-image/" class="md-nav__link">
+        Resize Image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../extension-repository/redirect-by-country/" class="md-nav__link">
         Redirect by Country
       </a>
@@ -893,7 +907,7 @@
   
     <li class="md-nav__item">
       <a href="../../api-reference-guide/extension-repository/" class="md-nav__link">
-        Extension repository
+        Extensions repository
       </a>
     </li>
   
@@ -907,7 +921,7 @@
   
     <li class="md-nav__item">
       <a href="../../api-reference-guide/distribution-management/" class="md-nav__link">
-        Distribution Management
+        Distribution management
       </a>
     </li>
   
@@ -1050,7 +1064,7 @@
 <p><img alt="non-real-time-monitoring" src="../../images/non-real-time-monitoring.png" /></p>
 <ol>
 <li>Enable CloudFront standard logs. You need to specify a S3 bucket to store CloudFront standard logs.</li>
-<li>Remove unused fields in CloudFront standard logs and partition logs in S3 bucket. CloudFront standard logs contains more than 30 fields, and less than 10 fields are needed for getting CloudFront metrics. AWS Lambda function will read the logs in the S3 bucket and remove the unused fields to reduce the size of the log file. It can improve Athena query speed and save costs as well. AWS Lambda function will also move the logs into the folder for partition, such as year=2022/month=07/day=10/hour=09/.</li>
+<li>Remove unused fields in CloudFront standard logs and partition logs in S3 bucket. CloudFront standard logs contain more than 30 fields, and less than 10 fields are needed for getting CloudFront metrics. AWS Lambda function will read the logs in the S3 bucket and remove the unused fields to reduce the size of the log file. It can improve Athena query speed and save costs as well. AWS Lambda function will also move the logs into the folder for partition, such as year=2022/month=07/day=10/hour=09/.</li>
 <li>Query standard logs in S3 via Athena. In order to allow Athena to speed up data query through data partitioning, Amazon EventBridge will create all partitions for the next day every day, and delete the partitions of the previous day. The Lambda function MetricCollector is used to analyze standard logs and collect monitoring metrics. It will be executed every 5 minutes.</li>
 <li>Save the query results in DynamoDB. Query the corresponding monitoring indicator data through Athena, such as calculating CHR (cache hit rate) and download rate through bandwidth, and finally store the monitoring indicator data in the DynamoDB table.</li>
 <li>Call APIs via API Gateway. When users send API request to API Gateway, a Lambda function called MetricManager will be triggered. The function reads the monitoring indicators and returns the corresponding results from the DynamoDB table. In order to strengthen security management and restrict API accesses, API key is enabled in API Gateway by default. Users are required to pass an x-api-key when calling the APIs.</li>
@@ -1065,7 +1079,7 @@
 <li>bandwidth: the bandwidth from the client to CloudFront</li>
 <li>bandwidthOrigin: bandwidth back to origin</li>
 <li>chr: cache hit rate calculated by the number of requests</li>
-<li>chrBandWith: cache hit ratio calculated by bandwidth</li>
+<li>chrBandWidth: cache hit ratio calculated by bandwidth</li>
 <li>topNUrlRequests: top url calculated by the number of requests</li>
 <li>topNUrlSize: top url calculated by traffic</li>
 <li>downstreamTraffic: down stream traffic in response to the request</li>

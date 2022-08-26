@@ -15,7 +15,7 @@
     
     
       
-        <title>Metrics Dashboard - Implementation Guide</title>
+        <title>Metrics dashboard - Implementation Guide</title>
       
     
     
@@ -61,11 +61,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#metrics-dashboard" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -95,7 +90,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Metrics Dashboard
+              Metrics dashboard
             
           </span>
         </div>
@@ -400,38 +395,9 @@
       
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Metrics Dashboard
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
-        Metrics Dashboard
+        Metrics dashboard
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#metrics-dashboard" class="md-nav__link">
-    Metrics dashboard
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -802,6 +768,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../extension-repository/resize-image/" class="md-nav__link">
+        Resize Image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../extension-repository/redirect-by-country/" class="md-nav__link">
         Redirect by Country
       </a>
@@ -893,7 +873,7 @@
   
     <li class="md-nav__item">
       <a href="../../api-reference-guide/extension-repository/" class="md-nav__link">
-        Extension repository
+        Extensions repository
       </a>
     </li>
   
@@ -907,7 +887,7 @@
   
     <li class="md-nav__item">
       <a href="../../api-reference-guide/distribution-management/" class="md-nav__link">
-        Distribution Management
+        Distribution management
       </a>
     </li>
   
@@ -1013,21 +993,6 @@
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#metrics-dashboard" class="md-nav__link">
-    Metrics dashboard
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1044,20 +1009,19 @@
 
 
 
-  <h1>Metrics Dashboard</h1>
+  <h1>Metrics dashboard</h1>
 
-<h2 id="metrics-dashboard">Metrics dashboard</h2>
 <p>Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses CloudFront standard log or realtime log to get the metrics. The solution provides a metric API if you only need to get the metric data via RESTful API and don't need the dashboard.</p>
 <p>With the Metrics dashboard, you can do the following:</p>
 <ul>
 <li>
-<p><strong>View graphed metrics</strong></p>
-<p>The CloudFront monitoring dashboard displays multiple metrics in each graphical chart for you to reference. Each chart related |one metric in CloudFront Monitoring API.</p>
+<p><strong>View graphic metrics</strong></p>
+<p>The CloudFront monitoring dashboard displays multiple metrics in each graphical chart for your reference. Each chart is mapped to one metric in CloudFront Monitoring API.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The Graphed metrics type in the dashboard are the same with the CloudFront Monitoring API acquisition type when deploy the solution.</p>
+<p>The graphic metrics type in the dashboard are the same as the CloudFront Monitoring API acquisition type when deploying the solution.</p>
 </div>
-<p>Please see metrics description in the below list</p>
+<p>The metrics description is as follows:</p>
 <table>
 <thead>
 <tr>
@@ -1084,7 +1048,7 @@
 </li>
 <li>
 <p><strong>Setup monitoring domain list</strong></p>
-<p>The monitoring domain list includes all tracked CloudFront distributions, this list can be configured in the CloudFormation template parameter during deployment, see <a href="../../deployment/#cloudfront-extensions-console">Deployment</a>. Once the CloudFormation stack deployed, you can set up/update the domain list in the Metrics dashboard web console.</p>
+<p>The monitoring domain list includes all tracked CloudFront distributions. This list can be configured in the CloudFormation template parameter during deployment, see <a href="../../deployment/#cloudfront-extensions-console">Deploy the solution</a>. Once the CloudFormation stack deployed, you can set up/update the domain list in the Metrics dashboard web console.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you use 'ALL' to monitoring all domains in your AWS account in the deployment parameter, the update domain list function will override this setting if you change the selection in the dashboard.</p>
@@ -1096,7 +1060,7 @@
 <li>In the pop-up window, select existing CloudFront distributions that you want to add the monitoring list.</li>
 <li>Choose Apply.</li>
 </ol>
-<p>When the domain list changed, the distributions list in the dashboard will be updated accordingly, the tracked metrics will be displayed in the charts in about 5 minutes.</p>
+<p>When the domain list changed, the distributions list in the dashboard will be updated accordingly, and the tracked metrics will be displayed in the charts in about 5 minutes.</p>
 </li>
 </ul>
 
