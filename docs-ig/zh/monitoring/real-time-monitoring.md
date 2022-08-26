@@ -32,7 +32,7 @@
 - bandwidth: 从客户端到CloudFront的带宽
 - bandwidthOrigin: 回源的带宽
 - chr (cache hit ratio): 通过请求数量计算的缓存命中率
-- chrBandWith: 通过带宽计算的缓存命中率
+- chrBandWidth: 通过带宽计算的缓存命中率
 - downloadSpeed: 从客户端到CloudFront的下载速率
 - downloadSpeedOrigin: 回源的下载速率
 - topNUrlRequests: 根据请求数量统计的top url

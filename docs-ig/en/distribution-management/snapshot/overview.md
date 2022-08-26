@@ -1,12 +1,14 @@
 ## Snapshot
 
-A configuration of CloudFront distribution could be very complex, and you may want to save a specific configuration and apply it to current or other distributions in your AWS account. This solution allows you to save configuration as “snapshot” so that you can reuse it at any time.
+A Snapshot is a CloudFront Distribution configuration. By saving a complex CloudFront Distribution configuration to a Snapshot, the configuration (snapshot)  can be reused to current or other CloudFront Distributions in your AWS account.    
 
 ### Why need to save Snapshot
-Cloudfront configuration is complex, when user spent some time updating the cloudfront configuration, he/she don't want configuration been accidentally updated to wrong configuration. So we provide this Snapshot feature to let user create a snapshot so in the future user can compare the current configuration with snapshot or compare different between any two snapshots.
+
+Configuring CloudFront is a complex, time-consuming task. Many misconfiguration or accidentally updated to an incorrect configuration can damage your business. Therefore, the Snapshot feature is provided to allow our client to save a reusable and comparable configuration as a Snapshot. Eventually, our client will benefit from the Snapshot feature to more effectively and efficiently manage the CloudFront.    
 
 ### How does it work?
-When you create a snapshot, the solution automatically exports the current distribution configuration file in S3 bucket. A DynamoDB table is used to store the mapping of the config file and the snapshot names. 
+
+Creating a Snapshot will export the current CloudFront Distribution configuration to a S3 bucket. The solution is using a DynamoDB table to maintain the mapping between the CloudFront configuration file and the snapshot name.
 
 ### How to work with snapshots?
 
@@ -30,11 +32,11 @@ You can also perform the following operations on snapshots via API:
 
 
 ### What does Snapshot saved?
-Snapshot saves Cloudfront configuration as a configuration file, you can get the same cloudfront configuration through CLI: [get-distribution-config](https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html). Our solution will save the configuration file in S3 and url in DynamoDB. You can use [list_snapshots api](api-reference-guide/snapshot/list_snapshots.md) to list all snapshots of one distribution. 
+Snapshot saves Cloudfront configuration as a configuration file, you can get the same cloudfront configuration through CLI: [get-distribution-config](https://docs.aws.amazon.com/cli/latest/reference/cloudfront/get-distribution-config.html). Our solution will save the configuration file in S3 and url in DynamoDB. You can use [list_snapshots api](../../api-reference-guide/snapshot/list_snapshots.md) to list all snapshots of one distribution. 
  
 
 ### How long will Snapshot been saved?
-The snapshot will be saved in S3 bucket and will not automatically been deleted. The snapshot can only be deleted in Web Console or through [delete_snapshot api](api-reference-guide/snapshot/delete_snapshot.md).
+The snapshot will be saved in S3 bucket and will not automatically been deleted. The snapshot can only be deleted in Web Console or through [delete_snapshot api](../../api-reference-guide/snapshot/delete_snapshot.md).
 
 ### How much will Snapshot cost?
 Cloudfront configuration file is in JSON format and is around 3KB. Refer to [Cost](cost.md) for more details.

@@ -1,17 +1,10 @@
 When you create certificates, you need to complete DNS validation process. This process requires you to add/update CNAME record in DNS provider, such as Route 53 and GoDaddy.
 
 ## Email
-An email will be sent with information needed for DNS validation. The following is an example SNS notification:
+An email will be sent with information needed for DNS validation. The following is an example SNS notification in you email:
 
 ```
-
-        CNAME value need to add into DNS hostzone to finish DCV: [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-
-        Sample Script for Route53 (Python): https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806
-
-        Sample Script for Godaddy (Python): https://gist.github.com/alvindaiyan/262721fb3bc3284e3635ac5f9e860e93
-
-
+CNAME value need to add into DNS hostzone to finish DCV: [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
 ```
 
 If you do not know where the email was sent to, you can check it in CloudFormation stack that was deployed when you launch the solution. 
@@ -37,10 +30,8 @@ If you want to update the email, you need to update the email parameter in the C
 ### Adding Through Provided Script
 
 1. Prepare python environment based on your os: [install python](https://www.python.org/downloads/).
-2. Download the file by this [url](https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806) and save to file `route53Cert.py`.
-3. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
-4. Find out the hosted zone ID from the aws console under Route53/YOUR_DOMAIN_NAME/Hosted zone details tab.
-5. Open the file and update the data based on your email, for example:
+2. Find out the hosted zone ID from the aws console under Route53/YOUR_DOMAIN_NAME/Hosted zone details tab.
+3. Copy the script below and save to file `route53Cert.py`. Open the file and update the data based on your received email, for example:
 
 
 ``` python
@@ -79,9 +70,10 @@ If you want to update the email, you need to update the email parameter in the C
        for i, val in enumerate(cnameList):
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
-```
-
-6. Run your script by `python route53Cert.py`. it will be success add record to your domain if there is no error output.
+   ```
+   
+4. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
+5. Run your script by `python route53Cert.py`. it will be success add record to your domain if there is no error output.
 
 ## Adding CNAMEs record for DCV validation in GoDaddy
 
@@ -98,18 +90,15 @@ If you want to update the email, you need to update the email parameter in the C
 ### Adding Through Provided Script
 
 1. Prepare python environment based on your os: [install python](https://www.python.org/downloads/).
-2. Download the file by this [url](https://gist.github.com/yike5460/67c42ff4a0405c05e59737bd425a4806) and save to file `goDaddyCert.py`.
-3. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
-4. Download script and save as `goDaddyCert.py`.
-5. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
-6. Modify the godaddyCert.py with your api key, secret and the cname data:
+2. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
+3. Copy the script below and save to file `goDaddyCert.py`. Open the file and update the data based on your received email, for example:
 
 
 ``` python
    #!/usr/bin/env python
    from godaddypy import Client, Account
    
-   # Remember to set your api key and secret
+   # remember to set your api key and secret
    userAccount = Account(api_key='your_api_key', api_secret='your_api_secret')
    userClient = Client(userAccount)
    
@@ -127,7 +116,8 @@ If you want to update the email, you need to update the email parameter in the C
        for i, val in enumerate(cnameList):
            add_cname_record(val['Name'], val['Value'], domain)
 ```
-7. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
+4. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
+5. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
 
 
 

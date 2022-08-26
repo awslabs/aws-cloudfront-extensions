@@ -2,7 +2,7 @@ The solution will create one or multiple certificates in ACM and create the asso
 
 ![create-certificate-job](../../../images/create-certificate-job.png)
 
-### How does it work
+### Workflow
 
 When you start a Create Certificates Job, the solution starts a workflow in AWS Step Functions that does the following:
 

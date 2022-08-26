@@ -13,21 +13,21 @@
       [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json)
 
 
-2. 默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。
+2. 默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。您可以在[区域列表](./regions.md)中找到所有支持部署的区别。
 
 3. 在参数部分，查看模板的参数，并根据需要进行修改。
 
-      | 参数             | 默认值 | 说明                                                                                                                                 |
+      | 参数                   | 默认值 | 说明                                                                                                                                 |
       |-----------|---------------|---------|
-      | EmailAddress          | - | 接收SSL证书通知的电子邮箱地址。                                                                                    |
-      | InitialUserEmail               | - | Web控制台的初始用户电子邮箱。                                                                                                 |
-      | InitialUserName  | - | Web控制台的初始用户名。                                                                                                   |
-      | InitialUserPassword  | - | Web控制台的初始用户密码。                                                                                              |
-      | Monitoring            | no | 您可以将其设置为“yes-Realtime”以从实时日志中获取监控指标，也可以将其设为“yes-Non-Realtime”以获取标准日志中的监控指标。默认情况下，它是“no”，这意味着它不会部署监控功能。请参阅[监控](./monitoring/overview.md)以获取更多信息。                                    |
-      | CloudFrontDomainList  | - | CloudFront域名列表。如需监控多个域名，使用逗号分隔多个域名。填入“ALL”监视AWS帐户中的所有域名。 |
-      | CloudFrontLogKeepDays | 120 | 将CloudFront日志保存在S3存储桶中的天数。                                                                     |
-      | DeleteLog   | false | 您可以将其设置为'true'以删除S3存储桶中的原始CloudFront标准日志。默认情况下，它为“false”。                                                                      |
-      | UseStartTime   | false | 如果指标数据的时间基于开始时间，可以将其设置为“true”，如果指标数据的时间基于结束时间，则可以将其设置为“false” 。       |
+      | Initial User Email     | - | Web控制台的初始用户电子邮箱。   |
+      | Initial User Name      | - | Web控制台的初始用户名。        |
+      | Initial User Password  | - | Web控制台的初始用户密码。      |
+      | Notification Email     | - | 接收SSL证书通知的电子邮箱地址。 |
+      | CloudFront Log Type    | no | 您可以将其设置为“yes-Realtime”以从实时日志中获取监控指标，也可以将其设为“yes-Non-Realtime”以获取标准日志中的监控指标。默认情况下，它是“no”，这意味着它不会部署监控功能。请参阅[监控](./monitoring/overview.md)以获取更多信息。 |
+      | CloudFront Domain List | - | CloudFront域名列表。如需监控多个域名，使用逗号分隔多个域名。填入“ALL”监视AWS帐户中的所有域名。 |
+      | Log Keeping Days       | 120 | 将CloudFront日志保存在S3存储桶中的天数。 |
+      | Delete Log             | false | 您可以将其设置为'true'以删除S3存储桶中的原始CloudFront标准日志。默认情况下，它为“false”。 |
+      | Use Start Time         | false | 如果指标数据的时间基于开始时间，可以将其设置为“true”，如果指标数据的时间基于结束时间，则可以将其设置为“false” 。 |
 
 
 4. 选择**下一步**。
@@ -43,8 +43,8 @@
 
 您还可以选择**输出**标签页查看堆栈资源的详细信息。
 
-- 您可以在**WebConsoleCloudFrontURL**中找到CloudFront Extensions控制台的链接。登录控制台时输入初始用户名和密码，它们在您部署堆栈时通过InitialUserName和InitialUserPassword参数进行定义。
-- 对于监控API，本解决方案会创建一个名字包含**NonRealtimeNestedStack**或**RealtimeNestedStack**的嵌套堆栈，您可以在此嵌套堆栈的**输出**标签页中找到监控API的链接。 
+- 您可以在**WebConsoleCloudFrontURL**中找到CloudFront Extensions控制台的链接。登录控制台时输入初始用户名和密码，它们在您部署堆栈时通过InitialUserName和InitialUserPassword参数进行定义。 快照和SSL证书的API密钥可以在**输出**标签页中找到。您可参考[文档](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-rest-api.html#api-gateway-usage-plan-test-with-postman)对API进行测试。
+- 对于监控API，本解决方案会创建一个名字包含**NonRealtimeNestedStack**或**RealtimeNestedStack**的嵌套堆栈，您可以在此嵌套堆栈的**输出**标签页中找到监控API的链接和API密钥。 
 
 CloudFormation堆栈部署了如下模块：
 

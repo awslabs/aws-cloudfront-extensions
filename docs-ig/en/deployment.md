@@ -1,11 +1,8 @@
-Before you launch the solution, review the architecture, supported regions, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.
+Before you launch the solution, review the architecture, [supported regions](./regions.md), and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.
 
-
-## CloudFront Extensions Console
+## Deploy the Web Console
  
 **Time to deploy**: Approximately 15 minutes
-
-
 
 ### Deployment steps
 
@@ -14,22 +11,22 @@ Before you launch the solution, review the architecture, supported regions, and 
       [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json)
 
 
-2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
+2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar. See [regional deployment](./regions.md) for all the supported regions. 
 
 3. Under Parameters, review the parameters for the template, and modify them as necessary.
 
-      | Parameter             | Default value | Description                                                                                                                                 |
+      | Parameter              | Default value | Description                                                                                                                                 |
       |-----------|---------------------------------------------------------------------------------------------------------------------------------------------|---------|
-      | EmailAddress          | - | Email address to receive SSL certificates notification.                                                                                     |
-      | InitialUserEmail              | - | The initial user email for the web console.                                                                                                 |
-      | InitialUserName  | - | The initial username for the web console.                                                                                                   |
-      | InitialUserPassword | - | The Initial Password for the web console.                                                                                             |
-      | Monitoring            | no | You can set it to `yes-Realtime` to get monitoring metrics from realtime loge, or set it to` yes-Non-Realtime` to get monitoring metrics from standard log. By default, it is `no`, which means it will not deploy monitoring feature. See [Monitoring](./monitoring/overview.md) for more information.                                 |
-      | CloudFrontDomainList  | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
-      | CloudFrontLogKeepDays | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
-      | DeleteLog             | false | You can set it to `true` to delete original CloudFront standard logs in S3 bucket. By default, it is `false`..                                                                      |
-      | UseStartTime          | false | You can set it to `true` if the Time in metric data is based on start time, or set it to `false` if the Time in metric data is based on end time.          |
-  
+      | Initial User Email     | - | The initial user email for the web console.                                                                                                 |
+      | Initial User Name      | - | The initial username for the web console.                                                                                                   |
+      | Initial User Password  | - | The Initial Password for the web console.                                                                                             |
+      | Notification Email     | - | Email address to receive SSL certificates notification.                                                                                     |
+      | CloudFront Log Type    | no | You can set it to `yes-Realtime` to get monitoring metrics from realtime loge, or set it to` yes-Non-Realtime` to get monitoring metrics from standard log. By default, it is `no`, which means it will not deploy monitoring feature. See [Monitoring](./monitoring/overview.md) for more information.                                 |
+      | CloudFront Domain List | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account |
+      | Log Keeping Days       | 120 | The number of days to keep CloudFront logs in the S3 bucket.                                                                                |
+      | Delete Log             | false | You can set it to `true` to delete original CloudFront standard logs in S3 bucket. By default, it is `false`. This only applies to non-realtime monitoring |
+      | Use Start Time         | false | You can set it to `true` if the Time in metric data is based on start time, or set it to `false` if the Time in metric data is based on end time. This only applies to non-realtime monitoring |
+
 
 4. Choose **Next**.
 5. On the **Configure stack options** page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose **Next**.
@@ -43,27 +40,24 @@ You can view the status of the stack in the CloudFormation Console in the Status
 
 To see details for the stack resources, choose the **Outputs** tab.
 
-- You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. 
-- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, you will find the monitoring metric API in the **Outputs** tab of the nested stack. 
+- You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. The initial user name and password are defined in InitialUserName and InitialUserPassword parameters when you deploy the CloudFormation stack. The API keys of snapshot and SSL certificates can be found in **Outputs** tab, For testing your API with API key, see [test usage plans](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-rest-api.html#api-gateway-usage-plan-test-with-postman).
+- As for monitoring API, the solution will create a nested stack whose name contains **NonRealtimeNestedStack** or **RealtimeNestedStack**, and you will find the monitoring metric API and API key in the **Outputs** tab of the nested stack.
 
 The CloudFormation stack deploys below modules:
 
-- Monitoring: if you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature, see [monitoring](./monitoring/overview.md) for more details. 
-- Distribution management: you can manage snapshots and SSL certificates, see [distribution management](./distribution-management/overview.md) for more details. 
+- Monitoring: If you set Monitoring to yes-Realtime or yes-Non-Realtime, it will deploy the monitoring feature. See [monitoring](./monitoring/overview.md) for more details. 
+- Distribution management: you can manage snapshots and SSL certificates. See [distribution management](./distribution-management/overview.md) for more details. 
 - Extensions repository: you can deploy a set of ready-to-use extensions (Lambda@Edge functions, CloudFront functions, CloudFormation templates). See [extensions repository](./extension-repository/overview.md) for more details.  
 
 
 
-
-## Lambda@Edge & CloudFront Functions collection
+## Deploy Lambda@Edge & CloudFront Functions collection
 
 **Time to deploy**: Approximately 3 minutes
 
 ### Deployment overview
 
 Click below deploy button to deploy this solution in your AWS account. As for Lambda@Edge functions, you can also find and configure them by searching aws-cloudfront-extensions in the Amazon SAR (Serverless Application Repository).
-
-
 
 #### Lambda@Edge
 
