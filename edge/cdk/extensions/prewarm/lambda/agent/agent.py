@@ -13,7 +13,7 @@ from botocore.exceptions import WaiterError
 URL_SUFFIX = '.cloudfront.net'
 cf_client = boto3.client('cloudfront')
 SLEEP_TIME = 6
-RETRY_COUNT = 100
+RETRY_COUNT = 14400
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
@@ -56,7 +56,7 @@ def cf_invalidation_status(dist_id, inv_id):
 
 def download_file(url, cf_domain):
     local_filename = shortuuid.uuid() + url.split('/')[-1]
-    with requests.get(url, headers={'Host': cf_domain}, stream=True) as r:
+    with requests.get(url, headers={'Host': cf_domain}, stream=True, timeout=5) as r:
         r.raise_for_status()
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
@@ -98,9 +98,9 @@ def pre_warm(url, pop, cf_domain):
 def get_messages_from_queue(client, queue_url):
     response = client.receive_message(
         QueueUrl=queue_url,
-        MaxNumberOfMessages=1,
+        MaxNumberOfMessages=4,
         WaitTimeSeconds=3,
-        VisibilityTimeout=60 * 60
+        VisibilityTimeout=180 * 60
     )
     if "Messages" in response:
         return response["Messages"]

@@ -1,5 +1,5 @@
-import json
 import datetime
+import json
 import logging
 import os
 
@@ -8,7 +8,8 @@ from boto3.dynamodb.conditions import Key
 
 TABLE_NAME = os.environ['DDB_TABLE_NAME']
 aws_region = os.environ['AWS_REGION']
-API_TIME_OUT = 600
+SHOW_SUCC_URLS = os.environ['SHOW_SUCC_URLS']
+API_TIME_OUT = 300
 dynamodb = boto3.resource('dynamodb', region_name=aws_region)
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -79,17 +80,36 @@ def prewarm_status_from_ddb(req_id):
         else:
             overall_status = 'FAILED'
     else:
-        create_datetime = datetime.datetime.strptime(create_time, "%Y%m%dT%H%M%SZ")
+        create_datetime = datetime.datetime.strptime(
+            create_time, "%Y%m%dT%H%M%SZ")
         duration = ((current_time - create_datetime).total_seconds())/60
         if duration > API_TIME_OUT:
             overall_status = 'TIMEOUT'
+
+    in_progress_list = url_list
+    for succ_url in success_list:
+        in_progress_list.remove(succ_url)
+    for fail_url in fail_list:
+        in_progress_list.remove(fail_url)
+
+    if SHOW_SUCC_URLS.lower() == 'true':
+        return {
+            'status': overall_status,
+            'total': total_count,
+            'completed': success_count + fail_count,
+            'inProgress': in_progress_count,
+            'failedUrl': fail_list,
+            'inProgressUrl': in_progress_list,
+            'successUrl': success_list
+        }
 
     return {
         'status': overall_status,
         'total': total_count,
         'completed': success_count + fail_count,
         'inProgress': in_progress_count,
-        'failedUrl': fail_list
+        'failedUrl': fail_list,
+        'inProgressUrl': in_progress_list
     }
 
 

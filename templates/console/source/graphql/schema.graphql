@@ -1,0 +1,254 @@
+
+schema {
+	query: Query
+	mutation: Mutation
+}
+
+enum ExtensionType {
+    Lambda,
+    LambdaEdge,
+    CFF,
+}
+
+type Extension {
+    name: String!
+    templateUri: String!
+    type: ExtensionType!
+    desc: String!
+    codeUri: String!
+    stage: String
+    updateDate: String!
+    author: String
+    status: String!
+    tag: String
+    cfnParameter: String
+}
+
+type ExtensionResponse {
+    extension: [Extension],
+    total: Int
+}
+
+type CloudFrontDist {
+    id: String!
+}
+
+type ListCloudFrontDistResponse {
+    dist: [CloudFrontDist],
+    total: Int
+}
+
+input ExtensionParameter {
+    parameterKey: String
+    parameterValue: String
+}
+
+type ConfigLink {
+    config_link: String
+}
+
+type Version {
+    id: String!,
+    distribution_id: String,
+    versionId: String,
+    config_link: String,
+    dateTime: String
+    note: String,
+    s3_bucket: String,
+    s3_key: String
+}
+
+type Snapshot {
+    id: String!,
+    distribution_id: String!,
+    snapshot_name: String!
+    config_link: String,
+    dateTime: String
+    note: String,
+    s3_bucket: String,
+    s3_key: String
+}
+
+type Cloudfront_info {
+    id: String
+    domainName: String
+    status: String
+    enabled: String
+    versionCount: String
+    snapshotCount: String
+    aliases: AliasInfo!
+}
+
+type AliasInfo {
+    Quantity: Int!
+    Items: [String]!
+}
+
+type certification_info {
+    CertificateArn: String!
+    DomainName: String!
+    SubjectAlternativeNames: String
+    Issuer: String!
+    Status: String!
+    CreatedAt: String!
+    IssuedAt: String!
+    NotBefore: String!
+    NotAfter: String!
+    KeyAlgorithm: String!
+}
+
+type cname {
+    domainName: String!
+    sanList: [String!]
+    originsItemsDomainName: String!
+}
+
+type pem {
+    CertPem: String!
+    PrivateKeyPem: String!
+    ChainPem: String!
+    originsItemsDomainName: String!
+}
+
+type certOutput {
+    body: String!
+    statusCode: String!
+}
+
+type SSLJob {
+    jobId: String!
+    cert_completed_number: Int
+    cert_total_number: Int
+    cloudfront_distribution_created_number: Int
+    cloudfront_distribution_total_number: Int
+    job_input: String
+    certCreateStageStatus: String
+    certValidationStageStatus: String
+    creationDate: String
+    distStageStatus: String
+    jobType: String
+    certList: [String]
+    distList: [String]
+    promptInfo: String
+    dcv_validation_msg: String
+}
+
+
+input cnameInput {
+    domainName: String!
+    sanList: [String!]
+    originsItemsDomainName: String!
+    existing_cf_info: existingCFInfo!
+}
+
+input existingCFInfo {
+    distribution_id: String!
+    config_version_id: String!
+}
+input pemInput {
+    CertPem: String!
+    PrivateKeyPem: String!
+    ChainPem: String!
+    originsItemsDomainName: String
+    existing_cf_info: existingCFInfo!
+}
+
+input certInput {
+    acm_op: String!
+    auto_creation: String!
+    dist_aggregate: String!
+    enable_cname_check: String!
+    cnameList: [cnameInput]!
+    pemList: [pemInput]!
+}
+
+
+type Notification {
+    id: ID
+    date: AWSDate
+    type: String
+}
+
+type Query {
+    # List CloudFront extensions in extension repo
+    listExtensions(page: Int, count: Int): ExtensionResponse
+
+    # List CloudFront distributions with id in drop-down list
+    listCloudFrontDistWithId(maxItems: Int, marker: String): ListCloudFrontDistResponse
+
+    # Get the extension details
+    queryByName(name: String!): Extension
+
+    # Check whether it is need to sync extensions
+    checkSyncStatus: String
+
+    # Get CloudFront behavior config
+    behaviorById(id: String!): [String]
+
+    # query for config-version part
+    applyConfig(src_distribution_id: String, version: String, target_distribution_ids: [String]): String
+
+    listDistribution: [Cloudfront_info]
+
+    getDistributionCname(distribution_id: String): [String]
+
+    getAppliedSnapshotName(distribution_id: String): String
+
+    updateConfigTag(distribution_id: String, version: String, note: String): String
+
+    updateConfigSnapshotTag(distribution_id: String, snapshot_name: String, note: String): String
+
+    diffCloudfrontConfig(distribution_id: String, version1: String, version2: String): String
+
+    diffCloudfrontConfigSnapshot(distribution_id: String, snapshot1: String, snapshot2: String): String
+
+    listCloudfrontVersions(distribution_id: String): [Version]
+
+    listCloudfrontSnapshots(distribution_id: String): [Snapshot]
+
+    getConfigLink(distribution_id: String, versionId: String): ConfigLink
+
+    getConfigSnapshotLink(distribution_id: String, snapshot_name: String): ConfigLink
+
+    getConfigContent(distribution_id: String, versionId: String): String
+
+    getConfigSnapshotContent(distribution_id: String, snapshot_name: String): String
+
+    # SSL for SAAS
+    Notifications(limit: Int): [Notification]
+
+    # list certifications for
+    listCertifications: [certification_info]
+
+    listCertificationsWithJobId(jobId: String): [String]
+
+    listCloudFrontArnWithJobId(jobId: String): [String]
+
+    listSSLJobs: [SSLJob]
+
+    getJobInfo(jobId: String): SSLJob
+}
+
+type Mutation {
+    # Deploy an extension
+    deployExtension(name: String!, parameters: [ExtensionParameter]): String
+
+    # Get the latest extensions
+    syncExtensions: String
+
+    # config version create snapShot
+    createVersionSnapShot( distributionId: String!, snapShotName: String!, snapShotNote: String ): String
+
+    # apply snapshot
+    applySnapshot(src_distribution_id: String, snapshot_name: String, target_distribution_ids: [String]): String
+
+    # delete snapshot
+    deleteSnapshot(distributionId: String, snapShotName: String): String
+
+    # SSL for SAAS
+    certCreateOrImport(input: certInput): certOutput
+
+    # Update monitoring domains
+    updateDomains(stack_name: String!, domains: [String]): String
+}
+
