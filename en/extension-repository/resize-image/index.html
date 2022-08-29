@@ -1131,15 +1131,16 @@
 <p>If the object is not existed in S3 bucket, a 404 Not Found response will be returned to CloudFront edge location, Lambda@Edge will fetch the source image (e.g. images/demo.png) from S3 bucket into buffer, resize it and store the resized image into relative folder(e.g. images/200x300) in S3 bucket
   (Note: If you see a 403 instead of 404 error, you will need to add s3:ListBucket into the bucket policy)
     Here's an example:
-    <code>{
-            "Sid": "1",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity Example"
-            },
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::example-bucket"
-        }</code></p>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        &quot;Sid&quot;: &quot;1&quot;,
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        &quot;Effect&quot;: &quot;Allow&quot;,
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        &quot;Principal&quot;: {
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>            &quot;AWS&quot;: &quot;arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity Example&quot;
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        },
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        &quot;Action&quot;: &quot;s3:ListBucket&quot;,
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        &quot;Resource&quot;: &quot;arn:aws:s3:::example-bucket&quot;
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    }
+</code></pre></div></p>
 </li>
 <li>
 <p>After the image is resized and stored, update the status code to 200 and return the resized image.</p>
@@ -1176,22 +1177,22 @@
 <p>In permission tab, update Action and Resource values in the bucket policy. (Update Action to s3:ListBucket, update Resource to S3 bucket ARN created in step 2).</p>
 </li>
 </ol>
-<pre><code>{
-    &quot;Version&quot;: &quot;2008-10-17&quot;,
-    &quot;Id&quot;: &quot;PolicyForCloudFrontPrivateContent&quot;,
-    &quot;Statement&quot;: [
-        {
-            &quot;Sid&quot;: &quot;1&quot;,
-            &quot;Effect&quot;: &quot;Allow&quot;,
-            &quot;Principal&quot;: {
-                &quot;AWS&quot;: &quot;arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH&quot;
-            },
-            &quot;Action&quot;: &quot;s3:ListBucket&quot;,
-            &quot;Resource&quot;: &quot;arn:aws:s3:::input-your-bucket-name&quot;
-        }
-    ]
-}
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>{
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    &quot;Version&quot;: &quot;2008-10-17&quot;,
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    &quot;Id&quot;: &quot;PolicyForCloudFrontPrivateContent&quot;,
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    &quot;Statement&quot;: [
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        {
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            &quot;Sid&quot;: &quot;1&quot;,
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            &quot;Effect&quot;: &quot;Allow&quot;,
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            &quot;Principal&quot;: {
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                &quot;AWS&quot;: &quot;arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH&quot;
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>            },
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            &quot;Action&quot;: &quot;s3:ListBucket&quot;,
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>            &quot;Resource&quot;: &quot;arn:aws:s3:::input-your-bucket-name&quot;
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        }
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    ]
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>}
+</code></pre></div>
 <ol>
 <li>
 <p>Deploy <a href="../../deployment/">CloudFront Extensions Console</a>. In extensions repository, find <strong>image-resize</strong>.</p>

@@ -1029,12 +1029,10 @@
 <p>HTTP方法: <code>POST</code></p>
 </li>
 <li>
-<p>请求</p>
+<p>请求
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="err">/s</span><span class="kc">na</span><span class="err">psho</span><span class="kc">t</span><span class="err">/lis</span><span class="kc">t</span><span class="err">_s</span><span class="kc">na</span><span class="err">psho</span><span class="kc">ts</span><span class="err">?dis</span><span class="kc">tr</span><span class="err">ibu</span><span class="kc">t</span><span class="err">io</span><span class="kc">n</span><span class="err">Id=E</span><span class="mi">20</span><span class="err">GR</span><span class="mi">9</span><span class="err">AX</span><span class="mi">7</span><span class="err">K</span><span class="mi">798</span><span class="err">K</span><span class="w"></span>
+</code></pre></div></p>
 </li>
-</ul>
-<pre><code class="language-json">/snapshot/list_snapshots?distributionId=E20GR9AX7K798K
-</code></pre>
-<ul>
 <li>
 <p>请求参数</p>
 <ul>
@@ -1042,42 +1040,42 @@
 </ul>
 </li>
 <li>
-<p>响应</p>
+<p>响应
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span><span class="w"></span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;snapshot2&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">&quot;distribution_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E20GR9AX7K798K&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">&quot;snapshot_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;snapshot2&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">&quot;note&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test note&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">&quot;dateTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-06-30-12-10-16&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">&quot;config_link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">&quot;s3_bucket&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nt">&quot;s3_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json&quot;</span><span class="w"></span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="p">},</span><span class="w"></span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;first Snapshot&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nt">&quot;distribution_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E20GR9AX7K798K&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nt">&quot;snapshot_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;first Snapshot&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nt">&quot;note&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This is my first snapshot&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="nt">&quot;dateTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-06-30-11-44-32&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nt">&quot;config_link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-11-44-07.json&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="nt">&quot;s3_bucket&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="nt">&quot;s3_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-11-44-07.json&quot;</span><span class="w"></span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="p">},</span><span class="w"></span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;_LATEST_&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="nt">&quot;distribution_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E20GR9AX7K798K&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">    </span><span class="nt">&quot;snapshot_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;_LATEST_&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="nt">&quot;note&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="nt">&quot;dateTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-06-30-11-42-39&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span><span class="nt">&quot;config_link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/07/31/E20GR9AX7K798K_2022-07-31-09-18-43.json&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">    </span><span class="nt">&quot;s3_bucket&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i&quot;</span><span class="p">,</span><span class="w"></span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">    </span><span class="nt">&quot;s3_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E20GR9AX7K798K/2022/07/31/E20GR9AX7K798K_2022-07-31-09-18-43.json&quot;</span><span class="w"></span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="p">]</span><span class="w"></span>
+</code></pre></div></p>
 </li>
 </ul>
-<pre><code class="language-json">[
-  {
-    &quot;id&quot;: &quot;snapshot2&quot;,
-    &quot;distribution_id&quot;: &quot;E20GR9AX7K798K&quot;,
-    &quot;snapshot_name&quot;: &quot;snapshot2&quot;,
-    &quot;note&quot;: &quot;test note&quot;,
-    &quot;dateTime&quot;: &quot;2022-06-30-12-10-16&quot;,
-    &quot;config_link&quot;: &quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json&quot;,
-    &quot;s3_bucket&quot;: &quot;cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i&quot;,
-    &quot;s3_key&quot;: &quot;E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-12-10-14.json&quot;
-  },
-  {
-    &quot;id&quot;: &quot;first Snapshot&quot;,
-    &quot;distribution_id&quot;: &quot;E20GR9AX7K798K&quot;,
-    &quot;snapshot_name&quot;: &quot;first Snapshot&quot;,
-    &quot;note&quot;: &quot;This is my first snapshot&quot;,
-    &quot;dateTime&quot;: &quot;2022-06-30-11-44-32&quot;,
-    &quot;config_link&quot;: &quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-11-44-07.json&quot;,
-    &quot;s3_bucket&quot;: &quot;cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i&quot;,
-    &quot;s3_key&quot;: &quot;E20GR9AX7K798K/2022/06/30/E20GR9AX7K798K_2022-06-30-11-44-07.json&quot;
-  },
-  {
-    &quot;id&quot;: &quot;_LATEST_&quot;,
-    &quot;distribution_id&quot;: &quot;E20GR9AX7K798K&quot;,
-    &quot;snapshot_name&quot;: &quot;_LATEST_&quot;,
-    &quot;note&quot;: &quot;&quot;,
-    &quot;dateTime&quot;: &quot;2022-06-30-11-42-39&quot;,
-    &quot;config_link&quot;: &quot;s3://cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i/E20GR9AX7K798K/2022/07/31/E20GR9AX7K798K_2022-07-31-09-18-43.json&quot;,
-    &quot;s3_bucket&quot;: &quot;cloudfrontconfigversions-cloudfrontconfigversions-rtzhljpc7u0i&quot;,
-    &quot;s3_key&quot;: &quot;E20GR9AX7K798K/2022/07/31/E20GR9AX7K798K_2022-07-31-09-18-43.json&quot;
-  }
-]
-</code></pre>
 
 
 
