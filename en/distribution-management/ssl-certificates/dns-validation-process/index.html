@@ -1238,9 +1238,11 @@
            add_cname_record(val['Name'], val['Value'], '&lt;Your Hosted Zone ID&gt;')
 
 </code></pre>
-<p>{:start="4"}
-4. Install python dependencies, you can follow <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html">this tutorial</a> to setup your environment.
-5. Run your script by <code>python route53Cert.py</code>. it will be success add record to your domain if there is no error output.</p>
+<p>{:start="4"}</p>
+<ol>
+<li>Install python dependencies, you can follow <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html">this tutorial</a> to setup your environment.</li>
+<li>Run your script by <code>python route53Cert.py</code>. it will be success add record to your domain if there is no error output.</li>
+</ol>
 <h2 id="adding-cnames-record-for-dcv-validation-in-godaddy">Adding CNAMEs record for DCV validation in GoDaddy</h2>
 <h3 id="adding-through-godaddy-console">Adding Through GoDaddy Console</h3>
 <ol>
@@ -1279,9 +1281,11 @@
            add_cname_record(val['Name'], val['Value'], domain)
 
 </code></pre>
-<p>{:start="4"}
-4. Install python dependencies by following <a href="https://pypi.org/project/GoDaddyPy/">this tutorial</a>.
-5. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.</p>
+<p>{:start="4"}</p>
+<ol>
+<li>Install python dependencies by following <a href="https://pypi.org/project/GoDaddyPy/">this tutorial</a>.</li>
+<li>Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.</li>
+</ol>
 
 
 
