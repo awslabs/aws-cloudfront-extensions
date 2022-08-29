@@ -72,6 +72,7 @@ If you want to update the email, you need to update the email parameter in the C
            
 ```
 {:start="4"}
+
 4. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
 5. Run your script by `python route53Cert.py`. it will be success add record to your domain if there is no error output.
 
@@ -119,6 +120,7 @@ If you want to update the email, you need to update the email parameter in the C
            
 ```
 {:start="4"}
+
 4. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
 5. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
 
