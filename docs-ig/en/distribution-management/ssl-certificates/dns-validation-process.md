@@ -71,7 +71,7 @@ If you want to update the email, you need to update the email parameter in the C
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
            
-   ```
+```
    
 4. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
 5. Run your script by `python route53Cert.py`. it will be success add record to your domain if there is no error output.
