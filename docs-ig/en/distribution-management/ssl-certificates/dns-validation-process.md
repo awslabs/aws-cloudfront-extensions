@@ -116,6 +116,7 @@ If you want to update the email, you need to update the email parameter in the C
        for i, val in enumerate(cnameList):
            add_cname_record(val['Name'], val['Value'], domain)
 ```
+
 4. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
 5. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
 
