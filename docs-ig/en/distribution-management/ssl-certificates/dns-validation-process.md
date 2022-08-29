@@ -33,7 +33,7 @@ If you want to update the email, you need to update the email parameter in the C
 2. Find out the hosted zone ID from the aws console under Route53/YOUR_DOMAIN_NAME/Hosted zone details tab.
 3. Copy the script below and save to file `route53Cert.py`. Open the file and update the data based on your received email, for example:
 
-   ``` python
+   ```python
         
       import boto3
       
@@ -93,7 +93,7 @@ If you want to update the email, you need to update the email parameter in the C
 2. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
 3. Copy the script below and save to file `goDaddyCert.py`. Open the file and update the data based on your received email, for example:
 
-   ``` python
+   ```python
    
       #!/usr/bin/env python
       from godaddypy import Client, Account
