@@ -1294,8 +1294,8 @@
 <ol>
 <li>Prepare python environment based on your os: <a href="https://www.python.org/downloads/">install python</a>.</li>
 <li>Find out goDaddy api Key and Secret from the <a href="https://developer.godaddy.com/keys">goDaddy Console</a>.</li>
-<li>Copy the script below and save to file <code>goDaddyCert.py</code>. Open the file and update the data based on your received email, for example:</li>
-</ol>
+<li>
+<p>Copy the script below and save to file <code>goDaddyCert.py</code>. Open the file and update the data based on your received email, for example:</p>
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">goDaddyCert.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
@@ -1336,8 +1336,10 @@
 <a id="__codelineno-2-19" name="__codelineno-2-19"></a>       <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cnameList</span><span class="p">):</span>
 <a id="__codelineno-2-20" name="__codelineno-2-20"></a>           <span class="n">add_cname_record</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">domain</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<ol>
-<li>Install python dependencies by following <a href="https://pypi.org/project/GoDaddyPy/">this tutorial</a>.</li>
+</li>
+<li>
+<p>Install python dependencies by following <a href="https://pypi.org/project/GoDaddyPy/">this tutorial</a>.</p>
+</li>
 <li>Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.</li>
 </ol>
 
