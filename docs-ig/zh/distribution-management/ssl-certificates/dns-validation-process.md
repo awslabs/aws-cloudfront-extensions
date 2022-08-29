@@ -32,42 +32,42 @@ CNAME value need to add into DNS hostzone to finish DCV: [{'Name': '_1317a5f5399
 2. 在Route53/YOUR_DOMAIN_NAME/Hosted zone details tab下找出hosted zone ID。
 3. 复制以下脚本的内容 ，然后保存到 `route53Cert.py`。 打开python脚本，并根据收到的email中的信息更新脚本参数, 可以参考下面的例子:
 
-``` py title="route53Cert.py" linenums="1"
-import boto3
-
-route53 = boto3.client('route53')
-def add_cname_record(cnameName, cnameValue, hostedZoneId):
-    response = route53.change_resource_record_sets(
-        ChangeBatch={
-            'Changes': [
-                {
-                    'Action': 'CREATE',
-                    'ResourceRecordSet': {
-                        'Name': cnameName,
-                        'ResourceRecords': [
-                            {
-                                'Value': cnameValue,
-                            },
-                        ],
-                        'SetIdentifier': 'SaaS For SSL',
-                        'TTL': 300,
-                        'Type': 'CNAME',
-                        'Weight': 100,
-                    },
-                }
-            ],
-            'Comment': 'add cname record for certificate',
-        },
-        HostedZoneId=hostedZoneId,
-    )
-
-if __name__ == '__main__':
-    # paste your data as the cnameList value
-    cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-    for i, val in enumerate(cnameList):
-         # change your host zone id
-        add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')              
-```
+      ``` py title="route53Cert.py" linenums="1"
+      import boto3
+   
+      route53 = boto3.client('route53')
+      def add_cname_record(cnameName, cnameValue, hostedZoneId):
+          response = route53.change_resource_record_sets(
+              ChangeBatch={
+                  'Changes': [
+                      {
+                          'Action': 'CREATE',
+                          'ResourceRecordSet': {
+                              'Name': cnameName,
+                              'ResourceRecords': [
+                                  {
+                                      'Value': cnameValue,
+                                  },
+                              ],
+                              'SetIdentifier': 'SaaS For SSL',
+                              'TTL': 300,
+                              'Type': 'CNAME',
+                              'Weight': 100,
+                          },
+                      }
+                  ],
+                  'Comment': 'add cname record for certificate',
+              },
+              HostedZoneId=hostedZoneId,
+          )
+   
+      if __name__ == '__main__':
+          # paste your data as the cnameList value
+          cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
+          for i, val in enumerate(cnameList):
+               # change your host zone id
+              add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')              
+      ```
    
 4. 安装python脚本所需要的相关依赖，可以参考[这里](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html)。
 5. 在terminal中运行命令 `python route53Cert.py`，没有任何错误信息后，脚本成功运行。
@@ -91,32 +91,32 @@ if __name__ == '__main__':
 2. 从[goDaddy Console](https://developer.godaddy.com/keys) 找出api Key 和 Secret。
 3. 复制以下脚本的内容，然后保存到 `goDaddyCert.py`。更新`godaddyCert.py`中的api key、secret、cname部分，示例如下:
 
-``` py title="goDaddyCert.py" linenums="1"
-
-   #!/usr/bin/env python
-   from godaddypy import Client, Account
+      ``` py title="goDaddyCert.py" linenums="1"
    
-   # remember to set your api key and secret
-   userAccount = Account(api_key='your_api_key', api_secret='your_api_secret')
-   userClient = Client(userAccount)
-   
-   # E.g.: to update your_record.yourdomain.com set domain and record to:
-   domain = 'your_domain'
-   
-   def add_cname_record(cnameName, cnameValue, domain):
-       updateResult = userClient.add_record(domain=domain, record={'data': cnameValue, 'name':cnameName,'ttl':3600, 'type':'CNAME'})
-       print(str(updateResult))
-   
-   
-   if __name__ == '__main__':
-      # paste your data as the cnameList value
-       cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-       for i, val in enumerate(cnameList):
-           add_cname_record(val['Name'], val['Value'], domain)
-           
-```
+         #!/usr/bin/env python
+         from godaddypy import Client, Account
+      
+         # remember to set your api key and secret
+         userAccount = Account(api_key='your_api_key', api_secret='your_api_secret')
+         userClient = Client(userAccount)
+      
+         # E.g.: to update your_record.yourdomain.com set domain and record to:
+         domain = 'your_domain'
+      
+         def add_cname_record(cnameName, cnameValue, domain):
+             updateResult = userClient.add_record(domain=domain, record={'data': cnameValue, 'name':cnameName,'ttl':3600, 'type':'CNAME'})
+             print(str(updateResult))
+      
+      
+         if __name__ == '__main__':
+            # paste your data as the cnameList value
+             cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
+             for i, val in enumerate(cnameList):
+                 add_cname_record(val['Name'], val['Value'], domain)
+              
+      ```
 
 4. 安装python脚本所需要的相关依赖，可以参考[这里](https://pypi.org/project/GoDaddyPy/)。
-6. 在terminal中运行命令 `python goDaddyCert.py`，没有任何错误信息后，脚本成功运行。
+5. 在terminal中运行命令 `python goDaddyCert.py`，没有任何错误信息后，脚本成功运行。
 
 

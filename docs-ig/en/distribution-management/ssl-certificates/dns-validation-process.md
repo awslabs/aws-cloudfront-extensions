@@ -94,30 +94,30 @@ If you want to update the email, you need to update the email parameter in the C
 2. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
 3. Copy the script below and save to file `goDaddyCert.py`. Open the file and update the data based on your received email, for example:
 
-   ``` py title="goDaddyCert.py" linenums="1"
+      ``` py title="goDaddyCert.py" linenums="1"
    
-      #!/usr/bin/env python
-      from godaddypy import Client, Account
+         #!/usr/bin/env python
+         from godaddypy import Client, Account
       
-      # remember to set your api key and secret
-      userAccount = Account(api_key='your_api_key', api_secret='your_api_secret')
-      userClient = Client(userAccount)
+         # remember to set your api key and secret
+         userAccount = Account(api_key='your_api_key', api_secret='your_api_secret')
+         userClient = Client(userAccount)
       
-      # E.g.: to update your_record.yourdomain.com set domain and record to:
-      domain = 'your_domain'
+         # E.g.: to update your_record.yourdomain.com set domain and record to:
+         domain = 'your_domain'
       
-      def add_cname_record(cnameName, cnameValue, domain):
-          updateResult = userClient.add_record(domain=domain, record={'data': cnameValue, 'name':cnameName,'ttl':3600, 'type':'CNAME'})
-          print(str(updateResult))
+         def add_cname_record(cnameName, cnameValue, domain):
+             updateResult = userClient.add_record(domain=domain, record={'data': cnameValue, 'name':cnameName,'ttl':3600, 'type':'CNAME'})
+             print(str(updateResult))
       
       
-      if __name__ == '__main__':
-         # paste your data as the cnameList value
-          cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-          for i, val in enumerate(cnameList):
-              add_cname_record(val['Name'], val['Value'], domain)
+         if __name__ == '__main__':
+            # paste your data as the cnameList value
+             cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
+             for i, val in enumerate(cnameList):
+                 add_cname_record(val['Name'], val['Value'], domain)
               
-   ```
+      ```
 
 4. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
 5. Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.
