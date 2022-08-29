@@ -50,23 +50,23 @@ To user this CloudFront extension
 
 7. In permission tab, update Action and Resource values in the bucket policy. (Update Action to s3:ListBucket, update Resource to S3 bucket ARN created in step 2).
 
-```
-{
-    "Version": "2008-10-17",
-    "Id": "PolicyForCloudFrontPrivateContent",
-    "Statement": [
-        {
-            "Sid": "1",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH"
-            },
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::input-your-bucket-name"
-        }
-    ]
-}
-```
+      ```
+      {
+          "Version": "2008-10-17",
+          "Id": "PolicyForCloudFrontPrivateContent",
+          "Statement": [
+              {
+                  "Sid": "1",
+                  "Effect": "Allow",
+                  "Principal": {
+                      "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH"
+                  },
+                  "Action": "s3:ListBucket",
+                  "Resource": "arn:aws:s3:::input-your-bucket-name"
+              }
+          ]
+      }
+      ```
 
 
 8. Deploy [CloudFront Extensions Console](../deployment.md). In extensions repository, find **image-resize**.
