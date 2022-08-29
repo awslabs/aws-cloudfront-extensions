@@ -35,7 +35,7 @@ If you want to update the email, you need to update the email parameter in the C
 
 3. Copy the script below and save to file `route53Cert.py`. Open the file and update the data based on your received email, for example:
 
-   ``` python        
+   ``` py title="route53Cert.py"        
       import boto3
       
       route53 = boto3.client('route53')
