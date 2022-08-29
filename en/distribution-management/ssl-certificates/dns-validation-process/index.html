@@ -1208,41 +1208,39 @@
 </li>
 </ol>
 <p>``` py title="route53Cert.py"      <br />
-      import boto3</p>
-<pre><code>  route53 = boto3.client('route53')
-  def add_cname_record(cnameName, cnameValue, hostedZoneId):
-      response = route53.change_resource_record_sets(
-          ChangeBatch={
-              'Changes': [
-                  {
-                      'Action': 'CREATE',
-                      'ResourceRecordSet': {
-                          'Name': cnameName,
-                          'ResourceRecords': [
-                              {
-                                  'Value': cnameValue,
-                              },
-                          ],
-                          'SetIdentifier': 'SaaS For SSL',
-                          'TTL': 300,
-                          'Type': 'CNAME',
-                          'Weight': 100,
-                      },
-                  }
-              ],
-              'Comment': 'add cname record for certificate',
-          },
-          HostedZoneId=hostedZoneId,
-      )
-
-  if __name__ == '__main__':
-      # paste your data as the cnameList value
-      cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-      for i, val in enumerate(cnameList):
-           # change your host zone id
-          add_cname_record(val['Name'], val['Value'], '&lt;Your Hosted Zone ID&gt;')
-</code></pre>
-<p>```</p>
+   import boto3</p>
+<p>route53 = boto3.client('route53')
+   def add_cname_record(cnameName, cnameValue, hostedZoneId):
+       response = route53.change_resource_record_sets(
+           ChangeBatch={
+               'Changes': [
+                   {
+                       'Action': 'CREATE',
+                       'ResourceRecordSet': {
+                           'Name': cnameName,
+                           'ResourceRecords': [
+                               {
+                                   'Value': cnameValue,
+                               },
+                           ],
+                           'SetIdentifier': 'SaaS For SSL',
+                           'TTL': 300,
+                           'Type': 'CNAME',
+                           'Weight': 100,
+                       },
+                   }
+               ],
+               'Comment': 'add cname record for certificate',
+           },
+           HostedZoneId=hostedZoneId,
+       )</p>
+<p>if <strong>name</strong> == '<strong>main</strong>':
+       # paste your data as the cnameList value
+       cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
+       for i, val in enumerate(cnameList):
+            # change your host zone id
+           add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')            <br />
+   ```</p>
 <ol>
 <li>
 <p>Install python dependencies, you can follow <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html">this tutorial</a> to setup your environment.</p>
