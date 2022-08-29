@@ -38,7 +38,7 @@ To user this CloudFront extension
 
 2. Create an S3 bucket, and a folder with any name(e.g. images), put your image(e.g. demo.png) in the folder.
 
-        ![S3-file-no-generation](../../images/S3-file-no-generation.png)
+      ![S3-file-no-generation](../../images/S3-file-no-generation.png)
 
 3. Go to [CloudFront console](https://us-east-1.console.aws.amazon.com/cloudfront/), Click Create distribution button.
 
