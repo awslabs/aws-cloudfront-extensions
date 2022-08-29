@@ -39,7 +39,7 @@
 
 2. 创建一个S3桶，并在桶中创建一个文件夹，例如名称为images的文件夹，将您的原始图片上传到此文件夹中。   
         
-   ![S3-file-no-generation](../../images/S3-file-no-generation.png)
+      ![S3-file-no-generation](../../images/S3-file-no-generation.png)
 
 3. 进入[CloudFront控制台](https://us-east-1.console.aws.amazon.com/cloudfront/)，点击创建分配按钮。
 
