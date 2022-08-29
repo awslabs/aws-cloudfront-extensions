@@ -1207,41 +1207,74 @@
 <p>Copy the script below and save to file <code>route53Cert.py</code>. Open the file and update the data based on your received email, for example:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span> <span class="nn">boto3</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">route53</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;route53&#39;</span><span class="p">)</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">def</span> <span class="nf">add_cname_record</span><span class="p">(</span><span class="n">cnameName</span><span class="p">,</span> <span class="n">cnameValue</span><span class="p">,</span> <span class="n">hostedZoneId</span><span class="p">):</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">route53</span><span class="o">.</span><span class="n">change_resource_record_sets</span><span class="p">(</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">ChangeBatch</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            <span class="s1">&#39;Changes&#39;</span><span class="p">:</span> <span class="p">[</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                <span class="p">{</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                    <span class="s1">&#39;Action&#39;</span><span class="p">:</span> <span class="s1">&#39;CREATE&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>                    <span class="s1">&#39;ResourceRecordSet&#39;</span><span class="p">:</span> <span class="p">{</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                        <span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="n">cnameName</span><span class="p">,</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                        <span class="s1">&#39;ResourceRecords&#39;</span><span class="p">:</span> <span class="p">[</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>                            <span class="p">{</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>                                <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="n">cnameValue</span><span class="p">,</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>                            <span class="p">},</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                        <span class="p">],</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                        <span class="s1">&#39;SetIdentifier&#39;</span><span class="p">:</span> <span class="s1">&#39;SaaS For SSL&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                        <span class="s1">&#39;TTL&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                        <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;CNAME&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                        <span class="s1">&#39;Weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                    <span class="p">},</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                <span class="p">}</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>            <span class="p">],</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>            <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;add cname record for certificate&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="p">},</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="n">HostedZoneId</span><span class="o">=</span><span class="n">hostedZoneId</span><span class="p">,</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="p">)</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    <span class="c1"># paste your data as the cnameList value</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>    <span class="n">cnameList</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;CNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="s1">&#39;_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.&#39;</span><span class="p">}]</span>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cnameList</span><span class="p">):</span>
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>         <span class="c1"># change your host zone id</span>
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="n">add_cname_record</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="s1">&#39;&lt;Your Hosted Zone ID&gt;&#39;</span><span class="p">)</span>              
-</code></pre></div>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">route53Cert.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span>
+<span class="normal"><a href="#__codelineno-1-22">22</a></span>
+<span class="normal"><a href="#__codelineno-1-23">23</a></span>
+<span class="normal"><a href="#__codelineno-1-24">24</a></span>
+<span class="normal"><a href="#__codelineno-1-25">25</a></span>
+<span class="normal"><a href="#__codelineno-1-26">26</a></span>
+<span class="normal"><a href="#__codelineno-1-27">27</a></span>
+<span class="normal"><a href="#__codelineno-1-28">28</a></span>
+<span class="normal"><a href="#__codelineno-1-29">29</a></span>
+<span class="normal"><a href="#__codelineno-1-30">30</a></span>
+<span class="normal"><a href="#__codelineno-1-31">31</a></span>
+<span class="normal"><a href="#__codelineno-1-32">32</a></span>
+<span class="normal"><a href="#__codelineno-1-33">33</a></span>
+<span class="normal"><a href="#__codelineno-1-34">34</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">import</span> <span class="nn">boto3</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="n">route53</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;route53&#39;</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="k">def</span> <span class="nf">add_cname_record</span><span class="p">(</span><span class="n">cnameName</span><span class="p">,</span> <span class="n">cnameValue</span><span class="p">,</span> <span class="n">hostedZoneId</span><span class="p">):</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">route53</span><span class="o">.</span><span class="n">change_resource_record_sets</span><span class="p">(</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a>        <span class="n">ChangeBatch</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a>            <span class="s1">&#39;Changes&#39;</span><span class="p">:</span> <span class="p">[</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a>                <span class="p">{</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a>                    <span class="s1">&#39;Action&#39;</span><span class="p">:</span> <span class="s1">&#39;CREATE&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a>                    <span class="s1">&#39;ResourceRecordSet&#39;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a>                        <span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="n">cnameName</span><span class="p">,</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a>                        <span class="s1">&#39;ResourceRecords&#39;</span><span class="p">:</span> <span class="p">[</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a>                            <span class="p">{</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a>                                <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="n">cnameValue</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a>                            <span class="p">},</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a>                        <span class="p">],</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17"></a>                        <span class="s1">&#39;SetIdentifier&#39;</span><span class="p">:</span> <span class="s1">&#39;SaaS For SSL&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a>                        <span class="s1">&#39;TTL&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a>                        <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;CNAME&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a>                        <span class="s1">&#39;Weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21"></a>                    <span class="p">},</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22"></a>                <span class="p">}</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23"></a>            <span class="p">],</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24"></a>            <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;add cname record for certificate&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25"></a>        <span class="p">},</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26"></a>        <span class="n">HostedZoneId</span><span class="o">=</span><span class="n">hostedZoneId</span><span class="p">,</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27"></a>    <span class="p">)</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28"></a>
+<a id="__codelineno-1-29" name="__codelineno-1-29"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30"></a>    <span class="c1"># paste your data as the cnameList value</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31"></a>    <span class="n">cnameList</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;CNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="s1">&#39;_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.&#39;</span><span class="p">}]</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cnameList</span><span class="p">):</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33"></a>         <span class="c1"># change your host zone id</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34"></a>        <span class="n">add_cname_record</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="s1">&#39;&lt;Your Hosted Zone ID&gt;&#39;</span><span class="p">)</span>              
+</code></pre></div></td></tr></table></div>
 <ol>
 <li>
 <p>Install python dependencies, you can follow <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html">this tutorial</a> to setup your environment.</p>
