@@ -705,6 +705,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#adding-cnames-record-for-dcv-validation-in-godaddy" class="md-nav__link">
+    Adding CNAMEs record for DCV validation in GoDaddy
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding CNAMEs record for DCV validation in GoDaddy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-through-godaddy-console" class="md-nav__link">
+    Adding Through GoDaddy Console
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-through-provided-script_1" class="md-nav__link">
+    Adding Through Provided Script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1096,6 +1123,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#adding-cnames-record-for-dcv-validation-in-godaddy" class="md-nav__link">
+    Adding CNAMEs record for DCV validation in GoDaddy
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding CNAMEs record for DCV validation in GoDaddy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-through-godaddy-console" class="md-nav__link">
+    Adding Through GoDaddy Console
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-through-provided-script_1" class="md-nav__link">
+    Adding Through Provided Script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1183,32 +1237,27 @@
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '&lt;Your Hosted Zone ID&gt;')
 
-   ```
-
-4. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
-5. Run your script by `python route53Cert.py`. it will be success add record to your domain if there is no error output.
-
-## Adding CNAMEs record for DCV validation in GoDaddy
-
-### Adding Through GoDaddy Console
-
-1. Log in to [GoDaddy](https://www.godaddy.com/). 
-2. In the **Domains** menu,* select **All Domains**.
-3. Choose the domain that needs to update CNAME record.
-4. Add a new CNAME record, enter the **Name** with the CNAME and the **Data** with the corresponding CloudFront distribution. You should be able to retrieve both values in the SNS message sent by solution.
-
-![godaddy-cloudfront](../../../images/godaddy-cloudfront.png)
-
-
-### Adding Through Provided Script
-
-1. Prepare python environment based on your os: [install python](https://www.python.org/downloads/).
-2. Find out goDaddy api Key and Secret from the [goDaddy Console](https://developer.godaddy.com/keys).
-3. Copy the script below and save to file `goDaddyCert.py`. Open the file and update the data based on your received email, for example:
-
-
-``` python
-
+</code></pre>
+<ol>
+<li>Install python dependencies, you can follow <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html">this tutorial</a> to setup your environment.</li>
+<li>Run your script by <code>python route53Cert.py</code>. it will be success add record to your domain if there is no error output.</li>
+</ol>
+<h2 id="adding-cnames-record-for-dcv-validation-in-godaddy">Adding CNAMEs record for DCV validation in GoDaddy</h2>
+<h3 id="adding-through-godaddy-console">Adding Through GoDaddy Console</h3>
+<ol>
+<li>Log in to <a href="https://www.godaddy.com/">GoDaddy</a>. </li>
+<li>In the <strong>Domains</strong> menu,<em> select </em><em>All Domains</em>*.</li>
+<li>Choose the domain that needs to update CNAME record.</li>
+<li>Add a new CNAME record, enter the <strong>Name</strong> with the CNAME and the <strong>Data</strong> with the corresponding CloudFront distribution. You should be able to retrieve both values in the SNS message sent by solution.</li>
+</ol>
+<p><img alt="godaddy-cloudfront" src="../../../images/godaddy-cloudfront.png" /></p>
+<h3 id="adding-through-provided-script_1">Adding Through Provided Script</h3>
+<ol>
+<li>Prepare python environment based on your os: <a href="https://www.python.org/downloads/">install python</a>.</li>
+<li>Find out goDaddy api Key and Secret from the <a href="https://developer.godaddy.com/keys">goDaddy Console</a>.</li>
+<li>Copy the script below and save to file <code>goDaddyCert.py</code>. Open the file and update the data based on your received email, for example:</li>
+</ol>
+<pre><code class="language-python">
    #!/usr/bin/env python
    from godaddypy import Client, Account
 
