@@ -1298,27 +1298,46 @@
 <li>Find out goDaddy api Key and Secret from the <a href="https://developer.godaddy.com/keys">goDaddy Console</a>.</li>
 <li>Copy the script below and save to file <code>goDaddyCert.py</code>. Open the file and update the data based on your received email, for example:</li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>   <span class="c1">#!/usr/bin/env python</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>   <span class="kn">from</span> <span class="nn">godaddypy</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Account</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>   <span class="c1"># remember to set your api key and secret</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>   <span class="n">userAccount</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s1">&#39;your_api_key&#39;</span><span class="p">,</span> <span class="n">api_secret</span><span class="o">=</span><span class="s1">&#39;your_api_secret&#39;</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>   <span class="n">userClient</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">userAccount</span><span class="p">)</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>   <span class="c1"># E.g.: to update your_record.yourdomain.com set domain and record to:</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>   <span class="n">domain</span> <span class="o">=</span> <span class="s1">&#39;your_domain&#39;</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>   <span class="k">def</span> <span class="nf">add_cname_record</span><span class="p">(</span><span class="n">cnameName</span><span class="p">,</span> <span class="n">cnameValue</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>       <span class="n">updateResult</span> <span class="o">=</span> <span class="n">userClient</span><span class="o">.</span><span class="n">add_record</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">cnameValue</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">cnameName</span><span class="p">,</span><span class="s1">&#39;ttl&#39;</span><span class="p">:</span><span class="mi">3600</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;CNAME&#39;</span><span class="p">})</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>       <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">updateResult</span><span class="p">))</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>   <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>      <span class="c1"># paste your data as the cnameList value</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>       <span class="n">cnameList</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;CNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="s1">&#39;_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.&#39;</span><span class="p">}]</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>       <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cnameList</span><span class="p">):</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>           <span class="n">add_cname_record</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">domain</span><span class="p">)</span>
-</code></pre></div>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">goDaddyCert.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-2-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-2-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-2-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-2-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-2-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-2-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-2-10">10</a></span>
+<span class="normal"><a href="#__codelineno-2-11">11</a></span>
+<span class="normal"><a href="#__codelineno-2-12">12</a></span>
+<span class="normal"><a href="#__codelineno-2-13">13</a></span>
+<span class="normal"><a href="#__codelineno-2-14">14</a></span>
+<span class="normal"><a href="#__codelineno-2-15">15</a></span>
+<span class="normal"><a href="#__codelineno-2-16">16</a></span>
+<span class="normal"><a href="#__codelineno-2-17">17</a></span>
+<span class="normal"><a href="#__codelineno-2-18">18</a></span>
+<span class="normal"><a href="#__codelineno-2-19">19</a></span>
+<span class="normal"><a href="#__codelineno-2-20">20</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a>   <span class="c1">#!/usr/bin/env python</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a>   <span class="kn">from</span> <span class="nn">godaddypy</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Account</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a>   <span class="c1"># remember to set your api key and secret</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5"></a>   <span class="n">userAccount</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s1">&#39;your_api_key&#39;</span><span class="p">,</span> <span class="n">api_secret</span><span class="o">=</span><span class="s1">&#39;your_api_secret&#39;</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a>   <span class="n">userClient</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">userAccount</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8"></a>   <span class="c1"># E.g.: to update your_record.yourdomain.com set domain and record to:</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9"></a>   <span class="n">domain</span> <span class="o">=</span> <span class="s1">&#39;your_domain&#39;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11"></a>   <span class="k">def</span> <span class="nf">add_cname_record</span><span class="p">(</span><span class="n">cnameName</span><span class="p">,</span> <span class="n">cnameValue</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12"></a>       <span class="n">updateResult</span> <span class="o">=</span> <span class="n">userClient</span><span class="o">.</span><span class="n">add_record</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">cnameValue</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">cnameName</span><span class="p">,</span><span class="s1">&#39;ttl&#39;</span><span class="p">:</span><span class="mi">3600</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;CNAME&#39;</span><span class="p">})</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13"></a>       <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">updateResult</span><span class="p">))</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a>
+<a id="__codelineno-2-15" name="__codelineno-2-15"></a>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a>   <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17"></a>      <span class="c1"># paste your data as the cnameList value</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a>       <span class="n">cnameList</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;CNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="s1">&#39;_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.&#39;</span><span class="p">}]</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19"></a>       <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cnameList</span><span class="p">):</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20"></a>           <span class="n">add_cname_record</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">domain</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
 <ol>
 <li>Install python dependencies by following <a href="https://pypi.org/project/GoDaddyPy/">this tutorial</a>.</li>
 <li>Run the script with 'python goDaddyCert.py'. If not error message displayed, then your script has been successfully executed.</li>
