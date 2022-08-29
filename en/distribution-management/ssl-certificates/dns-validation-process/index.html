@@ -1207,7 +1207,7 @@
 <p>Copy the script below and save to file <code>route53Cert.py</code>. Open the file and update the data based on your received email, for example:</p>
 </li>
 </ol>
-<p>``` python      <br />
+<p>``` py title="route53Cert.py"      <br />
       import boto3</p>
 <pre><code>  route53 = boto3.client('route53')
   def add_cname_record(cnameName, cnameValue, hostedZoneId):
