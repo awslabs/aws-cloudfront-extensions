@@ -35,42 +35,42 @@ If you want to update the email, you need to update the email parameter in the C
 
 3. Copy the script below and save to file `route53Cert.py`. Open the file and update the data based on your received email, for example:
 
-   ``` py title="route53Cert.py" linenums="1"
-   import boto3
+      ``` py title="route53Cert.py" linenums="1"
+      import boto3
    
-   route53 = boto3.client('route53')
-   def add_cname_record(cnameName, cnameValue, hostedZoneId):
-       response = route53.change_resource_record_sets(
-           ChangeBatch={
-               'Changes': [
-                   {
-                       'Action': 'CREATE',
-                       'ResourceRecordSet': {
-                           'Name': cnameName,
-                           'ResourceRecords': [
-                               {
-                                   'Value': cnameValue,
-                               },
-                           ],
-                           'SetIdentifier': 'SaaS For SSL',
-                           'TTL': 300,
-                           'Type': 'CNAME',
-                           'Weight': 100,
-                       },
-                   }
-               ],
-               'Comment': 'add cname record for certificate',
-           },
-           HostedZoneId=hostedZoneId,
-       )
+      route53 = boto3.client('route53')
+      def add_cname_record(cnameName, cnameValue, hostedZoneId):
+          response = route53.change_resource_record_sets(
+              ChangeBatch={
+                  'Changes': [
+                      {
+                          'Action': 'CREATE',
+                          'ResourceRecordSet': {
+                              'Name': cnameName,
+                              'ResourceRecords': [
+                                  {
+                                      'Value': cnameValue,
+                                  },
+                              ],
+                              'SetIdentifier': 'SaaS For SSL',
+                              'TTL': 300,
+                              'Type': 'CNAME',
+                              'Weight': 100,
+                          },
+                      }
+                  ],
+                  'Comment': 'add cname record for certificate',
+              },
+              HostedZoneId=hostedZoneId,
+          )
    
-   if __name__ == '__main__':
-       # paste your data as the cnameList value
-       cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
-       for i, val in enumerate(cnameList):
-            # change your host zone id
-           add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')              
-   ```
+      if __name__ == '__main__':
+          # paste your data as the cnameList value
+          cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
+          for i, val in enumerate(cnameList):
+               # change your host zone id
+              add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')              
+      ```
 
 4. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
 
