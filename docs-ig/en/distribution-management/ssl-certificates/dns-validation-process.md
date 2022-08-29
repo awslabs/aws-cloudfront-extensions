@@ -70,6 +70,7 @@ If you want to update the email, you need to update the email parameter in the C
        for i, val in enumerate(cnameList):
             # change your host zone id
            add_cname_record(val['Name'], val['Value'], '<Your Hosted Zone ID>')
+           
    ```
    
 4. Install python dependencies, you can follow [this tutorial](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) to setup your environment.
@@ -95,6 +96,7 @@ If you want to update the email, you need to update the email parameter in the C
 
 
 ``` python
+
    #!/usr/bin/env python
    from godaddypy import Client, Account
    
@@ -115,6 +117,7 @@ If you want to update the email, you need to update the email parameter in the C
        cnameList = [{'Name': '_1317a5f539939083b712d51b6b1676e5.web1.ssl-for-saas.demo.solutions.aws.a2z.org.cn.', 'Type': 'CNAME', 'Value': '_de026e5dc988d65312fe83616ef24249.hnyhpvdqhv.acm-validations.aws.'}]
        for i, val in enumerate(cnameList):
            add_cname_record(val['Name'], val['Value'], domain)
+           
 ```
 
 4. Install python dependencies by following [this tutorial](https://pypi.org/project/GoDaddyPy/).
