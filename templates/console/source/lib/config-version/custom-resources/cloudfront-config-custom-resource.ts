@@ -33,7 +33,7 @@ export class MyCustomResource extends Construct {
         path.join(__dirname, "../../../lambda/config-version/custom-resources")
       ),
       handler: "custom-resource-handler.main",
-      timeout: cdk.Duration.seconds(120),
+      timeout: cdk.Duration.seconds(900),
       runtime: lambda.Runtime.PYTHON_3_9,
       role: iam.Role.fromRoleArn(this, "custom-resource-handler-role", roleArn),
     });
