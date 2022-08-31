@@ -252,6 +252,23 @@ def create_eventbridge_in_us_east_1(context):
         'statusCode': 200,
         'body': json.dumps('Hello from Lambda!')
     }
+def get_all_distribution_ids():
+    cloudfront = boto3.client('cloudfront')
+    # get all cloudfront distributions
+    dist_list = []
+
+    response = cloudfront.list_distributions()
+    distribution_list = response['DistributionList']['Items']
+    dist_list.extend(distribution_list)
+
+    while 'NextMarker' in response['DistributionList']:
+        print(response['DistributionList'])
+        next_token = response['DistributionList']['NextMarker']
+        response = cloudfront.list_distributions(Marker=next_token)
+        dist_list.extend(response['DistributionList']['Items'])
+
+    return dist_list
+
 
 def main(event, context):
     import logging as log
@@ -268,13 +285,12 @@ def main(event, context):
         if (event['RequestType'] == 'Create') or (event['RequestType'] == 'Update'):
             # first get distribution List from current account
 
-            cf_client = boto3.client('cloudfront')
-            response = cf_client.list_distributions()
+            cf_dist_list = get_all_distribution_ids()
 
             result = []
             ddb_client = boto3.resource('dynamodb')
             ddb_table= ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
-            for dist in response['DistributionList']['Items']:
+            for dist in cf_dist_list:
                 distribution_id = dist['Id']
                 # search ddb for the distribution id
                 response = ddb_table.query(

@@ -388,17 +388,35 @@ def manager_snapshot_config_tag_update():
     )
     return response
 
+def get_all_distribution_ids():
+    cloudfront = boto3.client('cloudfront')
+    # get all cloudfront distributions
+    dist_list = []
+
+    response = cloudfront.list_distributions()
+    distribution_list = response['DistributionList']['Items']
+    dist_list.extend(distribution_list)
+
+    while 'NextMarker' in response['DistributionList']:
+        print(response['DistributionList'])
+        next_token = response['DistributionList']['NextMarker']
+        response = cloudfront.list_distributions(Marker=next_token)
+        dist_list.extend(response['DistributionList']['Items'])
+
+    return dist_list
+
 @app.get("/cf_list")
 def manager_version_config_cf_list():
     # first get distribution List from current account
-    cf_client = boto3.client('cloudfront', region_name='us-east-1')
-    response = cf_client.list_distributions()
+    # cf_client = boto3.client('cloudfront', region_name='us-east-1')
+    # response = cf_client.list_distributions()
+    cf_dist_list = get_all_distribution_ids()
 
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
 
     result = []
-    for dist in response['DistributionList']['Items']:
+    for dist in cf_dist_list:
 
         tmp_dist = {}
         tmp_dist['id'] = dist['Id']
