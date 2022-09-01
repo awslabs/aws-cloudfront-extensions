@@ -29,6 +29,20 @@ To get started, please find more details at: https://awslabs.github.io/aws-cloud
 
 For workshop, please refer to https://awslabs.github.io/aws-cloudfront-extensions/workshop/ 
 
+## Deploy via CloudFormation
+
+
+**Time to deploy:** Approximately 20 minutes.
+
+Follow the step-by-step instructions in this section to configure and deploy the AWS Data Replication Hub into your account.
+
+1. Make sure you have sign in AWS Console already.
+1. Click the following button to launch the CloudFormation Stack in your account.
+
+   | Region        | Launch Button  |
+      | ------------- |: -----|
+   | Global Region      |    [![Launch Stack](./launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json) |
+
 ## Contribution
 
 See [CONTRIBUTING](./CONTRIBUTING.md) for more information.
