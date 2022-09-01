@@ -1,5 +1,0 @@
-{
-  "aws_monitoring_url": "https://ucgdhmo35c.execute-api.us-west-2.amazonaws.com/prod",
-  "aws_monitoring_api_key": "Kl/XUxKyQhXQYa4fmH82oQ==",
-  "aws_monitoring_stack_name": "MonitoringStack"
-}
