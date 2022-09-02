@@ -74,6 +74,8 @@ export class ResizeImageStack extends cdk.Stack {
     const lambdaRole = new iam.Role(this, 'ResizeLambdaRole', {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
+        new iam.ServicePrincipal('edgelambda.amazonaws.com'),
+        new iam.ServicePrincipal('cloudfront.amazonaws.com')
       ),
     });
 
