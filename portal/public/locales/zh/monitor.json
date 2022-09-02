@@ -5,8 +5,8 @@
     "monitoring": "监控",
     "chooseDistribution": "选择一个CloudFront分配",
     "chart": {
-      "request": "请求",
-      "requestOrigin": "回源请求",
+      "request": "请求数量",
+      "requestOrigin": "回源请求数量",
       "statusCode": "状态码",
       "statusCodeOrigin": "回源状态码",
       "cacheHitRate": "缓存命中率（通过请求数量计算）",
