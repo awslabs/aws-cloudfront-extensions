@@ -9,8 +9,8 @@
       "requestOrigin": "回源请求",
       "statusCode": "状态码",
       "statusCodeOrigin": "回源状态码",
-      "cacheHitRate": "缓存命中率",
-      "cacheHitRateBW": "缓存命中率带宽",
+      "cacheHitRate": "缓存命中率（通过请求数量计算）",
+      "cacheHitRateBW": "缓存命中率（通过带宽计算）",
       "bandWidth": "带宽",
       "bandWidthOrigin": "回源带宽",
       "downloadSpeed": "下载速度",
@@ -19,8 +19,8 @@
       "topNUrlSize": "访问流量最大的URL",
       "downStreamTraffic": "下游流量"
     },
-    "updateDomainList": "更新域列表",
-    "applyConfig": "分发以应用配置",
+    "updateDomainList": "更新域名列表",
+    "applyConfig": "请选择需要监控的CloudFront分配",
     "selectDistribution": "选择分配"
   },
   "waf": {
