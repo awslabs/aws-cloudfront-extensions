@@ -116,6 +116,7 @@ export class ResizeImageStack extends cdk.Stack {
           resources: ['*'],
           actions: [
             "cloudfront:*",
+            "iam:CreateServiceLinkedRole"
           ]
         })
       ]
