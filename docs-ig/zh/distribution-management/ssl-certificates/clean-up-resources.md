@@ -11,7 +11,7 @@
 
 ## 清理CloudFront中的分配
 
-1. 在**Job Status**页面上，选择**View distributions created in this job**中创建的分发。您将被重定向到分配列表，其中显示在此作业中创建的所有分配。
+1. 在**Job Status**页面上，选择**View distributions created in this job**中创建的分配。您将被重定向到分配列表，其中显示在此作业中创建的所有分配。
 2. 选择特定CloudFront分配。
 3. 删除分配。
 4. 对于步骤1中找到的所有其他分配，请在CloudFront控制台中删除它们。
