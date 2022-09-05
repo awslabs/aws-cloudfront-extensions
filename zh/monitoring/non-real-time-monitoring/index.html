@@ -398,6 +398,13 @@
       
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
+    创建标准日志记录
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
     监控指标
   </a>
   
@@ -1037,6 +1044,13 @@
       
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
+    创建标准日志记录
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
     监控指标
   </a>
   
@@ -1071,7 +1085,14 @@
 <li>将查询结果保存在DynamoDB中。通过Athena查询相应的监控指标数据，如通过带宽计算CHR（缓存命中率）和下载率，最后将监控指标数据存储在DynamoDB表中。</li>
 <li>通过API Gateway调用API。当用户向API Gateway发送API请求时，将触发名为MetricManager的Lambda函数。该函数从DynamoDB表返回相应的结果。为了加强安全管理和限制API访问，API Gateway默认启用API key。用户在调用api时需要传递x-api-key标头。</li>
 </ol>
-<h2 id="_1">监控指标</h2>
+<h2 id="_1">创建标准日志记录</h2>
+<ol>
+<li>打开CloudFront控制台，在<strong>分配</strong>标签下单击需要创建标准日志的分配(Distribution)ID。</li>
+<li>在<strong>设置</strong>中点击<strong>编辑</strong>按钮，打开<strong>编辑设置</strong>并找到<strong>标准日志记录</strong>。</li>
+<li>选中<strong>打开</strong>，并在<em>S3 存储桶</em>列表中找到包含<em>-cloudfrontlogbuckete</em>关键字的选项，将其设置为传输日志文件的 S3 存储桶。如果您没有找到对应名字的S3存储桶，请确认是否在部署解决方案时，参数<em>CloudFront Log Type</em>为<em>yes-Non-Realtime</em>，详情请参阅<a href="../../deployment/#_1">部署解决方案</a>。</li>
+<li>最后请点击<strong>保存更改</strong>，使设置生效。</li>
+</ol>
+<h2 id="_2">监控指标</h2>
 <p>支持如下监控指标:</p>
 <ul>
 <li>request: 从客户端到 CloudFront 的请求数量</li>

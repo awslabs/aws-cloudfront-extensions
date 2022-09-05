@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#metrics" class="md-skip">
+        <a href="#activate-standard-monitoring" class="md-skip">
           Skip to content
         </a>
       
@@ -393,6 +393,13 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#activate-standard-monitoring" class="md-nav__link">
+    Activate standard monitoring
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#metrics" class="md-nav__link">
@@ -1034,6 +1041,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#activate-standard-monitoring" class="md-nav__link">
+    Activate standard monitoring
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#metrics" class="md-nav__link">
     Metrics
   </a>
@@ -1068,6 +1082,13 @@
 <li>Query standard logs in S3 via Athena. In order to allow Athena to speed up data query through data partitioning, Amazon EventBridge will create all partitions for the next day every day, and delete the partitions of the previous day. The Lambda function MetricCollector is used to analyze standard logs and collect monitoring metrics. It will be executed every 5 minutes.</li>
 <li>Save the query results in DynamoDB. Query the corresponding monitoring indicator data through Athena, such as calculating CHR (cache hit rate) and download rate through bandwidth, and finally store the monitoring indicator data in the DynamoDB table.</li>
 <li>Call APIs via API Gateway. When users send API request to API Gateway, a Lambda function called MetricManager will be triggered. The function reads the monitoring indicators and returns the corresponding results from the DynamoDB table. In order to strengthen security management and restrict API accesses, API key is enabled in API Gateway by default. Users are required to pass an x-api-key when calling the APIs.</li>
+</ol>
+<h2 id="activate-standard-monitoring">Activate standard monitoring</h2>
+<ol>
+<li>Open the CloudFront console and click the <strong>Distribution</strong> tab, click the Distribution ID of the distribution for which you need to save standard log.</li>
+<li>Click the <strong>Edit</strong> button in <strong>Settings</strong>, open <strong>Edit Settings</strong> page to activate <strong>Standard Logging</strong>.</li>
+<li>Choose <strong>Open</strong> option and expand to find the in the <em>S3 Bucket</em> list which contains the <em>-cloudfrontlogbuckete</em> keyword and set the item as the S3 bucket for delivering logs. If you cannot find an S3 bucket with the corresponding name, please verify the parameter <em>CloudFront Log Type</em> is <em>yes-Non-Realtime</em> when deploying the solution in CloudFormation, for details see <a href=". /deployment.md#_1">Deploying the solution</a>.</li>
+<li>Finally, please click <strong>Save Changes</strong> to make the settings take effect.</li>
 </ol>
 <h2 id="metrics">Metrics</h2>
 <p>The following metrics are provided:</p>
