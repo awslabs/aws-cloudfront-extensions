@@ -38,7 +38,7 @@
       "compareCurrent": "与当前配置比较",
       "compare": "比较",
       "updateDesc": "更新描述",
-      "applyOther": "应用于于其他分配",
+      "applyOther": "应用于其他分配",
       "delete": "删除",
       "deleteTip": "已删除 CloudFront 快照"
     },
