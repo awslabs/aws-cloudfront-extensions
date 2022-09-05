@@ -18,7 +18,7 @@ import { aws_kms as kms } from "aws-cdk-lib";
 
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
-import { EndpointType } from "aws-cdk-lib/aws-apigateway";
+import { EndpointType, RequestValidator } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
 
 export interface StepFunctionProps extends CommonProps {
@@ -679,6 +679,17 @@ export class StepFunctionRpTsConstruct extends Construct {
 
     const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
 
+    const ssl_requestValidator = new RequestValidator(
+      this,
+      "SSLRequestValidator",
+      {
+        restApi: ssl_api_handler,
+        requestValidatorName: "SSLApiValidator",
+        validateRequestBody: false,
+        validateRequestParameters: true,
+      }
+    );
+
     ssl_api.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
@@ -700,6 +711,10 @@ export class StepFunctionRpTsConstruct extends Construct {
     get_ssl_job.addMethod("GET", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.jobId": true,
+      },
+      requestValidator: ssl_requestValidator,
     });
 
     const list_cloudfront_arn_with_jobId = ssl_api.addResource(
@@ -708,6 +723,10 @@ export class StepFunctionRpTsConstruct extends Construct {
     list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.jobId": true,
+      },
+      requestValidator: ssl_requestValidator,
     });
 
     const list_ssl_certification_with_jobId = ssl_api.addResource(
@@ -716,6 +735,10 @@ export class StepFunctionRpTsConstruct extends Construct {
     list_ssl_certification_with_jobId.addMethod("GET", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.jobId": true,
+      },
+      requestValidator: ssl_requestValidator,
     });
 
     // cloudwatch event cron job for 5 minutes

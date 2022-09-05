@@ -20,6 +20,7 @@ import {
   AuthorizationType,
   EndpointType,
   LambdaRestApi,
+  RequestValidator,
 } from "aws-cdk-lib/aws-apigateway";
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { Rule } from "aws-cdk-lib/aws-events";
@@ -417,60 +418,109 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     //   apiKeyRequired: true,
     // });
 
+    const requestValidator = new RequestValidator(
+      this,
+      "SnapshotRequestValidator",
+      {
+        restApi: snapshot_rest_api,
+        requestValidatorName: "snapshotApiValidator",
+        validateRequestBody: false,
+        validateRequestParameters: true,
+      }
+    );
+
     const snapshot_proxy = snapshot_rest_api.root.addResource("snapshot");
 
     const apply_snapshot_proxy = snapshot_proxy.addResource("apply_snapshot");
     apply_snapshot_proxy.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.src_distribution_id": true,
+        "method.request.querystring.target_distribution_ids": true,
+        "method.request.querystring.snapshot_name": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const diff_cloudfront_snapshot_proxy = snapshot_proxy.addResource(
       "diff_cloudfront_snapshot"
     );
     diff_cloudfront_snapshot_proxy.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distribution_id": true,
+        "method.request.querystring.snapshot1": true,
+        "method.request.querystring.snapshot2": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const config_snapshot_tag_update_proxy = snapshot_proxy.addResource(
       "config_snapshot_tag_update"
     );
     config_snapshot_tag_update_proxy.addMethod("POST", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distribution_id": true,
+        "method.request.querystring.note": true,
+        "method.request.querystring.snapshot_name": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const get_applied_snapshot_name_proxy = snapshot_proxy.addResource(
       "get_applied_snapshot_name"
     );
     get_applied_snapshot_name_proxy.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const get_snapshot_link_proxy =
       snapshot_proxy.addResource("get_snapshot_link");
     get_snapshot_link_proxy.addMethod("GET", undefined, {
       authorizationType: AuthorizationType.IAM,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+        "method.request.querystring.snapShotName": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const list_snapshots_proxy = snapshot_proxy.addResource("list_snapshots");
     list_snapshots_proxy.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const create_snapshot_proxy = snapshot_proxy.addResource("create_snapshot");
     create_snapshot_proxy.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+        "method.request.querystring.snapShotName": true,
+        "method.request.querystring.snapShotNote": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const delete_snapshot_proxy = snapshot_proxy.addResource("delete_snapshot");
     delete_snapshot_proxy.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+        "method.request.querystring.snapShotName": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const usagePlan = snapshot_rest_api.addUsagePlan("Snapshot_api_UsagePlan", {
