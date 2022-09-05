@@ -362,7 +362,7 @@ const CompareSnapshot: React.FC = () => {
                                               );
                                             }}
                                           >
-                                            <b>{t("axxx")}</b>
+                                            <b>{t("snapshot:compare.show")}</b>
                                           </span>
                                         )}
                                         {snapshotDiffRes[key].show && (
