@@ -89,7 +89,7 @@ export class ConsoleStack extends cdk.Stack {
       default: "",
     });
     const logKeepingDays = new cdk.CfnParameter(this, "CloudFrontLogKeepDays", {
-      description: "Max number of days to keep cloudfront realtime logs in S3",
+      description: "Max number of days to keep CloudFront standard logs or realtime logs in S3",
       type: "Number",
       default: 120,
     });
