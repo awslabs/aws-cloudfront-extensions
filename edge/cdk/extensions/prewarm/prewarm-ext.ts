@@ -31,7 +31,7 @@ export class PrewarmStack extends cdk.Stack {
     const instanceType = new CfnParameter(this, 'InstanceType', {
       description: 'EC2 spot instance type to send pre-warm requests',
       type: 'String',
-      default: 'm6g.large',
+      default: 'c6a.large',
     });
 
     const threadNumber = new CfnParameter(this, 'ThreadNumber', {

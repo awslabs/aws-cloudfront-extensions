@@ -1,6 +1,6 @@
 您可以在DNS提供商中添加CNAME的CloudFront记录。
 
-## 添加CName以指向Route53中的CloudFront分发
+## 添加CName以指向Route53中的CloudFront分配
 
 创建CloudFront分配后，域名所有者需要手动或使用API将CloudFront分配添加为网站的CNAME，这样当有人访问网站时，DNS提供商将重定向到CloudFront分配。请参阅[AWS官方文档](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)。
 
