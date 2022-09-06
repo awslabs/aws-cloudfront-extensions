@@ -45,7 +45,7 @@ CloudFormation模板提供以下组件和工作流：
       | 参数             | 默认值 | 说明  |
       |-----------|---------------|---------|
       | ShowSuccessUrls | false | 在预热状态API中显示成功url列表（true or false）。 |
-      | InstanceType | m6g.large | 发送预热请求的EC2 spot实例类型。 |
+      | InstanceType | c6a.large | 发送预热请求的EC2 spot实例类型。 |
       | ThreadNumber | 6 | EC2中并行执行的线程数。 |
   
 

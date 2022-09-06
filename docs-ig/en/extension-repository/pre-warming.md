@@ -45,7 +45,7 @@ Use the following steps to deploy this solution on AWS.
       | Parameter | Default value | Description |
       |-----------|---------------|---------|
       | ShowSuccessUrls | false | Show success url list in Prewarm status API (true or false). |
-      | InstanceType | m6g.large | EC2 spot instance type to send pre-warm requests. |
+      | InstanceType | c6a.large | EC2 spot instance type to send pre-warm requests. |
       | ThreadNumber | 6 | Thread number to run in parallel in EC2. |
   
 
