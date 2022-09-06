@@ -65,6 +65,7 @@ export class PortalConstruct extends Construct {
                 minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2019,
                 enableIpv6: false,
                 comment: `${Aws.STACK_NAME} - Web Console Distribution (${Aws.REGION})`,
+                enableLogging: true,
                 errorResponses: [
                     {
                         httpStatus: 403,
