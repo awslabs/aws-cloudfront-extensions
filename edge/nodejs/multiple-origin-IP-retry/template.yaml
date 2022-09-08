@@ -43,7 +43,7 @@ Resources:
     Properties:
       CodeUri: multiple-origin-IP-retry/
       Handler: app.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs16.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
 

@@ -32,7 +32,7 @@ Resources:
     Properties:
       CodeUri: simple-lambda-edge/
       Handler: app.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs16.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
   EdgeFunctionRole:

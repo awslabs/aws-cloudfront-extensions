@@ -47,7 +47,7 @@ Resources:
     Properties:
       CodeUri: custom-response-with-replaced-url/
       Handler: app.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
   EdgeFunctionRole:
