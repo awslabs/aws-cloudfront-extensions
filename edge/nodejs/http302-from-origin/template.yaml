@@ -34,7 +34,7 @@ Resources:
     Properties:
       CodeUri: http302-from-origin/
       Handler: app.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs16.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
 

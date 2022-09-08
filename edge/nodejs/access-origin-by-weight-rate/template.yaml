@@ -38,7 +38,7 @@ Resources:
     Properties:
       CodeUri: access-origin-by-weight-rate/
       Handler: app.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs16.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
 
