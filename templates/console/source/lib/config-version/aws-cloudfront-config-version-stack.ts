@@ -28,6 +28,7 @@ import targets = require("aws-cdk-lib/aws-events-targets");
 import { Trail } from "aws-cdk-lib/aws-cloudtrail";
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { MyCustomResource } from "./custom-resources/cloudfront-config-custom-resource";
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { Construct } from "constructs";
 
 export class CloudFrontConfigVersionStack extends Stack {
@@ -582,6 +583,13 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "applyConfig",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/applyConfig.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
@@ -597,66 +605,158 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getAppliedSnapshotName",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/getAppliedSnapshotName.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "updateConfigTag",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/updateConfigTag.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "updateConfigSnapshotTag",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/updateConfigSnapshotTag.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "diffCloudfrontConfig",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/diffCloudfrontConfig.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "diffCloudfrontConfigSnapshot",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/diffCloudfrontConfigSnapshot.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "listCloudfrontVersions",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/listCloudfrontVersions.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "listCloudfrontSnapshots",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/listCloudfrontSnapshots.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigLink",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/getConfigLink.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigSnapshotLink",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/getConfigSnapshotLink.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigContent",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/getConfigContent.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigSnapshotContent",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/getConfigSnapshotContent.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Mutation",
       fieldName: "createVersionSnapShot",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/createVersionSnapShot.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Mutation",
       fieldName: "applySnapshot",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+          path.join(
+              __dirname,
+              "../../graphql/vtl/config-version/applySnapshot.vtl"
+          )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
+
     });
 
     lambdaDs.createResolver({
