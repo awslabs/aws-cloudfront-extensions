@@ -56,7 +56,7 @@ def cf_invalidation_status(dist_id, inv_id):
 
 def download_file(url, cf_domain):
     local_filename = shortuuid.uuid() + url.split('/')[-1]
-    with requests.get(url, headers={'Host': cf_domain}, stream=True, timeout=5) as r:
+    with requests.get(url, headers={'Accept-Encoding': 'gzip, deflate, br', 'Host': cf_domain}, stream=True, timeout=5) as r:
         r.raise_for_status()
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
