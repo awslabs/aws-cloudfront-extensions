@@ -13,7 +13,7 @@ from botocore.exceptions import WaiterError
 URL_SUFFIX = '.cloudfront.net'
 cf_client = boto3.client('cloudfront')
 SLEEP_TIME = 6
-RETRY_COUNT = 14400
+RETRY_COUNT = 604800
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
