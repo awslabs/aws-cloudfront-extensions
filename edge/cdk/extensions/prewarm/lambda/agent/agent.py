@@ -188,7 +188,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
             print(ddb_resp)
 
         # Keep waiting new messages sent into the queue until retry timeout
-        for i in range(1, 1 + RETRY_COUNT):
+        while True:
             queue_messages = get_messages_from_queue(sqs, queue_url)
             if len(queue_messages) > 0:
                 print('Found messages in queue, process the message')
