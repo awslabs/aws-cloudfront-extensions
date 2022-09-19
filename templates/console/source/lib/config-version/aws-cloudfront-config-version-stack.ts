@@ -17,9 +17,10 @@ import {
 } from "aws-cdk-lib/aws-iam";
 import * as logs from "aws-cdk-lib/aws-logs";
 import {
+  AccessLogFormat,
   AuthorizationType,
   EndpointType,
-  LambdaRestApi,
+  LambdaRestApi, LogGroupLogDestination,
   RequestValidator,
 } from "aws-cdk-lib/aws-apigateway";
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
@@ -329,6 +330,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       new targets.LambdaFunction(cloudfrontConfigVersionExporter)
     );
 
+    const logGroup = new logs.LogGroup(this, "cloudfront_config_snapshot_ApiGatewayAccessLogs");
     const snapshot_rest_api = new LambdaRestApi(
       this,
       "cloudfront_config_snapshot_restfulApi",
@@ -340,84 +342,12 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         endpointConfiguration: {
           types: [EndpointType.EDGE],
         },
+        deployOptions: {
+          accessLogDestination: new LogGroupLogDestination(logGroup),
+          accessLogFormat: AccessLogFormat.clf(),
+        }
       }
     );
-
-    // TODO: temp remove the version api
-    // const version_rest_api = new LambdaRestApi(
-    //   this,
-    //   "cloudfront_config_version_restfulApi",
-    //   {
-    //     handler: cloudfrontConfigVersionManager,
-    //     description: "restful api to manage cloudfront configuration changes",
-    //     proxy: false,
-    //     restApiName: "CloudfrontVersionManager",
-    //     endpointConfiguration: {
-    //       types: [EndpointType.EDGE],
-    //     },
-    //   }
-    // );
-
-    // const config_diff_proxy = rest_api.root.addResource("cf_config_manager");
-    // config_diff_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-
-    // const version_proxy = version_rest_api.root.addResource("version");
-
-    // const get_distribution_cname_proxy = version_proxy.addResource(
-    //   "get_distribution_cname"
-    // );
-    // get_distribution_cname_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const diff_proxy = version_proxy.addResource("diff");
-    // diff_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const versionList_proxy = version_proxy.addResource("list_versions");
-    // versionList_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // // const apply_config_proxy = version_proxy.addResource("apply_config");
-    // // apply_config_proxy.addMethod("GET", undefined, {
-    // //   authorizationType: AuthorizationType.IAM,
-    // //   apiKeyRequired: true,
-    // // });
-    //
-    // const config_tag_update_proxy =
-    //   version_proxy.addResource("config_tag_update");
-    // config_tag_update_proxy.addMethod("POST", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const cf_list_proxy = version_proxy.addResource("cf_list");
-    // cf_list_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const config_link_path = version_proxy.addResource("config_link");
-    // const config_link_proxy = config_link_path.addResource("{versionId}");
-    // config_link_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const config_content_path = version_proxy.addResource("config_content");
-    // const config_content_proxy = config_content_path.addResource("{versionId}");
-    // config_content_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
 
     const requestValidator = new RequestValidator(
       this,
@@ -737,13 +667,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaDs.createResolver({
       typeName: "Mutation",
       fieldName: "createVersionSnapShot",
-      requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/createVersionSnapShot.vtl"
-          )
-      ),
-      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({

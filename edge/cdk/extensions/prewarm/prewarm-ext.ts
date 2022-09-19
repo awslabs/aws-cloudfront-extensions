@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { EndpointType, LambdaRestApi, RequestValidator } from 'aws-cdk-lib/aws-apigateway';
+import { EndpointType, LambdaRestApi, RequestValidator, LogGroupLogDestination, AccessLogFormat } from 'aws-cdk-lib/aws-apigateway';
 import * as as from 'aws-cdk-lib/aws-autoscaling';
 import { BlockDeviceVolume } from 'aws-cdk-lib/aws-autoscaling';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
@@ -319,6 +319,7 @@ export class PrewarmStack extends cdk.Stack {
       }
     });
 
+    const logGroup = new logs.LogGroup(this, "PrewarmStatusApi_ApiGatewayAccessLogs");
     // Restful API to get prewarm status from Dynamodb table
     const statusApi = new LambdaRestApi(this, 'PrewarmStatusApi', {
       handler: statusFetcherLambda,
@@ -326,6 +327,10 @@ export class PrewarmStack extends cdk.Stack {
       proxy: false,
       endpointConfiguration: {
         types: [EndpointType.EDGE]
+      },
+      deployOptions: {
+        accessLogDestination: new LogGroupLogDestination(logGroup),
+        accessLogFormat: AccessLogFormat.clf(),
       }
     });
 

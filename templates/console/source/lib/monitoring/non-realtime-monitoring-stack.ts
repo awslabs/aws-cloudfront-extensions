@@ -3,8 +3,9 @@ import { S3ToLambda } from '@aws-solutions-constructs/aws-s3-lambda';
 import * as cdk from 'aws-cdk-lib';
 import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
+  AccessLogFormat,
   EndpointType,
-  LambdaRestApi,
+  LambdaRestApi, LogGroupLogDestination,
   RequestValidator
 } from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
@@ -722,6 +723,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     metricsManager.node.addDependency(cfGlueTable);
     metricsManager.node.addDependency(cfLogBucket);
 
+    const logGroup = new logs.LogGroup(this, "CloudfrontPerformanceMetrics_non-realtime_ApiGatewayAccessLogs");
     const metricApi = new LambdaRestApi(this, 'CloudfrontPerformanceMetrics', {
       handler: metricsManager,
       description: "Restful api to get the cloudfront performance data",
@@ -739,6 +741,10 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
         allowCredentials: true,
         allowOrigins: ['*'],
+      },
+      deployOptions: {
+        accessLogDestination: new LogGroupLogDestination(logGroup),
+        accessLogFormat: AccessLogFormat.clf(),
       }
     });
 

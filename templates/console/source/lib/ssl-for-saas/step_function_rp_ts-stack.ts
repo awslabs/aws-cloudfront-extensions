@@ -18,7 +18,7 @@ import { aws_kms as kms } from "aws-cdk-lib";
 
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
-import { EndpointType, RequestValidator } from "aws-cdk-lib/aws-apigateway";
+import {AccessLogFormat, EndpointType, LogGroupLogDestination, RequestValidator} from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
 
 export interface StepFunctionProps extends CommonProps {
@@ -666,6 +666,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       }
     );
 
+    const apiAccessLogGroup = new logs.LogGroup(this, "cloudfront_ssl-for-saas_ApiGatewayAccessLogs");
     // API Gateway with Lambda proxy integration
     const ssl_api_handler = new _apigw.LambdaRestApi(this, "ssl_api_handler", {
       handler: fn_ssl_api_handler,
@@ -675,6 +676,10 @@ export class StepFunctionRpTsConstruct extends Construct {
       endpointConfiguration: {
         types: [EndpointType.EDGE],
       },
+      deployOptions: {
+          accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
+          accessLogFormat: AccessLogFormat.clf(),
+      }
     });
 
     const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
