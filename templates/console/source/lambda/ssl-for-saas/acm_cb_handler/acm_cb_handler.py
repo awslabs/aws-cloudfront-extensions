@@ -124,7 +124,6 @@ default_distribution_config = {
     "IsIPV6Enabled": True
 }
 
-
 # create CloudFront distribution
 def create_distribution(config):
     """[summary]
@@ -144,18 +143,6 @@ def create_distribution(config):
                 resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
 
     return resp
-    # TODO: Do we need to wait distribution status to be deployed?
-    # wait for distribution to be enabled, move to Step Function in future
-    # while True:
-    #     distribution = cf.get_distribution(
-    #         Id = resp['Distribution']['Id']
-    #     )
-    #     if distribution['Distribution']['Status'] == 'Deployed':
-    #         logger.info('distribution %s successful deployed', distribution['Distribution']['DomainName'])
-    #         break
-    #     else:
-    #         logger.info('Waiting for distribution to be deployed...')
-    #         time.sleep(10)
 
 # create CloudFront distribution
 @retry(wait=wait_fixed(2) + wait_random(0, 2), stop=stop_after_attempt(100))
@@ -221,8 +208,6 @@ def fetch_cloudfront_config_version(distribution_id, config_version_id, ddb_tabl
     s3_client = boto3.client('s3')
     data = s3_client.get_object(Bucket=data['s3_bucket'], Key=data['s3_key'])
     content = json.load(data['Body'])
-    # result = str(json.dumps(content, indent=4))
-    # result = data['Body']
 
     return content
 

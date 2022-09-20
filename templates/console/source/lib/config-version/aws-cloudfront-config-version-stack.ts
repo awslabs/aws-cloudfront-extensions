@@ -20,7 +20,8 @@ import {
   AccessLogFormat,
   AuthorizationType,
   EndpointType,
-  LambdaRestApi, LogGroupLogDestination,
+  LambdaRestApi,
+  LogGroupLogDestination,
   RequestValidator,
 } from "aws-cdk-lib/aws-apigateway";
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
@@ -154,11 +155,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       ],
     });
 
-    const acm_admin_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["acm:*"],
-    });
-
     const ddb_rw_policy = new iam.PolicyStatement({
       resources: [
         cloudfront_config_version_table.tableArn,
@@ -166,11 +162,6 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         cloudfront_config_snapshot_table.tableArn,
       ],
       actions: ["dynamodb:*"],
-    });
-
-    const stepFunction_run_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["states:*"],
     });
 
     const s3_rw_policy = new iam.PolicyStatement({
@@ -330,7 +321,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       new targets.LambdaFunction(cloudfrontConfigVersionExporter)
     );
 
-    const logGroup = new logs.LogGroup(this, "cloudfront_config_snapshot_ApiGatewayAccessLogs");
+    const logGroup = new logs.LogGroup(
+      this,
+      "cloudfront_config_snapshot_ApiGatewayAccessLogs"
+    );
     const snapshot_rest_api = new LambdaRestApi(
       this,
       "cloudfront_config_snapshot_restfulApi",
@@ -345,7 +339,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         deployOptions: {
           accessLogDestination: new LogGroupLogDestination(logGroup),
           accessLogFormat: AccessLogFormat.clf(),
-        }
+        },
       }
     );
 
@@ -514,10 +508,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "applyConfig",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/applyConfig.vtl"
-          )
+        path.join(__dirname, "../../graphql/vtl/config-version/applyConfig.vtl")
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -536,10 +527,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "getAppliedSnapshotName",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/getAppliedSnapshotName.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getAppliedSnapshotName.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -548,10 +539,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "updateConfigTag",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/updateConfigTag.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/updateConfigTag.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -560,10 +551,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "updateConfigSnapshotTag",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/updateConfigSnapshotTag.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/updateConfigSnapshotTag.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -572,10 +563,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "diffCloudfrontConfig",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/diffCloudfrontConfig.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/diffCloudfrontConfig.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -584,10 +575,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "diffCloudfrontConfigSnapshot",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/diffCloudfrontConfigSnapshot.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/diffCloudfrontConfigSnapshot.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -596,10 +587,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "listCloudfrontVersions",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/listCloudfrontVersions.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/listCloudfrontVersions.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -608,10 +599,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "listCloudfrontSnapshots",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/listCloudfrontSnapshots.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/listCloudfrontSnapshots.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -620,10 +611,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "getConfigLink",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/getConfigLink.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigLink.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -632,10 +623,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "getConfigSnapshotLink",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/getConfigSnapshotLink.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigSnapshotLink.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -644,10 +635,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "getConfigContent",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/getConfigContent.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigContent.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -656,10 +647,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Query",
       fieldName: "getConfigSnapshotContent",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/getConfigSnapshotContent.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigSnapshotContent.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
@@ -673,13 +664,12 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       typeName: "Mutation",
       fieldName: "applySnapshot",
       requestMappingTemplate: appsync.MappingTemplate.fromFile(
-          path.join(
-              __dirname,
-              "../../graphql/vtl/config-version/applySnapshot.vtl"
-          )
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/applySnapshot.vtl"
+        )
       ),
       responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
-
     });
 
     lambdaDs.createResolver({

@@ -18,7 +18,12 @@ import { aws_kms as kms } from "aws-cdk-lib";
 
 import path from "path";
 import { CommonProps } from "../cf-common/cf-common-stack";
-import {AccessLogFormat, EndpointType, LogGroupLogDestination, RequestValidator} from "aws-cdk-lib/aws-apigateway";
+import {
+  AccessLogFormat,
+  EndpointType,
+  LogGroupLogDestination,
+  RequestValidator,
+} from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
 
 export interface StepFunctionProps extends CommonProps {
@@ -126,57 +131,91 @@ export class StepFunctionRpTsConstruct extends Construct {
 
     const acm_admin_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["acm:*"],
+      actions: [
+        "acm:AddTagsToCertificate",
+        "acm:DescribeCertificate",
+        "acm:GetAccountConfiguration",
+        "acm:GetCertificate",
+        "acm:ImportCertificate",
+        "acm:ListCertificates",
+        "acm:ListTagsForCertificate",
+        "acm:RequestCertificate",
+        "acm:DescribeCertificate",
+      ],
     });
 
     const ddb_rw_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["dynamodb:*"],
+      actions: [
+        "dynamodb:CreateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem",
+        "dynamodb:UpdateTable",
+      ],
     });
 
     const stepFunction_run_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["states:*"],
+      actions: [
+        "states:StartExecution",
+        "states:StopExecution",
+        "states:SendTaskSuccess",
+        "states:SendTaskFailure",
+        "states:SendTaskHeartbeat",
+      ],
     });
 
     const s3_read_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: [
-        "s3:Get*",
-        "s3:List*",
-        "s3-object-lambda:Get*",
-        "s3-object-lambda:List*",
-      ],
-    });
-
-    const s3_update_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["s3:GetBucketAcl*", "s3:PutBucketAcl*"],
+      actions: ["s3:GetObject", "s3-object-lambda:GetObject"],
     });
 
     const lambda_rw_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["lambda:*"],
+      actions: ["lambda:InvokeFunction"],
     });
 
     const sns_update_policy = new iam.PolicyStatement({
       resources: [sns_topic.topicArn],
-      actions: ["sns:*"],
+      actions: ["sns:Publish"],
     });
 
     const cloudfront_create_update_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["cloudfront:*"],
+      actions: [
+        "cloudfront:GetDistribution",
+        "cloudfront:CreateDistribution",
+        "cloudfront:TagResource",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:ListTagsForResource",
+      ],
     });
 
     const tag_update_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["tag:*"],
+      actions: [
+        "tag:TagResources",
+        "tag:UntagResources",
+        "tag:GetResources",
+        "tag:GetTagKeys",
+        "tag:GetTagValues",
+      ],
     });
 
     const kms_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["kms:*"],
+      actions: [
+        "kms:GenerateDataKey",
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKeyPair",
+      ],
     });
 
     const stepFunction_loggin_policy = new iam.PolicyStatement({
@@ -284,7 +323,6 @@ export class StepFunctionRpTsConstruct extends Construct {
     _fn_acm_cb_handler_role.addToPolicy(stepFunction_run_policy);
     _fn_acm_cb_handler_role.addToPolicy(cloudfront_create_update_policy);
     _fn_acm_cb_handler_role.addToPolicy(s3_read_policy);
-    _fn_acm_cb_handler_role.addToPolicy(s3_update_policy);
     _fn_acm_cb_handler_role.addToPolicy(lambda_rw_policy);
     _fn_acm_cb_handler_role.addToPolicy(sns_update_policy);
     _fn_acm_cb_handler_role.addToPolicy(kms_policy);
@@ -666,7 +704,10 @@ export class StepFunctionRpTsConstruct extends Construct {
       }
     );
 
-    const apiAccessLogGroup = new logs.LogGroup(this, "cloudfront_ssl-for-saas_ApiGatewayAccessLogs");
+    const apiAccessLogGroup = new logs.LogGroup(
+      this,
+      "cloudfront_ssl-for-saas_ApiGatewayAccessLogs"
+    );
     // API Gateway with Lambda proxy integration
     const ssl_api_handler = new _apigw.LambdaRestApi(this, "ssl_api_handler", {
       handler: fn_ssl_api_handler,
@@ -677,9 +718,9 @@ export class StepFunctionRpTsConstruct extends Construct {
         types: [EndpointType.EDGE],
       },
       deployOptions: {
-          accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
-          accessLogFormat: AccessLogFormat.clf(),
-      }
+        accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
+        accessLogFormat: AccessLogFormat.clf(),
+      },
     });
 
     const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
