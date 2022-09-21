@@ -278,7 +278,7 @@ def lambda_handler(event, context):
                      'distStageStatus',
                      'INPROGRESS')
     try:
-        # delete such domain name in DynamoDB, TODO: Do we need to move the deletion after distribution create complete?
+        # delete such domain name in DynamoDB
         resp = dynamo_client.delete_item(
             TableName=callback_table,
             Key={
