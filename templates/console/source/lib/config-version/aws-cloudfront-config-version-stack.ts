@@ -161,7 +161,17 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         cloudfront_config_latestVersion_table.tableArn,
         cloudfront_config_snapshot_table.tableArn,
       ],
-      actions: ["dynamodb:*"],
+      actions: [
+        "dynamodb:CreateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem",
+        "dynamodb:UpdateTable",
+      ],
     });
 
     const s3_rw_policy = new iam.PolicyStatement({
@@ -183,26 +193,21 @@ export class CloudFrontConfigVersionConstruct extends Construct {
 
     const cloudfront_create_update_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["cloudfront:*"],
-    });
-
-    const eventBridge_create_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["events:*"],
-    });
-
-    const iam_create_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["iam:*"],
+      actions: [
+        "cloudfront:GetDistribution",
+        "cloudfront:CreateDistribution",
+        "cloudfront:TagResource",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:ListTagsForResource",
+        "cloudfront:ListDistributions",
+      ],
     });
 
     lambdaRole.addToPolicy(ddb_rw_policy);
     lambdaRole.addToPolicy(s3_rw_policy);
-    lambdaRole.addToPolicy(lambda_rw_policy);
     lambdaRole.addToPolicy(cloudfront_create_update_policy);
     lambdaRole.addToPolicy(lambdaRunPolicy);
-    lambdaRole.addToPolicy(eventBridge_create_policy);
-    lambdaRole.addToPolicy(iam_create_policy);
 
     // define a shared lambda layer for all other lambda to use
     const powertools_layer = LayerVersion.fromLayerVersionArn(
