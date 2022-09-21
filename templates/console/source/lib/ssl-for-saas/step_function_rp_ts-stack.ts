@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { Stack } from "aws-cdk-lib";
+import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import { aws_iam as iam } from "aws-cdk-lib";
 import { aws_stepfunctions as _step } from "aws-cdk-lib";
 import { aws_stepfunctions_tasks as _task } from "aws-cdk-lib";
@@ -642,7 +642,10 @@ export class StepFunctionRpTsConstruct extends Construct {
         .next(sns_notify_job)
     );
 
-    const logGroup = new logs.LogGroup(this, "ssl_step_function_logs");
+    const logGroup = new logs.LogGroup(this, "ssl_step_function_logs", {
+      logGroupName: "/aws/step-functions/ssl_step_function_logs",
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
     const stepFunction = new _step.StateMachine(this, "SSL for SaaS", {
       definition: stepFunctionEntry,
       role: _stepFunction_loggin_role,
