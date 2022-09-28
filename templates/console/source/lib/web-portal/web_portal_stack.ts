@@ -4,7 +4,7 @@ import {
     Aws,
     aws_cloudfront as cloudfront,
     aws_s3 as s3,
-    aws_s3_deployment as s3d,
+    aws_s3_deployment as s3d, Duration,
     RemovalPolicy,
     Stack,
 } from "aws-cdk-lib";
@@ -13,7 +13,6 @@ import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import * as cdk from "aws-cdk-lib";
-import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { CommonProps } from "../cf-common/cf-common-stack";
 
 export interface PortalProps extends CommonProps {
@@ -49,7 +48,43 @@ export class PortalConstruct extends Construct {
 
     constructor(scope: Construct, id: string, props: PortalProps) {
         super(scope, id);
-
+        const getDefaultBehaviour = () => {
+            return {
+                responseHeadersPolicy: new cloudfront.ResponseHeadersPolicy(
+                    this,
+                    "ResponseHeadersPolicy",
+                    {
+                        responseHeadersPolicyName: `SecHdr${Aws.REGION}${Aws.STACK_NAME}`,
+                        comment: "Log Hub Security Headers Policy",
+                        securityHeadersBehavior: {
+                            contentSecurityPolicy: {
+                                contentSecurityPolicy: `default-src 'self'; upgrade-insecure-requests; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ${props.aws_appsync_graphqlEndpoint} https://cognito-idp.${Aws.REGION}.amazonaws.com/`,
+                                override: true,
+                            },
+                            contentTypeOptions: { override: true },
+                            frameOptions: {
+                                frameOption: cloudfront.HeadersFrameOption.DENY,
+                                override: true,
+                            },
+                            referrerPolicy: {
+                                referrerPolicy: cloudfront.HeadersReferrerPolicy.NO_REFERRER,
+                                override: true,
+                            },
+                            strictTransportSecurity: {
+                                accessControlMaxAge: Duration.seconds(600),
+                                includeSubdomains: true,
+                                override: true,
+                            },
+                            xssProtection: {
+                                protection: true,
+                                modeBlock: true,
+                                override: true,
+                            },
+                        },
+                    }
+                )
+            }
+        }
         // Use cloudfrontToS3 solution constructs
         const portal = new CloudFrontToS3(this, "UI", {
             bucketProps: {
@@ -73,6 +108,7 @@ export class PortalConstruct extends Construct {
                         responsePagePath: "/index.html",
                     },
                 ],
+                defaultBehavior: getDefaultBehaviour(),
             },
             insertHttpSecurityHeaders: false,
         });
