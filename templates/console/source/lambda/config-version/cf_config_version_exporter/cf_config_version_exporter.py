@@ -29,12 +29,14 @@ def lambda_handler(event, context):
 
     log.info(distribution_id)
 
-    return update_config_version(distribution_id)
-
-
-def update_config_version(distribution_id):
-    # export the cloudfront config to S3 bucket and directory
     cf_client = boto3.client('cloudfront')
+    s3_client = boto3.client('s3')
+    ddb_client = boto3.resource('dynamodb')
+    return update_config_version(distribution_id, cf_client, s3_client)
+
+
+def update_config_version(distribution_id, cf_client, s3_client, ddb_client):
+    # export the cloudfront config to S3 bucket and directory
     response = cf_client.get_distribution_config(
         Id=distribution_id
     )
@@ -46,7 +48,7 @@ def update_config_version(distribution_id):
     with open("/tmp/" + config_name, "w") as outfile:
         log.info(json.dumps(response["DistributionConfig"], indent=4))
         json.dump(response["DistributionConfig"], outfile, indent=4)
-    s3_client = boto3.client('s3')
+
     s3_path = "s3://" + S3_BUCKET + "/" + distribution_id + "/" + year + "/" + month + "/" + day + "/" + config_name
     s3_key = distribution_id + "/" + year + "/" + month + "/" + day + "/" + config_name
     try:
@@ -54,7 +56,7 @@ def update_config_version(distribution_id):
     except ClientError as e:
         logging.error(e)
     # first get the latest versionId of updated distribution
-    ddb_client = boto3.resource('dynamodb')
+
     ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
     try:
         resp = ddb_table.query(
