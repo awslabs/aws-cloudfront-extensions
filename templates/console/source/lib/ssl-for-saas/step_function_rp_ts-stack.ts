@@ -126,6 +126,8 @@ export class StepFunctionRpTsConstruct extends Construct {
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents",
+        "lambda:GetFunction",
+        "lambda:EnableReplication"
       ],
     });
 

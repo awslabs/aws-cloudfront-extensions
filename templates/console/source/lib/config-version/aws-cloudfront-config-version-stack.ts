@@ -188,7 +188,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
 
     const lambda_rw_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["lambda:*"],
+      actions: [
+          "lambda:GetFunction",
+          "lambda:EnableReplication"
+      ],
     });
 
     const cloudfront_create_update_policy = new iam.PolicyStatement({
@@ -208,6 +211,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaRole.addToPolicy(s3_rw_policy);
     lambdaRole.addToPolicy(cloudfront_create_update_policy);
     lambdaRole.addToPolicy(lambdaRunPolicy);
+    lambdaRole.addToPolicy(lambda_rw_policy);
 
     // define a shared lambda layer for all other lambda to use
     const powertools_layer = LayerVersion.fromLayerVersionArn(
