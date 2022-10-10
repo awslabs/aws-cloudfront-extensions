@@ -5,53 +5,36 @@ from moto import mock_dynamodb
 from moto import mock_cloudfront
 from moto import mock_s3
 
-# from cf_config_version_exporter import lambda_handler
-# from cf_config_version_exporter import update_config_version
 
+@mock_dynamodb
+@mock_cloudfront
+@mock_s3
+def test_get_distributionId(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
+    from cf_config_version_exporter import get_distributionId
 
+    event = {
+        "detail": {
+            "eventName": 'CreateDistribution',
+            "responseElements": {
+                "requestParameters": {
+                    "id": 'E1Z1Z1Z1Z1Z1Z1'
+                }
+            },
+            "responseElements": {
+                "distribution": {
+                    "id": 'E1Z1Z1Z1Z1Z1Z1'
+                }
+            }
+        }
+    }
 
-# @mock_dynamodb2
-# @mock_cloudfront
-# @mock_s3
-# def test_lambda_handler(monkeypatch):
-#     ddb = boto3.resource(service_name="dynamodb",region_name="us-east-1")
-#     ddb.create_table(
-#         TableName='CloudFrontMetricsTable',
-#         AttributeDefinitions=[
-#             {
-#                 'AttributeName': 'metricId',
-#                 'AttributeType': 'S'
-#             },
-#             {
-#                 'AttributeName': 'timestamp',
-#                 'AttributeType': 'S'
-#             },
-#
-#         ],
-#         KeySchema=[
-#             {
-#                 'AttributeName': 'metricId',
-#                 'KeyType': 'HASH'
-#             },
-#             {
-#                 'AttributeName': 'timestamp',
-#                 'KeyType': 'RANGE'
-#             }
-#         ],
-#         BillingMode='PROVISIONED',
-#         ProvisionedThroughput={
-#             'ReadCapacityUnits': 10,
-#             'WriteCapacityUnits': 10
-#         },
-#     )
-#
-#     monkeypatch.setenv('DDB_TABLE_NAME', 'CloudFrontMetricsTable', prepend=False)
-#     monkeypatch.setenv('REGION_NAME', 'us-east-1', prepend=False)
-#     result = lambda_handler(None, None)
-#     print(result)
-#
-#     assert result == {}
+    result = get_distributionId(event)
+    assert result == 'E1Z1Z1Z1Z1Z1Z1'
 
 
 default_distribution_config = {
@@ -150,6 +133,7 @@ default_distribution_config = {
     "HttpVersion": "http2",
     "IsIPV6Enabled": True
 }
+
 
 @mock_dynamodb
 @mock_cloudfront
@@ -283,7 +267,7 @@ def test_update_config_version(monkeypatch):
     s3_client = boto3.client('s3')
     monkeypatch.setattr(s3_client, "upload_file", mock_s3_upload_file)
 
-    ddb = boto3.resource(service_name="dynamodb",region_name="us-east-1")
+    ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
     ddb.create_table(
         TableName='DDB_VERSION_TABLE_NAME',
         AttributeDefinitions=[
@@ -374,7 +358,6 @@ def test_update_config_version(monkeypatch):
     )
 
     result = update_config_version(distribution_id, cf_client, s3_client, ddb)
-
 
     assert result == {
         'statusCode': 200,

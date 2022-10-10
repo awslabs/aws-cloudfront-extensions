@@ -19,20 +19,25 @@ log.setLevel('INFO')
 
 def lambda_handler(event, context):
     # extract the distribution id from the input
+    distribution_id = get_distributionId(event)
+
+    cf_client = boto3.client('cloudfront')
+    s3_client = boto3.client('s3')
+    ddb_client = boto3.resource('dynamodb')
+    return update_config_version(distribution_id, cf_client, s3_client, ddb_client)
+
+
+def get_distributionId(event):
     log.info(event['detail'])
-    if event['detail']['eventName'] == 'CreateDistribution' or event['detail']['eventName'] == 'CreateDistributionWithTags':
+    if event['detail']['eventName'] == 'CreateDistribution' or event['detail'][
+        'eventName'] == 'CreateDistributionWithTags':
         response_parameters = event["detail"]["responseElements"]
         distribution_id = response_parameters['distribution']['id']
     else:
         request_parameters = event["detail"]["requestParameters"]
         distribution_id = request_parameters["id"]
-
     log.info(distribution_id)
-
-    cf_client = boto3.client('cloudfront')
-    s3_client = boto3.client('s3')
-    ddb_client = boto3.resource('dynamodb')
-    return update_config_version(distribution_id, cf_client, s3_client)
+    return distribution_id
 
 
 def update_config_version(distribution_id, cf_client, s3_client, ddb_client):
