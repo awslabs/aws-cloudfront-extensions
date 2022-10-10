@@ -26,28 +26,28 @@ log.setLevel('INFO')
 
 @app.get("/cf_config_manager/version/diff")
 def manager_version_diff():
-    query_strings_as_dict = app.current_event.query_string_parameters
-    json_payload = app.current_event.json_body
-    payload = app.current_event.body
 
     dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
     version1 = app.current_event.get_query_string_value(name="version1", default_value="")
     version2 = app.current_event.get_query_string_value(name="version2", default_value="")
 
+    diff_content = get_version_diff(dist_id, version1, version2)
+
+    return diff_content
+
+
+def get_version_diff(dist_id, version1, version2):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
-
     response = ddb_table.get_item(
         Key={
             "distributionId": dist_id,
             "versionId": int(version1)
         })
     data = response['Item']
-
     s3_bucket = data['s3_bucket']
     s3_key1 = data['s3_key']
-
     response = ddb_table.get_item(
         Key={
             "distributionId": dist_id,
@@ -55,28 +55,20 @@ def manager_version_diff():
         })
     data = response['Item']
     s3_key2 = data['s3_key']
-
     s3_client = boto3.client('s3')
     local_config_file_name_version1 = '/tmp/' + dist_id + "_" + version1 + ".json"
     local_config_file_name_version2 = '/tmp/' + dist_id + "_" + version2 + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version1)
     s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
-
     # compare the two files
     cmd = ['git', 'diff', '--no-index', local_config_file_name_version1, local_config_file_name_version2,
            '>/tmp/diff.txt', ';', 'exit 0']
-
     shell_cmd = ' '.join(cmd)
     log.info(shell_cmd)
-
     output = subprocess.check_output(shell_cmd, shell=True)
-
     diff_file = open("/tmp/diff.txt", "r")
-
     diff_content = diff_file.read()
-
     diff_file.close()
-
     return diff_content
 
 
@@ -87,14 +79,18 @@ def manager_snapshot_diff():
     snapshot1 = app.current_event.get_query_string_value(name="snapshot1", default_value="")
     snapshot2 = app.current_event.get_query_string_value(name="snapshot2", default_value="")
 
+    diff_content = get_snapshot_diff(distribution_id, snapshot1, snapshot2)
+
+    return diff_content
+
+
+def get_snapshot_diff(distribution_id, snapshot1, snapshot2):
     dist_id = distribution_id
     if dist_id == "" or snapshot1 == "" or snapshot2 == "":
         raise Exception("Snapshot name can not be empty")
-
     # first get the version id from snapshot id
     ddb_client = boto3.resource('dynamodb')
     ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
-
     response = ddb_snapshot_table.get_item(
         Key={
             "distributionId": distribution_id,
@@ -103,9 +99,7 @@ def manager_snapshot_diff():
     snapshot_resp = response['Item']
     if not snapshot_resp:
         raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot1}")
-
     src_version_1 = snapshot_resp['versionId']
-
     response = ddb_snapshot_table.get_item(
         Key={
             "distributionId": distribution_id,
@@ -114,26 +108,20 @@ def manager_snapshot_diff():
     snapshot_resp = response['Item']
     if not snapshot_resp:
         raise Exception(f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot2}")
-
     src_version_2 = snapshot_resp['versionId']
-
     version_1 = src_version_1
     version_2 = src_version_2
-
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
-
     response = ddb_table.get_item(
         Key={
             "distributionId": dist_id,
             "versionId": int(version_1)
         })
     data = response['Item']
-
     s3_bucket = data['s3_bucket']
     s3_key1 = data['s3_key']
-
     response = ddb_table.get_item(
         Key={
             "distributionId": dist_id,
@@ -141,30 +129,21 @@ def manager_snapshot_diff():
         })
     data = response['Item']
     s3_key2 = data['s3_key']
-
     s3_client = boto3.client('s3')
     local_config_file_name_version1 = '/tmp/' + dist_id + "_" + str(version_1) + ".json"
     local_config_file_name_version2 = '/tmp/' + dist_id + "_" + str(version_2) + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version1)
     s3_client.download_file(s3_bucket, s3_key2, local_config_file_name_version2)
-
     # compare the two files
     cmd = ['git', 'diff', '--no-index', local_config_file_name_version1, local_config_file_name_version2,
            '>/tmp/diff.txt', ';', 'exit 0']
-
     shell_cmd = ' '.join(cmd)
     log.info(shell_cmd)
-
     output = subprocess.check_output(shell_cmd, shell=True)
-
     diff_file = open("/tmp/diff.txt", "r")
-
     diff_content = diff_file.read()
-
     diff_file.close()
-
     return diff_content
-
 
 
 @app.get("/version/apply_config")
@@ -177,27 +156,26 @@ def manager_version_apply_config():
     src_version = app.current_event.get_query_string_value(name="version", default_value="")
     target_dist_ids = query_strings_as_dict['target_distribution_ids']
 
+    return apply_config_version(source_dist_id, src_version, target_dist_ids)
+
+
+def apply_config_version(source_dist_id, src_version, target_dist_ids):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
-
     response = ddb_table.get_item(
         Key={
             "distributionId": source_dist_id,
             "versionId": int(src_version)
         })
     data = response['Item']
-
     s3_bucket = data['s3_bucket']
     s3_key1 = data['s3_key']
-
     s3_client = boto3.client('s3')
     local_config_file_name_version = '/tmp/' + source_dist_id + "_" + src_version + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
-
     # call boto to apply the config to target distribution
     cf_client = boto3.client('cloudfront')
-
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
         for distribution_id in target_dist_ids:
@@ -221,8 +199,8 @@ def manager_version_apply_config():
                     IfMatch=etag
                 )
                 logger.info('target distributions been updated')
-
     return 'target distributions been updated'
+
 
 @app.post("/snapshot/apply_snapshot")
 def manager_snapshot_apply_config():
@@ -234,54 +212,37 @@ def manager_snapshot_apply_config():
     source_dist_id = src_distribution_id
     src_snapshot = snapshot_name
     target_distribution_ids = target_distribution_ids_raw.split(",")
-    for dist_name in target_distribution_ids:
-        if dist_name == "" or dist_name.isspace():
-            raise Exception("target distribution list contains empty string")
 
-    if source_dist_id == "":
-        raise Exception("source distribution id can not be empty")
-    if src_snapshot == "":
-        raise Exception("source snapshot name can not be empty")
+    validate_input_parameters(source_dist_id, src_snapshot, target_distribution_ids)
 
     # first get the version from snapshot ddb table
     ddb_client = boto3.resource('dynamodb')
     ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
-    response = ddb_snapshot_table.get_item(
-        Key={
-            "distributionId": source_dist_id,
-            "snapShotName": snapshot_name
-        })
-    snapshot_resp = response['Item']
-    if not snapshot_resp:
-        raise Exception(
-            f"Failed to get the snapshot with distribution id:{source_dist_id}, snapshot_name:{snapshot_name}")
 
-    src_version = snapshot_resp['versionId']
-    logger.info(f"source version is {src_version}")
+    src_version = get_snapshot_version(ddb_snapshot_table, snapshot_name, source_dist_id)
 
     target_dist_ids = target_distribution_ids
 
     # get specific cloudfront distributions version info
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
 
-    response = ddb_table.get_item(
-        Key={
-            "distributionId": source_dist_id,
-            "versionId": int(src_version)
-        })
-    data = response['Item']
-
-    s3_bucket = data['s3_bucket']
-    s3_key1 = data['s3_key']
-
-    s3_client = boto3.client('s3')
-    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + str(src_version) + ".json"
-    s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
+    local_config_file_name_version = download_version_config(ddb_table, source_dist_id, src_version)
 
     # call boto to apply the config to target distribution
     cf_client = boto3.client('cloudfront')
     ddb_latest_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
 
+    apply_distribution_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
+                              target_dist_ids)
+
+    return {
+        'statusCode': 200,
+        'body': 'succeed apply snapshot to target distributions'
+    }
+
+
+def apply_distribution_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
+                              target_dist_ids):
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
         for distribution_id in target_dist_ids:
@@ -318,10 +279,46 @@ def manager_snapshot_apply_config():
 
                 logger.info('target distributions been updated')
 
-    return {
-        'statusCode': 200,
-        'body': 'succeed apply snapshot to target distributions'
-    }
+
+def download_version_config(ddb_table, source_dist_id, src_version):
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": source_dist_id,
+            "versionId": int(src_version)
+        })
+    data = response['Item']
+    s3_bucket = data['s3_bucket']
+    s3_key1 = data['s3_key']
+    s3_client = boto3.client('s3')
+    local_config_file_name_version = '/tmp/' + source_dist_id + "_" + str(src_version) + ".json"
+    s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
+    return local_config_file_name_version
+
+
+def get_snapshot_version(ddb_snapshot_table, snapshot_name, source_dist_id):
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": source_dist_id,
+            "snapShotName": snapshot_name
+        })
+    snapshot_resp = response['Item']
+    if not snapshot_resp:
+        raise Exception(
+            f"Failed to get the snapshot with distribution id:{source_dist_id}, snapshot_name:{snapshot_name}")
+    src_version = snapshot_resp['versionId']
+    logger.info(f"source version is {src_version}")
+    return src_version
+
+
+def validate_input_parameters(source_dist_id, src_snapshot, target_distribution_ids):
+    for dist_name in target_distribution_ids:
+        if dist_name == "" or dist_name.isspace():
+            raise Exception("target distribution list contains empty string")
+    if source_dist_id == "":
+        raise Exception("source distribution id can not be empty")
+    if src_snapshot == "":
+        raise Exception("source snapshot name can not be empty")
+
 
 @app.post("/version/config_tag_update")
 def manager_version_config_tag_update():
