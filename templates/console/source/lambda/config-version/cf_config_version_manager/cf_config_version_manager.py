@@ -153,10 +153,12 @@ def manager_version_apply_config():
     src_version = app.current_event.get_query_string_value(name="version", default_value="")
     target_dist_ids = query_strings_as_dict['target_distribution_ids']
 
-    return apply_config_version(source_dist_id, src_version, target_dist_ids)
+    s3_client = boto3.client('s3')
+    cf_client = boto3.client('cloudfront')
+    return apply_config_version(s3_client, cf_client, source_dist_id, src_version, target_dist_ids)
 
 
-def apply_config_version(source_dist_id, src_version, target_dist_ids):
+def apply_config_version(s3_client, cf_client, source_dist_id, src_version, target_dist_ids):
     # get specific cloudfront distributions version info
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
@@ -168,11 +170,11 @@ def apply_config_version(source_dist_id, src_version, target_dist_ids):
     data = response['Item']
     s3_bucket = data['s3_bucket']
     s3_key1 = data['s3_key']
-    s3_client = boto3.client('s3')
+
     local_config_file_name_version = '/tmp/' + source_dist_id + "_" + src_version + ".json"
     s3_client.download_file(s3_bucket, s3_key1, local_config_file_name_version)
     # call boto to apply the config to target distribution
-    cf_client = boto3.client('cloudfront')
+
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
         for distribution_id in target_dist_ids:
@@ -228,7 +230,7 @@ def manager_snapshot_apply_config():
     cf_client = boto3.client('cloudfront')
     ddb_latest_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
 
-    apply_distribution_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
+    apply_distribution_from_local_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
                               target_dist_ids)
 
     return {
@@ -237,7 +239,7 @@ def manager_snapshot_apply_config():
     }
 
 
-def apply_distribution_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
+def apply_distribution_from_local_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
                               target_dist_ids):
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
