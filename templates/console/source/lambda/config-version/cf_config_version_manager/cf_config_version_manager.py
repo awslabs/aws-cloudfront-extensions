@@ -30,7 +30,8 @@ def manager_version_diff():
     version1 = app.current_event.get_query_string_value(name="version1", default_value="")
     version2 = app.current_event.get_query_string_value(name="version2", default_value="")
 
-    diff_content = get_version_diff(dist_id, version1, version2)
+    s3_client = boto3.client('s3')
+    diff_content = get_version_diff(s3_client, dist_id, version1, version2)
 
     return diff_content
 

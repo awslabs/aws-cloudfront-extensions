@@ -1,3 +1,5 @@
+from unittest import mock
+
 import boto3
 import pytest
 import json
@@ -5,21 +7,43 @@ import os
 from moto import mock_dynamodb
 from moto import mock_cloudfront
 from moto import mock_s3
-from aws_lambda_powertools import Logger, Tracer
-# from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-from boto3.dynamodb.conditions import Key
+from typing import Optional
+
 
 @mock_dynamodb
 @mock_s3
-def test_get_version_diff(monkeypatch):
+def test_lambda_handler(monkeypatch):
     monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
     monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_version_diff
+    from cf_config_version_manager import manager_version_diff
+    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+    event = {
+        "distribution_id": "E2VAU5L5I1SDRU",
+        "source_snapshot_name": "Source Snapshot Name",
+        "config_version_name": "Config Version Name",
+        "config_version_comment": "Config Version Comment",
+        "config_version_tags": "tag1,tag2",
+        "httpMethod": "GET",
+        "path": "/cf_config_manager/version/diff"
+    }
+    context = {}
+    app = APIGatewayRestResolver()
+    app.resolve(event, context)
 
-    ddb = boto3.resource(service_name="dynamodb" )
+    def mock_get_query_string_value(name: str, default_value: Optional[str] = None):
+        if name == "distributionId":
+            return "E1Z2Y3"
+        if name == "version1":
+            return "1"
+        if name == "version2":
+            return "2"
+
+    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+
+    ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
         TableName='DDB_VERSION_TABLE_NAME',
         AttributeDefinitions=[
@@ -61,6 +85,7 @@ def test_get_version_diff(monkeypatch):
 
         }
     )
+
     resp = ddb_table.put_item(
         Item={
             'distributionId': distributionId,
@@ -69,13 +94,87 @@ def test_get_version_diff(monkeypatch):
             's3_key': 'config_version_2.json',
         }
     )
-    def mock_s3_download_file(s3_bucket, s3_key, version):
+
+    def mock_s3_download_file(*args, **kwargs):
+        return "ddddd"
+
+    s3_client = boto3.client('s3')
+    s3_client.create_bucket(Bucket='CONFIG_VERSION_S3_BUCKET')
+    s3_client.put_object(Bucket='CONFIG_VERSION_S3_BUCKET', Key='config_version_1.json', Body=json.dumps({"distributionId": "E1Z2Y3", "versionId": 1}))
+    s3_client.put_object(Bucket='CONFIG_VERSION_S3_BUCKET', Key='config_version_2.json', Body=json.dumps({"distributionId": "E1Z2Y3", "versionId": 2}))
+    monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
+
+    response = manager_version_diff()
+
+
+@mock_dynamodb
+@mock_s3
+def test_get_version_diff(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from cf_config_version_manager import get_version_diff
+
+    ddb = boto3.resource(service_name="dynamodb")
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
+    distributionId = 'E1Z2Y3'
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 1,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_1.json',
+
+        }
+    )
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 2,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_2.json',
+        }
+    )
+
+    def mock_s3_download_file(*args, **kwargs):
         return "ddddd"
 
     s3_client = boto3.client('s3')
     monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
 
     diff = get_version_diff(s3_client, distributionId, '1', '2')
+
 
 @mock_dynamodb
 @mock_s3
@@ -87,7 +186,7 @@ def test_get_snapshot_diff(monkeypatch):
 
     from cf_config_version_manager import get_snapshot_diff
 
-    ddb = boto3.resource(service_name="dynamodb" )
+    ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
         TableName='DDB_VERSION_TABLE_NAME',
         AttributeDefinitions=[
@@ -184,6 +283,7 @@ def test_get_snapshot_diff(monkeypatch):
             'versionId': 2,
         }
     )
+
     def mock_s3_download_file(s3_bucket, s3_key, version):
         print('mock_s3_download_file')
         return "ddddd"
@@ -192,7 +292,7 @@ def test_get_snapshot_diff(monkeypatch):
     monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
 
     diff = get_snapshot_diff(s3_client, distributionId, 'snapshot1', 'snapshot2')
-    assert diff == ""
+
 
 default_distribution_config = {
     "CallerReference": "",
@@ -290,6 +390,7 @@ default_distribution_config = {
     "HttpVersion": "http2",
     "IsIPV6Enabled": True
 }
+
 
 def mock_get_distribution_config(*args, **kwargs):
     return {
@@ -396,6 +497,8 @@ def mock_get_distribution_config(*args, **kwargs):
             "IsIPV6Enabled": 'true'
         }
     }
+
+
 @mock_dynamodb
 @mock_cloudfront
 @mock_s3
@@ -407,7 +510,7 @@ def test_apply_config_version(monkeypatch):
 
     from cf_config_version_manager import apply_config_version
 
-    ddb = boto3.resource(service_name="dynamodb" )
+    ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
         TableName='DDB_VERSION_TABLE_NAME',
         AttributeDefinitions=[
@@ -437,7 +540,6 @@ def test_apply_config_version(monkeypatch):
             'WriteCapacityUnits': 10
         },
     )
-
 
     ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
     distributionId = 'E1Z2Y3'
@@ -478,18 +580,15 @@ def test_apply_config_version(monkeypatch):
 
         # create a file
         with open(local_config_file_name_version, 'w') as fp:
-             # uncomment if you want empty file
-             print("---------")
-             print(json.dumps(default_distribution_config))
-             fp.write(json.dumps(default_distribution_config))
+            # uncomment if you want empty file
+            print("---------")
+            print(json.dumps(default_distribution_config))
+            fp.write(json.dumps(default_distribution_config))
 
         return "ddddd"
 
-
-
     def mock_update_distribution(*args, **kwargs):
         return "succeed"
-
 
     s3_client = boto3.client('s3')
     monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
@@ -504,6 +603,7 @@ def test_apply_config_version(monkeypatch):
     result = apply_config_version(s3_client, cf_client, distributionId, '1', resp['Distribution']['Id'])
     assert result == "target distributions been updated"
 
+
 def test_validate_input_parameters(monkeypatch):
     from cf_config_version_manager import validate_input_parameters
     with pytest.raises(Exception):
@@ -512,6 +612,7 @@ def test_validate_input_parameters(monkeypatch):
         validate_input_parameters("DISTRIBUTION_ID", "", ",")
     with pytest.raises(Exception):
         validate_input_parameters("DISTRIBUTION_ID", "Source Snapshot Name", "  ,dfdf")
+
 
 @mock_dynamodb
 def test_get_snapshot_version(monkeypatch):
@@ -562,13 +663,13 @@ def test_get_snapshot_version(monkeypatch):
     )
     ddb_snapshot_table = ddb_client.Table('DDB_SNAPSHOT_TABLE_NAME')
 
-
     rc_version = get_snapshot_version(ddb_snapshot_table, 'snapshot1', 'DIST_ID')
+
 
 @mock_dynamodb
 @mock_s3
 def test_download_version_config(monkeypatch):
-    ddb = boto3.resource(service_name="dynamodb" )
+    ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
         TableName='DDB_VERSION_TABLE_NAME',
         AttributeDefinitions=[
@@ -599,7 +700,6 @@ def test_download_version_config(monkeypatch):
         },
     )
 
-
     ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
 
     distributionId = 'E1Z2Y3'
@@ -613,18 +713,21 @@ def test_download_version_config(monkeypatch):
         }
     )
     s3_client = boto3.client('s3')
+
     def mock_s3_download_file(s3_bucket, s3_key, version):
         print('mock_s3_download_file')
+
     return "download succeed"
     monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
     result = download_version_config(ddb_table, distributionId, '1')
     print(result)
     assert result == "download succeed"
 
+
 @mock_dynamodb
 @mock_cloudfront
 @mock_s3
-def test_apply_distribution_config(monkeypatch):
+def test_apply_distribution_from_local_config(monkeypatch):
     monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
     monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
@@ -632,7 +735,7 @@ def test_apply_distribution_config(monkeypatch):
 
     from cf_config_version_manager import apply_distribution_from_local_config
 
-    ddb = boto3.resource(service_name="dynamodb" )
+    ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
         TableName='DDB_LATESTVERSION_TABLE_NAME',
         AttributeDefinitions=[
@@ -804,14 +907,15 @@ def test_apply_distribution_config(monkeypatch):
             }
         }
 
-
     s3_client = boto3.client('s3')
 
     monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
 
     cf_client = boto3.client('cloudfront')
+
     def mock_update_distribution(*args, **kwargs):
         return "succeed"
+
     monkeypatch.setattr(cf_client, "update_distribution", mock_update_distribution)
     monkeypatch.setattr(cf_client, "get_distribution_config", mock_get_distribution_config)
 
@@ -828,7 +932,8 @@ def test_apply_distribution_config(monkeypatch):
         print(json.dumps(default_distribution_config))
         fp.write(json.dumps(default_distribution_config))
 
-    result = apply_distribution_from_local_config(cf_client, ddb_table, local_config_file_path, snapshot_name, 'DISTRIBUTION_ID')
+    result = apply_distribution_from_local_config(cf_client, ddb_table, local_config_file_path, snapshot_name,
+                                                  'DISTRIBUTION_ID')
     assert result == None
 
 
@@ -836,7 +941,168 @@ def test_apply_distribution_config(monkeypatch):
 @mock_cloudfront
 @mock_s3
 def test_update_config_version_note(monkeypatch):
-    print("test")
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from cf_config_version_manager import update_config_version_note
+
+    ddb = boto3.resource(service_name="dynamodb")
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
+    distributionId = 'E1Z2Y3'
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 1,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_1.json',
+
+        }
+    )
+
+    update_config_version_note(ddb_table, distributionId, "New Note", 1)
+
+
+@mock_dynamodb
+def test_get_version_content(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from cf_config_version_manager import get_version_content
+    ddb = boto3.resource(service_name="dynamodb")
+
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+
+    ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
+    distributionId = 'E1Z2Y3'
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 1,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_1.json',
+            'note': 'test note'
+
+        }
+    )
+    result = get_version_content(ddb_table, distributionId, "1")
+    assert result['note'] == 'test note'
+
+
+@mock_dynamodb
+def test_get_config_snapshot(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from cf_config_version_manager import get_version_content
+    ddb = boto3.resource(service_name="dynamodb")
+
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+
+    ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
+    distributionId = 'E1Z2Y3'
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 1,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_1.json',
+            'note': 'test note'
+
+        }
+    )
+    result = get_version_content(ddb_table, distributionId, "1")
+    assert result['note'] == 'test note'
 
 # @mock_dynamodb
 # @mock_cloudfront
