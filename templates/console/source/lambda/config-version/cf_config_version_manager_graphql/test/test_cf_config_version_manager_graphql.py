@@ -33,22 +33,7 @@ def test_lambda_handler(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_version_diff
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/cf_config_manager/version/diff"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_version_diff
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -113,7 +98,7 @@ def test_lambda_handler(monkeypatch):
                          Body=json.dumps({"distributionId": "E1Z2Y3", "versionId": 2}))
     monkeypatch.setattr(s3_client, "download_file", mock_s3_download_file)
 
-    response = manager_version_diff()
+    response = manager_version_diff(distributionId, "1", "2")
 
 
 @mock_dynamodb
@@ -124,7 +109,7 @@ def test_get_version_diff(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_version_diff
+    from cf_config_version_manager_graphql import get_version_diff
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -193,7 +178,7 @@ def test_get_snapshot_diff(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_snapshot_diff
+    from cf_config_version_manager_graphql import get_snapshot_diff
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -517,7 +502,7 @@ def test_apply_config_version(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import apply_config_version
+    from cf_config_version_manager_graphql import apply_config_version
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -614,7 +599,7 @@ def test_apply_config_version(monkeypatch):
 
 
 def test_validate_input_parameters(monkeypatch):
-    from cf_config_version_manager import validate_input_parameters
+    from cf_config_version_manager_graphql import validate_input_parameters
     with pytest.raises(Exception):
         validate_input_parameters("", "Source Snapshot", ",")
     with pytest.raises(Exception):
@@ -629,7 +614,7 @@ def test_get_snapshot_version(monkeypatch):
     monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
-    from cf_config_version_manager import get_snapshot_version
+    from cf_config_version_manager_graphql import get_snapshot_version
     ddb_client = boto3.resource('dynamodb')
     ddb_client.create_table(
         TableName='DDB_SNAPSHOT_TABLE_NAME',
@@ -742,7 +727,7 @@ def test_apply_distribution_from_local_config(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import apply_distribution_from_local_config
+    from cf_config_version_manager_graphql import apply_distribution_from_local_config
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -955,7 +940,7 @@ def test_update_config_version_note(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import update_config_version_note
+    from cf_config_version_manager_graphql import update_config_version_note
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1009,7 +994,7 @@ def test_get_version_content(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_version_content
+    from cf_config_version_manager_graphql import get_version_content
     ddb = boto3.resource(service_name="dynamodb")
 
     ddb.create_table(
@@ -1065,7 +1050,7 @@ def test_get_config_snapshot(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_version_content
+    from cf_config_version_manager_graphql import get_version_content
     ddb = boto3.resource(service_name="dynamodb")
 
     ddb.create_table(
@@ -1121,7 +1106,7 @@ def test_get_all_distribution_ids(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_all_distribution_ids
+    from cf_config_version_manager_graphql import get_all_distribution_ids
 
     cf_client = boto3.client('cloudfront')
     resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
@@ -1137,7 +1122,7 @@ def test_manager_version_config_cf_list(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_version_config_cf_list
+    from cf_config_version_manager_graphql import manager_version_config_cf_list
 
     cf_client = boto3.client('cloudfront')
     resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
@@ -1225,23 +1210,7 @@ def test_manager_get_cf_cname_info(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_get_cf_cname_info
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/snapshot/get_distribution_cname"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_get_cf_cname_info
 
     cf_client = boto3.client('cloudfront')
     resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
@@ -1259,7 +1228,7 @@ def test_get_distribution_cname_info(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import get_distribution_cname_info
+    from cf_config_version_manager_graphql import get_distribution_cname_info
 
     cf_client = boto3.client('cloudfront')
     resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
@@ -1277,22 +1246,7 @@ def test_manager_get_applied_snapshot_name(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_get_applied_snapshot_name
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/snapshot/get_applied_snapshot_name"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_get_applied_snapshot_name
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1326,7 +1280,7 @@ def test_manager_get_applied_snapshot_name(monkeypatch):
             's3_key': 'config_version_1.json',
         }
     )
-    response = manager_get_applied_snapshot_name()
+    response = manager_get_applied_snapshot_name(distributionId)
 
 
 @mock_dynamodb
@@ -1336,22 +1290,7 @@ def test_manager_version_get_link(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_version_get_link
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/versions/config_link/<versionId>"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_version_get_link
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1395,7 +1334,7 @@ def test_manager_version_get_link(monkeypatch):
 
         }
     )
-    response = manager_version_get_link()
+    response = manager_version_get_link(distributionId, "1")
 
 
 @mock_dynamodb
@@ -1405,22 +1344,7 @@ def test_manager_snapshot_get_link(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_snapshot_get_link
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/snapshot/get_snapshot_link"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_snapshot_get_link
 
     distributionId = 'E1Z2Y3'
 
@@ -1504,7 +1428,7 @@ def test_manager_snapshot_get_link(monkeypatch):
         }
     )
 
-    response = manager_snapshot_get_link()
+    response = manager_snapshot_get_link(distributionId, "test snapshot")
 
 
 @mock_dynamodb
@@ -1515,22 +1439,7 @@ def test_manager_version_get_content(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_version_get_content
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/versions/config_content/<versionId>"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_version_get_content
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1578,7 +1487,7 @@ def test_manager_version_get_content(monkeypatch):
     s3_client.create_bucket(Bucket='CONFIG_VERSION_S3_BUCKET')
     s3_client.put_object(Bucket='CONFIG_VERSION_S3_BUCKET', Key='config_version_1.json',
                          Body=json.dumps({"distributionId": "E1Z2Y3", "versionId": 1}))
-    response = manager_version_get_content()
+    response = manager_version_get_content(distributionId, "1")
 
 
 @mock_dynamodb
@@ -1588,22 +1497,7 @@ def test_manager_version_get_all(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_version_get_all
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "version/list_versions"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_version_get_all
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1647,7 +1541,7 @@ def test_manager_version_get_all(monkeypatch):
 
         }
     )
-    response = manager_version_get_all()
+    response = manager_version_get_all(distributionId)
 
 
 @mock_dynamodb
@@ -1657,22 +1551,7 @@ def test_manager_snapshot_get_all(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import manager_snapshot_get_all
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "version/list_versions"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import manager_snapshot_get_all
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1756,7 +1635,7 @@ def test_manager_snapshot_get_all(monkeypatch):
             'dateTime': '2021-01-01 00:00:00'
         }
     )
-    response = manager_snapshot_get_all()
+    response = manager_snapshot_get_all(distributionId)
 
 
 @mock_dynamodb
@@ -1766,22 +1645,7 @@ def test_createVersionSnapShot(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import createVersionSnapShot
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/snapshot/create_snapshot"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import createVersionSnapShot
 
     ddb = boto3.resource(service_name="dynamodb")
     ddb.create_table(
@@ -1856,7 +1720,7 @@ def test_createVersionSnapShot(monkeypatch):
     #         'dateTime': '2021-01-01 00:00:00'
     #     }
     # )
-    response = createVersionSnapShot()
+    response = createVersionSnapShot(distributionId, 'test snapshot', 'test note')
 
 @mock_dynamodb
 def test_deleteSnapShot(monkeypatch):
@@ -1865,22 +1729,7 @@ def test_deleteSnapShot(monkeypatch):
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 
-    from cf_config_version_manager import deleteSnapShot
-    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-    event = {
-        "distribution_id": "E2VAU5L5I1SDRU",
-        "source_snapshot_name": "Source Snapshot Name",
-        "config_version_name": "Config Version Name",
-        "config_version_comment": "Config Version Comment",
-        "config_version_tags": "tag1,tag2",
-        "httpMethod": "GET",
-        "path": "/snapshot/delete_snapshot"
-    }
-    context = {}
-    app = APIGatewayRestResolver()
-    app.resolve(event, context)
-
-    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+    from cf_config_version_manager_graphql import deleteSnapShot
 
     ddb = boto3.resource(service_name="dynamodb")
 
@@ -1925,7 +1774,7 @@ def test_deleteSnapShot(monkeypatch):
             'dateTime': '2021-01-01 00:00:00'
         }
     )
-    response = deleteSnapShot()
+    response = deleteSnapShot(distributionId, "test snapshot")
 
 
 # @mock_dynamodb
@@ -1937,7 +1786,7 @@ def test_deleteSnapShot(monkeypatch):
 #     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
 #     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
 #
-#     from cf_config_version_manager import manager_version_diff
+#     from cf_config_version_manager_graphql import manager_version_diff
 #
 #
 #     def mock_get_query_string_value(name,default_value):
@@ -1954,9 +1803,9 @@ def test_deleteSnapShot(monkeypatch):
 #             return MockResponse()
 #
 #     # monkeypatch.setattr(app, "current_event", mock_get)
-#     from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+#     from aws_lambda_powertools.event_handler import AppSyncResolver
 #
-#     app = APIGatewayRestResolver()
+#     app = AppSyncResolver()
 #
 #     monkeypatch.setattr(app, "current_event.get_query_string_value", mock_get_query_string_value)
 #

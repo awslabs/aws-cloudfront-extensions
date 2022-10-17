@@ -14,7 +14,6 @@ logger = Logger(service="config_version_resolver")
 
 app = APIGatewayRestResolver()
 
-
 S3_BUCKET = os.environ['S3_BUCKET']
 DDB_VERSION_TABLE_NAME = os.environ['DDB_VERSION_TABLE_NAME']
 DDB_LATESTVERSION_TABLE_NAME = os.environ['DDB_LATESTVERSION_TABLE_NAME']
@@ -205,7 +204,8 @@ def apply_config_version(s3_client, cf_client, source_dist_id, src_version, targ
 @app.post("/snapshot/apply_snapshot")
 def manager_snapshot_apply_config():
     src_distribution_id = app.current_event.get_query_string_value(name="src_distribution_id", default_value="")
-    target_distribution_ids_raw = app.current_event.get_query_string_value(name="target_distribution_ids", default_value="")
+    target_distribution_ids_raw = app.current_event.get_query_string_value(name="target_distribution_ids",
+                                                                           default_value="")
     snapshot_name = app.current_event.get_query_string_value(name="snapshot_name", default_value="")
 
     source_dist_id = src_distribution_id
@@ -232,7 +232,7 @@ def manager_snapshot_apply_config():
     ddb_latest_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
 
     apply_distribution_from_local_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
-                              target_dist_ids)
+                                         target_dist_ids)
 
     return {
         'statusCode': 200,
@@ -241,7 +241,7 @@ def manager_snapshot_apply_config():
 
 
 def apply_distribution_from_local_config(cf_client, ddb_latest_table, local_config_file_name_version, src_snapshot,
-                              target_dist_ids):
+                                         target_dist_ids):
     with open(local_config_file_name_version) as config_file:
         dictData = json.load(config_file)
         for distribution_id in target_dist_ids:
@@ -416,6 +416,7 @@ def get_all_distribution_ids():
 
     return dist_list
 
+
 @app.get("/cf_list")
 def manager_version_config_cf_list():
     # first get distribution List from current account
@@ -479,7 +480,7 @@ def manager_version_config_cf_list():
 
     return result
 
-# @app.resolver(type_name="Query", field_name="getDistributionCname")
+
 @app.get("/snapshot/get_distribution_cname")
 def manager_get_cf_cname_info():
     distribution_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
@@ -500,7 +501,6 @@ def get_distribution_cname_info(cf_client, distribution_id):
         return config_data['Aliases']['Items']
 
 
-# @app.resolver(type_name="Query", field_name="getAppliedSnapshotName")
 @app.get("/snapshot/get_applied_snapshot_name")
 def manager_get_applied_snapshot_name():
     distribution_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
@@ -609,7 +609,6 @@ def manager_version_get_content():
     ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
 
     data = get_config_version(ddb_table, dist_id, versionId)
-    data = data['Item']
 
     config_link = data['config_link']
     log.info("target s3 link is " + config_link)
@@ -627,7 +626,6 @@ def get_s3_content(data, s3_client):
 
 @app.get("/version/list_versions")
 def manager_version_get_all():
-
     dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
 
     # get all the versions of the specific cloudfront distributions, latest version come first
@@ -649,7 +647,6 @@ def get_all_version(ddb_table, dist_id):
 # @app.resolver(type_name="Query", field_name="listCloudfrontSnapshots")
 @app.get("/snapshot/list_snapshots")
 def manager_snapshot_get_all():
-
     dist_id = app.current_event.get_query_string_value(name="distributionId", default_value="")
 
     ddb_client = boto3.resource('dynamodb')
@@ -689,7 +686,6 @@ def get_all_snapshot(ddb_client, ddb_snapshot_table, dist_id):
     return result
 
 
-# @app.resolver(type_name="Mutation", field_name="createVersionSnapShot")
 @app.post("/snapshot/create_snapshot")
 def createVersionSnapShot():
     distributionId = app.current_event.get_query_string_value(name="distributionId", default_value="")
@@ -761,7 +757,6 @@ def check_snapshot_name_duplication(ddb_table, distributionId, snapShotName):
         raise Exception("There is already snapShotName:" + snapShotName)
 
 
-# @app.resolver(type_name="Mutation", field_name="deleteSnapshot")
 @app.post("/snapshot/delete_snapshot")
 def deleteSnapShot():
     distributionId = app.current_event.get_query_string_value(name="distributionId", default_value="")
