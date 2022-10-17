@@ -13,13 +13,13 @@ weight: 60
 
 ## 资料
 
-- [Source code](https://github.com/awslabs/aws-cloudfront-extensions)
-- [Contributing guidelines](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/CONTRIBUTING.md)
+- [源代码](https://github.com/awslabs/aws-cloudfront-extensions)
+- [通过 Amazon CloudFront 实时日志快速构建自定义的 CDN 监控](https://aws.amazon.com/cn/blogs/china/quickly-build-custom-cdn-monitoring-through-amazon-cloudfront-real-time-log/)
+- [代码贡献指南](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/CONTRIBUTING.md)
 - [Code of conduct](https://aws.github.io/code-of-conduct)
-- [Issue template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/ISSUE_TEMPLATE/bug.md)
-- [Pull request template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/pull_request_template.md)
-- [Feature request template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/ISSUE_TEMPLATE/feature_request.md)
-- [Amazon CloudFront Function](https://github.com/aws-samples/amazon-cloudfront-functions)
+- [提bug模板](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/ISSUE_TEMPLATE/bug.md)
+- [PR模板](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/pull_request_template.md)
+- [新功能请求模板](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/ISSUE_TEMPLATE/feature_request.md)
+- [Amazon CloudFront Functions](https://github.com/aws-samples/amazon-cloudfront-functions)
 - [Authorization@Edge – How to Use Lambda@Edge and JSON Web Tokens to Enhance Web Application Security](https://aws.amazon.com/blogs/networking-and-content-delivery/authorizationedge-how-to-use-lambdaedge-and-json-web-tokens-to-enhance-web-application-security/)
-- [Implementation Guide: AWS WAF Security Automations](https://docs.aws.amazon.com/solutions/latest/aws-waf3-security-automations/welcome.html)
-- [AWS WAF Workshop](https://introduction-to-waf.workshop.aws/)
+- [DNS 验证](https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html)
