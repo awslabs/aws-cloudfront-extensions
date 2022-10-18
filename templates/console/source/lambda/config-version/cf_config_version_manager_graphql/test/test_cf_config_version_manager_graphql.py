@@ -32,6 +32,7 @@ def test_lambda_handler(monkeypatch):
     monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
     monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('AWS_REGION', 'us-east-1', prepend=False)
 
     from cf_config_version_manager_graphql import manager_version_diff
 
@@ -1433,6 +1434,105 @@ def test_manager_snapshot_get_link(monkeypatch):
 
 @mock_dynamodb
 @mock_s3
+def test_manager_snapshot_get_content(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from cf_config_version_manager_graphql import manager_snapshot_get_content
+
+    ddb = boto3.resource(service_name="dynamodb")
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
+    distributionId = 'E1Z2Y3'
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 1,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_1.json',
+            'config_link': "s3://config_version_1.json"
+
+        }
+    )
+    ddb.create_table(
+        TableName='DDB_SNAPSHOT_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'snapShotName',
+                'AttributeType': 'S'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'snapShotName',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+
+    )
+    ddb_table = ddb.Table('DDB_SNAPSHOT_TABLE_NAME')
+    ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'snapShotName': 'test snapshot',
+            'versionId': 1,
+            'note': 'test note',
+            'dateTime': '2021-01-01 00:00:00'
+        }
+    )
+
+    s3_client = boto3.client('s3')
+    s3_client.create_bucket(Bucket='CONFIG_VERSION_S3_BUCKET')
+    s3_client.put_object(Bucket='CONFIG_VERSION_S3_BUCKET', Key='config_version_1.json',
+                         Body=json.dumps({"distributionId": "E1Z2Y3", "versionId": 1}))
+    response = manager_snapshot_get_content(distributionId, "test snapshot")
+
+@mock_dynamodb
+@mock_s3
 def test_manager_version_get_content(monkeypatch):
     monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
     monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
@@ -1775,6 +1875,7 @@ def test_deleteSnapShot(monkeypatch):
         }
     )
     response = deleteSnapShot(distributionId, "test snapshot")
+
 
 
 # @mock_dynamodb

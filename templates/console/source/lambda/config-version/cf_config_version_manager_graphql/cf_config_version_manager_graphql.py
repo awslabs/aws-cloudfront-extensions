@@ -548,6 +548,43 @@ def manager_snapshot_get_link(distribution_id: str = "", snapshot_name: str = ""
         "config_link": config_link
     }
 
+@app.resolver(type_name="Query", field_name="getConfigSnapshotContent")
+def manager_snapshot_get_content(distribution_id: str = "", snapshot_name: str = ""):
+    # first get the version from snapshot ddb table
+    ddb_client = boto3.resource('dynamodb')
+    ddb_snapshot_table = ddb_client.Table(DDB_SNAPSHOT_TABLE_NAME)
+    response = ddb_snapshot_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "snapShotName": snapshot_name
+        })
+    if not 'Item' in response:
+        raise Exception(
+            f"Failed to get the snapshot with distribution id:{distribution_id}, snapshot_name:{snapshot_name}")
+
+    src_version = response['Item']['versionId']
+
+    # get specific cloudfront distributions version info
+    ddb_table = ddb_client.Table(DDB_VERSION_TABLE_NAME)
+
+    response = ddb_table.get_item(
+        Key={
+            "distributionId": distribution_id,
+            "versionId": int(src_version)
+        })
+    data = response['Item']
+    if not data:
+        raise Exception(f"Failed to get the version with distribution id:{distribution_id}, version_id:{src_version}")
+
+    config_link = data['config_link']
+    log.info("target s3 link is " + config_link)
+
+    s3_client = boto3.client('s3')
+    data = s3_client.get_object(Bucket=data['s3_bucket'], Key=data['s3_key'])
+    content = json.load(data['Body'])
+    result = str(json.dumps(content, indent=4))
+
+    return result
 
 def get_config_version(ddb_table, distribution_id, src_version):
     response = ddb_table.get_item(
