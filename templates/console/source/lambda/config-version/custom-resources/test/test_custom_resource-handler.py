@@ -318,6 +318,114 @@ def test_update_config_version(monkeypatch):
     update_config_version(cf_client, distributionId)
 
 
+@mock_dynamodb
+@mock_s3
+@mock_cloudfront
+def test_update_config_version_with_existing_snapshot(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from custom_resource_handler import update_config_version
+
+    ddb = boto3.resource(service_name="dynamodb")
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb.create_table(
+        TableName='DDB_LATESTVERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    distributionId = 'E1Z2Y3'
+
+    ddb.create_table(
+        TableName='DDB_SNAPSHOT_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'snapShotName',
+                'AttributeType': 'S'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'snapShotName',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb_table = ddb.Table('DDB_SNAPSHOT_TABLE_NAME')
+    ddb_table.put_item(Item={"distributionId": distributionId,
+                             "snapShotName": "_LATEST_",
+                             "versionId": 1})
+
+    cf_client = boto3.client('cloudfront')
+    resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
+    monkeypatch.setattr(cf_client, "get_distribution_config", mock_get_distribution_config)
+
+    s3_client = boto3.client('s3')
+    s3_client.create_bucket(Bucket='CONFIG_VERSION_S3_BUCKET')
+    # s3_client.put_object(Bucket='CONFIG_VERSION_S3_BUCKET', Key='config_version_1.json',
+    #                       Body=json.dumps({"distributionId": "E1Z2Y3", "versionId": 1}))
+    update_config_version(cf_client, distributionId)
+
+
 @mock_iam
 def test_create_iam_role(monkeypatch):
     monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
@@ -351,6 +459,25 @@ def test_create_eventbridge_in_us_east_1(monkeypatch):
 
     create_eventbridge_in_us_east_1(Context())
 
+
+@mock_events
+@mock_iam
+def test_create_eventbridge_in_us_east_1_in_other_region(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('AWS_REGION', 'us-west-1', prepend=False)
+
+    class Context:
+        aws_request_id = '1234567890'
+        invoked_function_arn = 'arn:aws:lambda:us-west-1:1234567890:function:custom-resource-handler'
+
+    from custom_resource_handler import create_eventbridge_in_us_east_1
+
+    create_eventbridge_in_us_east_1(Context())
+
+
 @mock_cloudfront
 def test_get_all_distribution_ids(monkeypatch):
     monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
@@ -364,3 +491,112 @@ def test_get_all_distribution_ids(monkeypatch):
     resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
     get_all_distribution_ids(cf_client)
 
+
+@mock_cloudfront
+@mock_dynamodb
+@mock_s3
+@mock_iam
+@mock_events
+def test_import_cloudfront_configs(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('AWS_REGION', 'us-east-1', prepend=False)
+
+    from custom_resource_handler import get_all_distribution_ids
+    from custom_resource_handler import import_cloudfront_configs
+
+    cf_client = boto3.client('cloudfront')
+    resp = cf_client.create_distribution(DistributionConfig=default_distribution_config)
+    distributionId = resp['Distribution']['Id']
+    monkeypatch.setattr(cf_client, "get_distribution_config", mock_get_distribution_config)
+
+    ddb = boto3.resource('dynamodb')
+    ddb.create_table(
+        TableName='DDB_LATESTVERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb.create_table(
+        TableName='DDB_SNAPSHOT_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'snapShotName',
+                'AttributeType': 'S'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'snapShotName',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+    ddb_table = ddb.Table('DDB_SNAPSHOT_TABLE_NAME')
+    ddb_table.put_item(Item={"distributionId": distributionId,
+                             "snapShotName": "_LATEST_",
+                             "versionId": 1})
+
+    s3_client = boto3.client('s3')
+    s3_client.create_bucket(Bucket='CONFIG_VERSION_S3_BUCKET')
+    cf_dist_list = get_all_distribution_ids(cf_client)
+    import_cloudfront_configs(cf_client, cf_dist_list)
