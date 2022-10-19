@@ -57,10 +57,10 @@ export class PortalConstruct extends Construct {
                         responseHeadersPolicyName: `SecHdr${Aws.REGION}${Aws.STACK_NAME}`,
                         comment: "CloudFront Extensions Security Headers Policy",
                         securityHeadersBehavior: {
-                            contentSecurityPolicy: {
-                                contentSecurityPolicy: `default-src 'self'; upgrade-insecure-requests; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ${props.aws_appsync_graphqlEndpoint} https://cognito-idp.${Aws.REGION}.amazonaws.com/`,
-                                override: true,
-                            },
+                            // contentSecurityPolicy: {
+                            //     contentSecurityPolicy: `default-src 'self'; upgrade-insecure-requests; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ${props.aws_appsync_graphqlEndpoint} https://cognito-idp.${Aws.REGION}.amazonaws.com/`,
+                            //     override: true,
+                            // },
                             contentTypeOptions: { override: true },
                             frameOptions: {
                                 frameOption: cloudfront.HeadersFrameOption.DENY,
