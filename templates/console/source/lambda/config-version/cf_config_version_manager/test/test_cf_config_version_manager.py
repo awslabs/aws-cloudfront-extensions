@@ -23,6 +23,12 @@ def mock_get_query_string_value(name: str, default_value: Optional[str] = None):
         return "test snapshot"
     if name == "snapShotNote":
         return "test snapshot is created just for UT"
+    if name == "version":
+        return "1"
+    if name == "distribution_id":
+        return "E1Z2Y3"
+    if name == "note":
+        return "updated config note"
 
 
 @mock_dynamodb
@@ -945,6 +951,83 @@ def test_apply_distribution_from_local_config(monkeypatch):
                                                   'DISTRIBUTION_ID')
     assert result == None
 
+@mock_dynamodb
+@mock_s3
+def test_manager_version_config_tag_update(monkeypatch):
+    monkeypatch.setenv('S3_BUCKET', 'CONFIG_VERSION_S3_BUCKET', prepend=False)
+    monkeypatch.setenv('DDB_VERSION_TABLE_NAME', 'DDB_VERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_LATESTVERSION_TABLE_NAME', 'DDB_LATESTVERSION_TABLE_NAME', prepend=False)
+    monkeypatch.setenv('DDB_SNAPSHOT_TABLE_NAME', 'DDB_SNAPSHOT_TABLE_NAME', prepend=False)
+
+    from cf_config_version_manager import manager_version_config_tag_update
+    from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+    event = {
+        "distribution_id": "E2VAU5L5I1SDRU",
+        "source_snapshot_name": "Source Snapshot Name",
+        "config_version_name": "Config Version Name",
+        "config_version_comment": "Config Version Comment",
+        "config_version_tags": "tag1,tag2",
+        "httpMethod": "GET",
+        "path": "/version/config_tag_update"
+    }
+    context = {}
+    app = APIGatewayRestResolver()
+    app.resolve(event, context)
+
+    monkeypatch.setattr(app.current_event, "get_query_string_value", mock_get_query_string_value)
+
+    ddb = boto3.resource(service_name="dynamodb")
+    ddb.create_table(
+        TableName='DDB_VERSION_TABLE_NAME',
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'distributionId',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'versionId',
+                'AttributeType': 'N'
+            },
+
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'distributionId',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'versionId',
+                'KeyType': 'RANGE'
+            }
+        ],
+        BillingMode='PROVISIONED',
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        },
+    )
+
+    ddb_table = ddb.Table('DDB_VERSION_TABLE_NAME')
+    distributionId = 'E1Z2Y3'
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 1,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_1.json',
+
+        }
+    )
+
+    resp = ddb_table.put_item(
+        Item={
+            'distributionId': distributionId,
+            'versionId': 2,
+            's3_bucket': 'CONFIG_VERSION_S3_BUCKET',
+            's3_key': 'config_version_2.json',
+        }
+    )
+    manager_version_config_tag_update()
 
 @mock_dynamodb
 @mock_cloudfront
