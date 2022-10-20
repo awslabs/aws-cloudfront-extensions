@@ -8,7 +8,7 @@ weight: 1
 ## Launch Stack
 1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/) and select the button to launch the CloudFormation template. You can also [download the template](https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/workshop/CloudFrontExtensionsWorkshopStack.template.json) as a starting point for your own implementation.
 
-      [![Deploy](../../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=CFExtSampleWorkshop&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/workshop/CloudFrontExtensionsWorkshopStack.template.json)
+      [![Deploy](/images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=CFExtSampleWorkshop&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/workshop/CloudFrontExtensionsWorkshopStack.template.json)
 
     {{% notice note %}}
     This template is created for us-east-1 region (N. Virginia) and will not work in other regions. 
@@ -29,5 +29,5 @@ This Cloudformation Stack will automatically deploy a CloudFront distribution an
 
 The architecture diagram is as shown below:
 
-![CloudFrontExt Arch](../../../images/sample_arch.png)
+![CloudFrontExt Arch](/images/sample_arch.png)
 

@@ -9,9 +9,9 @@ CloudFront Extensions provides two kinds of monitoring: non-real time monitoring
 1. Go to CloudFront Extensions console.
 2. In the navigation panel, under **Monitoring**, choose **CloudFront traffic**.
 2. Choose the sample website distribution (you can find its domain name in **CFExtSampleWorkshop** stack), select a time range when the sample website has traffic.
-   ![Choose Dist](../../images/choose_dist_time.png)
+   ![Choose Dist](/images/choose_dist_time.png)
 3. Click **Refresh** button. You will see the metrics in the dashboard.
-  ![Monitoring Dashboard](../../images/monitoring_dashboard.png)
+  ![Monitoring Dashboard](/images/monitoring_dashboard.png)
 
 
 ## Summary

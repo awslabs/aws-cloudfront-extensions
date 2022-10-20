@@ -19,21 +19,21 @@ CloudFront Extensions helps you manage CloudFront distribution configuration by 
 
 1. Navigate to CloudFront Extensions console (you can find the link in the **Outputs** tab of **cloudFrontExtensionsConsole** stack).
 2. In the navigation panel, under **Distribution management**, choose **Snapshot**.
-   ![Snapshot List Page](../../images/snapshot_list.png)
+   ![Snapshot List Page](/images/snapshot_list.png)
 
 3. Choose the **sample website distribution** (you can find it in Outputs tab of **CFExtSampleWorkshop** stack).
 4. Choose **Create Snapshot**.
-   ![Create Snapshot Page](../../images/create_snapshot.png)
+   ![Create Snapshot Page](/images/create_snapshot.png)
 
 5. In the window that pops up, enter a Snapshot Name (a unique key used to identify this snapshot), and also description.
 6. Choose **Create**.
-   ![Confirm Snapshot Page](../../images/confirm_snapshot.png)
+   ![Confirm Snapshot Page](/images/confirm_snapshot.png)
 
 7. Click Refresh button to see the newly created snapshot.
-   ![Snapshot Complete Page](../../images/complete_snapshot.png)
+   ![Snapshot Complete Page](/images/complete_snapshot.png)
 
 8. Choose the snapshot to see the detailed CloudFront configuration. The snapshot is in JSON format.
-   ![Snapshot Detail Page](../../images/snapshot_detail.png)
+   ![Snapshot Detail Page](/images/snapshot_detail.png)
 
 
 ## Summary
