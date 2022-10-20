@@ -9,7 +9,7 @@ weight: 1
 
 1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/) and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json) as a starting point for your own implementation.
 
-      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json)
+      [![Deploy](../../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cloudFrontExtensionsConsole&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/CloudFrontExtnConsoleStack.template.json)
 
 2. We launch this template in US East (N. Virginia) Region, please check the region on the right-upper corner and make sure it is correct.
 3. Choose **Next**.
@@ -38,21 +38,21 @@ You can view the status of the stack in the CloudFormation Console in the Status
 
 After deployment, you will see two CloudFormation stacks, **cloudFrontExtensionsConsole** and a nested stack.
 
-![Console Stacks](../../images/console_stack.png)
+![Console Stacks](../../../images/console_stack.png)
 
 ## Open CloudFront Extensions Console
 
 This solution will deploy a CloudFront distribution that hosts CloudFront Extensions console.
 1. Choose the **Outputs** tab of **cloudFrontExtensionsConsole** stack.
 2. You will find CloudFront Extensions console URL in **WebConsoleCloudFrontURL**. Open the url in the browser.
-  ![Console Stack Output](../../images/console_stack_output.png)
+  ![Console Stack Output](../../../images/console_stack_output.png)
 
 3. In the sign-in page, type in your user name and password (Email is set in **Initial User Name**, password is set in **Initial User Password** when you deploy the stack). Choose **Sign in**.
-  ![Console Login](../../images/console_login.png)
+  ![Console Login](../../../images/console_login.png)
 
 
 Now you can see the CloudFront Extensions Console, keep it open since we will do further steps on it later.
 
-![Console Home](../../images/console_home.png)
+![Console Home](../../../images/console_home.png)
 
 
