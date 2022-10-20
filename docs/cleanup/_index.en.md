@@ -8,7 +8,11 @@ weight: 90
    ![CloudFormation Delete](../images/stack-delete.png)
 
 
-!!! Note "Note"
+
+{{% notice tip %}}
+If a stack is failed to delete, try again and retain all the resources (select the check box of each resource),  then delete the retained resources manually.
+{{% /notice %}}
+
       
-      If a stack is failed to delete, try again and retain all the resources (select the check box of each resource),  then delete the retained resources manually.
+      
 
