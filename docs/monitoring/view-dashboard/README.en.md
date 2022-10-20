@@ -13,6 +13,10 @@ CloudFront Extensions provides two kinds of monitoring: non-real time monitoring
 3. Click **Refresh** button. You will see the metrics in the dashboard.
   ![Monitoring Dashboard](/images/monitoring_dashboard.png)
 
+{{% notice info %}}
+Top url metric is collected daily, so it is an expected behavior that you don't see the metric right now, try it tomorrow.
+{{% /notice %}}
+
 
 ## Summary
 
