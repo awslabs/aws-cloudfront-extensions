@@ -59,5 +59,7 @@ In this section, you viewed the difference between two snapshots and rollback th
 When you apply a snapshot, the target distribution configuration will be replaced.
 {{% /notice %}}
 
-    
+{{% notice info %}}
+Snapshot is created manually, if you want to save the configuration automatically, try **Change history** under Distribution management.
+{{% /notice %}} 
 

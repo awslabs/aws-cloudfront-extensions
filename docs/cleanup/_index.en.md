@@ -1,6 +1,6 @@
 ---
 title: Cleanup 
-weight: 90
+weight: 80
 ---
 
 1. Go to [CloudFormation console](https://console.aws.amazon.com/CloudFormation).

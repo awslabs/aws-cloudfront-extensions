@@ -8,5 +8,5 @@ In this chapter we will cover below sections:
 
 - [Create snapshot](./create-snapshot/readme)
 - [SSL certificates](./ssl/readme)
-- [Apply snapshot](./apply-snapshot/readme)
+- [Apply Snapshot to modify configuration](./apply-snapshot/readme)
 

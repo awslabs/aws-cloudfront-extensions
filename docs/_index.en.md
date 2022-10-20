@@ -14,7 +14,7 @@ Amazon CloudFront is a content delivery network (CDN) service built for high per
 
 - This workshop is targeted to builders (e.g. software development engineers, solutions architects, devops engineers, cloud engineers etc.)
 - AWS Region used in this workshop: us-east-1
-- Expected completion time: 2 hour
+- Expected completion time: 2 hours
 
 
 ## Scenario
@@ -30,16 +30,16 @@ You are a solutions architect, and your objective is to build a website which is
 
 
 
-In this workshop you will build the website by CloudFront Extensions solution. You will learn:
+### What you will learn
 - How to implement customized function by deploying an extension on CloudFront Extensions console.
 - How to save and apply the configuration of a CloudFront distribution on CloudFront Extensions console.
 - How to create SSL certificates on CloudFront Extensions console.
 - How to monitor CloudFront distribution metrics on CloudFront Extensions console.
 
-What you will do during this workshop:
+### What you will do during this workshop
 - Deploy CloudFront Extensions solution and a sample website in your AWS account (using CloudFormation).
 - Use CloudFront Extensions console to fulfill above functional requirements and non-functional requirements.
 
-For detailed architecture design of CloudFront Extensions, please refer to below diagram:
+### CloudFront Extensions architecture design
 
 ![CloudFrontExt Arch](./images/arch.png)

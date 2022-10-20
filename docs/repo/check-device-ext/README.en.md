@@ -28,7 +28,7 @@ In this section, you deployed redirect-by-device extension on CloudFront Extensi
 
 | ID | Description  | Category                   | Status |
 |----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------|
-| R1 | It shows different web pages according to the user's browser type, for example, it redirects to page A when the user access it in PC browser, it redirects to page B when the user access it in Android browser, it redirects to page C when the user access it in iPhone browser. | Functional requirement     |    :heavy_check_mark:    |
+| R1 | It shows different web pages according to the user's browser type, for example, it redirects to page A when the user access it in PC browser, it redirects to page B when the user access it in Android browser, it redirects to page C when the user access it in iPhone browser. | Functional requirement     |    <i class="fa-solid fa-check"></i>    |
 | R2 | The configuration of CloudFront distribution need to be saved, so that it can rollback if it has issues in production environment.                                         | Non-functional requirement     |        |
 | R3 |      The website needs to have a CName (alternative domain name such as www.amazon.com) instead of xxx.cloudfront.net.                                                                                                                                          | Functional requirement |        |
 | R4 | After the website is launched, you need to monitor the metrics such as request number, back-to-origin bandwidth, top url.           | Non-functional requirement |        |
@@ -40,4 +40,9 @@ This is the architecture after deploying the extension:
 ![After Arch](/images/sample_arch_after.png)
 
 Extension redirect-by-device deployed a CloudFront Function in viewer-request stage and an origin request policy in CloudFront distribution. It will redirect url based on device type.
+
+
+{{% notice tip %}}
+The CloudFront Function can be viewed in Functions page of CloudFront console, you can also customize its code.
+{{% /notice %}}
 
