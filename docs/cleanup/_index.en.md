@@ -1,12 +1,14 @@
 ---
 title: Cleanup 
-weight: 60
+weight: 90
 ---
 
-Clean up all AWS resources created using AWS CloudFormation. Delete any changes made to resources previously created in CloudFront distributions, S3, Lambda functions and IAM roles.
+1. Go to [CloudFormation console](https://console.aws.amazon.com/CloudFormation).
+2. Select the stacks deployed in the workshop, and select **Delete**
+   ![CloudFormation Delete](../images/stack-delete.png)
 
-- [S3 bucket](./s3-bucket/readme)
-- [CloudFront distribution](./cf-distribution/readme)
-- [CloudFormation](./cloudformation/readme)
-- [CloudShell](./cloudshell/readme)
-- [WAF & Shield Automations](./waf/readme)
+
+!!! Note "Note"
+      
+      If a stack is failed to delete, try again and retain all the resources (select the check box of each resource),  then delete the retained resources manually.
+
