@@ -14,9 +14,8 @@ DDB_SNAPSHOT_TABLE_NAME = os.environ['DDB_SNAPSHOT_TABLE_NAME']
 log = logging.getLogger()
 log.setLevel('INFO')
 
-def update_config_version(distribution_id):
+def update_config_version(cf_client, distribution_id):
     # export the cloudfront config to S3 bucket and directory
-    cf_client = boto3.client('cloudfront')
     response = cf_client.get_distribution_config(
         Id=distribution_id
     )
@@ -252,8 +251,7 @@ def create_eventbridge_in_us_east_1(context):
         'statusCode': 200,
         'body': json.dumps('Hello from Lambda!')
     }
-def get_all_distribution_ids():
-    cloudfront = boto3.client('cloudfront')
+def get_all_distribution_ids(cloudfront):
     # get all cloudfront distributions
     dist_list = []
 
@@ -282,23 +280,13 @@ def main(event, context):
         log.info('Input event: %s', event)
 
         # Check if this is a 'Create' or 'Update'
+        cf_client = boto3.client('cloudfront')
         if (event['RequestType'] == 'Create') or (event['RequestType'] == 'Update'):
             # first get distribution List from current account
 
-            cf_dist_list = get_all_distribution_ids()
+            cf_dist_list = get_all_distribution_ids(cf_client)
 
-            result = []
-            ddb_client = boto3.resource('dynamodb')
-            ddb_table= ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
-            for dist in cf_dist_list:
-                distribution_id = dist['Id']
-                # search ddb for the distribution id
-                response = ddb_table.query(
-                    KeyConditionExpression=Key('distributionId').eq(distribution_id)
-                )
-                if(len(response['Items']) == 0):
-                    # try to insert meta data to our ddb
-                    update_config_version(distribution_id)
+            import_cloudfront_configs(cf_client, cf_dist_list)
 
         if (event['RequestType'] == 'Create'):
             create_eventbridge_in_us_east_1(context)
@@ -314,3 +302,18 @@ def main(event, context):
         log.exception(e)
         # cfnresponse's error message is always "see CloudWatch"
         cfnresponse.send(event, context, cfnresponse.FAILED, {}, physical_id)
+
+
+def import_cloudfront_configs(cf_client, cf_dist_list):
+    result = []
+    ddb_client = boto3.resource('dynamodb')
+    ddb_table = ddb_client.Table(DDB_LATESTVERSION_TABLE_NAME)
+    for dist in cf_dist_list:
+        distribution_id = dist['Id']
+        # search ddb for the distribution id
+        response = ddb_table.query(
+            KeyConditionExpression=Key('distributionId').eq(distribution_id)
+        )
+        if (len(response['Items']) == 0):
+            # try to insert meta data to our ddb
+            update_config_version(cf_client, distribution_id)
