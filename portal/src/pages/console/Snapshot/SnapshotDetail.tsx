@@ -443,7 +443,7 @@ const SnapshotDetail: React.FC = () => {
               {t("button.cancel")}
             </Button>
             <Button
-              disabled={confirm !== "Confirm"}
+              disabled={confirm !== t("confirm")}
               btnType="primary"
               loading={loadingApply}
               onClick={() => {
