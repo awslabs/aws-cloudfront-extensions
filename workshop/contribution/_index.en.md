@@ -1,6 +1,6 @@
 ---
 title: Contribution 
-weight: 50
+weight: 90
 ---
 
 Contributions Welcome! We welcome contributions to CloudFront Extensions, there are 2 ways you can contribute to this project

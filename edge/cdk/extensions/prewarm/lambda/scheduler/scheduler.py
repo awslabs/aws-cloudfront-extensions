@@ -100,8 +100,8 @@ def lambda_handler(event, context):
     if len(url_list) == 0:
         return compose_error_response('Please specify at least 1 url in url_list')
 
-    if 'cf_domain' in event:
-        cf_domain = event['cf_domain']
+    if 'cf_domain' in event_body:
+        cf_domain = event_body['cf_domain']
     else:
         cf_domain = None
     pop_region = event_body['region']
