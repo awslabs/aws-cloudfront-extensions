@@ -112,6 +112,7 @@ export class ConsoleStack extends cdk.Stack {
     const sslEmailAddress = new cdk.CfnParameter(this, "EmailAddress", {
       description: "Email address to receive SSL certificates notification",
       type: "String",
+      allowedPattern: '\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}'
     });
 
     this.templateOptions.metadata = {
