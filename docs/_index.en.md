@@ -31,14 +31,14 @@ You are a solutions architect, and your objective is to build a website which is
 
 
 ### What you will learn
-- How to implement customized function by deploying an extension on CloudFront Extensions console.
-- How to save and apply the configuration of a CloudFront distribution on CloudFront Extensions console.
-- How to create SSL certificates on CloudFront Extensions console.
-- How to monitor CloudFront distribution metrics on CloudFront Extensions console.
+- How to implement customized function by deploying an extension on Amazon CloudFront Extensions console.
+- How to save and apply the configuration of a CloudFront distribution on Amazon CloudFront Extensions console.
+- How to create SSL certificates on Amazon CloudFront Extensions console.
+- How to monitor CloudFront distribution metrics on Amazon CloudFront Extensions console.
 
 ### What you will do during this workshop
-- Deploy CloudFront Extensions solution and a sample website in your AWS account (using CloudFormation).
-- Use CloudFront Extensions console to fulfill above functional requirements and non-functional requirements.
+- Deploy Amazon CloudFront Extensions solution and a sample website in your AWS account (using CloudFormation).
+- Use Amazon CloudFront Extensions console to fulfill above functional requirements and non-functional requirements.
 
 ### CloudFront Extensions architecture design
 

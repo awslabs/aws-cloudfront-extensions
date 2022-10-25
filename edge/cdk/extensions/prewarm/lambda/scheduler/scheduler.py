@@ -100,7 +100,7 @@ def lambda_handler(event, context):
     if len(url_list) == 0:
         return compose_error_response('Please specify at least 1 url in url_list')
 
-    if 'cf_domain' in event:
+    if 'cf_domain' in event_body:
         cf_domain = event['cf_domain']
     else:
         cf_domain = None
