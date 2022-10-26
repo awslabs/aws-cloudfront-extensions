@@ -94,8 +94,8 @@ const JobDetail: React.FC = () => {
       });
       const certList: [string] = resData.data.listCertificationsWithJobId;
       setCertArnList(certList);
-    } catch (error) {
       setLoadingData(false);
+    } catch (error) {
       console.error(error);
     }
   };
