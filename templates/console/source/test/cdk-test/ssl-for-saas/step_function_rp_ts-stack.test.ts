@@ -71,7 +71,6 @@ describe("StepFunctionRpTsConstruct", () => {
                 appsyncApi: appsyncApiStack,
             }
         );
-        console.log(appsyncApiStack.apiKey)
         const temp = new StepFunctionRpTsConstruct(appStack, "sslStepFuncConstruct", {
             synthesizer: new BootstraplessStackSynthesizer(),
             appsyncApi: appsyncApiStack,
