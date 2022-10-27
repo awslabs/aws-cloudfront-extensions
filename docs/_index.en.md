@@ -13,7 +13,7 @@ Amazon CloudFront is a content delivery network (CDN) service built for high per
 ## About the workshop
 
 - This workshop is targeted to builders (e.g. software development engineers, solutions architects, devops engineers, cloud engineers etc.)
-- AWS Region used in this workshop: us-east-1
+- AWS Region used in this workshop: **us-east-1**
 - Expected completion time: 2 hours
 
 

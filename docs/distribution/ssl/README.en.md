@@ -16,7 +16,7 @@ Follow below steps to create a SSL certificate:
 
 4. Choose **Get Started**.
    ![Create New SSL](/images/get_started_ssl.png)
-5. Enter a domain name for the certificate.
+5. Enter a domain name (CName such as www.amazon.com) for the certificate.
 6. Choose **Do not create distributions** since you already have a distribution for sample website.
    ![Enter Domain Name](/images/enter_domain_name.png)
 
@@ -27,8 +27,9 @@ Follow below steps to create a SSL certificate:
 9. The certificate is in **PENDING_VALIDATION** status.
    ![Pending Validation](/images/pending_ssl.png)
 
-10. Wait about one minute, you will receive an email with CName value.
-   ![Pending Validation](/images/sns_confirm.png)
+10. Wait about one minute, you will receive an email with CName value. (You can also check the status in **Distribution management > Certificates** on CloudFront Extensions console.)
+   ![Validation Email](/images/sns_confirm.png)
+   ![SSL Status Console](/images/ssl_status_console.png)
 
 11. Go to your DNS service and add a new record with the value in the email, eg. if your domain name in step 5 is registered in Route 53, then go to Route 53 console, if your domain name is registered in GoDaddy, then go to GoDaddy console. In this example, the domain name is created in Route 53.
 
@@ -46,7 +47,7 @@ Now the SSL certicate is created and issued, we will associate the SSL certifica
 ## Associate SSL certificate to CloudFront
 
 1. Go to [CloudFront console](https://us-east-1.console.aws.amazon.com/cloudfront/v3/home?region=us-east-1#/distributions).
-2. Choose the distribution created in **CFExtSampleWorkshop** stack (you can find the distribution id in the Outputs tab).
+2. Choose the distribution created in **CFExtSampleWorkshop** stack (refer to **DistributionID** in the Outputs tab).
 3. In **General** tab, under **Settings**, click **Edit** button.
   ![Console Stacks](/images/cf_edit.png)
 

@@ -17,15 +17,15 @@ weight: 1
 
       | Parameter              | Default value | Description  | Workshop  |
       |-----------|---------------------------------------------------------------------------------------------------------------------------------------------|---------|---------|
-      | Initial User Email     | - | The initial user email for the web console.   | Fill in your email address.
       | Initial User Name      | - | The initial username for the web console.   | Fill in your name. |
+      | Initial User Email     | - | The initial user email for the web console.   | Fill in your email address.
       | Initial User Password  | - | The Initial Password for the web console.   | Fill in your password. The password should be **Length 8~16 with space, Must contain 1 uppercase, 1 lowercase, 1 number, 1 non-alpha numeric number, 1 number (0-9).** eg. CFExt@2023 |
-      | Notification Email     | - | Email address to receive SSL certificates notification.   | Fill in your email address. This can be the same with Initial User Email. |
       | CloudFront Log Type    | no | You can set it to `yes-Realtime` to get monitoring metrics from realtime loge, or set it to` yes-Non-Realtime` to get monitoring metrics from standard log. By default, it is `no`, which means it will not deploy monitoring feature. See [Monitoring](./monitoring/overview.md) for more information.                                 | Choose **yes-Non-Realtime**. |
-      | CloudFront Domain List | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account | Fill in the sample website you deployed in Prerequisite, eg. d1jy0foe2tk2rx.cloudfront.net. You can find the domain name in the Outputs tab of the CloudFormation stack. |
+      | CloudFront Domain List | - | The CloudFront domain name list. Use comma as separation for multiple domain names. Use 'ALL' to monitoring all domains in your AWS account | Fill in the sample website CloudFront domain name you deployed in Prerequisite, eg. d1jy0foe2tk2rx.cloudfront.net. Refer to **CFDomainName** in the Outputs tab of **CFExtSampleWorkshop** stack. |
       | Log Keeping Days       | 120 | The number of days to keep CloudFront logs in the S3 bucket.  | Use the default value, no change is needed. |
       | Delete Log             | false | You can set it to `true` to delete original CloudFront standard logs in S3 bucket. By default, it is `false`. This only applies to non-realtime monitoring | Use the default value, no change is needed. |
       | Use Start Time         | false | You can set it to `true` if the Time in metric data is based on start time, or set it to `false` if the Time in metric data is based on end time. This only applies to non-realtime monitoring | Use the default value, no change is needed. |
+      | Notification Email     | - | Email address to receive SSL certificates notification.   | Fill in your email address. This can be the same with Initial User Email. |
 
 
 5. Choose **Next**.

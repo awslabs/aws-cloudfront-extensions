@@ -21,7 +21,7 @@ To specify a client-side setting query result location using the Athena console
 3. From the navigation bar, choose **Manage**.
    ![Manage Workgroup](/images/workgroup_manage.png)
 
-4. In the **Location of query result** box, choose **Browse S3**, choose any S3 bucket that you would like to store the query result, and then click **Choose**.
+4. In the **Location of query result** box, choose **Browse S3**, choose a S3 bucket in us-east-1 to store the query result, and then click **Choose**.
    ![Add Bucket](/images/add_bucket.png)
 
 5. Choose **Save**.
