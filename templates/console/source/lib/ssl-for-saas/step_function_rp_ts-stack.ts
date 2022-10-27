@@ -12,7 +12,6 @@ import { aws_events_targets as targets } from "aws-cdk-lib";
 import { aws_apigateway as _apigw } from "aws-cdk-lib";
 import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
 import * as logs from "aws-cdk-lib/aws-logs";
-import { CfnParameter } from "aws-cdk-lib";
 import { Duration } from "aws-cdk-lib";
 import { aws_kms as kms } from "aws-cdk-lib";
 
@@ -31,12 +30,12 @@ export interface StepFunctionProps extends CommonProps {
   notificationEmail: string;
 }
 
-export class StepFunctionRpTsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StepFunctionProps) {
-    super(scope, id, props);
-    new StepFunctionRpTsConstruct(scope, id, props);
-  }
-}
+// export class StepFunctionRpTsStack extends Stack {
+//   constructor(scope: Construct, id: string, props?: StepFunctionProps) {
+//     super(scope, id, props);
+//     new StepFunctionRpTsConstruct(this, id, props);
+//   }
+// }
 
 export class StepFunctionRpTsConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: StepFunctionProps) {
@@ -851,7 +850,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     );
 
     //appsyncApi is imported from common stack
-    const appsyncApi = props?.appsyncApi;
+    const appsyncApi = props.appsyncApi;
 
     // An AppSync datasource backed by a Lambda function
     const appsyncFunc = new _appsync_alpha.LambdaDataSource(

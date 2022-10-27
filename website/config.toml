@@ -11,10 +11,6 @@ languageCode = "en-us"
     languageName = "English"
     weight = 1
 
-  [languages.cn]
-    languageName = "Chinese"
-    weight = 2
-
 [params]
   themeVariant = "cloudfrontext"
   disableLandingPageButton = true

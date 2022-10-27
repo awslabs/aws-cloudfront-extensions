@@ -22,9 +22,7 @@ To send us a pull request by doing the following:
 1. Clone the forked repository and make code changes
 2. Run `npm test` or `pytest` depends on your language and make sure the unit test is passed
    ![Unit Test](/images/unit_test.png)
-3. Output your unique solution id in yaml file
-   ![Output SolutionId](/images/output_sid.png)
-4. Commit to your fork repository
+3. Commit to your fork repository
 
 ## Send a pull request
 1. Navigate to [awslabs/aws-cloudfront-extensions](https://github.com/awslabs/aws-cloudfront-extensions) where you created your fork
@@ -35,8 +33,6 @@ To send us a pull request by doing the following:
    ![Across Forks](/images/across_forks.png)
 5. Type in the title and description by following [PR template](https://github.com/awslabs/aws-cloudfront-extensions/blob/main/.github/pull_request_template.md) and create the pull request
    ![PR Example](/images/pr_example.png)
-6. Apply a label for your pull request. The label naming format is <language>/<functionName>, which is also the folder contains your code
-   ![PR Label](/images/pr_label.png)
-7. Keep tracking until your pull request is approved and merged   
+6. Keep tracking until your pull request is approved and merged   
 
 
