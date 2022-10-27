@@ -22,6 +22,7 @@ import * as commonStack from "../../../lib/cf-common/cf-common-stack";
 import {CommonConstruct, CommonProps} from "../../../lib/cf-common/cf-common-stack";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import path from "path";
+import {TestUtils} from "../test-util/utils";
 
 describe("CloudFrontExtensionConfigVersionStack", () => {
   test("Test Config Version stack create successfully", () => {
@@ -30,17 +31,7 @@ describe("CloudFrontExtensionConfigVersionStack", () => {
 
     const appStack = new Stack(app, "appStack", {});
     // Creates the AppSync API
-    const appsyncApi = new appsync.GraphqlApi(appStack, "appsyncApi", {
-      name: "cloudfront-extension-appsync-api",
-      schema: appsync.Schema.fromAsset(
-        path.join(__dirname, "../../../graphql/schema.graphql")
-      ),
-      // authorizationConfig: config,
-      logConfig: {
-        fieldLogLevel: appsync.FieldLogLevel.ALL,
-        excludeVerboseContent: true,
-      },
-    });
+    const appsyncApi = TestUtils.mockAppSync(appStack);
 
     const stack = new configStack.CloudFrontConfigVersionStack(
       app,
