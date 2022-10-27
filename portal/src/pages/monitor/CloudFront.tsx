@@ -91,11 +91,9 @@ const CloudFront: React.FC = () => {
   const getCloudfrontDistributionList = async () => {
     try {
       const resData = await appSyncRequestQuery(listDistribution);
-      // console.log(resData);
       const Cloudfront_info_list: any[] = resData.data.listDistribution;
       const tmpDistributionList = [];
       const tmpSelectedList = [];
-      // console.log(amplifyConfig.aws_monitoring_stack_name);
       const domainData = await appSyncRequestMutation(updateDomains, {
         stack_name: "",
         domains: "*",
@@ -138,11 +136,9 @@ const CloudFront: React.FC = () => {
 
       const selectList: any = [];
       for (const index in tmpSelectedList) {
-        selectList.push(tmpSelectedList[index].name);
+        selectList.push(tmpSelectedList[index].value);
       }
-      setSelectDistributionName(() => {
-        return selectList;
-      });
+      setSelectDistributionName(selectList);
     } catch (error) {
       console.error(error);
     }
@@ -200,6 +196,10 @@ const CloudFront: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    getChartData();
+  }, [selectDomain, startDate, endDate]);
 
   useEffect(() => {
     getCloudfrontDistributionList();
@@ -437,12 +437,8 @@ const CloudFront: React.FC = () => {
     for (const index in cloudFrontList) {
       selectList.push(cloudFrontList[index].value);
     }
-    setSelectDistributionName(() => {
-      return selectList;
-    });
-    setSelectDistribution(() => {
-      return selectList;
-    });
+    setSelectDistributionName(selectList);
+    setSelectDistribution(selectList);
   };
 
   const selectNoneDistributions = async () => {
@@ -504,8 +500,13 @@ const CloudFront: React.FC = () => {
               isDisabled={amplifyConfig.aws_monitoring_url === ""}
               onChange={(event: any) => {
                 if (event !== null) {
-                  setSelectDomain(event.value);
-                  getChartData();
+                  let domainName = event.value;
+                  if (event.name.indexOf("|") > 0) {
+                    domainName = event.name
+                      .substring(event.name.indexOf("|") + 1)
+                      .trim();
+                  }
+                  setSelectDomain(domainName);
                 }
               }}
             />
@@ -526,7 +527,6 @@ const CloudFront: React.FC = () => {
                       moment.utc(range[1]).format("YYYY-MM-DD HH:mm:ss")
                     )
                   );
-                  getChartData();
                 }
               }}
             />
