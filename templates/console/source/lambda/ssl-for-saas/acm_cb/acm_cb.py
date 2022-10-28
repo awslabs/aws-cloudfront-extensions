@@ -75,38 +75,38 @@ def _tag_job_certificate(certArn, jobToken):
         ]
     )
 
-
-def _update_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn):
-    """_summary_
-
-    Args:
-        callbackTable (_type_): _description_
-        domainName (_type_): _description_
-        sanList (_type_): _description_
-        certUUid (_type_): _description_
-        taskToken (_type_): _description_
-        taskType (_type_): _description_
-        taskStatus (_type_): _description_
-        certArn (_type_): _description_
-    """
-    logger.info('Updating metadata for domainName %s with certUUid %s', domainName, certUUid)
-    dynamo_client.update_item(
-        TableName=callbackTable,
-        Key={
-            'certUUid': {
-                'S': certUUid
-            }
-        },
-        UpdateExpression="set taskToken = :token, taskStatus = :status",
-        ExpressionAttributeValues={
-            ':token': {
-                'S': taskToken
-            },
-            ':status': {
-                'S': taskStatus
-            }
-        }
-    )
+# not used
+# def _update_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn):
+#     """_summary_
+#
+#     Args:
+#         callbackTable (_type_): _description_
+#         domainName (_type_): _description_
+#         sanList (_type_): _description_
+#         certUUid (_type_): _description_
+#         taskToken (_type_): _description_
+#         taskType (_type_): _description_
+#         taskStatus (_type_): _description_
+#         certArn (_type_): _description_
+#     """
+#     logger.info('Updating metadata for domainName %s with certUUid %s', domainName, certUUid)
+#     dynamo_client.update_item(
+#         TableName=callbackTable,
+#         Key={
+#             'certUUid': {
+#                 'S': certUUid
+#             }
+#         },
+#         UpdateExpression="set taskToken = :token, taskStatus = :status",
+#         ExpressionAttributeValues={
+#             ':token': {
+#                 'S': taskToken
+#             },
+#             ':status': {
+#                 'S': taskStatus
+#             }
+#         }
+#     )
 
 
 @retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(30))
@@ -205,8 +205,6 @@ def is_subset(sanList, wildcardSanDict):
         logger.info('regex: %s, matches %s', regex, matches)
         if len(matches) == len(sanList):
             return value
-        else:
-            continue
     return None
 
 
@@ -224,8 +222,6 @@ def is_wildcard(sanList):
         # check if wildcard string
         if san.startswith('*'):
             return san
-        else:
-            continue
     return None
 
 
