@@ -9,7 +9,7 @@ So far, R1 has been completed, we will work on R2 in this section. We need to sa
 | ID | Description  | Category                   | Status |
 |----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------|
 | R1 | It shows different web pages according to the user's browser type, for example, it redirects to page A when the user access it in PC browser, it redirects to page B when the user access it in Android browser, it redirects to page C when the user access it in iPhone browser. | Functional requirement     |    Completed    |
-| R2 | The configuration of CloudFront distribution need to be saved, so that it can rollback if it has issues in production environment.                                         | Non-functional requirement     |        |
+| **R2** | **The configuration of CloudFront distribution need to be saved, so that it can rollback if it has issues in production environment.**                                         | **Non-functional requirement**     |        |
 | R3 |      The website needs to have a CName (alternative domain name such as www.amazon.com) instead of xxx.cloudfront.net.                                                                                                                                          | Functional requirement |        |
 | R4 | After the website is launched, you need to monitor the metrics such as request number, back-to-origin bandwidth, top url.           | Non-functional requirement |        |
 
@@ -47,7 +47,7 @@ You implemented the second requirement (R2 in below table) by snapshot feature.
 | ID | Description  | Category                   | Status |
 |----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------|
 | R1 | It shows different web pages according to the user's browser type, for example, it redirects to page A when the user access it in PC browser, it redirects to page B when the user access it in Android browser, it redirects to page C when the user access it in iPhone browser. | Functional requirement     |    Completed    |
-| R2 | The configuration of CloudFront distribution need to be saved, so that it can rollback if it has issues in production environment.                                         | Non-functional requirement     |     Completed   |
+| **R2** | **The configuration of CloudFront distribution need to be saved, so that it can rollback if it has issues in production environment.**                                        | **Non-functional requirement**     |     **Completed**   |
 | R3 |      The website needs to have a CName (alternative domain name such as www.amazon.com) instead of xxx.cloudfront.net.                                                                                                                                          | Functional requirement |        |
 | R4 | After the website is launched, you need to monitor the metrics such as request number, back-to-origin bandwidth, top url.           | Non-functional requirement |        |
 

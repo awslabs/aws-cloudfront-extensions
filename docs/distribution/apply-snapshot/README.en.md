@@ -11,7 +11,7 @@ In last section, you associated a SSL certificate with the sample website and ad
 2. In the navigation panel, under **Distribution management**, choose **Snapshot**.
    ![Snapshot List Page](/images/snapshot_list_2.png)
 
-3. Choose the **sample website distribution** (you can find it in Outputs tab of **CFExtSampleWorkshop** stack).
+3. Choose the **sample website distribution** (you can find it by **DistributionID** in Outputs tab of **CFExtSampleWorkshop** stack).
 4. Choose **Create Snapshot**.
 5. In the window that pops up, enter a Snapshot Name (a unique key used to identify this snapshot), and also description.
 6. Choose **Create**.

@@ -28,7 +28,7 @@ Follow below steps to create a SSL certificate:
    ![Pending Validation](/images/pending_ssl.png)
 
 10. Wait about one minute, you will receive an email with CName value. (You can also check the status in **Distribution management > Certificates** on CloudFront Extensions console.)
-   ![Validation Email](/images/sns_confirm.png)
+   ![Validation Email](/images/sns_cname.png)
    ![SSL Status Console](/images/ssl_status_console.png)
 
 11. Go to your DNS service and add a new record with the value in the email, eg. if your domain name in step 5 is registered in Route 53, then go to Route 53 console, if your domain name is registered in GoDaddy, then go to GoDaddy console. In this example, the domain name is created in Route 53.
@@ -88,7 +88,7 @@ In this section, you created a SSL certificate on CloudFront Extensions console 
 |----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------|
 | R1 | It shows different web pages according to the user's browser type, for example, it redirects to page A when the user access it in PC browser, it redirects to page B when the user access it in Android browser, it redirects to page C when the user access it in iPhone browser. | Functional requirement     |    Completed    |
 | R2 | The configuration of CloudFront distribution need to be saved, so that it can rollback if it has issues in production environment.                                         | Non-functional requirement     |     Completed   |
-| R3 |      The website needs to have a CName (alternative domain name such as www.amazon.com) instead of xxx.cloudfront.net.                                                                                                                                          | Functional requirement |   Completed     |
+| **R3** |      **The website needs to have a CName (alternative domain name such as www.amazon.com) instead of xxx.cloudfront.net.**                                                                                                                                          | **Functional requirement** |   **Completed**     |
 | R4 | After the website is launched, you need to monitor the metrics such as request number, back-to-origin bandwidth, top url.           | Non-functional requirement |        |
 
 

@@ -25,7 +25,7 @@ Setup monitoring by following steps:
 6. In **General** tab, under **Settings**, click **Edit** button.
   ![Console Stacks](/images/cf_edit.png)
 
-7. Under **Standard logging**, choose **On** and set the S3 bucket to the bucket that you created in the nested stack.
+7. Under **Standard logging**, choose **On** and set the S3 bucket to the bucket that you created in the **nested stack** (you can find it in **S3buckettostoreCloudFrontlogs** in the outputs tab of the nested stack, the bucket name contains **cloudfrontlog** keyword).
   ![Console Stacks](/images/turn_on_logging.png)
 
 8. Choose **Save changes**.
