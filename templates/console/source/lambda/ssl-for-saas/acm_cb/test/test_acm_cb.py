@@ -264,6 +264,7 @@ def test_request_certificate(monkeypatch):
     resp = lambda_handler(event, None)
     assert resp['statusCode'] == 200
 
+
 @mock_dynamodb
 def test_get_job_info(monkeypatch):
     from job_table_utils import get_job_info

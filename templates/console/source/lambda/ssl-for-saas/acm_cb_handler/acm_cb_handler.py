@@ -215,9 +215,8 @@ def fetch_cloudfront_config_version(distribution_id, config_version_id, ddb_tabl
 # get the cloudfront config from source distribution
 def fetch_cloudfront_config(distribution_id):
     # get specific cloudfront distributions version info
-    cf_client = boto3.client('cloudfront')
     try:
-        response = cf_client.get_distribution_config(
+        response = cf.get_distribution_config(
             Id=distribution_id
         )
     except Exception as error:

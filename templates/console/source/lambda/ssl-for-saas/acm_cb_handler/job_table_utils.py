@@ -1,3 +1,4 @@
+# fixme: alot of duplicated code
 import logging
 import boto3
 import os
@@ -85,6 +86,7 @@ def update_job_cloudfront_distribution_created_number(ddb_table_name, job_id, cu
         },
         ReturnValues="UPDATED_NEW"
     )
+
 
 def update_job_field(ddb_table_name,job_id, field_name, value):
     ddb_client = boto3.resource('dynamodb')
