@@ -126,7 +126,15 @@ const JobDetail: React.FC = () => {
     if (jobInfo.cloudfront_distribution_created_number > 0) {
       setCertValidationPercentage(100);
     } else {
-      setCertValidationPercentage(0);
+      if (jobInfo.cert_total_number > 0) {
+        setCertValidationPercentage(
+          Math.round(
+            (jobInfo.cert_completed_number / jobInfo.cert_total_number) * 100
+          )
+        );
+      } else {
+        setCertValidationPercentage(0);
+      }
     }
   };
 

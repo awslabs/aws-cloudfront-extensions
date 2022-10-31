@@ -455,6 +455,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       }
     );
 
+
     //step function task to handle error
     const failure_handling_job = new _task.LambdaInvoke(
       this,
@@ -660,136 +661,6 @@ export class StepFunctionRpTsConstruct extends Construct {
       },
     });
 
-    const _fn_appsync_func_role = new iam.Role(this, "_fn_appsync_func_role", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-
-    _fn_appsync_func_role.addToPolicy(lambdaRunPolicy);
-    _fn_appsync_func_role.addToPolicy(acm_admin_policy);
-    _fn_appsync_func_role.addToPolicy(ddb_rw_policy);
-    _fn_appsync_func_role.addToPolicy(stepFunction_run_policy);
-    _fn_appsync_func_role.addToPolicy(tag_update_policy);
-    _fn_appsync_func_role.addToPolicy(kms_policy);
-    _fn_appsync_func_role.addToPolicy(sns_update_policy);
-
-    const _fn_ssl_api_handler_role = new iam.Role(
-      this,
-      "_fn_ssl_api_handler_role",
-      {
-        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-      }
-    );
-    _fn_ssl_api_handler_role.addToPolicy(lambdaRunPolicy);
-    _fn_ssl_api_handler_role.addToPolicy(acm_admin_policy);
-    _fn_ssl_api_handler_role.addToPolicy(ddb_rw_policy);
-    _fn_ssl_api_handler_role.addToPolicy(stepFunction_run_policy);
-    _fn_ssl_api_handler_role.addToPolicy(tag_update_policy);
-    _fn_ssl_api_handler_role.addToPolicy(kms_policy);
-    _fn_ssl_api_handler_role.addToPolicy(sns_update_policy);
-
-    // lambda in step function & cron job
-    const fn_ssl_api_handler = new _lambda.DockerImageFunction(
-      this,
-      "fn_ssl_api_handler",
-      {
-        code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/ssl_api_handler")
-        ),
-        environment: {
-          STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
-          CALLBACK_TABLE: callback_table.tableName,
-          JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          SNS_TOPIC: sns_topic.topicArn,
-          TASK_TYPE: "placeholder",
-        },
-        timeout: Duration.seconds(900),
-        role: _fn_ssl_api_handler_role,
-        memorySize: 1024,
-      }
-    );
-
-    const apiAccessLogGroup = new logs.LogGroup(
-      this,
-      "cloudfront_ssl-for-saas_ApiGatewayAccessLogs"
-    );
-    // API Gateway with Lambda proxy integration
-    const ssl_api_handler = new _apigw.LambdaRestApi(this, "ssl_api_handler", {
-      handler: fn_ssl_api_handler,
-      description: "restful api to trigger the ssl for saas workflow",
-      proxy: false,
-      restApiName: "ssl_for_saas_manager",
-      endpointConfiguration: {
-        types: [EndpointType.EDGE],
-      },
-      deployOptions: {
-        accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
-        accessLogFormat: AccessLogFormat.clf(),
-      },
-    });
-
-    const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
-
-    const ssl_requestValidator = new RequestValidator(
-      this,
-      "SSLRequestValidator",
-      {
-        restApi: ssl_api_handler,
-        requestValidatorName: "SSLApiValidator",
-        validateRequestBody: false,
-        validateRequestParameters: true,
-      }
-    );
-
-    ssl_api.addMethod("POST", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-    });
-
-    const cert_list = ssl_api.addResource("cert_list");
-    cert_list.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-    });
-
-    const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
-    list_ssl_jobs.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-    });
-
-    const get_ssl_job = ssl_api.addResource("get_ssl_job");
-    get_ssl_job.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-      requestParameters: {
-        "method.request.querystring.jobId": true,
-      },
-      requestValidator: ssl_requestValidator,
-    });
-
-    const list_cloudfront_arn_with_jobId = ssl_api.addResource(
-      "list_cloudfront_arn_with_jobId"
-    );
-    list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-      requestParameters: {
-        "method.request.querystring.jobId": true,
-      },
-      requestValidator: ssl_requestValidator,
-    });
-
-    const list_ssl_certification_with_jobId = ssl_api.addResource(
-      "list_ssl_certification_with_jobId"
-    );
-    list_ssl_certification_with_jobId.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-      requestParameters: {
-        "method.request.querystring.jobId": true,
-      },
-      requestValidator: ssl_requestValidator,
-    });
 
     // cloudwatch event cron job for 5 minutes
     new events.Rule(this, "ACM status check", {
@@ -823,6 +694,171 @@ export class StepFunctionRpTsConstruct extends Construct {
       targets: [new targets.SnsTopic(sns_topic)],
     });
 
+
+    const _fn_job_status_update_role = new iam.Role(this, "_fn_job_status_update_role", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    });
+
+    _fn_job_status_update_role.addToPolicy(lambdaRunPolicy);
+    _fn_job_status_update_role.addToPolicy(acm_admin_policy);
+    _fn_job_status_update_role.addToPolicy(ddb_rw_policy);
+    _fn_job_status_update_role.addToPolicy(stepFunction_run_policy);
+    _fn_job_status_update_role.addToPolicy(kms_policy);
+
+    // lambda function to be called by appsyync function and api handler to update the job validation task status
+    const fn_job_status_update = new _lambda.DockerImageFunction(this, "job_status_update", {
+      code: _lambda.DockerImageCode.fromImageAsset(
+          path.join(__dirname, "../../lambda/ssl-for-saas/job_status_update")
+      ),
+      environment: {
+        PAYLOAD_EVENT_KEY: "placeholder",
+        CALLBACK_TABLE: callback_table.tableName,
+        JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
+        TASK_TYPE: "placeholder",
+        SNS_TOPIC: sns_topic.topicArn,
+      },
+      timeout: Duration.seconds(900),
+      role: _fn_acm_cron_role,
+      memorySize: 1024,
+    });
+
+    const _fn_ssl_api_handler_role = new iam.Role(
+        this,
+        "_fn_ssl_api_handler_role",
+        {
+          assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+        }
+    );
+    _fn_ssl_api_handler_role.addToPolicy(lambdaRunPolicy);
+    _fn_ssl_api_handler_role.addToPolicy(acm_admin_policy);
+    _fn_ssl_api_handler_role.addToPolicy(ddb_rw_policy);
+    _fn_ssl_api_handler_role.addToPolicy(stepFunction_run_policy);
+    _fn_ssl_api_handler_role.addToPolicy(tag_update_policy);
+    _fn_ssl_api_handler_role.addToPolicy(kms_policy);
+    _fn_ssl_api_handler_role.addToPolicy(sns_update_policy);
+
+
+    // lambda in step function & cron job
+    const fn_ssl_api_handler = new _lambda.DockerImageFunction(
+        this,
+        "fn_ssl_api_handler",
+        {
+          code: _lambda.DockerImageCode.fromImageAsset(
+              path.join(__dirname, "../../lambda/ssl-for-saas/ssl_api_handler")
+          ),
+          environment: {
+            STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
+            CALLBACK_TABLE: callback_table.tableName,
+            JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
+            SNS_TOPIC: sns_topic.topicArn,
+            TASK_TYPE: "placeholder",
+            STATUS_UPDATE_LAMBDA_FUNCTION: fn_job_status_update.functionName,
+          },
+          timeout: Duration.seconds(900),
+          role: _fn_ssl_api_handler_role,
+          memorySize: 1024,
+        }
+    );
+
+    const _fn_appsync_func_role = new iam.Role(this, "_fn_appsync_func_role", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    });
+
+    _fn_appsync_func_role.addToPolicy(lambdaRunPolicy);
+    _fn_appsync_func_role.addToPolicy(acm_admin_policy);
+    _fn_appsync_func_role.addToPolicy(ddb_rw_policy);
+    _fn_appsync_func_role.addToPolicy(stepFunction_run_policy);
+    _fn_appsync_func_role.addToPolicy(tag_update_policy);
+    _fn_appsync_func_role.addToPolicy(kms_policy);
+    _fn_appsync_func_role.addToPolicy(sns_update_policy);
+    _fn_appsync_func_role.addToPolicy(lambda_rw_policy);
+
+
+
+
+    const apiAccessLogGroup = new logs.LogGroup(
+        this,
+        "cloudfront_ssl-for-saas_ApiGatewayAccessLogs"
+    );
+    // API Gateway with Lambda proxy integration
+    const ssl_api_handler = new _apigw.LambdaRestApi(this, "ssl_api_handler", {
+      handler: fn_ssl_api_handler,
+      description: "restful api to trigger the ssl for saas workflow",
+      proxy: false,
+      restApiName: "ssl_for_saas_manager",
+      endpointConfiguration: {
+        types: [EndpointType.EDGE],
+      },
+      deployOptions: {
+        accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
+        accessLogFormat: AccessLogFormat.clf(),
+      },
+    });
+
+    const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
+
+    const ssl_requestValidator = new RequestValidator(
+        this,
+        "SSLRequestValidator",
+        {
+          restApi: ssl_api_handler,
+          requestValidatorName: "SSLApiValidator",
+          validateRequestBody: false,
+          validateRequestParameters: true,
+        }
+    );
+
+    ssl_api.addMethod("POST", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const cert_list = ssl_api.addResource("cert_list");
+    cert_list.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
+    list_ssl_jobs.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+    });
+
+    const get_ssl_job = ssl_api.addResource("get_ssl_job");
+    get_ssl_job.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.jobId": true,
+      },
+      requestValidator: ssl_requestValidator,
+    });
+
+    const list_cloudfront_arn_with_jobId = ssl_api.addResource(
+        "list_cloudfront_arn_with_jobId"
+    );
+    list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.jobId": true,
+      },
+      requestValidator: ssl_requestValidator,
+    });
+
+    const list_ssl_certification_with_jobId = ssl_api.addResource(
+        "list_ssl_certification_with_jobId"
+    );
+    list_ssl_certification_with_jobId.addMethod("GET", undefined, {
+      // authorizationType: AuthorizationType.IAM,
+      apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.jobId": true,
+      },
+      requestValidator: ssl_requestValidator,
+    });
+
     // Lambda function to integrate with AppSync
     const fn_appsync_function = new _lambda.DockerImageFunction(
       this,
@@ -842,6 +878,7 @@ export class StepFunctionRpTsConstruct extends Construct {
           JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
           TASK_TYPE: "placeholder",
           SNS_TOPIC: sns_topic.topicArn,
+          STATUS_UPDATE_LAMBDA_FUNCTION: fn_job_status_update.functionName,
         },
         timeout: Duration.seconds(900),
         role: _fn_appsync_func_role,
