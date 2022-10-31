@@ -113,7 +113,7 @@ def _set_task_success(token, output):
 
 
 def _set_task_failure(token, error):
-    sf_client = boto3.client('stepfunctions')
+    # sf_client = boto3.client('stepfunctions')
 
     sf_client.send_task_failure(
         taskToken=token,
@@ -228,7 +228,7 @@ def query_update_metadata(acm_dcv_dict, item, table_name):
     for job_token,num in jobStatusDict.items():
         logger.info(job_token)
         logger.info(num)
-        resp = get_job_info(JOB_INFO_TABLE_NAME,job_token)
+        resp = get_job_info(JOB_INFO_TABLE_NAME, job_token)
         if 'Items' in resp:
             ddb_record = resp['Items'][0]
             cert_total_number = ddb_record['cert_total_number']
