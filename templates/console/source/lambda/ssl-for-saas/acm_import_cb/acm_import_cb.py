@@ -185,6 +185,8 @@ def get_domain_list_from_cert():
         logger.error('error validating certificate: %s', e)
     return domainList
 
+
+# fixme: duplicated code
 def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken, taskType, taskStatus, certArn, jobToken):
     """_summary_
 
@@ -231,6 +233,7 @@ def _create_acm_metadata(callbackTable, domainName, sanList, certUUid, taskToken
         )
     logger.info('Domain metadata creation response: %s', resp)
 
+
 def _tag_job_certificate(certArn, jobToken):
     """[summary]
 
@@ -249,6 +252,7 @@ def _tag_job_certificate(certArn, jobToken):
         ]
     )
 
+#  fixme: duplicate with above
 def _tag_certificate(certArn, taskToken):
     """[summary]
 
