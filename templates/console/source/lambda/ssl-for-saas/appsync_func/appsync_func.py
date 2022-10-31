@@ -20,11 +20,12 @@ from aws_lambda_powertools.event_handler import AppSyncResolver
 
 LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 
-tracer = Tracer(service="ssl_for_saas_appsync_resolver")
+# tracer = Tracer(service="ssl_for_saas_appsync_resolver")
 logger = Logger(service="ssl_for_saas_appsync_resolver")
 acm = boto3.client('acm', region_name='us-east-1')
 stepFunctionArn = os.environ.get('STEP_FUNCTION_ARN')
 JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+STATUS_UPDATE_LAMBDA_FUNCTION = os.environ.get('STATUS_UPDATE_LAMBDA_FUNCTION')
 # get sns topic arn from environment variable
 snsTopicArn = os.environ.get('SNS_TOPIC')
 
@@ -32,6 +33,7 @@ app = AppSyncResolver()
 
 step_function = boto3.client('stepfunctions')
 sns_client = boto3.client('sns')
+lambda_client = boto3.client('lambda')
 
 # add execution path
 os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
@@ -392,6 +394,24 @@ def validate_input_parameters(input):
         # raise Exception('Invalid input with error: ' + str(v.errors))
         raise Exception('Invalid input parameters: ' + json.dumps(v.errors))
 
+def _tag_job_certificate(certArn, jobToken):
+    """[summary]
+
+    Args:
+        certificate ([type]): [description]
+        jobToken ([type]): [description]
+    """
+    logger.info('Tagging certificate %s with task_token %s', certArn, jobToken)
+    acm.add_tags_to_certificate(
+        CertificateArn=certArn,
+        Tags=[
+            {
+                'Key': 'job_token',
+                'Value': jobToken
+            }
+        ]
+    )
+
 # {
 #   "acm_op": "create", # "import"
 #   "dist_aggregate": "false",
@@ -498,6 +518,8 @@ def cert_create_or_import(input):
                     resp = request_certificate(certificate)
                     logger.info('Certificate creation response: %s', resp)
 
+                    _tag_job_certificate(resp['CertificateArn'], raw_context.aws_request_id)
+
                     resp_detail = fetch_dcv_value(resp['CertificateArn'])
 
                     # iterate DomainValidationOptions array to get DNS validation record
@@ -543,6 +565,7 @@ def cert_create_or_import(input):
                     certificate['DomainName'] = _domainList[0] if _domainList else ''
 
                     resp = import_certificate(certificate)
+                    _tag_job_certificate(resp['CertificateArn'], raw_context.aws_request_id)
 
                 update_job_field(JOB_INFO_TABLE_NAME,
                                      raw_context.aws_request_id,
@@ -745,6 +768,17 @@ def manager_get_ssl_job(jobId):
     ddb_client = boto3.resource('dynamodb')
     ddb_table = ddb_client.Table(JOB_INFO_TABLE_NAME)
 
+    lambda_payload = {
+        'job_id': jobId
+    }
+    try:
+        response = lambda_client.invoke(
+            FunctionName=STATUS_UPDATE_LAMBDA_FUNCTION,
+            InvocationType='Event',
+            Payload=json.dumps(lambda_payload).encode('UTF-8')
+        )
+    except Exception as e:
+        logger.error("Failed to call lambda function with error" + str(e))
 
     try:
         response = ddb_table.get_item(
@@ -772,7 +806,6 @@ def manager_get_ssl_job(jobId):
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
-@tracer.capture_lambda_handler
 def lambda_handler(event, context):
     global raw_event
     raw_event = event
