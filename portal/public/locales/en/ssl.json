@@ -34,6 +34,7 @@
   "chooseDistributionAsSource": "Choose a CloudFront distribution as source",
   "selectVersion": "Select version ",
   "confirmSetting": "Confirm Certification Settings?",
+  "confirm": "Confirm",
   "confirmRequestParam": "Please confirm the SSL request parameters",
   "curSSLParam": "Current SSL for SaaS request parameters",
   "confirmApply": "Please input Confirm to apply",

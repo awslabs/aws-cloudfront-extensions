@@ -35,6 +35,7 @@
   "selectVersion": "选择版本 ",
   "confirmSetting": "确认认证设置？",
   "confirmRequestParam": "请确认 SSL 请求参数 ",
+  "confirm": "确认",
   "curSSLParam": "SaaS 请求参数的当前 SSL",
   "confirmApply": "请输入确认以应用设置",
   "create": {
