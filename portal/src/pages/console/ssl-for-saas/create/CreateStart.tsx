@@ -476,7 +476,7 @@ const CreateStart: React.FC = () => {
               <FormItem optionTitle="" optionDesc={t("ssl:confirmApply")}>
                 <TextInput
                   value={confirm}
-                  placeholder={t("confirm")}
+                  placeholder={t("ssl:confirm")}
                   onChange={(event) => {
                     setConfirm(event.target.value);
                   }}
@@ -492,7 +492,7 @@ const CreateStart: React.FC = () => {
                   {t("button.cancel")}
                 </Button>
                 <Button
-                  disabled={confirm !== t("confirm")}
+                  disabled={confirm !== t("ssl:confirm")}
                   btnType="primary"
                   loading={loadingApply}
                   onClick={() => {
