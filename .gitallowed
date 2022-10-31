@@ -1,1 +1,2 @@
-templates/console/source/lambda/ssl-for-saas/acm_import_cb/test/.*:.*
+templates/console/source/lambda/ssl-for-saas/acm_import_cb/test/0000_key-certbot.pem
+templates/console/source/lambda/ssl-for-saas/acm_import_cb/test/cert.pem
