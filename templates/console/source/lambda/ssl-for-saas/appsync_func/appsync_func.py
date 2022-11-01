@@ -7,6 +7,8 @@ import json
 import re
 import time
 import subprocess
+import random
+import string
 import copy
 from datetime import datetime
 from cerberus import Validator
@@ -306,12 +308,11 @@ def invoke_step_function(arn, input):
             stateMachineArn=arn,
             input=json.dumps(input)
         )
+        logger.info('step function invoked: %s', resp)
         return resp
     except Exception as e:
         logger.info('error invoking step function: %s', e)
         return None
-
-    logger.info('step function invoked: %s', resp)
 
 
 # check if san list provided is subset of existing san list
@@ -334,8 +335,7 @@ def is_subset(sanList, wildcardSanDict):
         logger.info('regex: %s, matches %s', regex, matches)
         if len(matches) == len(sanList):
             return value
-        else:
-            continue
+
     return None
 
 
@@ -353,8 +353,6 @@ def is_wildcard(sanList):
         # check if wildcard string
         if san.startswith('*'):
             return san
-        else:
-            continue
     return None
 
 
@@ -749,7 +747,7 @@ def manager_cloudfront_arn_list_with_jobId(jobId):
     result = []
     # filter only the certificates with jobId in job_token tag
     for cloudfrontItem in response['ResourceTagMappingList']:
-        result.append( cloudfrontItem['ResourceARN'])
+        result.append(cloudfrontItem['ResourceARN'])
     return result
 
 @app.resolver(type_name="Query", field_name="listSSLJobs")

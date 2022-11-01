@@ -201,7 +201,7 @@ def test_tag_certificate(monkeypatch):
     _tag_certificate('cert_arn', 'task_token')
 
 
-# fixme: dulicated code
+# fixme: duplicated code
 @mock_acm
 @mock_dynamodb
 @mock_sns
