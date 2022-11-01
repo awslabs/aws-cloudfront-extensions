@@ -10,16 +10,14 @@ acm_client = boto3.client('acm', region_name='us-east-1')
 dynamo_client = boto3.resource('dynamodb')
 cf = boto3.client('cloudfront')
 
-#JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
-JOB_INFO_TABLE_NAME = 'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-20NCRBPFRB51'
-#LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
-LAMBDA_TASK_ROOT = '.'
+JOB_INFO_TABLE_NAME = os.environ.get('JOB_INFO_TABLE')
+LAMBDA_TASK_ROOT = os.environ.get('LAMBDA_TASK_ROOT')
 
 logger = logging.getLogger('boto3')
 logger.setLevel(logging.INFO)
 
 # add execution path
-# os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
+os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
 
 
 def lambda_handler(event, context):
