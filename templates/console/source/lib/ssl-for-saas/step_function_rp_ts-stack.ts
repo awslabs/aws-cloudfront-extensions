@@ -654,7 +654,7 @@ export class StepFunctionRpTsConstruct extends Construct {
       stateMachineName: "SSL-for-SaaS-StateMachine",
       stateMachineType: _step.StateMachineType.STANDARD,
       // set global timeout, don't set timeout in callback inside
-      timeout: Duration.hours(24),
+      timeout: Duration.days(60),
       logs: {
         destination: logGroup,
         level: _step.LogLevel.ERROR,
