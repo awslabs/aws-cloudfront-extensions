@@ -6,6 +6,8 @@ import os
 import json
 import re
 import time
+import random
+import string
 import subprocess
 import copy
 from datetime import datetime
@@ -48,7 +50,9 @@ FILE_FOLDER = '/tmp'
 PEM_FILE = FILE_FOLDER + "/cert.pem"
 _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
 
-raw_context = {}
+raw_context = {
+    'aws_request_id': ''
+}
 
 
 def notify_sns_subscriber(sns_msg):
@@ -303,12 +307,11 @@ def invoke_step_function(arn, input):
             stateMachineArn=arn,
             input=json.dumps(input)
         )
+        logger.info('step function invoked: %s', resp)
         return resp
     except Exception as e:
         logger.info('error invoking step function: %s', e)
         return None
-
-    logger.info('step function invoked: %s', resp)
 
 
 # check if san list provided is subset of existing san list
@@ -331,8 +334,6 @@ def is_subset(sanList, wildcardSanDict):
         logger.info('regex: %s, matches %s', regex, matches)
         if len(matches) == len(sanList):
             return value
-        else:
-            continue
     return None
 
 
@@ -350,8 +351,6 @@ def is_wildcard(sanList):
         # check if wildcard string
         if san.startswith('*'):
             return san
-        else:
-            continue
     return None
 
 
@@ -449,6 +448,8 @@ def cert_create_or_import():
 
         auto_creation = body['auto_creation']
         domain_name_list = body['cnameList']
+        # fixme: not sure this is the right checking
+        # fixme: as we have already used the cnameList above
         if 'cnameList' in body:
             certTotalNumber = len(body['cnameList'])
         else:
@@ -690,7 +691,6 @@ def manager_certification_list_jobId():
     acm_client = boto3.client('acm', region_name='us-east-1')
     response = acm_client.list_certificates()
     jobId = app.current_event.get_query_string_value(name="jobId", default_value="")
-
     result = []
     # filter only the certificates with jobId in job_token tag
     for acmItem in response['CertificateSummaryList']:
@@ -702,7 +702,7 @@ def manager_certification_list_jobId():
 
         for tagItem in tagList:
             if tagItem['Key'] == 'job_token' and tagItem['Value'] == jobId:
-                result.append( acmItem['CertificateArn'])
+                result.append(acmItem['CertificateArn'])
 
     return result
 
@@ -728,7 +728,7 @@ def manager_cloudfront_arn_list_with_jobId():
     )
 
     result = []
-    # filter only the certificates with jobId in job_token tag
+    # filter only the cloudfront with jobId in job_token tag
     for cloudfrontItem in response['ResourceTagMappingList']:
         result.append( cloudfrontItem['ResourceARN'])
     return result
