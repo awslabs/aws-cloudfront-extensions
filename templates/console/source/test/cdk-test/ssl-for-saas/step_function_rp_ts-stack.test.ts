@@ -33,7 +33,7 @@ describe("StepFunctionRpTsConstruct", () => {
         // cat CloudFrontExtnConsoleStack.template.json | jq '.Resources | .[] | select(.Type=="AWS::Lambda::Function") | .Type' | wc -l
         template.resourceCountIs("AWS::DynamoDB::Table", 5);
         template.resourceCountIs("AWS::StepFunctions::StateMachine", 1);
-        template.resourceCountIs("AWS::Lambda::Function", 16);
+        template.resourceCountIs("AWS::Lambda::Function", 17);
         template.resourceCountIs("AWS::AppSync::Resolver", 23);
         template.resourceCountIs("AWS::ApiGateway::Account", 2);
         template.resourceCountIs("AWS::ApiGateway::ApiKey", 2);

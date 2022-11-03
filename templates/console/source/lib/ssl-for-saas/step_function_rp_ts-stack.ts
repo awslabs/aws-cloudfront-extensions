@@ -1,33 +1,47 @@
 import * as cdk from "aws-cdk-lib";
-import { RemovalPolicy, Stack } from "aws-cdk-lib";
-import { aws_iam as iam } from "aws-cdk-lib";
-import { aws_stepfunctions as _step } from "aws-cdk-lib";
-import { aws_stepfunctions_tasks as _task } from "aws-cdk-lib";
-import { aws_lambda as _lambda } from "aws-cdk-lib";
-import { aws_sns as sns } from "aws-cdk-lib";
-import { aws_sns_subscriptions as subs } from "aws-cdk-lib";
-import { aws_dynamodb as dynamodb } from "aws-cdk-lib";
-import { aws_events as events } from "aws-cdk-lib";
-import { aws_events_targets as targets } from "aws-cdk-lib";
-import { aws_apigateway as _apigw } from "aws-cdk-lib";
+import {RemovalPolicy, Stack} from "aws-cdk-lib";
+import {aws_iam as iam} from "aws-cdk-lib";
+import {aws_stepfunctions as _step} from "aws-cdk-lib";
+import {aws_stepfunctions_tasks as _task} from "aws-cdk-lib";
+import {aws_lambda as _lambda} from "aws-cdk-lib";
+import {aws_sns as sns} from "aws-cdk-lib";
+import {aws_sns_subscriptions as subs} from "aws-cdk-lib";
+import {aws_dynamodb as dynamodb} from "aws-cdk-lib";
+import {aws_events as events} from "aws-cdk-lib";
+import {aws_events_targets as targets} from "aws-cdk-lib";
+import {aws_apigateway as _apigw} from "aws-cdk-lib";
 import * as _appsync_alpha from "@aws-cdk/aws-appsync-alpha";
 import * as logs from "aws-cdk-lib/aws-logs";
-import { Duration } from "aws-cdk-lib";
-import { aws_kms as kms } from "aws-cdk-lib";
-
+import {Duration} from "aws-cdk-lib";
+import {aws_kms as kms} from "aws-cdk-lib";
 import path from "path";
-import { CommonProps } from "../cf-common/cf-common-stack";
+import {CommonProps} from "../cf-common/cf-common-stack";
 import {
-  AccessLogFormat,
-  EndpointType,
-  LogGroupLogDestination,
-  RequestValidator,
+    AccessLogFormat,
+    EndpointType,
+    LogGroupLogDestination,
+    RequestValidator,
 } from "aws-cdk-lib/aws-apigateway";
-import { Construct } from "constructs";
+import {Construct} from "constructs";
+import "./iam_policies";
+import {
+    stepFunction_loggin_policy,
+    lambda_rw_policy,
+    stepFunction_run_policy,
+    lambdaRunPolicy,
+    acm_admin_policy,
+    ddb_rw_policy,
+    cloudfront_create_update_policy,
+    kms_policy,
+    sns_update_policy,
+    s3_read_policy,
+    tag_update_policy
+} from "./iam_policies";
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
 
 export interface StepFunctionProps extends CommonProps {
-  configVersionDDBTableName: string;
-  notificationEmail: string;
+    configVersionDDBTableName: string;
+    notificationEmail: string;
 }
 
 // export class StepFunctionRpTsStack extends Stack {
@@ -37,457 +51,52 @@ export interface StepFunctionProps extends CommonProps {
 //   }
 // }
 
-export class StepFunctionRpTsConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: StepFunctionProps) {
-    super(scope, id);
+declare interface SslFunctionRolesSummary {
+    _fn_acm_import_cb_role:iam.Role,
+    _fn_acm_cb_role:iam.Role,
+    _fn_acm_cb_handler_role:iam.Role,
+    _fn_failure_handling_lambda_role:iam.Role,
+    _stepFunction_loggin_role:iam.Role,
+    _fn_acm_cron_role:iam.Role,
+    _fn_appsync_func_role:iam.Role,
+    _fn_sns_notify_role: iam.Role,
+    _fn_ssl_api_handler_role: iam.Role,
+}
 
-    //check appsync is existed in props
-    if (props == null) {
-      throw Error("The props can not be null");
-    }
-    if (props.appsyncApi == null) {
-      throw Error("appsync should be included in the props");
-    }
-
-    // dynamodb table for acm callback
-    const callback_table = new dynamodb.Table(this, "acm_metadata", {
-      partitionKey: {
-        name: "taskToken",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "domainName",
-        type: dynamodb.AttributeType.STRING,
-      },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
-
-    callback_table
-      .autoScaleReadCapacity({
-        minCapacity: 20,
-        maxCapacity: 50,
-      })
-      .scaleOnUtilization({ targetUtilizationPercent: 75 });
-
-    // dynamodb table for job info
-    const ssl_for_sass_job_info_table = new dynamodb.Table(
-      this,
-      "ssl_for_saas_job_info_table",
-      {
-        partitionKey: {
-          name: "jobId",
-          type: dynamodb.AttributeType.STRING,
-        },
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
-      }
-    );
-    ssl_for_sass_job_info_table
-      .autoScaleWriteCapacity({
-        minCapacity: 40,
-        maxCapacity: 100,
-      })
-      .scaleOnUtilization({ targetUtilizationPercent: 75 });
-
-    const snsKey = new kms.Key(this, "snsCustomKey", {
-      enableKeyRotation: true,
-    });
-
-    // create sns topic
-    const sns_topic = new sns.Topic(
-      this,
-      "CloudFront_Distribution_Notification",
-      {
-        displayName: "SNS Topic",
-        topicName: "CloudFront_Distribution_Notification",
-        masterKey: snsKey,
-      }
-    );
-
-    // create email subscription
-    sns_topic.addSubscription(
-      new subs.EmailSubscription(props.notificationEmail)
-    );
-    sns_topic.addToResourcePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.DENY,
-        principals: [new iam.AnyPrincipal()],
-        resources: [sns_topic.topicArn],
-        actions: ["sns:Publish"],
-        conditions: { Bool: { "aws:SecureTransport": "false" } },
-      })
-    );
-
-    const configVersionDDBTableName = props.configVersionDDBTableName;
-
-    const lambdaRunPolicy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "lambda:GetFunction",
-        "lambda:EnableReplication"
-      ],
-    });
-
-    const acm_admin_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "acm:AddTagsToCertificate",
-        "acm:DescribeCertificate",
-        "acm:GetAccountConfiguration",
-        "acm:GetCertificate",
-        "acm:ImportCertificate",
-        "acm:ListCertificates",
-        "acm:ListTagsForCertificate",
-        "acm:RequestCertificate",
-        "acm:DescribeCertificate",
-      ],
-    });
-
-    const ddb_rw_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "dynamodb:CreateTable",
-        "dynamodb:DescribeTable",
-        "dynamodb:DeleteItem",
-        "dynamodb:GetItem",
-        "dynamodb:PutItem",
-        "dynamodb:Query",
-        "dynamodb:Scan",
-        "dynamodb:UpdateItem",
-        "dynamodb:UpdateTable",
-      ],
-    });
-
-    const stepFunction_run_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "states:StartExecution",
-        "states:StopExecution",
-        "states:SendTaskSuccess",
-        "states:SendTaskFailure",
-        "states:SendTaskHeartbeat",
-      ],
-    });
-
-    const s3_read_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["s3:GetObject", "s3-object-lambda:GetObject"],
-    });
-
-    const lambda_rw_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["lambda:InvokeFunction"],
-    });
-
-    const sns_update_policy = new iam.PolicyStatement({
-      resources: [sns_topic.topicArn],
-      actions: ["sns:Publish"],
-    });
-
-    const cloudfront_create_update_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "cloudfront:GetDistribution",
-        "cloudfront:CreateDistribution",
-        "cloudfront:TagResource",
-        "cloudfront:GetDistributionConfig",
-        "cloudfront:UpdateDistribution",
-        "cloudfront:ListTagsForResource",
-      ],
-    });
-
-    const tag_update_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "tag:TagResources",
-        "tag:UntagResources",
-        "tag:GetResources",
-        "tag:GetTagKeys",
-        "tag:GetTagValues",
-      ],
-    });
-
-    const kms_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "kms:GenerateDataKey",
-        "kms:Decrypt",
-        "kms:Encrypt",
-        "kms:GenerateDataKeyPair",
-      ],
-    });
-
-    const stepFunction_loggin_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: [
-        "logs:CreateLogDelivery",
-        "logs:GetLogDelivery",
-        "logs:UpdateLogDelivery",
-        "logs:DeleteLogDelivery",
-        "logs:ListLogDeliveries",
-        "logs:PutLogEvents",
-        "logs:PutResourcePolicy",
-        "logs:DescribeResourcePolicies",
-        "logs:DescribeLogGroups",
-      ],
-    });
-    const _stepFunction_loggin_role = new iam.Role(
-      this,
-      "_stepFunction_loggin_role",
-      {
-        assumedBy: new iam.ServicePrincipal("states.amazonaws.com"),
-      }
-    );
-
-    _stepFunction_loggin_role.addToPolicy(stepFunction_loggin_policy);
-    _stepFunction_loggin_role.addToPolicy(lambda_rw_policy);
-    _stepFunction_loggin_role.addToPolicy(stepFunction_run_policy);
-    _stepFunction_loggin_role.addToPolicy(lambdaRunPolicy);
-
-    const _fn_acm_import_cb_role = new iam.Role(
-      this,
-      "_fn_acm_import_cb_role",
-      {
-        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-      }
-    );
-    _fn_acm_import_cb_role.addToPolicy(lambdaRunPolicy);
-    _fn_acm_import_cb_role.addToPolicy(acm_admin_policy);
-    _fn_acm_import_cb_role.addToPolicy(ddb_rw_policy);
-    _fn_acm_import_cb_role.addToPolicy(cloudfront_create_update_policy);
-    _fn_acm_import_cb_role.addToPolicy(kms_policy);
-    _fn_acm_import_cb_role.addToPolicy(sns_update_policy);
+declare interface SslFunctionsSummary {
 
     // lambda function to handle acm import operation
-    const fn_acm_import_cb = new _lambda.DockerImageFunction(
-      scope,
-      "acm_import_callback",
-      {
-        code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/acm_import_cb")
-        ),
-        environment: {
-          SNS_TOPIC: sns_topic.topicArn,
-          CALLBACK_TABLE: callback_table.tableName,
-          JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          TASK_TYPE: "placeholder",
-          CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
-        },
-        timeout: Duration.seconds(900),
-        role: _fn_acm_import_cb_role,
-        memorySize: 1024,
-      }
-    );
-
-    const _fn_acm_cb_role = new iam.Role(this, "_fn_acm_cb_role", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-    _fn_acm_cb_role.addToPolicy(lambdaRunPolicy);
-    _fn_acm_cb_role.addToPolicy(acm_admin_policy);
-    _fn_acm_cb_role.addToPolicy(ddb_rw_policy);
-    _fn_acm_cb_role.addToPolicy(sns_update_policy);
-    _fn_acm_cb_role.addToPolicy(cloudfront_create_update_policy);
-    _fn_acm_cb_role.addToPolicy(kms_policy);
+    fn_acm_import_cb: _lambda.IFunction,
 
     // lambda function to handle acm create operation
-    const fn_acm_cb = new _lambda.DockerImageFunction(scope, "acm_callback", {
-      code: _lambda.DockerImageCode.fromImageAsset(
-        path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb")
-      ),
-      environment: {
-        SNS_TOPIC: sns_topic.topicArn,
-        CALLBACK_TABLE: callback_table.tableName,
-        JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        TASK_TYPE: "placeholder",
-        CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
-      },
-      timeout: Duration.seconds(900),
-      role: _fn_acm_cb_role,
-      memorySize: 512,
-    });
-
-    const _fn_acm_cb_handler_role = new iam.Role(
-      this,
-      "_fn_acm_cb_handler_role",
-      {
-        assumedBy: new iam.CompositePrincipal(
-          new iam.ServicePrincipal("edgelambda.amazonaws.com"),
-          new iam.ServicePrincipal("lambda.amazonaws.com")
-        ),
-      }
-    );
-    _fn_acm_cb_handler_role.addToPolicy(lambdaRunPolicy);
-    _fn_acm_cb_handler_role.addToPolicy(acm_admin_policy);
-    _fn_acm_cb_handler_role.addToPolicy(ddb_rw_policy);
-    _fn_acm_cb_handler_role.addToPolicy(stepFunction_run_policy);
-    _fn_acm_cb_handler_role.addToPolicy(cloudfront_create_update_policy);
-    _fn_acm_cb_handler_role.addToPolicy(s3_read_policy);
-    _fn_acm_cb_handler_role.addToPolicy(lambda_rw_policy);
-    _fn_acm_cb_handler_role.addToPolicy(sns_update_policy);
-    _fn_acm_cb_handler_role.addToPolicy(kms_policy);
+    fn_acm_cb: _lambda.IFunction,
 
     // lambda function to create cloudfront distribution after certification been verified and issued
-    const fn_acm_cb_handler = new _lambda.DockerImageFunction(
-      scope,
-      "acm_callback_handler",
-      {
-        code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb_handler")
-        ),
-        environment: {
-          PAYLOAD_EVENT_KEY: "placeholder",
-          CALLBACK_TABLE: callback_table.tableName,
-          JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          TASK_TYPE: "placeholder",
-          GRAPHQL_API_URL: props.appsyncApi.graphqlUrl,
-          GRAPHQL_API_KEY: props.appsyncApi.apiKey || "",
-          CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
-          SNS_TOPIC: sns_topic.topicArn,
-        },
-        timeout: Duration.seconds(900),
-        role: _fn_acm_cb_handler_role,
-        memorySize: 1024,
-      }
-    );
-
-    const _fn_acm_cron_role = new iam.Role(this, "_fn_acm_cron_role", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-
-    _fn_acm_cron_role.addToPolicy(lambdaRunPolicy);
-    _fn_acm_cron_role.addToPolicy(acm_admin_policy);
-    _fn_acm_cron_role.addToPolicy(ddb_rw_policy);
-    _fn_acm_cron_role.addToPolicy(stepFunction_run_policy);
-    _fn_acm_cron_role.addToPolicy(kms_policy);
-
-    // background lambda running regularly to scan the acm certification and notify acm_callback_handler when cert been issued
-    const fn_acm_cron = new _lambda.DockerImageFunction(this, "acm_cron_job", {
-      code: _lambda.DockerImageCode.fromImageAsset(
-        path.join(__dirname, "../../lambda/ssl-for-saas/acm_cron")
-      ),
-      environment: {
-        PAYLOAD_EVENT_KEY: "placeholder",
-        CALLBACK_TABLE: callback_table.tableName,
-        JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        TASK_TYPE: "placeholder",
-        SNS_TOPIC: sns_topic.topicArn,
-      },
-      timeout: Duration.seconds(900),
-      role: _fn_acm_cron_role,
-      memorySize: 1024,
-    });
-
-    const _fn_sns_notify_role = new iam.Role(this, "_fn_sns_notify_role", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-    _fn_sns_notify_role.addToPolicy(lambdaRunPolicy);
-    _fn_sns_notify_role.addToPolicy(ddb_rw_policy);
-    _fn_sns_notify_role.addToPolicy(sns_update_policy);
-    _fn_sns_notify_role.addToPolicy(kms_policy);
+    fn_acm_cb_handler: _lambda.IFunction,
 
     // send out sns failure notification
-    const fn_sns_failure_notify = new _lambda.DockerImageFunction(
-      this,
-      "sns_failure_notify",
-      {
-        code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/sns_failure_notify")
-        ),
-        environment: {
-          SNS_TOPIC: sns_topic.topicArn,
-          CALLBACK_TABLE: callback_table.tableName,
-          JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          TASK_TYPE: "placeholder",
-        },
-        timeout: Duration.seconds(900),
-        role: _fn_sns_notify_role,
-        memorySize: 1024,
-      }
-    );
+    fn_sns_failure_notify: _lambda.IFunction,
 
     // send out sns notification
-    const fn_sns_notify = new _lambda.DockerImageFunction(this, "sns_notify", {
-      code: _lambda.DockerImageCode.fromImageAsset(
-        path.join(__dirname, "../../lambda/ssl-for-saas/sns_notify")
-      ),
-      environment: {
-        SNS_TOPIC: sns_topic.topicArn,
-        CALLBACK_TABLE: callback_table.tableName,
-        JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        TASK_TYPE: "placeholder",
-      },
-      timeout: Duration.seconds(900),
-      role: _fn_sns_notify_role,
-      memorySize: 1024,
-    });
-
-    const _fn_failure_handling_lambda_role = new iam.Role(
-      this,
-      "_fn_failure_handling_lambda_role",
-      {
-        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-      }
-    );
-
-    _fn_failure_handling_lambda_role.addToPolicy(lambdaRunPolicy);
-    _fn_failure_handling_lambda_role.addToPolicy(acm_admin_policy);
-    _fn_failure_handling_lambda_role.addToPolicy(ddb_rw_policy);
-
-    // function to clean up garbage resources when error occurred during acm create or import
-    const fn_failure_handling = new _lambda.DockerImageFunction(
-      this,
-      "function_to_handle_ssl_for_sass_failure",
-      {
-        code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/failure_handling")
-        ),
-        environment: {
-          SNS_TOPIC: sns_topic.topicArn,
-          CALLBACK_TABLE: callback_table.tableName,
-          JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          TASK_TYPE: "placeholder",
-        },
-        timeout: Duration.seconds(900),
-        role: _fn_failure_handling_lambda_role,
-        memorySize: 1024,
-      }
-    );
-
+    fn_sns_notify: _lambda.IFunction,
 
     //step function task to handle error
-    const failure_handling_job = new _task.LambdaInvoke(
-      this,
-      "Failure Handling Job",
-      {
-        lambdaFunction: fn_failure_handling,
-        payload: _step.TaskInput.fromObject({
-          input: _step.JsonPath.entirePayload,
-        }),
-        resultPath: "$.fn_failure_handling",
-      }
-    );
+    // function to clean up garbage resources when error occurred during acm create or import
+    fn_failure_handling: _lambda.IFunction,
 
+    // lambda function to be called by appsyync function and api handler to update the job validation task status
+    fn_job_status_update: _lambda.IFunction,
+}
+
+declare interface SslStepFunctionsSegments {
     // {
     //   "Error": "{\"status\": \"FAILED\"}",
     //   "Cause": null
     // }
-    const snsFailureNotify = new _task.LambdaInvoke(
-      this,
-      "Failure Notification Job",
-      {
-        lambdaFunction: fn_sns_failure_notify,
-        payload: _step.TaskInput.fromObject({
-          input: _step.JsonPath.entirePayload,
-        }),
-        // Lambda's result is in the attribute `Payload`
-        resultSelector: { Payload: _step.JsonPath.stringAt("$.Payload") },
-        resultPath: "$.fn_sns_notify",
-      }
-    );
+    failure_handling_job: _task.LambdaInvoke,
 
-    failure_handling_job.next(snsFailureNotify);
+    snsFailureNotify: _task.LambdaInvoke,
+    acm_callback_job: _task.LambdaInvoke,
 
     // {
     //     "acm_op": "create",
@@ -514,39 +123,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     //     "PrivateKeyPem": "",
     //     "ChainPem": "",
     // }
-    const acm_callback_job = new _task.LambdaInvoke(
-      this,
-      "ACM Create Callback Job",
-      {
-        lambdaFunction: fn_acm_cb,
-        integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-        payload: _step.TaskInput.fromObject({
-          task_token: _step.JsonPath.taskToken,
-          input: _step.JsonPath.entirePayload,
-          callback: "true",
-        }),
-        resultPath: "$.fn_acm_cb",
-      }
-    ).addCatch(failure_handling_job, {
-      resultPath: "$.error",
-    });
-
-    const acm_import_callback_job = new _task.LambdaInvoke(
-      this,
-      "ACM Import Callback Job",
-      {
-        lambdaFunction: fn_acm_import_cb,
-        integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-        payload: _step.TaskInput.fromObject({
-          task_token: _step.JsonPath.taskToken,
-          input: _step.JsonPath.entirePayload,
-        }),
-        resultPath: "$.fn_acm_import_cb",
-      }
-    ).addCatch(failure_handling_job, {
-      // "errors": ["$.errorMessage"],
-      resultPath: "$.error",
-    });
+    acm_import_callback_job: _task.LambdaInvoke,
 
     // {
     //   "domainName": "cdn2.risetron.cn",
@@ -562,409 +139,808 @@ export class StepFunctionRpTsConstruct extends Construct {
     //   ],
     //   "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
     // }
-    const acm_callback_handler_job = new _task.LambdaInvoke(
-      this,
-      "ACM Callback Handler Job",
-      {
-        lambdaFunction: fn_acm_cb_handler,
-        payload: _step.TaskInput.fromObject({
-          input: _step.JsonPath.entirePayload,
-        }),
-        resultSelector: { Payload: _step.JsonPath.stringAt("$.Payload") },
-        resultPath: "$.fn_acm_cb_handler",
-        timeout: Duration.seconds(900),
-      }
-    );
+    acm_callback_handler_job: _task.LambdaInvoke,
+    sns_notify_job: _task.LambdaInvoke,
 
-    // invoke lambda from map state
-    const acm_callback_handler_map = new _step.Map(
-      this,
-      "ACM Callback Handler Map",
-      {
-        maxConcurrency: 5,
-        itemsPath: _step.JsonPath.stringAt("$.cnameList"),
-        resultPath: "$.fn_acm_cb_handler_map",
-      }
-    );
-    acm_callback_handler_map.iterator(acm_callback_handler_job);
-    acm_callback_handler_map.addCatch(failure_handling_job, {
-      resultPath: "$.error",
-    });
+    wait_10s_for_cert_create: _step.Wait,
+    wait_10s_for_cert_import: _step.Wait,
+}
 
-    const sns_notify_job = new _task.LambdaInvoke(
-      this,
-      "Success Notification Job",
-      {
-        lambdaFunction: fn_sns_notify,
-        payload: _step.TaskInput.fromObject({
-          input: _step.JsonPath.entirePayload,
-        }),
-        // Lambda's result is in the attribute `Payload`
-        resultSelector: { Payload: _step.JsonPath.stringAt("$.Payload") },
-        resultPath: "$.fn_sns_notify",
-      }
-    );
+export class StepFunctionRpTsConstruct extends Construct {
 
-    const wait_10s_for_cert_create = new _step.Wait(
-      this,
-      "Wait 10s for ACM Cert Create",
-      {
-        time: _step.WaitTime.duration(Duration.seconds(10)),
-      }
-    );
-    const wait_10s_for_cert_import = new _step.Wait(
-      this,
-      "Wait 10s for ACM Cert Import",
-      {
-        time: _step.WaitTime.duration(Duration.seconds(10)),
-      }
-    );
+    constructor(scope: Construct, id: string, props?: StepFunctionProps) {
+        super(scope, id);
 
-    // entry point for step function with cert create/import process
-    const stepFunctionEntry = new _step.Choice(this, "Initial entry point");
-
-    stepFunctionEntry.when(
-      _step.Condition.and(
-        _step.Condition.stringEquals("$.acm_op", "create"),
-        _step.Condition.stringEquals("$.auto_creation", "true")
-      ),
-      acm_callback_job
-        .next(wait_10s_for_cert_create)
-        .next(acm_callback_handler_map)
-    );
-
-    stepFunctionEntry.when(
-      _step.Condition.and(
-        _step.Condition.stringEquals("$.acm_op", "import"),
-        _step.Condition.stringEquals("$.auto_creation", "true")
-      ),
-      acm_import_callback_job
-        .next(wait_10s_for_cert_import)
-        .next(acm_callback_handler_map)
-        .next(sns_notify_job)
-    );
-
-    const logGroup = new logs.LogGroup(this, "ssl_step_function_logs", {
-      logGroupName: "/aws/step-functions/ssl_step_function_logs",
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
-    const stepFunction = new _step.StateMachine(this, "SSL for SaaS", {
-      definition: stepFunctionEntry,
-      role: _stepFunction_loggin_role,
-      stateMachineName: "SSL-for-SaaS-StateMachine",
-      stateMachineType: _step.StateMachineType.STANDARD,
-      // set global timeout, don't set timeout in callback inside
-      timeout: Duration.hours(24),
-      logs: {
-        destination: logGroup,
-        level: _step.LogLevel.ERROR,
-      },
-    });
-
-
-    // cloudwatch event cron job for 5 minutes
-    new events.Rule(this, "ACM status check", {
-      schedule: events.Schedule.expression("cron(*/5 * * * ? *)"),
-      targets: [new targets.LambdaFunction(fn_acm_cron)],
-    });
-
-    // configure cloudwatch event rule and trigger action whenever certain ACM expires
-
-    // sample input
-    // {
-    //     "version": "0",
-    //     "id": "9c95e8e4-96a4-ef3f-b739-b6aa5b193afb",
-    //     "detail-type": "ACM Certificate Approaching Expiration",
-    //     "source": "aws.acm",
-    //     "account": "123456789012",
-    //     "time": "2020-09-30T06:51:08Z",
-    //     "region": "us-east-1",
-    //     "resources": ["arn:aws:acm:us-east-1:123456789012:certificate/61f50cd4-45b9-4259-b049-d0a53682fa4b"],
-    //     "detail": {
-    //         "DaysToExpiry": 31,
-    //         "CommonName": "Aperture Science Portal Certificate Authority - R4"
-    //     }
-    // }
-    new events.Rule(this, "ACM health event", {
-      eventPattern: {
-        region: ["us-east-1"],
-        source: ["aws.acm"],
-        detailType: ["ACM Certificate Approaching Expiration"],
-      },
-      targets: [new targets.SnsTopic(sns_topic)],
-    });
-
-
-    const _fn_job_status_update_role = new iam.Role(this, "_fn_job_status_update_role", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-
-    _fn_job_status_update_role.addToPolicy(lambdaRunPolicy);
-    _fn_job_status_update_role.addToPolicy(acm_admin_policy);
-    _fn_job_status_update_role.addToPolicy(ddb_rw_policy);
-    _fn_job_status_update_role.addToPolicy(stepFunction_run_policy);
-    _fn_job_status_update_role.addToPolicy(kms_policy);
-
-    // lambda function to be called by appsyync function and api handler to update the job validation task status
-    const fn_job_status_update = new _lambda.DockerImageFunction(this, "job_status_update", {
-      code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/job_status_update")
-      ),
-      environment: {
-        PAYLOAD_EVENT_KEY: "placeholder",
-        CALLBACK_TABLE: callback_table.tableName,
-        JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        TASK_TYPE: "placeholder",
-        SNS_TOPIC: sns_topic.topicArn,
-      },
-      timeout: Duration.seconds(900),
-      role: _fn_acm_cron_role,
-      memorySize: 1024,
-    });
-
-    const _fn_ssl_api_handler_role = new iam.Role(
-        this,
-        "_fn_ssl_api_handler_role",
-        {
-          assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+        //check appsync is existed in props
+        if (props == null) {
+            throw Error("The props can not be null");
         }
-    );
-    _fn_ssl_api_handler_role.addToPolicy(lambdaRunPolicy);
-    _fn_ssl_api_handler_role.addToPolicy(acm_admin_policy);
-    _fn_ssl_api_handler_role.addToPolicy(ddb_rw_policy);
-    _fn_ssl_api_handler_role.addToPolicy(stepFunction_run_policy);
-    _fn_ssl_api_handler_role.addToPolicy(tag_update_policy);
-    _fn_ssl_api_handler_role.addToPolicy(kms_policy);
-    _fn_ssl_api_handler_role.addToPolicy(sns_update_policy);
-
-
-    // lambda in step function & cron job
-    const fn_ssl_api_handler = new _lambda.DockerImageFunction(
-        this,
-        "fn_ssl_api_handler",
-        {
-          code: _lambda.DockerImageCode.fromImageAsset(
-              path.join(__dirname, "../../lambda/ssl-for-saas/ssl_api_handler")
-          ),
-          environment: {
-            STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
-            CALLBACK_TABLE: callback_table.tableName,
-            JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-            SNS_TOPIC: sns_topic.topicArn,
-            TASK_TYPE: "placeholder",
-            STATUS_UPDATE_LAMBDA_FUNCTION: fn_job_status_update.functionName,
-          },
-          timeout: Duration.seconds(900),
-          role: _fn_ssl_api_handler_role,
-          memorySize: 1024,
+        if (props.appsyncApi == null) {
+            throw Error("appsync should be included in the props");
         }
-    );
 
-    const _fn_appsync_func_role = new iam.Role(this, "_fn_appsync_func_role", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
+        // dynamodb table for acm callback
+        const callback_table = this.createAcmCallBackDynamoDb()
 
-    _fn_appsync_func_role.addToPolicy(lambdaRunPolicy);
-    _fn_appsync_func_role.addToPolicy(acm_admin_policy);
-    _fn_appsync_func_role.addToPolicy(ddb_rw_policy);
-    _fn_appsync_func_role.addToPolicy(stepFunction_run_policy);
-    _fn_appsync_func_role.addToPolicy(tag_update_policy);
-    _fn_appsync_func_role.addToPolicy(kms_policy);
-    _fn_appsync_func_role.addToPolicy(sns_update_policy);
-    _fn_appsync_func_role.addToPolicy(lambda_rw_policy);
+        // dynamodb table for job info
+        const ssl_for_sass_job_info_table = this.createSslForSaasJobInfoTable()
+
+        const sns_topic = this.createSnsTopic(props.notificationEmail)
+
+        const configVersionDDBTableName = props.configVersionDDBTableName;
+
+        const roles = this.createRoles(sns_topic);
+
+        this.createAcmCronJob(callback_table.tableName, ssl_for_sass_job_info_table.tableName, sns_topic, roles._fn_acm_cron_role)
+
+        const functions = this.createAllFunctions(scope, roles, sns_topic, props.appsyncApi, callback_table.tableName, ssl_for_sass_job_info_table.tableName, configVersionDDBTableName)
+
+        const stepFunctionSegments = this.createSslStepFunctionsSegments(functions)
+
+        stepFunctionSegments.acm_callback_job.addCatch(stepFunctionSegments.failure_handling_job, {
+            resultPath: "$.error",
+        });
+
+        stepFunctionSegments.acm_import_callback_job.addCatch(stepFunctionSegments.failure_handling_job, {
+            // "errors": ["$.errorMessage"],
+            resultPath: "$.error",
+        });
+
+        // invoke lambda from map state
+        const acm_callback_handler_map = new _step.Map(
+            this,
+            "ACM Callback Handler Map",
+            {
+                maxConcurrency: 5,
+                itemsPath: _step.JsonPath.stringAt("$.cnameList"),
+                resultPath: "$.fn_acm_cb_handler_map",
+            }
+        );
+        acm_callback_handler_map.iterator(stepFunctionSegments.acm_callback_handler_job);
+        acm_callback_handler_map.addCatch(stepFunctionSegments.failure_handling_job, {
+            resultPath: "$.error",
+        });
+
+        stepFunctionSegments.failure_handling_job.next(stepFunctionSegments.snsFailureNotify);
+
+
+        // entry point for step function with cert create/import process
+        const stepFunctionEntry = new _step.Choice(this, "Initial entry point")
+            .when(
+                _step.Condition.and(
+                    _step.Condition.stringEquals("$.acm_op", "create"),
+                    _step.Condition.stringEquals("$.auto_creation", "true")
+                ),
+                stepFunctionSegments.acm_callback_job
+                    .next(stepFunctionSegments.wait_10s_for_cert_create)
+                    .next(acm_callback_handler_map)
+            ).when(
+                _step.Condition.and(
+                    _step.Condition.stringEquals("$.acm_op", "import"),
+                    _step.Condition.stringEquals("$.auto_creation", "true")
+                ),
+                stepFunctionSegments.acm_import_callback_job
+                    .next(stepFunctionSegments.wait_10s_for_cert_import)
+                    .next(acm_callback_handler_map)
+                    .next(stepFunctionSegments.sns_notify_job)
+            );
 
 
 
-
-    const apiAccessLogGroup = new logs.LogGroup(
-        this,
-        "cloudfront_ssl-for-saas_ApiGatewayAccessLogs"
-    );
-    // API Gateway with Lambda proxy integration
-    const ssl_api_handler = new _apigw.LambdaRestApi(this, "ssl_api_handler", {
-      handler: fn_ssl_api_handler,
-      description: "restful api to trigger the ssl for saas workflow",
-      proxy: false,
-      restApiName: "ssl_for_saas_manager",
-      endpointConfiguration: {
-        types: [EndpointType.EDGE],
-      },
-      deployOptions: {
-        accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
-        accessLogFormat: AccessLogFormat.clf(),
-      },
-    });
-
-    const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
-
-    const ssl_requestValidator = new RequestValidator(
-        this,
-        "SSLRequestValidator",
-        {
-          restApi: ssl_api_handler,
-          requestValidatorName: "SSLApiValidator",
-          validateRequestBody: false,
-          validateRequestParameters: true,
-        }
-    );
-
-    ssl_api.addMethod("POST", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-    });
-
-    const cert_list = ssl_api.addResource("cert_list");
-    cert_list.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-    });
-
-    const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
-    list_ssl_jobs.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-    });
-
-    const get_ssl_job = ssl_api.addResource("get_ssl_job");
-    get_ssl_job.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-      requestParameters: {
-        "method.request.querystring.jobId": true,
-      },
-      requestValidator: ssl_requestValidator,
-    });
-
-    const list_cloudfront_arn_with_jobId = ssl_api.addResource(
-        "list_cloudfront_arn_with_jobId"
-    );
-    list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-      requestParameters: {
-        "method.request.querystring.jobId": true,
-      },
-      requestValidator: ssl_requestValidator,
-    });
-
-    const list_ssl_certification_with_jobId = ssl_api.addResource(
-        "list_ssl_certification_with_jobId"
-    );
-    list_ssl_certification_with_jobId.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
-      apiKeyRequired: true,
-      requestParameters: {
-        "method.request.querystring.jobId": true,
-      },
-      requestValidator: ssl_requestValidator,
-    });
-
-    // Lambda function to integrate with AppSync
-    const fn_appsync_function = new _lambda.DockerImageFunction(
-      this,
-      "appsync_func",
-      {
-        code: _lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, "../../lambda/ssl-for-saas/appsync_func"),
-          {
-            buildArgs: {
-              "--platform": "linux/amd64",
+        const stepFunction = new _step.StateMachine(this, "SSL for SaaS", {
+            definition: stepFunctionEntry,
+            role: roles._stepFunction_loggin_role,
+            stateMachineName: "SSL-for-SaaS-StateMachine",
+            stateMachineType: _step.StateMachineType.STANDARD,
+            // set global timeout, don't set timeout in callback inside
+            timeout: Duration.hours(24),
+            logs: {
+                destination: new logs.LogGroup(this, "ssl_step_function_logs", {
+                    logGroupName: "/aws/step-functions/ssl_step_function_logs",
+                    removalPolicy: RemovalPolicy.DESTROY,
+                }),
+                level: _step.LogLevel.ERROR,
             },
-          }
-        ),
-        environment: {
-          STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
-          CALLBACK_TABLE: callback_table.tableName,
-          JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-          TASK_TYPE: "placeholder",
-          SNS_TOPIC: sns_topic.topicArn,
-          STATUS_UPDATE_LAMBDA_FUNCTION: fn_job_status_update.functionName,
-        },
-        timeout: Duration.seconds(900),
-        role: _fn_appsync_func_role,
-        memorySize: 1024,
-      }
-    );
+        });
 
-    //appsyncApi is imported from common stack
-    const appsyncApi = props.appsyncApi;
 
-    // An AppSync datasource backed by a Lambda function
-    const appsyncFunc = new _appsync_alpha.LambdaDataSource(
-      this,
-      "LambdaDataSource",
-      {
-        api: appsyncApi,
-        lambdaFunction: fn_appsync_function,
-        description: "Lambda Data Source for cert create/import",
-        name: "certMutation",
-      }
-    );
+        // lambda in step function & cron job
+        const fn_ssl_api_handler = new _lambda.DockerImageFunction(
+            this,
+            "fn_ssl_api_handler",
+            {
+                code: _lambda.DockerImageCode.fromImageAsset(
+                    path.join(__dirname, "../../lambda/ssl-for-saas/ssl_api_handler")
+                ),
+                environment: {
+                    STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
+                    CALLBACK_TABLE: callback_table.tableName,
+                    JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
+                    SNS_TOPIC: sns_topic.topicArn,
+                    TASK_TYPE: "placeholder",
+                    STATUS_UPDATE_LAMBDA_FUNCTION: functions.fn_job_status_update.functionName,
+                },
+                timeout: Duration.seconds(900),
+                role: roles._fn_ssl_api_handler_role,
+                memorySize: 1024,
+            }
+        );
 
-    // An AppSync resolver to resolve the Lambda function
+        this.createRestfulApis(fn_ssl_api_handler);
 
-    appsyncFunc.createResolver({
-      typeName: "Mutation",
-      fieldName: "certCreateOrImport",
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
+        // Lambda function to integrate with AppSync
+        const fn_appsync_function = new _lambda.DockerImageFunction(
+            this,
+            "appsync_func",
+            {
+                code: _lambda.DockerImageCode.fromImageAsset(
+                    path.join(__dirname, "../../lambda/ssl-for-saas/appsync_func"),
+                    {
+                        buildArgs: {
+                            "--platform": "linux/amd64",
+                        },
+                    }
+                ),
+                environment: {
+                    STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
+                    CALLBACK_TABLE: callback_table.tableName,
+                    JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
+                    TASK_TYPE: "placeholder",
+                    SNS_TOPIC: sns_topic.topicArn,
+                    STATUS_UPDATE_LAMBDA_FUNCTION: functions.fn_job_status_update.functionName,
+                },
+                timeout: Duration.seconds(900),
+                role: roles._fn_appsync_func_role,
+                memorySize: 1024,
+            }
+        );
 
-    appsyncFunc.createResolver({
-      typeName: "Query",
-      fieldName: "listCertifications",
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
+        this.createAppsync(props.appsyncApi, fn_appsync_function);
+    }
 
-    appsyncFunc.createResolver({
-      typeName: "Query",
-      fieldName: "listCertificationsWithJobId",
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
 
-    appsyncFunc.createResolver({
-      typeName: "Query",
-      fieldName: "listCloudFrontArnWithJobId",
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
+    private createRoleWithPolicies(id: string, assumedBy: iam.IPrincipal, ...policies: iam.PolicyStatement[]): iam.Role {
+        const newRole = new iam.Role(this, id, {
+            assumedBy: assumedBy,
+        });
+        for(let policy of policies) {
+            newRole.addToPolicy(policy)
+        }
+        return newRole
+   }
 
-    appsyncFunc.createResolver({
-      typeName: "Query",
-      fieldName: "listSSLJobs",
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
 
-    appsyncFunc.createResolver({
-      typeName: "Query",
-      fieldName: "getJobInfo",
-      requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
-      responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
-    });
+    private createAcmCallBackDynamoDb(): dynamodb.Table {
+        const callback_table = new dynamodb.Table(this, "acm_metadata", {
+            partitionKey: {
+                name: "taskToken",
+                type: dynamodb.AttributeType.STRING,
+            },
+            sortKey: {
+                name: "domainName",
+                type: dynamodb.AttributeType.STRING,
+            },
+            removalPolicy: cdk.RemovalPolicy.DESTROY,
+        });
 
-    const usagePlan = ssl_api_handler.addUsagePlan("SSL_for_Saas_UsagePlan", {
-      description: "SSL for SAAS API usage plan",
-    });
-    const apiKey = ssl_api_handler.addApiKey("SSL_for_SAAS_ApiKey");
-    usagePlan.addApiKey(apiKey);
-    usagePlan.addApiStage({
-      stage: ssl_api_handler.deploymentStage,
-    });
+        callback_table
+            .autoScaleReadCapacity({
+                minCapacity: 20,
+                maxCapacity: 50,
+            })
+            .scaleOnUtilization({targetUtilizationPercent: 75});
+        return callback_table
 
-    new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
-      value: ssl_api.path.substring(1),
-      description: "the ssl for saas post rest api ",
-    });
-    new cdk.CfnOutput(this, "list_certs", {
-      value: cert_list.path.substring(1),
-      description: "the ssl for saas list certs rest api ",
-    });
-    new cdk.CfnOutput(this, "SSL for SAAS API key", {
-      value: apiKey.keyArn,
-      description: "the ssl for saas rest api key ",
-    });
-  }
+    }
+
+    private createSslForSaasJobInfoTable(): dynamodb.Table {
+        const ssl_for_sass_job_info_table = new dynamodb.Table(
+            this,
+            "ssl_for_saas_job_info_table",
+            {
+                partitionKey: {
+                    name: "jobId",
+                    type: dynamodb.AttributeType.STRING,
+                },
+                removalPolicy: cdk.RemovalPolicy.DESTROY,
+            }
+        );
+        ssl_for_sass_job_info_table
+            .autoScaleWriteCapacity({
+                minCapacity: 40,
+                maxCapacity: 100,
+            })
+            .scaleOnUtilization({targetUtilizationPercent: 75});
+        return ssl_for_sass_job_info_table
+    }
+
+    private createSnsTopic(notificationEmail:string): sns.Topic {
+        const snsKey = new kms.Key(this, "snsCustomKey", {
+            enableKeyRotation: true,
+        });
+
+        // create sns topic
+        const sns_topic = new sns.Topic(
+            this,
+            "CloudFront_Distribution_Notification",
+            {
+                displayName: "SNS Topic",
+                topicName: "CloudFront_Distribution_Notification",
+                masterKey: snsKey,
+            }
+        );
+
+        // create email subscription
+        sns_topic.addSubscription(
+            new subs.EmailSubscription(notificationEmail)
+        );
+        sns_topic.addToResourcePolicy(
+            new iam.PolicyStatement({
+                effect: iam.Effect.DENY,
+                principals: [new iam.AnyPrincipal()],
+                resources: [sns_topic.topicArn],
+                actions: ["sns:Publish"],
+                conditions: {Bool: {"aws:SecureTransport": "false"}},
+            })
+        );
+        return sns_topic
+    }
+
+    private createAcmCronJob(callbackTable: string, sslForSaasJobInfoTable: string, snsTopic: sns.Topic, cronRole: iam.Role) {
+        // background lambda running regularly to scan the acm certification and notify acm_callback_handler when cert been issued
+        const fn_acm_cron = new _lambda.DockerImageFunction(this, "acm_cron_job", {
+            code: _lambda.DockerImageCode.fromImageAsset(
+                path.join(__dirname, "../../lambda/ssl-for-saas/acm_cron")
+            ),
+            environment: {
+                PAYLOAD_EVENT_KEY: "placeholder",
+                CALLBACK_TABLE: callbackTable,
+                JOB_INFO_TABLE: sslForSaasJobInfoTable,
+                TASK_TYPE: "placeholder",
+                SNS_TOPIC: snsTopic.topicArn,
+            },
+            timeout: Duration.seconds(900),
+            role: cronRole,
+            memorySize: 1024,
+        });
+
+        // cloudwatch event cron job for 5 minutes
+        new events.Rule(this, "ACM status check", {
+            schedule: events.Schedule.expression("cron(*/5 * * * ? *)"),
+            targets: [new targets.LambdaFunction(fn_acm_cron)],
+        });
+
+        // configure cloudwatch event rule and trigger action whenever certain ACM expires
+
+        // sample input
+        // {
+        //     "version": "0",
+        //     "id": "9c95e8e4-96a4-ef3f-b739-b6aa5b193afb",
+        //     "detail-type": "ACM Certificate Approaching Expiration",
+        //     "source": "aws.acm",
+        //     "account": "123456789012",
+        //     "time": "2020-09-30T06:51:08Z",
+        //     "region": "us-east-1",
+        //     "resources": ["arn:aws:acm:us-east-1:123456789012:certificate/61f50cd4-45b9-4259-b049-d0a53682fa4b"],
+        //     "detail": {
+        //         "DaysToExpiry": 31,
+        //         "CommonName": "Aperture Science Portal Certificate Authority - R4"
+        //     }
+        // }
+        new events.Rule(this, "ACM health event", {
+            eventPattern: {
+                region: ["us-east-1"],
+                source: ["aws.acm"],
+                detailType: ["ACM Certificate Approaching Expiration"],
+            },
+            targets: [new targets.SnsTopic(snsTopic)],
+        });
+    }
+
+    private createRestfulApis(apiHandler: _lambda.IFunction) {
+        const apiAccessLogGroup = new logs.LogGroup(
+            this,
+            "cloudfront_ssl-for-saas_ApiGatewayAccessLogs"
+        );
+        // API Gateway with Lambda proxy integration
+        const ssl_api_handler = new _apigw.LambdaRestApi(this, "ssl_api_handler", {
+            handler: apiHandler ,
+            description: "restful api to trigger the ssl for saas workflow",
+            proxy: false,
+            restApiName: "ssl_for_saas_manager",
+            endpointConfiguration: {
+                types: [EndpointType.EDGE],
+            },
+            deployOptions: {
+                accessLogDestination: new LogGroupLogDestination(apiAccessLogGroup),
+                accessLogFormat: AccessLogFormat.clf(),
+            },
+        });
+
+        const ssl_api = ssl_api_handler.root.addResource("ssl_for_saas");
+
+        const ssl_requestValidator = new RequestValidator(
+            this,
+            "SSLRequestValidator",
+            {
+                restApi: ssl_api_handler,
+                requestValidatorName: "SSLApiValidator",
+                validateRequestBody: false,
+                validateRequestParameters: true,
+            }
+        );
+
+        ssl_api.addMethod("POST", undefined, {
+            // authorizationType: AuthorizationType.IAM,
+            apiKeyRequired: true,
+        });
+
+        const cert_list = ssl_api.addResource("cert_list");
+        cert_list.addMethod("GET", undefined, {
+            // authorizationType: AuthorizationType.IAM,
+            apiKeyRequired: true,
+        });
+
+        const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
+        list_ssl_jobs.addMethod("GET", undefined, {
+            // authorizationType: AuthorizationType.IAM,
+            apiKeyRequired: true,
+        });
+
+        const get_ssl_job = ssl_api.addResource("get_ssl_job");
+        get_ssl_job.addMethod("GET", undefined, {
+            // authorizationType: AuthorizationType.IAM,
+            apiKeyRequired: true,
+            requestParameters: {
+                "method.request.querystring.jobId": true,
+            },
+            requestValidator: ssl_requestValidator,
+        });
+
+        const list_cloudfront_arn_with_jobId = ssl_api.addResource(
+            "list_cloudfront_arn_with_jobId"
+        );
+        list_cloudfront_arn_with_jobId.addMethod("GET", undefined, {
+            // authorizationType: AuthorizationType.IAM,
+            apiKeyRequired: true,
+            requestParameters: {
+                "method.request.querystring.jobId": true,
+            },
+            requestValidator: ssl_requestValidator,
+        });
+
+        const list_ssl_certification_with_jobId = ssl_api.addResource(
+            "list_ssl_certification_with_jobId"
+        );
+        list_ssl_certification_with_jobId.addMethod("GET", undefined, {
+            // authorizationType: AuthorizationType.IAM,
+            apiKeyRequired: true,
+            requestParameters: {
+                "method.request.querystring.jobId": true,
+            },
+            requestValidator: ssl_requestValidator,
+        });
+
+        const usagePlan = ssl_api_handler.addUsagePlan("SSL_for_Saas_UsagePlan", {
+            description: "SSL for SAAS API usage plan",
+        });
+        const apiKey = ssl_api_handler.addApiKey("SSL_for_SAAS_ApiKey");
+        usagePlan.addApiKey(apiKey);
+        usagePlan.addApiStage({
+            stage: ssl_api_handler.deploymentStage,
+        });
+
+        new cdk.CfnOutput(this, "ssl_for_saas_rest_api_post", {
+            value: ssl_api.path.substring(1),
+            description: "the ssl for saas post rest api ",
+        });
+        new cdk.CfnOutput(this, "list_certs", {
+            value: cert_list.path.substring(1),
+            description: "the ssl for saas list certs rest api ",
+        });
+        new cdk.CfnOutput(this, "SSL for SAAS API key", {
+            value: apiKey.keyArn,
+            description: "the ssl for saas rest api key ",
+        });
+    }
+
+    private createAppsync(appsyncApi: appsync.GraphqlApi, handler: _lambda.IFunction) {
+        // An AppSync datasource backed by a Lambda function
+        const appsyncFunc = new _appsync_alpha.LambdaDataSource(
+            this,
+            "LambdaDataSource",
+            {
+                api: appsyncApi,
+                lambdaFunction: handler,
+                description: "Lambda Data Source for cert create/import",
+                name: "certMutation",
+            }
+        );
+
+        // An AppSync resolver to resolve the Lambda function
+        appsyncFunc.createResolver({
+            typeName: "Mutation",
+            fieldName: "certCreateOrImport",
+            requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+            responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+        });
+
+        appsyncFunc.createResolver({
+            typeName: "Query",
+            fieldName: "listCertifications",
+            requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+            responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+        });
+
+        appsyncFunc.createResolver({
+            typeName: "Query",
+            fieldName: "listCertificationsWithJobId",
+            requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+            responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+        });
+
+        appsyncFunc.createResolver({
+            typeName: "Query",
+            fieldName: "listCloudFrontArnWithJobId",
+            requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+            responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+        });
+
+        appsyncFunc.createResolver({
+            typeName: "Query",
+            fieldName: "listSSLJobs",
+            requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+            responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+        });
+
+        appsyncFunc.createResolver({
+            typeName: "Query",
+            fieldName: "getJobInfo",
+            requestMappingTemplate: _appsync_alpha.MappingTemplate.lambdaRequest(),
+            responseMappingTemplate: _appsync_alpha.MappingTemplate.lambdaResult(),
+        });
+    }
+
+    private createRoles(sns_topic: sns.Topic): SslFunctionRolesSummary {
+        return {
+            _fn_acm_import_cb_role: this.createRoleWithPolicies("_fn_acm_import_cb_role",
+                new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    cloudfront_create_update_policy,
+                    kms_policy,
+                    sns_update_policy(sns_topic.topicArn)
+                ]),
+
+            _fn_acm_cb_role: this.createRoleWithPolicies("_fn_acm_cb_role",
+                new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    sns_update_policy(sns_topic.topicArn),
+                    cloudfront_create_update_policy,
+                    kms_policy,
+                ]),
+
+            _fn_acm_cb_handler_role: this.createRoleWithPolicies(
+                "_fn_acm_cb_handler_role",
+                new iam.CompositePrincipal(
+                    new iam.ServicePrincipal("edgelambda.amazonaws.com"),
+                    new iam.ServicePrincipal("lambda.amazonaws.com")
+                ),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    stepFunction_run_policy,
+                    cloudfront_create_update_policy,
+                    s3_read_policy,
+                    lambda_rw_policy,
+                    sns_update_policy(sns_topic.topicArn),
+                    kms_policy,
+                ]
+            ),
+
+
+            _fn_failure_handling_lambda_role: this.createRoleWithPolicies(
+                "_fn_failure_handling_lambda_role",
+                new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                ]
+            ),
+
+            _stepFunction_loggin_role: this.createRoleWithPolicies(
+                "_stepFunction_loggin_role", new iam.ServicePrincipal("states.amazonaws.com"),
+                ...[
+                    stepFunction_loggin_policy,
+                    lambda_rw_policy,
+                    stepFunction_run_policy,
+                    lambdaRunPolicy,
+                ]
+            ),
+
+            _fn_acm_cron_role: this.createRoleWithPolicies("_fn_acm_cron_role", new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    stepFunction_run_policy,
+                    kms_policy,
+                ]),
+
+
+            _fn_appsync_func_role: this.createRoleWithPolicies("_fn_appsync_func_role", new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    stepFunction_run_policy,
+                    tag_update_policy,
+                    kms_policy,
+                    sns_update_policy(sns_topic.topicArn),
+                    lambda_rw_policy,
+                ]),
+
+
+            _fn_sns_notify_role: this.createRoleWithPolicies("_fn_sns_notify_role",
+                new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    ddb_rw_policy,
+                    sns_update_policy(sns_topic.topicArn),
+                    kms_policy,
+                ]
+            ),
+
+            _fn_ssl_api_handler_role: this.createRoleWithPolicies(
+                "_fn_ssl_api_handler_role", new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    stepFunction_run_policy,
+                    tag_update_policy,
+                    kms_policy,
+                    sns_update_policy(sns_topic.topicArn),
+                ]
+            )
+        }
+    }
+
+    private createAllFunctions(scope: Construct, roles: SslFunctionRolesSummary, sns_topic: sns.Topic, appsync: appsync.GraphqlApi, callbackTable: string, sslFoSaasJobInfoTable: string, configVersionDDBTableName: string): SslFunctionsSummary {
+        return {
+            fn_acm_import_cb: new _lambda.DockerImageFunction(
+                scope,
+                "acm_import_callback",
+                {
+                    code: _lambda.DockerImageCode.fromImageAsset(
+                        path.join(__dirname, "../../lambda/ssl-for-saas/acm_import_cb")
+                    ),
+                    environment: {
+                        SNS_TOPIC: sns_topic.topicArn,
+                        CALLBACK_TABLE: callbackTable,
+                        JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                        TASK_TYPE: "placeholder",
+                        CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+                    },
+                    timeout: Duration.seconds(900),
+                    role: roles._fn_acm_import_cb_role,
+                    memorySize: 1024,
+                }
+            ),
+            fn_acm_cb: new _lambda.DockerImageFunction(scope, "acm_callback", {
+                code: _lambda.DockerImageCode.fromImageAsset(
+                    path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb")
+                ),
+                environment: {
+                    SNS_TOPIC: sns_topic.topicArn,
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                    CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+                },
+                timeout: Duration.seconds(900),
+                role: roles._fn_acm_cb_role,
+                memorySize: 512,
+            }),
+            fn_acm_cb_handler: new _lambda.DockerImageFunction(
+                scope,
+                "acm_callback_handler",
+                {
+                    code: _lambda.DockerImageCode.fromImageAsset(
+                        path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb_handler")
+                    ),
+                    environment: {
+                        PAYLOAD_EVENT_KEY: "placeholder",
+                        CALLBACK_TABLE: callbackTable,
+                        JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                        TASK_TYPE: "placeholder",
+                        GRAPHQL_API_URL: appsync.graphqlUrl,
+                        GRAPHQL_API_KEY: appsync.apiKey || "",
+                        CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+                        SNS_TOPIC: sns_topic.topicArn,
+                    },
+                    timeout: Duration.seconds(900),
+                    role: roles._fn_acm_cb_handler_role,
+                    memorySize: 1024,
+                }
+            ),
+            fn_sns_failure_notify: new _lambda.DockerImageFunction(
+                this,
+                "sns_failure_notify",
+                {
+                    code: _lambda.DockerImageCode.fromImageAsset(
+                        path.join(__dirname, "../../lambda/ssl-for-saas/sns_failure_notify")
+                    ),
+                    environment: {
+                        SNS_TOPIC: sns_topic.topicArn,
+                        CALLBACK_TABLE: callbackTable,
+                        JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                        TASK_TYPE: "placeholder",
+                    },
+                    timeout: Duration.seconds(900),
+                    role: roles._fn_sns_notify_role,
+                    memorySize: 1024,
+                }
+            ),
+            fn_sns_notify: new _lambda.DockerImageFunction(this, "sns_notify", {
+                code: _lambda.DockerImageCode.fromImageAsset(
+                    path.join(__dirname, "../../lambda/ssl-for-saas/sns_notify")
+                ),
+                environment: {
+                    SNS_TOPIC: sns_topic.topicArn,
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                },
+                timeout: Duration.seconds(900),
+                role: roles._fn_sns_notify_role,
+                memorySize: 1024,
+            }),
+
+            fn_failure_handling: new _lambda.DockerImageFunction(
+                this,
+                "function_to_handle_ssl_for_sass_failure",
+                {
+                    code: _lambda.DockerImageCode.fromImageAsset(
+                        path.join(__dirname, "../../lambda/ssl-for-saas/failure_handling")
+                    ),
+                    environment: {
+                        SNS_TOPIC: sns_topic.topicArn,
+                        CALLBACK_TABLE: callbackTable,
+                        JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                        TASK_TYPE: "placeholder",
+                    },
+                    timeout: Duration.seconds(900),
+                    role: roles._fn_failure_handling_lambda_role,
+                    memorySize: 1024,
+                }
+            ),
+            fn_job_status_update: new _lambda.DockerImageFunction(this, "job_status_update", {
+                code: _lambda.DockerImageCode.fromImageAsset(
+                    path.join(__dirname, "../../lambda/ssl-for-saas/job_status_update")
+                ),
+                environment: {
+                    PAYLOAD_EVENT_KEY: "placeholder",
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                    SNS_TOPIC: sns_topic.topicArn,
+                },
+                timeout: Duration.seconds(900),
+                role: roles._fn_acm_cron_role,
+                memorySize: 1024,
+            })
+
+        }
+    }
+
+    private createSslStepFunctionsSegments(functions: SslFunctionsSummary): SslStepFunctionsSegments {
+        return {
+            failure_handling_job: new _task.LambdaInvoke(
+                this,
+                "Failure Handling Job",
+                {
+                    lambdaFunction: functions.fn_failure_handling,
+                    payload: _step.TaskInput.fromObject({
+                        input: _step.JsonPath.entirePayload,
+                    }),
+                    resultPath: "$.fn_failure_handling",
+                }
+            ),
+
+            snsFailureNotify: new _task.LambdaInvoke(
+                this,
+                "Failure Notification Job",
+                {
+                    lambdaFunction: functions.fn_sns_failure_notify,
+                    payload: _step.TaskInput.fromObject({
+                        input: _step.JsonPath.entirePayload,
+                    }),
+                    // Lambda's result is in the attribute `Payload`
+                    resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
+                    resultPath: "$.fn_sns_notify",
+                }
+            ),
+
+            acm_callback_job: new _task.LambdaInvoke(
+                this,
+                "ACM Create Callback Job",
+                {
+                    lambdaFunction: functions.fn_acm_cb,
+                    integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+                    payload: _step.TaskInput.fromObject({
+                        task_token: _step.JsonPath.taskToken,
+                        input: _step.JsonPath.entirePayload,
+                        callback: "true",
+                    }),
+                    resultPath: "$.fn_acm_cb",
+                }
+            ),
+
+            acm_import_callback_job: new _task.LambdaInvoke(
+                this,
+                "ACM Import Callback Job",
+                {
+                    lambdaFunction: functions.fn_acm_import_cb,
+                    integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+                    payload: _step.TaskInput.fromObject({
+                        task_token: _step.JsonPath.taskToken,
+                        input: _step.JsonPath.entirePayload,
+                    }),
+                    resultPath: "$.fn_acm_import_cb",
+                }
+            ),
+
+            acm_callback_handler_job: new _task.LambdaInvoke(
+                this,
+                "ACM Callback Handler Job",
+                {
+                    lambdaFunction: functions.fn_acm_cb_handler,
+                    payload: _step.TaskInput.fromObject({
+                        input: _step.JsonPath.entirePayload,
+                    }),
+                    resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
+                    resultPath: "$.fn_acm_cb_handler",
+                    timeout: Duration.seconds(900),
+                }
+            ),
+
+            sns_notify_job: new _task.LambdaInvoke(
+                this,
+                "Success Notification Job",
+                {
+                    lambdaFunction: functions.fn_sns_notify,
+                    payload: _step.TaskInput.fromObject({
+                        input: _step.JsonPath.entirePayload,
+                    }),
+                    // Lambda's result is in the attribute `Payload`
+                    resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
+                    resultPath: "$.fn_sns_notify",
+                }
+            ),
+
+            wait_10s_for_cert_create: new _step.Wait(
+                this,
+                "Wait 10s for ACM Cert Create",
+                {
+                    time: _step.WaitTime.duration(Duration.seconds(10)),
+                }
+            ),
+
+            wait_10s_for_cert_import: new _step.Wait(
+                this,
+                "Wait 10s for ACM Cert Import",
+                {
+                    time: _step.WaitTime.duration(Duration.seconds(10)),
+                }
+            ),
+        }
+    }
 }
