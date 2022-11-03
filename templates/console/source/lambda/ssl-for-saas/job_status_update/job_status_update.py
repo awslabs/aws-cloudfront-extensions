@@ -37,6 +37,7 @@ def lambda_handler(event, context):
     # check whether the job is to only create SSL certificates
     job_input = json.loads(job_info['job_input'])
     request_ssl_num = job_info['cert_total_number']
+    # Update the validation task status based on SSL certificate status
     if job_input['auto_creation'] == 'false' and job_info['certValidationStageStatus'] != 'SUCCESS':
         # get the total certificate with status "Issued"
         response = acm_client.list_certificates(
@@ -71,3 +72,36 @@ def lambda_handler(event, context):
                              job_id,
                              'cert_completed_number',
                              len(result))
+
+    if job_input['auto_creation'] == 'true' and job_info['certValidationStageStatus'] != 'SUCCESS':
+        # get the total certificate with status "Issued"
+        response = acm_client.list_certificates(
+            CertificateStatuses=['FAILED']
+        )
+
+        result = []
+        # filter only the certificates with jobId in job_token tag
+        for acmItem in response['CertificateSummaryList']:
+            resp = acm_client.list_tags_for_certificate(
+                CertificateArn=acmItem['CertificateArn']
+            )
+            tagList = resp['Tags']
+            logger.info(tagList)
+
+            for tagItem in tagList:
+                if tagItem['Key'] == 'job_token' and tagItem['Value'] == job_id:
+                    result.append(acmItem['CertificateArn'])
+
+        logger.info(json.dumps(result))
+        if len(result) > 0:
+            # The SSL DNS validation has TIMEOUT and mark the task status to FAILED
+            prompt_msg = "DNS Validation TIMEOUT for " + json.dumps(result) + ", original validation message: " + \
+                         job_info['dcv_validation_msg']
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             job_id,
+                             'certValidationStageStatus',
+                             'FAILED', )
+            update_job_field(JOB_INFO_TABLE_NAME,
+                             job_id,
+                             'dcv_validation_msg',
+                             prompt_msg)
