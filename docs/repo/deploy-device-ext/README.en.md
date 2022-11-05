@@ -13,7 +13,7 @@ The solution provides a set of ready-to-use extensions (Lambda@Edge functions, C
   ![Step1](/images/repo_step1.png)
 
 4. Choose **Next**.
-5. In **Function associations** page, choose **viewer-request**.
+5. In **Function associations** page, choose **viewer-request** (refer to [CloudFront events](https://docs.amazonaws.cn/en_us/AmazonCloudFront/latest/DeveloperGuide/lambda-cloudfront-trigger-events.html) for more details).
   ![Step2](/images/repo_step2.png)
 
 6. Choose **Next**.
