@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/extension-repository/pre-warming/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.8">
     
     
       
@@ -24,7 +24,7 @@
       <link rel="stylesheet" href="../../assets/stylesheets/main.20d9efc8.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.815d1a91.min.css">
         
       
       
@@ -121,13 +121,13 @@
                     English
                   </a>
                 </li>
-                
+              
                 <li class="md-select__item">
                   <a href="/aws-cloudfront-extensions/zh/" hreflang="zh" class="md-select__link">
                     中文
                   </a>
                 </li>
-                
+              
             </ul>
           </div>
         </div>
@@ -789,24 +789,23 @@
     什么是预热?
   </a>
   
-    <nav class="md-nav" aria-label="什么是预热?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_2" class="md-nav__link">
     预热是如何工作的?
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#web" class="md-nav__link">
     通过Web控制台部署（推荐）
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#cloudformation" class="md-nav__link">
     通过CloudFormation部署
   </a>
@@ -832,9 +831,58 @@
     </nav>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    使用说明
+  </a>
+  
+    <nav class="md-nav" aria-label="使用说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postman" class="md-nav__link">
+    通过Postman触发预热
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curl" class="md-nav__link">
+    通过Curl触发预热
+  </a>
+  
+    <nav class="md-nav" aria-label="通过Curl触发预热">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    触发预热
+  </a>
+  
+</li>
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    获取预热状态
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    问题调试
+  </a>
   
 </li>
       
@@ -1089,24 +1137,23 @@
     什么是预热?
   </a>
   
-    <nav class="md-nav" aria-label="什么是预热?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_2" class="md-nav__link">
     预热是如何工作的?
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#web" class="md-nav__link">
     通过Web控制台部署（推荐）
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#cloudformation" class="md-nav__link">
     通过CloudFormation部署
   </a>
@@ -1132,9 +1179,58 @@
     </nav>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    使用说明
+  </a>
+  
+    <nav class="md-nav" aria-label="使用说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postman" class="md-nav__link">
+    通过Postman触发预热
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curl" class="md-nav__link">
+    通过Curl触发预热
+  </a>
+  
+    <nav class="md-nav" aria-label="通过Curl触发预热">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    触发预热
+  </a>
+  
+</li>
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    获取预热状态
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    问题调试
+  </a>
   
 </li>
       
@@ -1162,28 +1258,28 @@
 
 <h2 id="_1">什么是预热?</h2>
 <p>预热通过提前向CloudFront发送请求来加速内容交付。这在传递大文件时非常有用。预热有助于降低源站服务器的负载，因为相同的请求将命中CloudFront缓存，源站服务器接收的请求较少，因此，降低了源站服务器出问题的机率。</p>
-<h3 id="_2">预热是如何工作的?</h3>
+<h2 id="_2">预热是如何工作的?</h2>
 <p>该解决方案部署了一个CloudFormation模板，将在您的AWS帐户中安装以下架构。所有云资源都将自动创建。部署后，您将获得两个REST API，一个用于触发预热操作，另一个用于获取预热状态。</p>
 <p><img alt="prewarm" src="../../images/prewarm-arch.png" /></p>
 <p>CloudFormation模板提供以下组件和工作流：</p>
 <ol>
 <li>Scheduler Lambda函数将初始预热状态、将其插入DynamoDB表。</li>
-<li>Cache invalidator Lambda函数会清楚所有URL的CloudFront缓存，并将requestId、PoP和URL等的消息发送到SQS中。</li>
+<li>Cache invalidator Lambda函数会删除所有URL的CloudFront缓存，并将requestId、PoP和URL等的消息发送到SQS中。</li>
 <li>CloudWatch alarm监视队列中的消息，并在消息发送到队列中时通知自动伸缩组扩容。</li>
 <li>自动伸缩组包含了EC2 Spot实例。每个实例会向CloudFront边缘位置发送请求，并在消费完SQS队列中的消息后将预热状态更新到DynamoDB表中。</li>
 <li>StatusFetcher Lambda函数从DynamoDB表获取预热状态。</li>
 </ol>
-<h3 id="web">通过Web控制台部署（推荐）</h3>
+<h2 id="web">通过Web控制台部署（推荐）</h2>
 <p>从Web控制台中部署扩展的步骤类似。有关更多信息，请参阅<a href="../true-client-ip/">True Client IP</a>.</p>
-<h3 id="cloudformation">通过CloudFormation部署</h3>
+<h2 id="cloudformation">通过CloudFormation部署</h2>
 <p>部署时间：约10分钟</p>
-<h4 id="_3">部署概述</h4>
+<h3 id="_3">部署概述</h3>
 <p>使用以下步骤在Amazon Web Service上部署此解决方案。</p>
 <ul>
 <li>在您的Amazon Web Service帐户中启动CloudFormation模板。</li>
 <li>查看模板参数，并在必要时进行调整。</li>
 </ul>
-<h4 id="_4">部署步骤</h4>
+<h3 id="_4">部署步骤</h3>
 <ol>
 <li>
 <p>登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接<a href="https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json">下载模板</a>进行部署。</p>
@@ -1230,6 +1326,73 @@
 </ol>
 <p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
 <p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。</p>
+<h2 id="_5">使用说明</h2>
+<h3 id="postman">通过Postman触发预热</h3>
+<ol>
+<li>
+<p>当本方案部署完成后，打开CloudFormation堆栈的<em>输出</em>标签页，可以看到如下信息：
+    <img alt="Prewarm Output" src="../../images/prewarm_output.png" /></p>
+<ul>
+<li><strong>PrewarmAPIkey</strong>: API密钥arn。您可在API Gateway控制台的API密钥界面中找到此API key，点击显示按钮，获取密钥。请求预热API时需要使用此密钥进行鉴权，作为x-api-key的值。</li>
+<li><strong>PrewarmApiEndpoint</strong>: 预热API的URL即为在此后面加上prewarm关键字。例如：若PrewarmApiEndpoint是<strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/</strong>，则预热API为 <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong></li>
+<li><strong>PrewarmStatusApiEndpoint</strong>: 获取预热状态API的URL即为在此后面加上status关键字。例如：若PrewarmStatusApiEndpoint是<strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>，则获取预热状态API为 <strong>https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
+<li>打开可以发送HTTP请求的工具，例如Postman。</li>
+<li>按照预热API格式发送预热请求（更多信息请见<a href="../../api-reference-guide/extension-repository/#pre-warming">API参考指南</a>），并在header中新建键值对：key为<strong>x-api-key</strong>，value为API key。</li>
+</ul>
+<p><img alt="Prewarm API Key" src="../../images/prewarm_apikey.png" />
+<img alt="Prewarm Trigger" src="../../images/prewarm_trigger.png" /></p>
+</li>
+<li>
+<p>预热API会返回requestID，至此您成功触发了预热，下面可以通过PrewarmStatus API获取预热状态。</p>
+</li>
+<li>按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。
+    <img alt="Prewarm Status" src="../../images/prewarm_status.png" /></li>
+</ol>
+<h3 id="curl">通过Curl触发预热</h3>
+<h4 id="_6">触发预热</h4>
+<p>脚本内容</p>
+<p><strong>prewarmlist.json</strong></p>
+<div class="highlight"><pre><span></span><code>  {
+        &quot;url_list&quot;: [
+              &quot;https://www.example.com/index.html&quot;,
+              &quot;https://www.example.com/images/demo.png&quot;
+        ],
+        &quot;cf_domain&quot;: &quot;d1234567890r.cloudfront.net&quot;,
+        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;]
+  }
+</code></pre></div>
+<p><strong>prewarm.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
+  curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
+</code></pre></div>
+<p>执行脚本</p>
+<div class="highlight"><pre><span></span><code>  sh prewarm.sh
+</code></pre></div>
+<p>执行结果示例</p>
+<div class="highlight"><pre><span></span><code>  {&quot;requestID&quot;: &quot;e1efca9a-8d92-4058-a1e9-002fd423f6e5&quot;}
+</code></pre></div>
+<h3 id="_7">获取预热状态</h3>
+<p>脚本内容</p>
+<p><strong>prewarmstatus.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  #!/bin/bash
+  statusurl=&quot;https://3e23456789h.execute-api.us-east-1.amazonaws.com/prod/status?requestID=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
+  curl  --header &#39;x-api-key: KEY123456789Tg9P&#39; $statusurl
+</code></pre></div>
+<p>执行脚本</p>
+<div class="highlight"><pre><span></span><code>  sh prewarmstatus.sh
+</code></pre></div>
+<p>执行结果示例</p>
+<div class="highlight"><pre><span></span><code>  {
+        &quot;status&quot;: &quot;COMPLETED&quot;,
+        &quot;total&quot;: 2,
+        &quot;completed&quot;: 2,
+        &quot;inProgress&quot;: 0,
+        &quot;failedUrl&quot;: [],
+        &quot;inProgressUrl&quot;: []
+  }
+</code></pre></div>
+<h2 id="_8">问题调试</h2>
+<p>预热方案会自动启动EC2 Spot实例，并在EC2上执行脚本进行预热，预热脚本的位置为/etc/agent/agent.py，当预热执行完毕后会自动删除这些EC2实例。您可以登录到EC2机器上在/var/log/user-data.log中查看具体执行日志进行调试。</p>
 
 
 
@@ -1306,7 +1469,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\uff0c\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8492ddcf.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d6c3db9e.min.js"></script>
       
     
   </body>
