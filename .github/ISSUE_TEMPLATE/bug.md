@@ -34,7 +34,7 @@ description of the bug:
 
   - **CDK CLI Version  :**
   - **Framework Version:**
-  - **Language (Version):** <!-- [ Nodejs (12.x) |  Python (3.7) | etc... ] -->
+  - **Language (Version):** <!-- [ Nodejs (16.x) |  Python (3.7) | etc... ] -->
 
 ### Other
 
