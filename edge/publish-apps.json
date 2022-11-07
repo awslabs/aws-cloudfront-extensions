@@ -1,7 +1,22 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/resize-picture"
+      "nodejs/http302-from-origin",
+      "nodejs/access-origin-by-weight-rate",
+      "nodejs/modify-response-header",
+      "nodejs/add-security-headers",
+      "nodejs/modify-response-status-code",
+      "nodejs/anti-hotlinking",
+      "nodejs/multiple-origin-IP-retry",
+      "nodejs/authentication-with-aliyun-cdn-typeA",
+      "nodejs/normalize-query-string",
+      "nodejs/authentication-with-cognito",
+      "nodejs/resize-picture",
+      "nodejs/bot-detection",
+      "nodejs/rewrite-url",
+      "nodejs/cross-origin-resource-sharing",
+      "nodejs/serving-based-on-device",
+      "nodejs/custom-response-with-replaced-url"
     ],
     "tag": "v2.0.1"
   }
