@@ -15,8 +15,8 @@
       "nodejs/bot-detection",
       "nodejs/rewrite-url",
       "nodejs/cross-origin-resource-sharing",
-      "nodejs/serving-based-on-device",
-      "nodejs/custom-response-with-replaced-url"
+      "nodejs/custom-response-with-replaced-url",
+      "nodejs/serving-based-on-device"
     ],
     "tag": "v2.0.1"
   }
