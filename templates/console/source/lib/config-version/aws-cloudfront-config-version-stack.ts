@@ -207,11 +207,32 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       ],
     });
 
+    const eventBridge_create_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: [
+          "events:ListRules",
+          "events:PutRule",
+          "events:PutTargets"
+      ],
+    });
+
+    const iam_create_policy = new iam.PolicyStatement({
+      resources: ["*"],
+      actions: [
+          "iam:CreateRole",
+          "iam:GetRole",
+          "iam:CreatePolicy",
+          "iam:AttachRolePolicy"
+          ]
+    });
+
     lambdaRole.addToPolicy(ddb_rw_policy);
     lambdaRole.addToPolicy(s3_rw_policy);
     lambdaRole.addToPolicy(cloudfront_create_update_policy);
     lambdaRole.addToPolicy(lambdaRunPolicy);
     lambdaRole.addToPolicy(lambda_rw_policy);
+    lambdaRole.addToPolicy(eventBridge_create_policy);
+    lambdaRole.addToPolicy(iam_create_policy);
 
     // define a shared lambda layer for all other lambda to use
     const powertools_layer = LayerVersion.fromLayerVersionArn(
