@@ -408,6 +408,10 @@ def construct_cloudfront_config_with_version(certificate_arn, ddb_table_name, de
     config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
     config['ViewerCertificate']['MinimumProtocolVersion'] = 'TLSv1.2_2021'
     config['ViewerCertificate']['SSLSupportMethod'] = 'sni-only'
+    config['Logging']['Enabled'] = False
+    config['Logging']['IncludeCookies'] = False
+    config['Logging']['Bucket'] = ''
+    config['Logging']['Prefix'] = ''
     return config
 
 
@@ -444,4 +448,9 @@ def construct_cloudfront_config_with_dist_id(certificate_arn, default_cache_beha
     config['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
     config['ViewerCertificate']['MinimumProtocolVersion'] = 'TLSv1.2_2021'
     config['ViewerCertificate']['SSLSupportMethod'] = 'sni-only'
+    # disable the logging for new cloudfront distribution
+    config['Logging']['Enabled'] = False
+    config['Logging']['IncludeCookies'] = False
+    config['Logging']['Bucket'] = ''
+    config['Logging']['Prefix'] = ''
     return config
