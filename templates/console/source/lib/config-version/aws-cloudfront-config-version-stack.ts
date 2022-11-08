@@ -221,6 +221,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       actions: [
           "iam:CreateRole",
           "iam:GetRole",
+          "iam:PassRole",
           "iam:CreatePolicy",
           "iam:AttachRolePolicy"
           ]
