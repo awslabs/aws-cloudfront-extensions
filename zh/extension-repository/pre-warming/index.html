@@ -1342,6 +1342,9 @@
 <p>您可以在Amazon CloudFormation控制台的<strong>状态</strong>列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为<strong>CREATE_COMPLETE</strong>。</p>
 <p>您还可以选择<strong>输出</strong>标签页查看堆栈资源的详细信息。</p>
 <h2 id="_5">使用说明</h2>
+<p>{{% notice note %}}
+在预热前，请在被预热的CloudFront分配的缓存行为中，将Viewer protocol policy设置为<strong>HTTP and HTTPS</strong>
+{{% /notice %}} </p>
 <h3 id="postman">通过Postman触发预热</h3>
 <ol>
 <li>
