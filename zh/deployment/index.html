@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/deployment/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.8">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.9">
     
     
       
@@ -24,7 +24,7 @@
       <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.815d1a91.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.08040f6c.min.css">
         
       
       
@@ -56,7 +56,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     
@@ -1322,11 +1322,23 @@
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/authentication-with-cognito"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/blob/main/edge/nodejs/add-security-headers">Adding security header</a></td>
+<td><a href="https://awslabs.github.io/aws-cloudfront-extensions/en/extension-repository/pre-warming/">预热</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/resize-picture">图片缩放</a></td>
+<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/ResizeImageStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking">防盗链</a></td>
+<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/anti-hotlinking"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/blob/main/edge/nodejs/add-security-headers">添加安全标头</a></td>
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/add-security-headers"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/serving-based-on-device">Serve content based on device type</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/serving-based-on-device">根据设备类型跳转</a></td>
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/serving-based-on-device"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
@@ -1334,15 +1346,15 @@
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/cross-origin-resource-sharing"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code">Modify response status code</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-status-code">修改响应状态码</a></td>
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-status-code"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-header">Modify response header</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/modify-response-header">修改响应标头</a></td>
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/modify-response-header"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/access-origin-by-weight-rate">Access origin by weight rate</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/access-origin-by-weight-rate">根据权重访问源站</a></td>
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/access-origin-by-weight-rate"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
@@ -1354,15 +1366,7 @@
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/http302-from-origin"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/resize-picture">Resize picture</a></td>
-<td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=default-dir-index&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/ResizeImageStack.template.json"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
-</tr>
-<tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/anti-hotlinking">Anti-hotlinking</a></td>
-<td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/anti-hotlinking"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
-</tr>
-<tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/normalize-query-string">Standardize query string</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/normalize-query-string">标准化query string从而提高缓存命中率</a></td>
 <td><a href="https://serverlessrepo.aws.amazon.com/applications/us-east-1/418289889111/normalize-query-string"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
@@ -1393,7 +1397,7 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers">Add security headers</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/add-security-headers">添加安全标头</a></td>
 <td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-security-headers&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-security-headers.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
@@ -1413,7 +1417,7 @@
 <td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=add-true-client-ip-header&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fadd-true-client-ip-header.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/redirect-based-on-country">Redirect based on country</a></td>
+<td><a href="https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/redirect-based-on-country">根据地理位置跳转</a></td>
 <td><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=redirect-based-on-country&amp;templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fredirect-based-on-country.yaml"><img alt="Deploy" src="../images/deploy_button.png" /></a></td>
 </tr>
 <tr>
