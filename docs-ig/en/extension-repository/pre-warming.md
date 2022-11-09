@@ -61,6 +61,10 @@ To see details for the stack resources, choose the **Outputs** tab.
 
 ## How to use Pre-warming
 
+{{% notice note %}}
+Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior before pre-warming
+{{% /notice %}} 
+
 ### Pre-warm by Postman
 
 1. After deployment, open the **Outputs** tab of CloudFormation stack, and you can see the following information:

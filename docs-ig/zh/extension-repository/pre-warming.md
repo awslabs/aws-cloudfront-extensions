@@ -60,6 +60,11 @@ CloudFormation模板提供以下组件和工作流：
 
 ## 使用说明
 
+{{% notice note %}}
+在预热前，请在被预热的CloudFront分配的缓存行为中，将Viewer protocol policy设置为**HTTP and HTTPS**
+{{% /notice %}} 
+
+
 ### 通过Postman触发预热
 
 1. 当本方案部署完成后，打开CloudFormation堆栈的*输出*标签页，可以看到如下信息：
