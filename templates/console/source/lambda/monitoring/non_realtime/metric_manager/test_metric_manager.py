@@ -1,12 +1,12 @@
 import boto3
 import pytest
-from moto import mock_dynamodb2
+from moto import mock_dynamodb
 from metric_manager import query_metric_ddb
 from metric_manager import get_metric_data
 from metric_manager import format_date_time
 from metric_manager import lambda_handler
 
-@mock_dynamodb2
+@mock_dynamodb
 def test_query_metric_ddb(monkeypatch):
     ddb = boto3.resource(service_name="dynamodb",region_name="us-east-1")
 
@@ -51,7 +51,7 @@ def test_query_metric_ddb(monkeypatch):
 
     assert len(result) == 0
 
-@mock_dynamodb2
+@mock_dynamodb
 def test_get_metric_data(monkeypatch):
     ddb = boto3.resource(service_name="dynamodb",region_name="us-east-1")
 
