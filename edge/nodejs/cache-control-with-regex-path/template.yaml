@@ -4,7 +4,7 @@ Description: >
   (SO8145)
   cache-control-with-regex-path
   
-  The lambda shows how to change cache-control of origin response with path matching with regular expression.
+  The lambda shows how to change cache-control of origin response using path matching with regular expression.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:

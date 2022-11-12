@@ -1,30 +1,47 @@
 # cache-control-with-regex-path
 
+The Lambda@Edge is designed to provide samples for changing cache-control of origin response using path matching with regular expression.
+
+## Description
+
+The solution will modify origin response for path matching, here's how it works:
+
+1. The user sends viewer request to CloudFront, CloudFront sends origin request to origin and gets the origin response from origin. 
+
+2. CloudFront routes the response to the nearest AWS edge location. The CloudFront distribution will launch a Lambda@Edge function on origin response event.
+
+3. Lambda@Edge modify the response header e.g. cache-control if the URI matches the regular expression. Here are the samples:
+IF path=/api/* THEN cache-control max-age=0
+```
+  if (request.uri.match(/^\/api\/.*$/))
+      {
+          response.headers['cache-control'] = [{
+          key: 'cache-control',
+          value: 'max-age=0'
+          }]
+      }
+```
+IF path=/*.jpg THEN cache-control no-cache
+```
+  if (request.uri.match(/^\/.*\.jpg$/))
+      {
+          response.headers['cache-control'] = [{
+          key: 'cache-control',
+          value: 'no-cache'
+          }]
+      }
+```
+
+## Project Structure
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- hello-world - Code for the application's Lambda function.
-- events - Invocation events that you can use to invoke the function.
-- hello-world/tests - Unit tests for the application code. 
-- template.yaml - A template that defines the application's AWS resources.
+* cache-control-with-regex-path - Code for the application's Lambda function, which adds/modifies response headers when viewer response.
+* events - Invocation events that you can use to invoke the function.
+* cache-control-with-regex-path/tests - Unit tests for the application code.
+* template.yaml - A template that defines the application's AWS resources.
 
-The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
-
-If you prefer to use an integrated development environment (IDE) to build and test your application, you can use the AWS Toolkit.  
-The AWS Toolkit is an open source plug-in for popular IDEs that uses the SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds a simplified step-through debugging experience for Lambda function code. See the following links to get started.
-
-* [CLion](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [GoLand](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [IntelliJ](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [WebStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [Rider](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [PhpStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [PyCharm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [RubyMine](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [DataGrip](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [VS Code](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/welcome.html)
-* [Visual Studio](https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/welcome.html)
-
-## Deploy the sample application
+## Deployment
 
 The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
 
@@ -59,14 +76,14 @@ Build your application with the `sam build` command.
 cache-control-with-regex-path$ sam build
 ```
 
-The SAM CLI installs dependencies defined in `hello-world/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `cache-control-with-regex-path/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-cache-control-with-regex-path$ sam local invoke HelloWorldFunction --event events/event.json
+cache-control-with-regex-path$ sam local invoke CacheControlRegexPathFunction --event events/event.json
 ```
 
 The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
@@ -74,17 +91,6 @@ The SAM CLI can also emulate your application's API. Use the `sam local start-ap
 ```bash
 cache-control-with-regex-path$ sam local start-api
 cache-control-with-regex-path$ curl http://localhost:3000/
-```
-
-The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
-
-```yaml
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
 ```
 
 ## Add a resource to your application
@@ -97,19 +103,19 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-cache-control-with-regex-path$ sam logs -n HelloWorldFunction --stack-name cache-control-with-regex-path --tail
+cache-control-with-regex-path$ sam logs -n CacheControlRegexPathFunction --stack-name cache-control-with-regex-path --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
 ## Unit tests
 
-Tests are defined in the `hello-world/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
+Tests are defined in the `cache-control-with-regex-path/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-cache-control-with-regex-path$ cd hello-world
-hello-world$ npm install
-hello-world$ npm run test
+cache-control-with-regex-path$ cd cache-control-with-regex-path
+cache-control-with-regex-path$ npm install
+cache-control-with-regex-path$ npm run test
 ```
 
 ## Cleanup
