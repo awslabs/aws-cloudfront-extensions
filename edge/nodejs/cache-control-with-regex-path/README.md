@@ -22,7 +22,8 @@ The solution will modify origin response for path matching, here's how it works:
           }]
       }
 ```
-    When path=/*.jpg, set cache-control no-cache
+
+    When path=/*.jpg, set cache-control no-cache.
 ```
   if (request.uri.match(/^\/.*\.jpg$/))
       {
