@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  (SO8145)
+  cache-control-with-regex-path
+  
+  The lambda shows how to change cache-control of origin response with path matching with regular expression.
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+    Tags:
+      Publisher: AWS
+
+Parameters:
+  RegexPathParameter:
+    Default: "\/^\/.*\\.jpg$/"
+    Description: "Regular expression to match path, default is /*.jpg."
+    Type: String
+  ResponseHeaderParameter:
+    Default: Cache-Control
+    Description: "Response header for modification"
+    Type: String
+  ResponseHeaderValueParameter:
+    Default: max-age=0
+    Description: "Response header value for modification"
+    Type: String
+
+Resources:
+  EdgeFunctionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-edgeFunction
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  CacheControlRegexPathFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: cache-control-with-regex-path/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Role: !GetAtt EdgeFunctionRole.Arn
+
+  UpdateEdgeCodeFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn: CacheControlRegexPathFunction
+    Properties:
+      CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
+      Handler: index.handler
+      Runtime: python3.9
+      Policies:
+        - Statement:
+          - Sid: CacheControlRegexPathPolicy 
+            Effect: Allow
+            Action:
+            - lambda:UpdateFunction*
+            Resource: !GetAtt CacheControlRegexPathFunction.Arn
+
+  UpdateConfigCustom:
+    Type: Custom::UpdateConfigCustom
+    DependsOn: UpdateEdgeCodeFunction
+    Properties:
+      ServiceToken: !GetAtt UpdateEdgeCodeFunction.Arn
+      SourceUrl: 'https://aws-cloudfront-extension-lambda-edge.s3.amazonaws.com/edge/cache-control-with-regex-path/cache-control-with-regex-path.zip'
+      EdgeFunctionArn: !GetAtt CacheControlRegexPathFunction.Arn
+      HandlerFileName: 'app.js' 
+      PARA_REREX: !Ref RegexPathParameter
+      PARA_RESPONSE_HEADER: !Ref ResponseHeaderParameter
+      PARA_RESPONSE_HEADER_VALUE: !Ref ResponseHeaderValueParameter
+
+Outputs:
+  CacheControlRegexPathFunction:
+    Description: "Lambda Edge function ARN"
+    Value: !GetAtt CacheControlRegexPathFunction.Arn
+  CacheControlRegexPathFunctionIamRole:
+    Description: "Implicit IAM Role created for Simple Lambda Edge function"
+    Value: !GetAtt EdgeFunctionRole.Arn
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8145"
