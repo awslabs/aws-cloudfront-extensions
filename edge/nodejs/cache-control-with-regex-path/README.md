@@ -11,7 +11,8 @@ The solution will modify origin response for path matching, here's how it works:
 2. CloudFront routes the response to the nearest AWS edge location. The CloudFront distribution will launch a Lambda@Edge function on origin response event.
 
 3. Lambda@Edge modify the response header e.g. cache-control if the URI matches the regular expression. Here are the samples:
-IF path=/api/* THEN cache-control max-age=0
+
+    IF path=/api/* THEN cache-control max-age=0
 ```
   if (request.uri.match(/^\/api\/.*$/))
       {
@@ -21,7 +22,7 @@ IF path=/api/* THEN cache-control max-age=0
           }]
       }
 ```
-IF path=/*.jpg THEN cache-control no-cache
+    IF path=/*.jpg THEN cache-control no-cache
 ```
   if (request.uri.match(/^\/.*\.jpg$/))
       {
