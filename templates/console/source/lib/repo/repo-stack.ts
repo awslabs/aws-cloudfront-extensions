@@ -72,7 +72,9 @@ export class RepoConstruct extends Construct {
           actions: [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
-            "logs:PutLogEvents"
+            "logs:PutLogEvents",
+            "logs:PutRetentionPolicy",
+            "logs:DescribeLogGroups"
           ],
         }),
       ]
