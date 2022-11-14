@@ -10,19 +10,19 @@ repositories {
 dependencies {
     implementation 'org.json:json:20080701'
     implementation 'com.meituan.android.walle:payload_writer:1.1.7'
-    implementation 'software.amazon.awssdk:lambda:2.10.73'
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.578'
-    implementation platform('software.amazon.awssdk:bom:2.10.73')
-    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'software.amazon.awssdk:lambda:2.18.16'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.341'
+    implementation platform('software.amazon.awssdk:bom:2.18.16')
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'org.apache.logging.log4j:log4j-api:[2.17.1,)'
-    implementation 'org.apache.logging.log4j:log4j-core:[2.17.1,)'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
     implementation 'commons-codec:commons-codec:1.15'
-    runtimeOnly 'org.apache.logging.log4j:log4j-slf4j18-impl:[2.17.1,)'
-    runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.5.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+    runtimeOnly 'org.apache.logging.log4j:log4j-slf4j18-impl:2.18.0'
+    runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.5.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
 }
 
 test {
