@@ -8,7 +8,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { CfnApi, CfnDeployment, CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
+import { CfnApi} from 'aws-cdk-lib/aws-apigatewayv2';
 
 export class ApkDistributionStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
