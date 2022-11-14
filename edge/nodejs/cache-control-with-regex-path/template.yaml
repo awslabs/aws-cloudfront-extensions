@@ -15,7 +15,7 @@ Globals:
 
 Parameters:
   RegexPathParameter:
-    Default: "\/^\/.*\\.jpg$/"
+    Default: "\/^\\\/.*\\.jpg$/"
     Description: "Regular expression to match path, default is /*.jpg."
     Type: String
   ResponseHeaderParameter:
@@ -49,7 +49,7 @@ Resources:
     Properties:
       CodeUri: cache-control-with-regex-path/
       Handler: app.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
   UpdateEdgeCodeFunction:

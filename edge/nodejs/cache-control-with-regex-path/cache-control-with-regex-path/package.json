@@ -1,9 +1,9 @@
 {
-  "name": "hello_world",
+  "name": "cache-control-with-regex-path",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
+  "description": "The lambda shows how to change cache-control of origin response using path matching with regular expression.",
   "main": "app.js",
-  "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
+  "repository": "https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/cache-control-with-regex-path",
   "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
