@@ -12,14 +12,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import com.meituan.android.walle.ChannelWriter;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,7 +32,11 @@ public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGateway
 
   private static final Logger logger = LoggerFactory.getLogger(Handler.class);
   private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-  private static final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(region).build();
+  private static AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(region).build();
+
+  private String apkKey;
+  private String channel;
+  private String sign;
 
   @Override
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
@@ -43,104 +44,47 @@ public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGateway
     logger.debug("CONTEXT: {}", gson.toJson(context));
     logger.debug("EVENT: {}", gson.toJson(event));
 
-    String apkKey = Handler.GetEventKeyValue(event, "key");
-
-    if (apkKey.length() == 0) {
-      return httpResponse(200, "key is empty");
-    }
+    this.setRequestKeys(event);
 
     int apkIndex = apkKey.lastIndexOf(".apk");
-    if (apkIndex == -1) {
-      return httpResponse(200, "key should end with .apk");
+    if (apkKey.length() == 0 || apkIndex == -1) {
+      return Util.HttpResponse(200, "key should end with .apk");
     }
 
-    String channel = Handler.GetEventKeyValue(event, "channel");
-
-    if (appKey.length() > 0) {
-      String sign = Handler.GetEventKeyValue(event, "sign");
-      if (sign.length() == 0) {
-        logger.warn("sign is not provide");
-        return httpResponse(200, "sign is need");
-      }
-      String correctSign = DigestUtils.md5Hex(apkKey + channel + appKey);
-      if (!correctSign.equals(sign)) {
-        logger.warn("the sign is: {}, verify sign is: {}", sign, correctSign);
-        return httpResponse(200, "incorrect sign");
-      }
+    if (appKey.length() > 0 && !Util.SignValid(apkKey, channel, appKey, sign)) {
+      return Util.HttpResponse(200, "sign is invalid");
     }
 
-    InputStream targetStream = null;
+    String tmpApkKey = Util.TmpKey(apkKey, apkIndex, channel);
+    logger.debug("tmp apk key is: {}", tmpApkKey);
     try {
-      // tmp apk key
-      String tmpApkKey = apkKey.substring(0, apkIndex) + "_" + channel + ".apk";
-      if (channel.isEmpty()) {
-        tmpApkKey = apkKey;
-      }
-
       // tmp apk already exist
       if (s3Client.doesObjectExist(tmpBucket, tmpApkKey)) {
         logger.debug("tmp apk exist: {}", tmpApkKey);
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Location", "/" + tmpApkKey);
-        return httpResponseWithHeader(302, "", headers);
+        return Util.HttpResponseWithRedirectURI(302, "", "/" + tmpApkKey);
       }
 
       // source apk does not exist
       if (!s3Client.doesObjectExist(srcBucket, apkKey)) {
         logger.warn("source apk does not exist: {}", apkKey);
-        return httpResponse(404, "");
+        return Util.HttpResponse(404, "");
       }
 
-      // download object
       File apkFile = new File("/tmp/tmp.apk");
       s3Client.getObject(new GetObjectRequest(srcBucket, apkKey), apkFile);
+      ChannelWriter.put(apkFile, channel); // sign apk
+      s3Client.putObject(tmpBucket, tmpApkKey, apkFile);
 
-      // sign apk
-      ChannelWriter.put(apkFile, channel);
-
-      // upload to s3
-      targetStream = new BufferedInputStream(new FileInputStream(apkFile), RequestClientOptions.DEFAULT_STREAM_BUFFER_SIZE);
-      ObjectMetadata metaData = new ObjectMetadata();
-      metaData.setContentLength(apkFile.length());
-      s3Client.putObject(tmpBucket, tmpApkKey, targetStream, metaData);
-
-      // redirect
-      Map<String, String> headers = new HashMap<>();
-      headers.put("Location", "/" + tmpApkKey);
-      return httpResponseWithHeader(302, "", headers);
+      return Util.HttpResponseWithRedirectURI(302, "", "/" + tmpApkKey);// redirect
     } catch (Exception e) {
       logger.error("Exception: {}", e.toString());
-      return httpResponse(500, "internal error. " + "key: " + apkKey);
-    } finally {
-      if (targetStream != null) {
-        try {
-          targetStream.close();
-        } catch (Exception e) {
-        }
-      }
+      return Util.HttpResponse(500, "internal error. " + "key: " + apkKey);
     }
   }
 
-  public static String GetEventKeyValue(APIGatewayV2HTTPEvent event, String key) {
-    if (event.getQueryStringParameters() != null && event.getQueryStringParameters().containsKey(key)) {
-      return event.getQueryStringParameters().get(key);
-    }
-    return "";
-  }
-
-  private static APIGatewayV2HTTPResponse httpResponseWithHeader(int statusCode, String body,
-      Map<String, String> headers) {
-    APIGatewayV2HTTPResponse response = new APIGatewayV2HTTPResponse();
-    if (headers != null && !headers.isEmpty()) {
-      logger.debug("Response header set: {}", headers.toString());
-      response.setHeaders(headers);
-    }
-    response.setStatusCode(statusCode);
-    response.setBody(body);
-    return response;
-  }
-
-  private static APIGatewayV2HTTPResponse httpResponse(int statusCode, String body) {
-    return httpResponseWithHeader(statusCode, body, null);
+  private void setRequestKeys(APIGatewayV2HTTPEvent event) {
+    this.apkKey = Util.GetEventKeyValue(event, "key");
+    this.channel = Util.GetEventKeyValue(event, "channel");
+    this.sign = Util.GetEventKeyValue(event, "sign");
   }
 }
