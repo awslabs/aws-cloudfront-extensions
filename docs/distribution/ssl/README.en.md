@@ -5,7 +5,7 @@ weight: 2
 
 The sample website can be accessed by inputing xxx.cloudfront.net in the browser currently. It is not an user-friendly name and you would like to give the website a meaningful name such as www.amazon.com. In this section, you will associate a domain name with the sample website. After association, you can access the sample website by the domain name.
 
-You can use CloudFront Extensions to automatically create or import SSL Certificates and associate them to new CloudFront distributions. The solution provides two kinds of jobs: Create Certificates Job and Import Certificate Job. You can use then on web console or via API calls.
+You can use CloudFront Extensions to automatically create or import SSL Certificates and associate them to new CloudFront distributions. The solution provides two kinds of jobs: Create Certificates Job and Import Certificate Job. You can use them on web console or via API calls.
 
 Follow below steps to create a SSL certificate:
 
