@@ -74,7 +74,7 @@ public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGateway
 
       // tmp apk already exist
       if (s3Client.doesObjectExist(tmpBucket, tmpApkKey)) {
-        logger.warn("tmp apk exist: {}", tmpApkKey);
+        logger.debug("tmp apk exist: {}", tmpApkKey);
         Map<String, String> headers = new HashMap<>();
         headers.put("Location", "/" + tmpApkKey);
         return httpResponseWithHeader(302, "", headers);

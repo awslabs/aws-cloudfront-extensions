@@ -112,19 +112,6 @@ export class ApkDistributionStack extends cdk.Stack {
             sourceAccount: Aws.ACCOUNT_ID,
             sourceArn: `arn:aws:execute-api:${Aws.REGION}:${Aws.ACCOUNT_ID}:${api.ref}/*`
         });
-
-        // Add api gateway deployment
-        const deployment = new CfnDeployment(this, 'api-gateway-deployment', {
-            apiId: api.ref
-        });
-
-        // Add api gateway stage
-        const stage = new CfnStage(this, `api-distribution-stage`, {
-            apiId: api.ref,
-            autoDeploy: true,
-            deploymentId: deployment.ref,
-            stageName: '$default',
-        });
         
         // Add OAI for CloudFront Access S3
         const oai = new cloudfront.OriginAccessIdentity(this, 'original-identity', {
