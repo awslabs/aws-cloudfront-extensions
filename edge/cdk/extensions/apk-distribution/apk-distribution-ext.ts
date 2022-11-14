@@ -69,6 +69,7 @@ export class ApkDistributionStack extends cdk.Stack {
                 BUCKET: s3BucketName.valueAsString,
                 TMPBUCKET: tmpBucket.bucketName,
                 APPKEY: APPkey.valueAsString,
+                REGION: Aws.REGION,
             },
             memorySize: 2048,
             ephemeralStorageSize: cdk.Size.mebibytes(2048),

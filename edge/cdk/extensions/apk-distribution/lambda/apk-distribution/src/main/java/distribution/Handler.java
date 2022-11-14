@@ -1,5 +1,6 @@
 package distribution;
 
+import com.amazonaws.RequestClientOptions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -13,6 +14,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.meituan.android.walle.ChannelWriter;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -26,11 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
-  private static final Logger logger = LoggerFactory.getLogger(Handler.class);
-  private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
   private static final String srcBucket = System.getenv("BUCKET");
   private static final String tmpBucket = System.getenv("TMPBUCKET");
   private static final String appKey = System.getenv("APPKEY");
+  private static final String region = System.getenv("REGION");
+
+  private static final Logger logger = LoggerFactory.getLogger(Handler.class);
+  private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private static final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(region).build();
 
   @Override
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
@@ -64,7 +69,7 @@ public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGateway
       }
     }
 
-    AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+    InputStream targetStream = null;
     try {
       // tmp apk key
       String tmpApkKey = apkKey.substring(0, apkIndex) + "_" + channel + ".apk";
@@ -94,7 +99,7 @@ public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGateway
       ChannelWriter.put(apkFile, channel);
 
       // upload to s3
-      InputStream targetStream = new FileInputStream(apkFile);
+      targetStream = new BufferedInputStream(new FileInputStream(apkFile), RequestClientOptions.DEFAULT_STREAM_BUFFER_SIZE);
       ObjectMetadata metaData = new ObjectMetadata();
       metaData.setContentLength(apkFile.length());
       s3Client.putObject(tmpBucket, tmpApkKey, targetStream, metaData);
@@ -106,6 +111,13 @@ public class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIGateway
     } catch (Exception e) {
       logger.error("Exception: {}", e.toString());
       return httpResponse(500, "internal error. " + "key: " + apkKey);
+    } finally {
+      if (targetStream != null) {
+        try {
+          targetStream.close();
+        } catch (Exception e) {
+        }
+      }
     }
   }
 
