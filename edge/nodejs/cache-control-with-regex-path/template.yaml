@@ -13,6 +13,20 @@ Globals:
     Tags:
       Publisher: AWS
 
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: cache-control-with-regex-path
+    Description: The lambda shows how to change cache-control of origin response using path matching with regular expression
+    Author: AWS
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['gcr','gcr-solutions','cloudfront','aws-cloudfront-extensions','edge','lambda-edge', 'aws', 'hotlinking', 'referer', 'leeching']
+    HomePageUrl: https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/awslabs/aws-cloudfront-extensions/tree/main/edge/nodejs/cache-control-with-regex-path
+
+
 Parameters:
   RegexPathParameter:
     Default: "\/^\\\/.*\\.jpg$/"
