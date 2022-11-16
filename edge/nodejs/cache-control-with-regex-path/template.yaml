@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  (SO8145)
+  (SO8143)
   cache-control-with-regex-path
   
   The lambda shows how to change cache-control of origin response using path matching with regular expression.
