@@ -1,7 +1,7 @@
 {
   "edge": {
     "publish_app_path": [
-      
+      "nodejs/cache-control-with-regex-path"
     ],
     "tag": "v2.0.0"
   }
