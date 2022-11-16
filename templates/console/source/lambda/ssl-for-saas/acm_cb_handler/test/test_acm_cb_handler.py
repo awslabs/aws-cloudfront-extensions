@@ -372,7 +372,8 @@ def test_construct_cloudfront_config_with_version(monkeypatch):
             },
             'ViewerCertificate': {
                 'CloudFrontDefaultCertificate': {}
-            }
+            },
+            'Logging': {}
         }
 
     monkeypatch.setattr(acm_cb_handler, 'fetch_cloudfront_config_version', mock_scan_for_cert_ddb_with_resp)
