@@ -48,6 +48,7 @@
     "@aws-cdk/aws-apigatewayv2-authorizers-alpha": "2.36.0-alpha.0",
     "@aws-cdk/aws-appsync-alpha": "2.36.0-alpha.0",
     "@aws-cdk/aws-glue-alpha": "2.36.0-alpha.0",
+    "@aws-cdk/aws-lambda-python-alpha": "^2.50.0-alpha.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "2.9.0",
     "@aws-solutions-constructs/aws-s3-lambda": "2.9.0",
     "aws-cdk-lib": "2.36.0",

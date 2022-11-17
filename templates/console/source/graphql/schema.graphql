@@ -88,12 +88,12 @@ type certification_info {
     CertificateArn: String!
     DomainName: String!
     SubjectAlternativeNames: String
-    Issuer: String!
+    Issuer: String
     Status: String!
     CreatedAt: String!
-    IssuedAt: String!
-    NotBefore: String!
-    NotAfter: String!
+    IssuedAt: String
+    NotBefore: String
+    NotAfter: String
     KeyAlgorithm: String!
 }
 
