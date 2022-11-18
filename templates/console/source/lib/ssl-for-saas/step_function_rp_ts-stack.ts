@@ -183,7 +183,13 @@ export class StepFunctionRpTsConstruct extends Construct {
 
         const layers = this.createCommonLayers();
 
-        this.createAcmCronJob(callback_table.tableName, ssl_for_sass_job_info_table.tableName, sns_topic, roles._fn_acm_cron_role)
+        this.createAcmCronJob(
+            callback_table.tableName,
+            ssl_for_sass_job_info_table.tableName,
+            sns_topic,
+            roles._fn_acm_cron_role,
+            layers
+        );
 
         const functions = this.createAllFunctions(scope,
             roles,
@@ -464,25 +470,46 @@ export class StepFunctionRpTsConstruct extends Construct {
         return sns_topic
     }
 
-    private createAcmCronJob(callbackTable: string, sslForSaasJobInfoTable: string, snsTopic: sns.Topic, cronRole: iam.Role) {
+    private createAcmCronJob(callbackTable: string, sslForSaasJobInfoTable: string, snsTopic: sns.Topic, cronRole: iam.Role, layers: CommonLambdaLayers) {
         // background lambda running regularly to scan the acm certification and notify acm_callback_handler when cert been issued
-        const fn_acm_cron = new _lambda.DockerImageFunction(this, "acm_cron_job", {
-            code: _lambda.DockerImageCode.fromImageAsset(
-                path.join(__dirname, "../../lambda/ssl-for-saas/acm_cron")
-            ),
-            environment: {
-                PAYLOAD_EVENT_KEY: "placeholder",
-                CALLBACK_TABLE: callbackTable,
-                JOB_INFO_TABLE: sslForSaasJobInfoTable,
-                TASK_TYPE: "placeholder",
-                SNS_TOPIC: snsTopic.topicArn,
-            },
-            timeout: Duration.seconds(900),
-            role: cronRole,
-            memorySize: 1024,
-        });
+        // const fn_acm_cron = new _lambda.DockerImageFunction(this, "acm_cron_job", {
+        //     code: _lambda.DockerImageCode.fromImageAsset(
+        //         path.join(__dirname, "../../lambda/ssl-for-saas/acm_cron")
+        //     ),
+        //     environment: {
+        //         PAYLOAD_EVENT_KEY: "placeholder",
+        //         CALLBACK_TABLE: callbackTable,
+        //         JOB_INFO_TABLE: sslForSaasJobInfoTable,
+        //         TASK_TYPE: "placeholder",
+        //         SNS_TOPIC: snsTopic.topicArn,
+        //     },
+        //     timeout: Duration.seconds(900),
+        //     role: cronRole,
+        //     memorySize: 1024,
+        // });
 
-
+        const fn_acm_cron = new PythonFunction(
+            this,
+            'acm_cron_job',
+            <PythonFunctionProps>{
+                entry: `${this.src}/acm_cron`,
+                architecture: Architecture.X86_64,
+                runtime: Runtime.PYTHON_3_9,
+                index: 'handler.py',
+                handler: 'handler',
+                timeout: Duration.seconds(900),
+                role: cronRole,
+                memorySize: 1024,
+                environment: {
+                    PAYLOAD_EVENT_KEY: "placeholder",
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslForSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                    SNS_TOPIC: snsTopic.topicArn,
+                },
+                layers: [layers.sharedPythonLibLayer]
+            }
+        )
 
         // cloudwatch event cron job for 5 minutes
         new events.Rule(this, "ACM status check", {
@@ -950,15 +977,13 @@ export class StepFunctionRpTsConstruct extends Construct {
                 timeout: Duration.seconds(900),
                 role: roles._fn_sns_notify_role,
                 memorySize: 1024,
-                bundling: {
-                    environment: {
-                        SNS_TOPIC: sns_topic.topicArn,
-                        CALLBACK_TABLE: callbackTable,
-                        JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-                        TASK_TYPE: "placeholder",
-                    },
-                    layers: [layers.sharedPythonLibLayer],
+                environment: {
+                    SNS_TOPIC: sns_topic.topicArn,
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
                 },
+                layers: [layers.sharedPythonLibLayer],
             }),
 
             // fn_sns_notify: new _lambda.DockerImageFunction(this, "sns_notify", {

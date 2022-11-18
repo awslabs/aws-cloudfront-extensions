@@ -96,7 +96,7 @@ export class PortalConstruct extends Construct {
                 autoDeleteObjects: false,
             },
             cloudFrontDistributionProps: {
-                priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
+                priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
                 minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2019,
                 enableIpv6: false,
                 comment: `${Aws.STACK_NAME} - Web Console Distribution (${Aws.REGION})`,
