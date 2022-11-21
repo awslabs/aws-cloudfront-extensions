@@ -20,10 +20,10 @@
   "list": {
     "name": "Distribution List",
     "id": "ID",
-    "cname": "Cname",
-    "domain": "Domain",
+    "cname": "CNAMEs",
+    "domain": "Domain name",
     "versionCount": "Version count",
-    "status": "Status",
+    "status": "Deploying status",
     "deploying": "Deploying"
   },
   "versions": {

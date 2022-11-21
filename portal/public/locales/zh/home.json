@@ -1,25 +1,29 @@
 {
   "category": "网络与内容交付",
   "title": "CloudFront Extensions",
-  "subTitle": "在不同的场景中方便地使用 Amazon CloudFront",
-  "desc": "CloudFront Extensions 包括丰富的特色 Lambda@Edge、CloudFront 函数、适用于各种用户场景的 CDK 模板和开箱即用的监控解决方案。",
+  "subTitle": "Amazon CloudFront 运维工具箱",
+  "desc": "本解决方案提供了一套用于运维CloudFront的自动化工具，帮助Amazon CloudFront用户管理上百个CloudFront分配(Distributions)。",
   "benifits": {
     "title": "优点和特点",
-    "beft1": "CloudFront 最佳实践",
-    "beft1Desc": "您可以找到最常见的 Amazon CloudFront 使用案例的代码实现。包含的所有解决方案和应用程序均由 Amazon Web Services 进行审查。",
-    "beft2": "轻松一键部署",
-    "beft2Desc": "您只需单击一下即可轻松地将 CloudFront 应用程序或解决方案部署到您的 Amazon Web Services 控制台中。",
-    "beft3": "开源和定制",
-    "beft3Desc": "Amazon CloudFront Extensions 是一个开源项目。您可以免费使用解决方案和应用程序。如果您有不同的用例，则可以将源代码作为参考来制作自己的实现。",
-    "beft4": "各种场景的参考",
-    "beft4Desc": "Amazon CloudFront Extensions 包含丰富的扩展，涵盖各种使用案例。"
+    "beft1": "监控",
+    "beft1Desc": "您可以通过web控制台的仪表板监控CloudFront流量，如缓存命中率、带宽和状态代码。了解更多信息，请参考监控 (https://awslabs.github.io/aws-cloudfront-extensions/zh/monitoring/overview/)",
+    "beft2": "分配管理",
+    "beft2Desc": "您可以将指定的CloudFront分配的配置保存为快照、比较不同的快照、并将快照应用于其他分配；审核所有CloudFront分配的配置更改；自动化实现请求新证书或将现有SSL证书导入ACM并配置CloudFront分配的过程。了解更多信息，请参考分配管理 (https://awslabs.github.io/aws-cloudfront-extensions/zh/distribution-management/overview/)。",
+    "beft3": "扩展存储库",
+    "beft3Desc": "您可以部署常用的开箱即用CloudFront扩展程序，例如Lambda@Edge、CloudFront Functions和CloudFormation模板。您可以在不进行任何编程的情况下使用这些扩展，并自定义它们以满足您的特定需求。了解更多信息，请参考扩展存储库 (https://awslabs.github.io/aws-cloudfront-extensions/zh/extension-repository/overview/)。"
   },
   "usecase": {
     "title": "使用场景",
-    "usecase1": "电子商务网站",
-    "usecase1Desc": "该解决方案提供了在 CloudFront 上使用 WAF 和 Shield Advanced 的模板，它会自动在您的 AWS 账户中部署一组 WAF 规则和 Shield 保护组，以保护您的 Web 应用程序免受 DDoS 攻击、机器人攻击、SQL 注入攻击、XSS 攻击，并阻止信誉不佳的 IP。",
-    "usecase2": "动态调整图像大小",
-    "usecase2Desc": "根据查询参数传递的像素动态调整图片大小。"
+    "usecase1": "迁移",
+    "usecase1Desc": "当客户从其他CDN迁移至AWS时，需要批量生成关联SSL证书的CloudFront分配。例如，独立站SaaS厂商站点批量迁移。",
+    "usecase2": "CDN预热",
+    "usecase2Desc": "客户需要对文件预热（如应用商城）、游戏预热。",
+    "usecase3": "CDN监控",
+    "usecase3Desc": "对于下载速度、缓存命中率、带宽等指标进行实时或非实时监控的客户。客户可通过API集成至统一CDN监控平台。",
+    "usecase4": "CDN版本管理",
+    "usecase4Desc": "当客户账号有大量CloudFront分配时，需要为某版本的CloudFront分配的配置进行快照 或 查询修改历史。",
+    "usecase5": "通用Lambda@Edge函数",
+    "usecase5Desc": "客户需要一键部署Image Resize，Redirect-by-country等功能"
   },
   "getStarted": {
     "title": "开始使用",

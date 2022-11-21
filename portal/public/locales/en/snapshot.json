@@ -23,10 +23,10 @@
   "list": {
     "title": "Distribution List",
     "id": "ID",
-    "cname": "CNAME",
-    "domainName": "Distribution domain name",
+    "cname": "CNAMEs",
+    "domainName": "Domain name",
     "snapshotCount": "Snapshot count",
-    "status": "Status",
+    "status": "Deployment status",
     "deploying": "Deploying",
     "snapshotList": "Snapshot List"
   },

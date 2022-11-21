@@ -1,7 +1,7 @@
 {
   "sslList": "Certification List",
-  "createNew": "Create new certificates",
-  "importExist": "Import existing certificates",
+  "createNew": "Create with new certificates",
+  "importExist": "Create with imported certificates",
   "certJobList": "Certification Jobs",
   "sslJobList": "SSL for SaaS Job List",
   "guide": {
@@ -66,10 +66,10 @@
   },
   "list": {
     "cnames": "CNAMEs",
-    "certArn": "CertificateArn",
+    "certArn": "ARN",
     "issuer": "Issuer",
-    "status": "SSL/TLS certificate status",
-    "keyAlgorithm": "KeyAlgorithm",
+    "status": "Certificate status",
+    "keyAlgorithm": "Public Key info",
     "expiresOn": "Certificate expires on"
   },
   "jobDetail": {

@@ -15,10 +15,6 @@ const BENEFIT_LIST = [
     title: "home:benifits.beft3",
     desc: "home:benifits.beft3Desc",
   },
-  {
-    title: "home:benifits.beft4",
-    desc: "home:benifits.beft4Desc",
-  },
 ];
 
 const USECASE_LIST = [
@@ -29,6 +25,18 @@ const USECASE_LIST = [
   {
     title: "home:usecase.usecase2",
     desc: "home:usecase.usecase2Desc",
+  },
+  {
+    title: "home:usecase.usecase3",
+    desc: "home:usecase.usecase3Desc",
+  },
+  {
+    title: "home:usecase.usecase4",
+    desc: "home:usecase.usecase4Desc",
+  },
+  {
+    title: "home:usecase.usecase5",
+    desc: "home:usecase.usecase5Desc",
   },
 ];
 
