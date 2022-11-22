@@ -1,0 +1,40 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/",
+  "rawQueryString": "key=aws.apk&channel=aws",
+  "headers": {
+      "content-length": "0",
+      "host": "a123456789.execute-api.ap-southeast-1.amazonaws.com",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+      "via": "1.1 xxxxxx.cloudfront.net (CloudFront)",
+      "x-amz-cf-id": "CTsD9mM6cV0BMFtvH8Rex8bKfl2-eFNVicQYF8df5pxc6G72N6rUmA==",
+      "x-amzn-trace-id": "Root=1-636fe8b1-696c918f6deacb5c407ac086",
+      "x-forwarded-for": "205.205.205.205, 70.70.70.70",
+      "x-forwarded-port": "443",
+      "x-forwarded-proto": "https"
+  },
+  "queryStringParameters": {
+      "channel": "aws",
+      "key": "aws.apk"
+  },
+  "isBase64Encoded": false,
+  "requestContext": {
+      "routeKey": "$default",
+      "accountId": "901234567890",
+      "stage": "$default",
+      "apiId": "a123456789",
+      "domainName": "a123456789.execute-api.ap-southeast-1.amazonaws.com",
+      "domainPrefix": "a123456789",
+      "time": "12/Nov/2022:18:40:49 +0000",
+      "timeEpoch": 1668278449987,
+      "http": {
+          "method": "GET",
+          "path": "/",
+          "protocol": "HTTP/1.1",
+          "sourceIp": "205.205.205.205",
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+      },
+      "requestId": "bgFL1guHyQ0EP8Q="
+  }
+}
