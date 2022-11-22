@@ -13,6 +13,7 @@
       "cacheHitRateBW": "缓存命中率（通过带宽计算）",
       "bandWidth": "带宽",
       "bandWidthOrigin": "回源带宽",
+      "latencyRatio": "时延大于1秒的比例",
       "downloadSpeed": "下载速度",
       "downloadSpeedOrigin": "回源下载速度",
       "topNUrlReq": "访问量最多的URL",

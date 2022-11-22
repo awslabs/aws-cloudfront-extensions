@@ -68,6 +68,9 @@ const CloudFront: React.FC = () => {
   const [cdnBandWidthOriginData, setCdnBandWidthOriginData] = useState([
     { Time: "", Value: null },
   ]);
+  const [cdnLatencyRatioData, setCdnLatencyRatioData] = useState([
+    { Time: "", Value: null },
+  ]);
   const [cdnDownloadSpeedData, setCdnDownloadSpeedData] = useState([
     { Time: "", Value: {} },
   ]);
@@ -176,6 +179,8 @@ const CloudFront: React.FC = () => {
               setCdnBandWidthData(item.DetailData);
             } else if (item.Metric === "bandwidthOrigin") {
               setCdnBandWidthOriginData(item.DetailData);
+            } else if (item.Metric === "latencyratio") {
+              setCdnLatencyRatioData(item.DetailData);
             } else if (item.Metric === "downloadSpeed") {
               setCdnDownloadSpeedData(item.DetailData);
             } else if (item.Metric === "downloadSpeedOrigin") {
@@ -916,6 +921,56 @@ const CloudFront: React.FC = () => {
                 {
                   name: "Value",
                   data: cdnBandWidthOriginData.map(function (item) {
+                    return item.Value;
+                  }),
+                },
+              ]}
+              type="line"
+              width="90%"
+            />
+          </div>
+          <div className="chart-item">
+            <Chart
+              options={{
+                xaxis: {
+                  categories: cdnLatencyRatioData.map(
+                    (element) => element.Time
+                  ),
+                  labels: {
+                    show: false,
+                  },
+                },
+                title: {
+                  text: t("monitor:cloudFront.chart.latencyRatio"),
+                },
+                chart: {
+                  height: 450,
+                  type: "line",
+                  zoom: {
+                    enabled: false,
+                  },
+                  animations: {
+                    enabled: false,
+                  },
+                  toolbar: {
+                    show: false,
+                    tools: {
+                      download: false,
+                    },
+                  },
+                },
+                dataLabels: {
+                  enabled: false,
+                },
+                stroke: {
+                  width: 2,
+                  curve: "smooth",
+                },
+              }}
+              series={[
+                {
+                  name: "Value",
+                  data: cdnLatencyRatioData.map(function (item) {
                     return item.Value;
                   }),
                 },

@@ -13,6 +13,7 @@ DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 USE_START_TIME = os.environ['USE_START_TIME']
+M_INTERVAL = int(os.environ['INTERVAL'])
 Interval_Minutes = 24 * 60
 
 log = logging.getLogger()
@@ -43,7 +44,7 @@ def lambda_handler(event, context):
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
                                             GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT,
-                                            interval_minutes=Interval_Minutes, use_start=USE_START_TIME)
+                                            M_INTERVAL, use_start=USE_START_TIME)
         for queryItem in gen_data['Detail']:
             log.info(json.dumps(queryItem))
             log.info(queryItem['QueryId'])

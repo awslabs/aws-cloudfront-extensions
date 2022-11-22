@@ -18,7 +18,6 @@ region = os.environ['AWS_REGION']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 EXT_META_DATA_URL = os.environ['EXT_META_DATA_URL']
 
-sar_client = boto3.client('serverlessrepo')
 cfn_client = boto3.client('cloudformation', region_name=region)
 cloudfront_client = boto3.client('cloudfront')
 dynamodb_client = boto3.resource('dynamodb', region_name=region)
@@ -28,8 +27,8 @@ logger = Logger(service="Console")
 app = AppSyncResolver()
 
 
-@app.resolver(type_name="Mutation", field_name="deployExtension")
-def deploy_ext(name, parameters):
+
+def deploy_ext_impl(cfn_client, name, parameters):
     logger.info(f"Deploy extension: {name}")
     query_item = query_ddb(name)
     template_url = query_item['templateUri']
@@ -60,14 +59,20 @@ def deploy_ext(name, parameters):
     return stack_id
 
 
+@app.resolver(type_name="Mutation", field_name="deployExtension")
+def deploy_ext(name, parameters):
+    return deploy_ext_impl(cfn_client, name, parameters)
+
+
 @app.resolver(type_name="Mutation", field_name="syncExtensions")
 def sync_extensions():
     '''Get the latest extensions to local Dynamodb table'''
     return sync_ext(EXT_META_DATA_URL, DDB_TABLE_NAME)
 
+
 @app.resolver(type_name="Mutation", field_name="updateDomains")
 def update_domains(stack_name, domains):
-    
+
     domain_list = ','.join(domains)
     lambda_client = boto3.client('lambda')
     functions_list = lambda_client.list_functions()['Functions']
@@ -78,15 +83,16 @@ def update_domains(stack_name, domains):
             )
             if domain_list == '*':
                 return conf['Environment']['Variables']['DOMAIN_LIST']
-            
+
             conf['Environment']['Variables']['DOMAIN_LIST'] = domain_list
             lambda_client.update_function_configuration(
-                    FunctionName=fcn['FunctionName'],
-                    Environment={
-                        'Variables': conf['Environment']['Variables']
-                    }
-                )
+                FunctionName=fcn['FunctionName'],
+                Environment={
+                    'Variables': conf['Environment']['Variables']
+                }
+            )
     return domain_list
+
 
 @app.resolver(type_name="Query", field_name="queryByName")
 def query_ddb(name):
@@ -165,9 +171,7 @@ def list_cf_dist_with_id(maxItems=-1, marker=''):
     }
 
 
-@app.resolver(type_name="Query", field_name="behaviorById")
-def get_behavior_by_id(id):
-    '''Get CloudFront behavior config'''
+def get_behavior_by_id_impl(id, cloudfront_client):
     response = cloudfront_client.get_distribution_config(Id=id)
 
     result = []
@@ -181,22 +185,31 @@ def get_behavior_by_id(id):
     return result
 
 
-@app.resolver(type_name="Query", field_name="checkSyncStatus")
-def check_sync_status():
-    '''Check whether it is need to sync extensions'''
-    date_array = {}
+@app.resolver(type_name="Query", field_name="behaviorById")
+def get_behavior_by_id(id):
+    '''Get CloudFront behavior config'''
+    return get_behavior_by_id_impl(id, cloudfront_client)
 
+
+def ext_metadata(source_url):
     with requests.Session() as s:
-        meta_req = s.get(EXT_META_DATA_URL)
+        meta_req = s.get(source_url)
         meta_content = meta_req.content.decode('utf-8-sig')
         cr = csv.reader(meta_content.splitlines(), delimiter=',')
 
-        for row in cr:
-            date_array[row[0]] = row[6]
+        return cr
+
+
+def check_sync_status_impl(source_url):
+    date_array = {}
+    cr = ext_metadata(source_url)
+
+    for row in cr:
+        date_array[row[0]] = row[6]
 
     if len(date_array) == 0:
         raise Exception(
-            'No extension is found from origin, please contact solution builder to get support')
+            'No extension is found from origin, please contact solutions builder to get support')
 
     scan_kwargs = {
         'ProjectionExpression': '#name, updateDate',
@@ -221,6 +234,12 @@ def check_sync_status():
             return 'true'
 
     return 'false'
+
+
+@app.resolver(type_name="Query", field_name="checkSyncStatus")
+def check_sync_status():
+    '''Check whether it is need to sync extensions'''
+    return check_sync_status_impl(EXT_META_DATA_URL)
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)

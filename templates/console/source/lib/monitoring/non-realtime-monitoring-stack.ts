@@ -26,6 +26,7 @@ import * as path from 'path';
 export interface MonitoringProps extends cdk.NestedStackProps {
   nonRealTimeMonitoring: string,
   domainList: string,
+  monitoringInterval: string,
   logKeepingDays: number,
   deleteLogNonRealtime: string,
   useStartTimeNonRealtime: string
@@ -42,27 +43,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     this.monitroingUrl = '';
     this.secretValue = '';
     this.templateOptions.description = "(SO8150) - Cloudfront Non-Realtime monitoring stack";
-
-    // const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
-    //   description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
-    //   type: 'String',
-    //   default: '',
-    // });
-    // const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
-    //   description: 'Max number of days to keep cloudfront realtime logs in S3',
-    //   type: 'Number',
-    //   default: 120,
-    // });
-    // const DeleteLog = new CfnParameter(this, 'DeleteLog', {
-    //   description: 'Delete original CloudFront standard logs in S3 bucket (true or false)',
-    //   type: 'String',
-    //   default: 'false',
-    // });
-    // const UseStartTime = new CfnParameter(this, 'UseStartTime', {
-    //   description: 'Set it to true if the Time in metric data is based on start time, set it to false if the Time in metric data is based on end time',
-    //   type: 'String',
-    //   default: 'false',
-    // });
 
     const glueTableName = "cloudfront_standard_log";
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
@@ -393,6 +373,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -414,6 +395,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -435,6 +417,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -456,6 +439,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -477,6 +461,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -498,6 +483,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -519,6 +505,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -540,6 +527,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -561,6 +549,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -582,6 +571,30 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        USE_START_TIME: props.useStartTimeNonRealtime,
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorLatencyRatio = new lambda.Function(this, 'metricsCollectorLatencyRatio', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_latency_ratio.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_latency_ratio')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTableName,
+        S3_BUCKET: cfLogBucket.bucketName,
+        ACCOUNT_ID: this.account,
+        DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        LATENCY_LIMIT: '1',
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -603,6 +616,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region,
         USE_START_TIME: props.useStartTimeNonRealtime,
       },
@@ -624,6 +638,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cfLogBucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -681,6 +696,11 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     metricsCollectorChrRequest.node.addDependency(glueTable);
     metricsCollectorChrRequest.node.addDependency(cfGlueTable);
     metricsCollectorChrRequest.node.addDependency(cfLogBucket);
+    metricsCollectorLatencyRatio.node.addDependency(cloudfrontMetricsTable);
+    metricsCollectorLatencyRatio.node.addDependency(glueDatabase);
+    metricsCollectorLatencyRatio.node.addDependency(glueTable);
+    metricsCollectorLatencyRatio.node.addDependency(cfGlueTable);
+    metricsCollectorLatencyRatio.node.addDependency(cfLogBucket);
     metricsCollectorStatusCodeCDN.node.addDependency(cloudfrontMetricsTable);
     metricsCollectorStatusCodeCDN.node.addDependency(glueDatabase);
     metricsCollectorStatusCodeCDN.node.addDependency(glueTable);
@@ -782,7 +802,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     this.monitroingUrl = `https://${metricApi.restApiId}.execute-api.${this.region}.amazonaws.com/${metricApi.deploymentStage.stageName}`;
 
     const cloudfront5MinutesRuleFirst = new Rule(this, 'CFStandardLogs_5_minutes_rule_1', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
 
     const lambdaMetricsCollectorBandwidthCdn = new LambdaFunction(metricsCollectorBandwidthCdn);
@@ -798,17 +818,19 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownstreamTraffic);
 
     const cloudfront5MinutesRuleSecond = new Rule(this, 'CFStandardLogs_5_minutes_rule_2', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorStatusCodeCDN = new LambdaFunction(metricsCollectorStatusCodeCDN);
     const lambdaMetricsCollectorStatusCodeOrigin = new LambdaFunction(metricsCollectorStatusCodeOrigin);
     const lambdaMetricsCollectorRequestCDN = new LambdaFunction(metricsCollectorRequestCDN);
     const lambdaMetricsCollectorRequestOrigin = new LambdaFunction(metricsCollectorRequestOrigin);
+    const lambdaMetricsCollectorLatencyRatio = new LambdaFunction(metricsCollectorLatencyRatio);
 
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorStatusCodeCDN);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorStatusCodeOrigin);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestCDN);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestOrigin);
+    cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorLatencyRatio);
 
     const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),

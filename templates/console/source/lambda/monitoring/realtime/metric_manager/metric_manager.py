@@ -8,12 +8,12 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 athena_client = boto3.client('athena')
-
-INTERVAL = 5
+M_INTERVAL = int(os.environ['INTERVAL'])
 METRIC_DICT = [
     "request", "requestOrigin", "statusCode", "statusCodeOrigin", "chr",
     "chrBandWidth", "bandwidth", "bandwidthOrigin", "downloadSpeed",
-    "downloadSpeedOrigin", "topNUrlRequests", "topNUrlSize", "downstreamTraffic"
+    "downloadSpeedOrigin", "topNUrlRequests", "topNUrlSize", "downstreamTraffic",
+    "latencyratio"
 ]
 
 log = logging.getLogger()
@@ -119,7 +119,7 @@ def lambda_handler(event, context):
         resp_body_response['Data'] = resp_body_data
         log.info('[lambda_handler] RequestId: ' + context.aws_request_id)
         resp_body_response['RequestId'] = context.aws_request_id
-        resp_body_response['Interval'] = str(INTERVAL) + "min"
+        resp_body_response['Interval'] = str(M_INTERVAL) + "min"
 
         resp_body['Response'] = resp_body_response
         response['body'] = json.dumps(resp_body, cls=DecimalEncoder)

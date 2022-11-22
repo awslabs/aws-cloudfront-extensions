@@ -12,7 +12,6 @@ log.setLevel('INFO')
 
 SLEEP_TIME = 1
 RETRY_COUNT = 60
-INTERVAL = 5
 
 
 def get_domain_list():
@@ -120,11 +119,11 @@ def assemble_query(start_time, end_time, query_string):
 
 
 def schedule_athena_query(metric, start_time, end_time, athena_client,
-                          db_name, table_name, query_output):
+                          db_name, table_name, query_output, m_interval, latency_limit):
     log.info('[schedule_athena_query] Start')
 
     query_string = construct_query_string(
-        db_name, start_time, end_time, metric, table_name)
+        db_name, start_time, end_time, metric, table_name, m_interval, latency_limit)
 
     log.info("[schedule_athena_query] Query string: " + query_string)
 
@@ -144,7 +143,7 @@ def schedule_athena_query(metric, start_time, end_time, athena_client,
     return response
 
 
-def construct_query_string(db_name, start_time, end_time, metric, table_name):
+def construct_query_string(db_name, start_time, end_time, metric, table_name, m_interval, latency_limit):
     # Dynamically build query string using partition
     if metric == 'request':
         query_string = 'SELECT count(timestamp), "cs-host" FROM "' + \
@@ -185,14 +184,14 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'bandwidth':
-        query_string = f'SELECT sum("sc-bytes")/(60*{INTERVAL})*8, "cs-host" FROM "' + \
+        query_string = f'SELECT sum("sc-bytes")/(60*{m_interval})*8, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND timestamp <= ' + str(
             format_date_time(end_time)) + ' AND timestamp > ' + str(
             format_date_time(start_time)) + ' group by "cs-host";'
     elif metric == 'bandwidthOrigin':
-        query_string = f'SELECT sum("sc-bytes")/(60*{INTERVAL})*8, "cs-host" FROM "' + \
+        query_string = f'SELECT sum("sc-bytes")/(60*{m_interval})*8, "cs-host" FROM "' + \
             db_name + '"."' + table_name + '" WHERE '
         query_string = assemble_query(start_time, end_time, query_string)
         query_string += ' AND timestamp <= ' + str(
@@ -239,6 +238,13 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
             format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
         ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=100 order by "cs-host", "sc_size" desc'
+    elif metric == 'latencyratio':
+        query_string = f'SELECT cast((sum(case when "time-taken" >= {latency_limit} then 1 else 0 end) * 100.0 / count(*)) ' \
+                       f'as decimal(38,2)) as ratio, "cs-host" FROM "{db_name}"."{table_name}" WHERE '
+        query_string = assemble_query(start_time, end_time, query_string)
+        query_string += ' AND timestamp <= ' + str(
+            format_date_time(end_time)) + ' AND timestamp > ' + str(
+            format_date_time(start_time)) + ' group by "cs-host";'
     else:
         raise Exception('[schedule_athena_query] Invalid metric ' + metric)
     
@@ -248,7 +254,7 @@ def construct_query_string(db_name, start_time, end_time, metric, table_name):
 
 
 def gen_detailed_by_interval(metric, start_time, end_time,
-                             athena_client, db_name, table_name, query_output, interval_minutes=5, use_start='false'):
+                             athena_client, db_name, table_name, query_output, m_interval, latency_limit=1, use_start='false'):
     '''Generate detailed data according to start time, end time and interval'''
     interval_list = []
     start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
@@ -261,19 +267,19 @@ def gen_detailed_by_interval(metric, start_time, end_time,
         log.info("[gen_detailed_by_interval] Setup interval list")
         interval_item = {}
         interval_item['start'] = temp_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        temp_datetime += timedelta(minutes=interval_minutes)
+        temp_datetime += timedelta(minutes=m_interval)
         if not temp_datetime < end_datetime:
             interval_item['end'] = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
             athena_query_result = schedule_athena_query(
                 metric, interval_item['start'], interval_item['end'],
-                athena_client, db_name, table_name, query_output)
+                athena_client, db_name, table_name, query_output, m_interval, latency_limit)
             interval_item['QueryId'] = athena_query_result['QueryExecutionId']
             interval_list.append(interval_item)
             break
         interval_item['end'] = temp_datetime.strftime("%Y-%m-%d %H:%M:%S")
         athena_query_result_5m = schedule_athena_query(
             metric, interval_item['start'], interval_item['end'],
-            athena_client, db_name, table_name, query_output)
+            athena_client, db_name, table_name, query_output, m_interval, latency_limit)
         interval_item['QueryId'] = athena_query_result_5m['QueryExecutionId']
         interval_list.append(interval_item)
 

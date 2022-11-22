@@ -13,6 +13,8 @@ DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 M_INTERVAL = int(os.environ['INTERVAL'])
+LATENCY_LIMIT = float(os.environ['LATENCY_LIMIT'])
+USE_START_TIME = os.environ['USE_START_TIME']
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -28,57 +30,63 @@ def lambda_handler(event, context):
             "Content-Type": "application/json"
         }
     }
+
     event_time = event["time"]
     event_datetime = datetime.strptime(
-        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=5)
+        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=60)
     start_datetime = event_datetime - timedelta(minutes=M_INTERVAL)
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    # domain_list = get_domain_list()
-    metric = "statusCode"
+    domain_list = get_domain_list()
+    metric = "latencyratio"
+
 
     try:
         gen_data = {}
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
-                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL)
+                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, latency_limit=LATENCY_LIMIT, use_start=USE_START_TIME)
 
         for queryItem in gen_data['Detail']:
             log.info(json.dumps(queryItem))
             log.info(queryItem['QueryId'])
             item_query_result = get_athena_query_result(
                 athena_client, queryItem['QueryId'])
-
-            status_code_dict = {}
-            result_rows = item_query_result['ResultSet']['Rows']
-            for i in range(1, len(result_rows)):
-                if result_rows[i]['Data'][0].get(
+            
+            temp_list = domain_list
+            for i in range(1, len(item_query_result['ResultSet']['Rows'])):
+                if item_query_result['ResultSet']['Rows'][i]['Data'][0].get(
                         'VarCharValue') != None:
-                    status_code_row = {}
-                    status_code_row['StatusCode'] = result_rows[i]['Data'][0]['VarCharValue']
-                    status_code_row['Count'] = result_rows[i]['Data'][1]['VarCharValue']
-                    domain = result_rows[i]['Data'][2]['VarCharValue']
+                    item_query_value = item_query_result['ResultSet']['Rows'][i][
+                        'Data'][0]['VarCharValue']
+                    domain = item_query_result['ResultSet']['Rows'][i][
+                        'Data'][1]['VarCharValue']
 
-                    if domain in status_code_dict.keys():
-                        status_code_dict[domain].append(status_code_row)
-                    else:
-                        item_query_value = []
-                        item_query_value.append(status_code_row)
-                        status_code_dict[domain] = item_query_value
-
-            # Skip if no value
-            if len(status_code_dict) != 0:
-                for status_code_key in status_code_dict.keys():
                     table_item = {
-                        'metricId': metric + '-' + status_code_key,
+                        'metricId': metric + '-' + domain,
                         'timestamp': int(queryItem['Time']),
-                        'metricData': status_code_dict[status_code_key]
+                        'metricData': item_query_value
                     }
                     table = dynamodb.Table(DDB_TABLE_NAME)
                     ddb_response = table.put_item(Item=table_item)
                     log.info(json.dumps(table_item))
                     log.info(str(ddb_response))
+
+                    temp_list.remove(domain)
+            
+            for domain_item in temp_list:
+                item_query_value = 0
+                table_item = {
+                    'metricId': metric + '-' + domain_item,
+                    'timestamp': int(queryItem['Time']),
+                    'metricData': item_query_value
+                }
+                table = dynamodb.Table(DDB_TABLE_NAME)
+                ddb_response = table.put_item(Item=table_item)
+                log.info(json.dumps(table_item))
+                log.info(str(ddb_response))
+
 
     except Exception as error:
         log.error(str(error))

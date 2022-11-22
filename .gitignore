@@ -3,6 +3,9 @@
 *.d.ts
 node_modules
 
+# SonarQube
+**/.scannerwork/*
+
 # CDK asset staging directory
 .cdk.staging
 cdk.out
@@ -18,8 +21,13 @@ cdk.out
 *.so
 *.dylib
 
-# Test binary, build with `go test -c`
+# Unit test / coverage reports
 *.test
+**/tests
+.coverage
+.cache
+nosetests.xml
+*.coverage.xml
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
@@ -36,6 +44,11 @@ cdk.out
 src/bee/dist
 **/tmp
 /out-tsc
+**/lib/lambda-assets
+**/lambda/**/lambda-assets
+**/lambda/**/package
+__pycache__/
+
 # Only exists if Bazel was run
 **/bazel-out
 

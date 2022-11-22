@@ -13,6 +13,7 @@
       "cacheHitRateBW": "Cache Hit Rate BandWidth",
       "bandWidth": "BandWidth",
       "bandWidthOrigin": "BandWidth Origin",
+      "latencyRatio": "Latency Larger Than 1s Ratio",
       "downloadSpeed": "Download Speed",
       "downloadSpeedOrigin": "Download Speed Origin",
       "topNUrlReq": "Top N Url Requests",

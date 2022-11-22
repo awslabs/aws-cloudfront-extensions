@@ -38,18 +38,6 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     this.secretValue = '';
     this.templateOptions.description = "(SO8150) - Cloudfront Realime monitoring stack";
 
-    // const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
-    //   description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
-    //   type: 'String',
-    //   default: '',
-    // })
-
-    // const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
-    //   description: 'Max number of days to keep cloudfront realtime logs in S3',
-    //   type: 'Number',
-    //   default: 120,
-    // })
-
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
@@ -547,6 +535,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -567,6 +556,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -587,6 +577,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -607,6 +598,29 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsCollectorLatencyRatio = new lambda.Function(this, 'metricsCollectorLatencyRatio', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_latency_ratio.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_latency_ratio')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        LATENCY_LIMIT: '1',
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -627,6 +641,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -647,6 +662,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -667,6 +683,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -687,6 +704,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -707,6 +725,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -727,6 +746,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -747,6 +767,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -767,6 +788,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -787,6 +809,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -807,6 +830,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
         REGION_NAME: this.region
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
@@ -848,6 +872,12 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     metricsCollectorChrRequest.node.addDependency(glueTable);
     metricsCollectorChrRequest.node.addDependency(glueTableCFN);
     metricsCollectorChrRequest.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    metricsCollectorLatencyRatio.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorLatencyRatio.node.addDependency(glueDatabase);
+    metricsCollectorLatencyRatio.node.addDependency(glueTable);
+    metricsCollectorLatencyRatio.node.addDependency(glueTableCFN);
+    metricsCollectorLatencyRatio.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
     metricsCollectorDownloadSpeedOrigin.node.addDependency(glueDatabase);
@@ -1091,7 +1121,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(cloudfrontRealtimeLogTransformer)
 
     const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudfrontLogs_5_minutes_rule_first', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
 
     const lambdaMetricsCollectorBandwidthCdn = new LambdaFunction(metricsCollectorBandwidthCdn);
@@ -1107,7 +1137,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthCdn);
 
     const cloudfront5MinutesRuleSecond = new Rule(this, 'CloudfrontLogs_5_minutes_rule_second', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorStatusCodeCDN = new LambdaFunction(metricsCollectorStatusCodeCDN);
     const lambdaMetricsCollectorStatusCodeOrigin = new LambdaFunction(metricsCollectorStatusCodeOrigin);
@@ -1122,15 +1152,17 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorChrRequest);
 
     const cloudfront5MinutesRuleThird = new Rule(this, 'CloudfrontLogs_5_minutes_rule_third', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
     const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
     const lambdaMetricsCollectorDownstreamTraffic = new LambdaFunction(metricsCollectorDownstreamTraffic);
+    const lambdaMetricsCollectorLatencyRatio = new LambdaFunction(metricsCollectorLatencyRatio);
 
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopTraffic);
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopRequest);
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorDownstreamTraffic);
+    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorLatencyRatio);
 
     const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),

@@ -88,6 +88,12 @@ export class ConsoleStack extends cdk.Stack {
       type: "String",
       default: "",
     });
+    const monitoringInterval = new cdk.CfnParameter(this, "MonitoringInterval", {
+      description:
+        "The interval for monitoring metrics in minutes, the default interval is 5 min, eg. it will get the metric data at 09:00, 09:05, 09:10 etc.",
+      type: "String",
+      default: "5",
+    });
     const logKeepingDays = new cdk.CfnParameter(this, "CloudFrontLogKeepDays", {
       description: "Max number of days to keep CloudFront standard logs or realtime logs in S3",
       type: "Number",
@@ -135,6 +141,7 @@ export class ConsoleStack extends cdk.Stack {
             Parameters: [
               monitoringType.logicalId,
               domainList.logicalId,
+              monitoringInterval.logicalId,
               logKeepingDays.logicalId,
               deleteLog.logicalId,
               useStartTime.logicalId,
@@ -165,6 +172,9 @@ export class ConsoleStack extends cdk.Stack {
           },
           [domainList.logicalId]: {
             default: "CloudFront Domain List",
+          },
+          [monitoringInterval.logicalId]: {
+            default: "Monitoring Interval",
           },
           [logKeepingDays.logicalId]: {
             default: "Log Keeping Days",
@@ -285,6 +295,7 @@ export class ConsoleStack extends cdk.Stack {
       {
         nonRealTimeMonitoring: monitoringType.valueAsString,
         domainList: domainList.valueAsString,
+        monitoringInterval: monitoringInterval.valueAsString,
         logKeepingDays: logKeepingDays.valueAsNumber,
         deleteLogNonRealtime: deleteLog.valueAsString,
         useStartTimeNonRealtime: useStartTime.valueAsString,
@@ -298,6 +309,7 @@ export class ConsoleStack extends cdk.Stack {
     const realtimeMonitoring = new RealtimeMonitoringStack(this, "Realtime", {
       nonRealTimeMonitoring: monitoringType.valueAsString,
       domainList: domainList.valueAsString,
+      monitoringInterval: monitoringInterval.valueAsString,
       logKeepingDays: logKeepingDays.valueAsNumber,
       deleteLogNonRealtime: deleteLog.valueAsString,
       useStartTimeNonRealtime: useStartTime.valueAsString,
