@@ -819,7 +819,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     const metricsManager = new lambda.Function(this, 'metricsManager', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'metric_manager.lambda_handler',
-      memorySize: 256,
+      memorySize: 2048,
       timeout: cdk.Duration.seconds(900),
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_manager')),
       role: lambdaRole,
