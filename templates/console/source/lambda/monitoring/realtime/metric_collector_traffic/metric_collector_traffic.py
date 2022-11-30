@@ -72,18 +72,6 @@ def lambda_handler(event, context):
 
                     temp_list.remove(domain)
 
-            for domain_item in temp_list:
-                item_query_value = 0
-                table_item = {
-                    'metricId': metric + '-' + domain_item,
-                    'timestamp': int(queryItem['Time']),
-                    'metricData': item_query_value
-                }
-                table = dynamodb.Table(DDB_TABLE_NAME)
-                ddb_response = table.put_item(Item=table_item)
-                log.info(json.dumps(table_item))
-                log.info(str(ddb_response))
-
     except Exception as error:
         log.error(str(error))
 

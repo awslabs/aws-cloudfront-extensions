@@ -32,7 +32,7 @@ def lambda_handler(event, context):
     }
     event_time = event["time"]
     event_datetime = datetime.strptime(
-        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=5)
+        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=30)
     start_datetime = event_datetime - timedelta(minutes=Interval_Minutes)
 
     start_time = start_datetime.strftime("%Y-%m-%d 00:00:00")
@@ -44,7 +44,7 @@ def lambda_handler(event, context):
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
                                             GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT,
-                                            M_INTERVAL, use_start=USE_START_TIME)
+                                            Interval_Minutes, use_start=USE_START_TIME)
         for queryItem in gen_data['Detail']:
             log.info(json.dumps(queryItem))
             log.info(queryItem['QueryId'])

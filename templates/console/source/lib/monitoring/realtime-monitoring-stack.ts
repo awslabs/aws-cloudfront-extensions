@@ -1015,7 +1015,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       functionName: "cf-real-time-logs-transformer",
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'app.lambda_handler',
-      memorySize: 10240,
+      memorySize: 2048,
       role: lambdaRole,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
       timeout: cdk.Duration.minutes(2)
@@ -1120,7 +1120,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(destinationRole)
     cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(cloudfrontRealtimeLogTransformer)
 
-    const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudfrontLogs_5_minutes_rule_first', {
+    const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudFrontLogs_5_minutes_rule_first', {
       schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
 
@@ -1136,7 +1136,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedOrigin);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthCdn);
 
-    const cloudfront5MinutesRuleSecond = new Rule(this, 'CloudfrontLogs_5_minutes_rule_second', {
+    const cloudfront5MinutesRuleSecond = new Rule(this, 'CloudFrontLogs_5_minutes_rule_second', {
       schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorStatusCodeCDN = new LambdaFunction(metricsCollectorStatusCodeCDN);
@@ -1151,30 +1151,34 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestOrigin);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorChrRequest);
 
-    const cloudfront5MinutesRuleThird = new Rule(this, 'CloudfrontLogs_5_minutes_rule_third', {
+    const cloudfront5MinutesRuleThird = new Rule(this, 'CloudFrontLogs_5_minutes_rule_third', {
       schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
-    const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
-    const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
     const lambdaMetricsCollectorDownstreamTraffic = new LambdaFunction(metricsCollectorDownstreamTraffic);
     const lambdaMetricsCollectorLatencyRatio = new LambdaFunction(metricsCollectorLatencyRatio);
 
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopTraffic);
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopRequest);
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorDownstreamTraffic);
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorLatencyRatio);
 
-    const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
+    const cloudfrontRuleAddPartition = new Rule(this, 'CloudFrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),
     });
     const lambdaAddPartition = new LambdaFunction(addPartition);
     cloudfrontRuleAddPartition.addTarget(lambdaAddPartition);
 
-    const cloudfrontRuleDeletePartition = new Rule(this, 'CloudfrontLogs_delete_partition', {
+    const cloudfrontRuleDeletePartition = new Rule(this, 'CloudFrontLogs_delete_partition', {
       schedule: Schedule.expression("cron(0 5 * * ? *)"),
     });
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
+
+    const cloudfrontRuleTopUrl = new Rule(this, 'CloudFrontRuleTopUrl', {
+      schedule: Schedule.expression("cron(0 1 * * ? *)"),
+    });
+    const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
+    const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
+    cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopTraffic);
+    cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopRequest);
 
     // Custom resource to add partitions once the CloudFormation is completed
     const crLambda = new lambda.Function(this, "AddPartRealTimeCR", {
