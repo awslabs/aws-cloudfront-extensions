@@ -44,7 +44,8 @@ const CloudFront: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectDomain, setSelectDomain] = useState("");
-  const [showProgress, setShowProgress] = useState(false);
+  const [showProgress, setShowProgress] = useState(true);
+  const [progress, setProgress] = React.useState(0);
 
   const [cdnRequestData, setCdnRequestData] = useState([
     { Time: "", Value: null },
@@ -149,56 +150,76 @@ const CloudFront: React.FC = () => {
 
   const getChartData = async () => {
     if (selectDomain) {
-      setShowProgress(true);
-      const timeStamp = new Date().getTime();
-      const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=all&Domain=${selectDomain}&timestamp=${timeStamp}`;
-      try {
-        const response = await fetch(url2, {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "x-api-key": amplifyConfig.aws_monitoring_api_key,
-          },
-        });
-        const data = await response.json();
-        await data.Response.Data[0].CdnData.forEach(
-          (item: { Metric: string; DetailData: [] }) => {
-            if (item.Metric === "request") {
-              setCdnRequestData(item.DetailData);
-            } else if (item.Metric === "requestOrigin") {
-              setCdnRequestOriginData(item.DetailData);
-            } else if (item.Metric === "statusCode") {
-              setCdnStatusCodeData(item.DetailData);
-            } else if (item.Metric === "statusCodeOrigin") {
-              setCdnStatusCodeOriginData(item.DetailData);
-            } else if (item.Metric === "chr") {
-              setCdnChrData(item.DetailData);
-            } else if (item.Metric === "chrBandWidth") {
-              setCdnChrBandWidthData(item.DetailData);
-            } else if (item.Metric === "bandwidth") {
-              setCdnBandWidthData(item.DetailData);
-            } else if (item.Metric === "bandwidthOrigin") {
-              setCdnBandWidthOriginData(item.DetailData);
-            } else if (item.Metric === "latencyratio") {
-              setCdnLatencyRatioData(item.DetailData);
-            } else if (item.Metric === "downloadSpeed") {
-              setCdnDownloadSpeedData(item.DetailData);
-            } else if (item.Metric === "downloadSpeedOrigin") {
-              setCdnDownloadSpeedOriginData(item.DetailData);
-            } else if (item.Metric === "topNUrlRequests") {
-              setCdnTopNUrlRequestsData(item.DetailData);
-            } else if (item.Metric === "topNUrlSize") {
-              setCdnTopNUrlSizeData(item.DetailData);
-            } else if (item.Metric === "downstreamTraffic") {
-              setCdnDownstreamTrafficData(item.DetailData);
+      const metrics = [
+        "request",
+        "requestOrigin",
+        "statusCode",
+        "statusCodeOrigin",
+        "chr",
+        "chrBandWidth",
+        "bandwidth",
+        "bandwidthOrigin",
+        "latencyratio",
+        "downloadSpeed",
+        "downloadSpeedOrigin",
+        "topNUrlRequests",
+        "topNUrlSize",
+        "downstreamTraffic",
+      ];
+      let i = 1;
+      metrics.forEach(async (m) => {
+        setShowProgress(true);
+        setProgress((i / metrics.length) * 100);
+        i = i + 1;
+        const timeStamp = new Date().getTime();
+        const url2 = `${amplifyConfig.aws_monitoring_url}/metric?StartTime=${startDate}&EndTime=${endDate}&Metric=${m}&Domain=${selectDomain}&timestamp=${timeStamp}`;
+        try {
+          const response = await fetch(url2, {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              "x-api-key": amplifyConfig.aws_monitoring_api_key,
+            },
+          });
+          const data = await response.json();
+          await data.Response.Data[0].CdnData.forEach(
+            (item: { Metric: string; DetailData: [] }) => {
+              if (item.Metric === "request") {
+                setCdnRequestData(item.DetailData);
+              } else if (item.Metric === "requestOrigin") {
+                setCdnRequestOriginData(item.DetailData);
+              } else if (item.Metric === "statusCode") {
+                setCdnStatusCodeData(item.DetailData);
+              } else if (item.Metric === "statusCodeOrigin") {
+                setCdnStatusCodeOriginData(item.DetailData);
+              } else if (item.Metric === "chr") {
+                setCdnChrData(item.DetailData);
+              } else if (item.Metric === "chrBandWidth") {
+                setCdnChrBandWidthData(item.DetailData);
+              } else if (item.Metric === "bandwidth") {
+                setCdnBandWidthData(item.DetailData);
+              } else if (item.Metric === "bandwidthOrigin") {
+                setCdnBandWidthOriginData(item.DetailData);
+              } else if (item.Metric === "latencyratio") {
+                setCdnLatencyRatioData(item.DetailData);
+              } else if (item.Metric === "downloadSpeed") {
+                setCdnDownloadSpeedData(item.DetailData);
+              } else if (item.Metric === "downloadSpeedOrigin") {
+                setCdnDownloadSpeedOriginData(item.DetailData);
+              } else if (item.Metric === "topNUrlRequests") {
+                setCdnTopNUrlRequestsData(item.DetailData);
+              } else if (item.Metric === "topNUrlSize") {
+                setCdnTopNUrlSizeData(item.DetailData);
+              } else if (item.Metric === "downstreamTraffic") {
+                setCdnDownstreamTrafficData(item.DetailData);
+              }
             }
-          }
-        );
+          );
+        } catch (error) {
+          console.error(error);
+        }
         setShowProgress(false);
-      } catch (error) {
-        console.error(error);
-        setShowProgress(false);
-      }
+      });
     }
   };
 
@@ -472,7 +493,9 @@ const CloudFront: React.FC = () => {
       {amplifyConfig.aws_monitoring_url === "" && (
         <Alert type={AlertType.Error} content={t("monitor:cloudfront.alert")} />
       )}
-      {showProgress && <LinearProgress />}
+      {showProgress && (
+        <LinearProgress variant="determinate" value={progress} />
+      )}
       <HeaderPanel
         title={t("monitor:cloudFront.monitoring")}
         action={
