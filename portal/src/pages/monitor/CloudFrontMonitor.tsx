@@ -48,6 +48,7 @@ const CloudFrontMonitor: React.FC = () => {
   );
   const [selectDomain, setSelectDomain] = useState("");
   const [loadingDomain, setLoadingDomain] = useState(true);
+  const [doRefresh, setDoRefresh] = useState(0);
 
   const amplifyConfig: AmplifyConfigType = useSelector(
     (state: AppStateProps) => state.amplifyConfig
@@ -218,7 +219,7 @@ const CloudFrontMonitor: React.FC = () => {
             <Button
               disabled={amplifyConfig.aws_monitoring_url === ""}
               onClick={() => {
-                // getChartData();
+                setDoRefresh((prev) => prev + 1);
               }}
             >
               <RefreshIcon fontSize="medium" />
@@ -227,6 +228,7 @@ const CloudFrontMonitor: React.FC = () => {
         </FormItem>
         <div className="flex flex-warp">
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.request")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -234,6 +236,7 @@ const CloudFrontMonitor: React.FC = () => {
             metricType="request"
           />
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.requestOrigin")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -242,6 +245,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.statusCode")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -250,6 +254,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.statusCodeOrigin")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -258,6 +263,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.cacheHitRate")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -266,6 +272,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.cacheHitRateBW")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -274,6 +281,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.bandWidth")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -282,6 +290,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.bandWidthOrigin")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -290,6 +299,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.latencyRatio")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -301,6 +311,7 @@ const CloudFrontMonitor: React.FC = () => {
             "RealtimeMonitoringStack" && (
             <>
               <MetricChart
+                doRefresh={doRefresh}
                 title={t("monitor:cloudFront.chart.downloadSpeed")}
                 selectDomain={selectDomain}
                 startDate={startDate}
@@ -308,6 +319,7 @@ const CloudFrontMonitor: React.FC = () => {
                 metricType="downloadSpeed"
               />
               <MetricChart
+                doRefresh={doRefresh}
                 title={t("monitor:cloudFront.chart.downloadSpeedOrigin")}
                 selectDomain={selectDomain}
                 startDate={startDate}
@@ -318,6 +330,7 @@ const CloudFrontMonitor: React.FC = () => {
           )}
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.topNUrlReq")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -326,6 +339,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.topNUrlSize")}
             selectDomain={selectDomain}
             startDate={startDate}
@@ -334,6 +348,7 @@ const CloudFrontMonitor: React.FC = () => {
           />
 
           <MetricChart
+            doRefresh={doRefresh}
             title={t("monitor:cloudFront.chart.downStreamTraffic")}
             selectDomain={selectDomain}
             startDate={startDate}

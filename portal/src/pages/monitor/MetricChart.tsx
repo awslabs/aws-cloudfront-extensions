@@ -6,6 +6,7 @@ import { AppStateProps } from "reducer/appReducer";
 import LoadingText from "components/LoadingText";
 
 interface MetricChartProps {
+  doRefresh: number;
   title: string;
   startDate: string;
   endDate: string;
@@ -14,7 +15,8 @@ interface MetricChartProps {
 }
 
 const MetricChart: React.FC<MetricChartProps> = (props: MetricChartProps) => {
-  const { title, startDate, endDate, metricType, selectDomain } = props;
+  const { doRefresh, title, startDate, endDate, metricType, selectDomain } =
+    props;
   // const { t } = useTranslation();
   const amplifyConfig: AmplifyConfigType = useSelector(
     (state: AppStateProps) => state.amplifyConfig
@@ -322,7 +324,7 @@ const MetricChart: React.FC<MetricChartProps> = (props: MetricChartProps) => {
     if (startDate && endDate && selectDomain && metricType) {
       getMetricsData();
     }
-  }, [startDate, endDate, selectDomain, metricType]);
+  }, [doRefresh, startDate, endDate, selectDomain, metricType]);
 
   return (
     <div className="chart-item">
