@@ -154,8 +154,8 @@ declare interface SslStepFunctionsSegments {
 }
 
 export class StepFunctionRpTsConstruct extends Construct {
-    readonly baseFolder = '../../../../../../python-projects/lambda-python-example';
-    readonly src = `${this.baseFolder}/src/functions`;
+    readonly baseFolder = 'lambda/ssl_for_saas';
+    readonly src = `${this.baseFolder}/functions`;
 
 
     constructor(scope: Construct, id: string, props?: StepFunctionProps) {
@@ -268,29 +268,6 @@ export class StepFunctionRpTsConstruct extends Construct {
             },
         });
 
-
-        // lambda in step function & cron job
-        // const fn_ssl_api_handler = new _lambda.DockerImageFunction(
-        //     this,
-        //     "fn_ssl_api_handler",
-        //     {
-        //         code: _lambda.DockerImageCode.fromImageAsset(
-        //             path.join(__dirname, "../../lambda/ssl-for-saas/ssl_api_handler")
-        //         ),
-        //         environment: {
-        //             STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
-        //             CALLBACK_TABLE: callback_table.tableName,
-        //             JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        //             SNS_TOPIC: sns_topic.topicArn,
-        //             TASK_TYPE: "placeholder",
-        //             STATUS_UPDATE_LAMBDA_FUNCTION: functions.fn_job_status_update.functionName,
-        //         },
-        //         timeout: Duration.seconds(900),
-        //         role: roles._fn_ssl_api_handler_role,
-        //         memorySize: 1024,
-        //     }
-        // );
-
         const fn_ssl_api_handler = new PythonFunction(scope, 'fn_ssl_api_handler', <PythonFunctionProps>{
             entry: `${this.src}/ssl_api_handler`,
             architecture: Architecture.X86_64,
@@ -314,32 +291,6 @@ export class StepFunctionRpTsConstruct extends Construct {
         this.createRestfulApis(fn_ssl_api_handler);
 
         // Lambda function to integrate with AppSync
-        // const fn_appsync_function = new _lambda.DockerImageFunction(
-        //     this,
-        //     "appsync_func",
-        //     {
-        //         code: _lambda.DockerImageCode.fromImageAsset(
-        //             path.join(__dirname, "../../lambda/ssl-for-saas/appsync_func"),
-        //             {
-        //                 buildArgs: {
-        //                     "--platform": "linux/amd64",
-        //                 },
-        //             }
-        //         ),
-        //         environment: {
-        //             STEP_FUNCTION_ARN: stepFunction.stateMachineArn,
-        //             CALLBACK_TABLE: callback_table.tableName,
-        //             JOB_INFO_TABLE: ssl_for_sass_job_info_table.tableName,
-        //             TASK_TYPE: "placeholder",
-        //             SNS_TOPIC: sns_topic.topicArn,
-        //             STATUS_UPDATE_LAMBDA_FUNCTION: functions.fn_job_status_update.functionName,
-        //         },
-        //         timeout: Duration.seconds(900),
-        //         role: roles._fn_appsync_func_role,
-        //         memorySize: 1024,
-        //     }
-        // );
-
         const fn_appsync_function = new PythonFunction(scope, 'appsync_func', <PythonFunctionProps>{
             entry: `${this.src}/appsync_func`,
             architecture: Architecture.X86_64,
@@ -370,10 +321,10 @@ export class StepFunctionRpTsConstruct extends Construct {
         return {
             openSSlLayer: new LayerVersion(this, 'openssl-layer', <LayerVersionProps>{
                 compatibleRuntimes: [Runtime.PYTHON_3_9],
-                code: Code.fromAsset(`${this.baseFolder}/infrastructure/openssl-layer/layer.zip`)
+                code: Code.fromAsset(`${this.baseFolder}/openssl-layer/layer.zip`)
             }),
             sharedPythonLibLayer:  new PythonLayerVersion(this, 'cloudfront-ssl-shared-layer', {
-                entry:  `${this.baseFolder}/src`,
+                entry:  `${this.baseFolder}/`,
                 bundling: {
                     outputPathSuffix: '/python',
                 },
@@ -471,22 +422,6 @@ export class StepFunctionRpTsConstruct extends Construct {
     }
 
     private createAcmCronJob(callbackTable: string, sslForSaasJobInfoTable: string, snsTopic: sns.Topic, cronRole: iam.Role, layers: CommonLambdaLayers) {
-        // background lambda running regularly to scan the acm certification and notify acm_callback_handler when cert been issued
-        // const fn_acm_cron = new _lambda.DockerImageFunction(this, "acm_cron_job", {
-        //     code: _lambda.DockerImageCode.fromImageAsset(
-        //         path.join(__dirname, "../../lambda/ssl-for-saas/acm_cron")
-        //     ),
-        //     environment: {
-        //         PAYLOAD_EVENT_KEY: "placeholder",
-        //         CALLBACK_TABLE: callbackTable,
-        //         JOB_INFO_TABLE: sslForSaasJobInfoTable,
-        //         TASK_TYPE: "placeholder",
-        //         SNS_TOPIC: snsTopic.topicArn,
-        //     },
-        //     timeout: Duration.seconds(900),
-        //     role: cronRole,
-        //     memorySize: 1024,
-        // });
 
         const fn_acm_cron = new PythonFunction(
             this,
@@ -824,26 +759,6 @@ export class StepFunctionRpTsConstruct extends Construct {
     private createAllFunctions(scope: Construct, roles: SslFunctionRolesSummary, sns_topic: sns.Topic,
                                appsync: appsync.GraphqlApi, callbackTable: string, sslFoSaasJobInfoTable: string, configVersionDDBTableName: string, layers: CommonLambdaLayers): SslFunctionsSummary {
         return {
-            // fn_acm_import_cb: new _lambda.DockerImageFunction(
-            //     scope,
-            //     "acm_import_callback",
-            //     {
-            //         code: _lambda.DockerImageCode.fromImageAsset(
-            //             path.join(__dirname, "../../lambda/ssl-for-saas/acm_import_cb")
-            //         ),
-            //         environment: {
-            //             SNS_TOPIC: sns_topic.topicArn,
-            //             CALLBACK_TABLE: callbackTable,
-            //             JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //             TASK_TYPE: "placeholder",
-            //             CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
-            //         },
-            //         timeout: Duration.seconds(900),
-            //         role: roles._fn_acm_import_cb_role,
-            //         memorySize: 1024,
-            //     }
-            // ),
-
             fn_acm_import_cb: new PythonFunction(
                 scope,
                 'acm_import_callback',
@@ -867,23 +782,7 @@ export class StepFunctionRpTsConstruct extends Construct {
                 }
             ),
 
-            // fn_acm_cb: new _lambda.DockerImageFunction(scope, "acm_callback", {
-            //     code: _lambda.DockerImageCode.fromImageAsset(
-            //         path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb")
-            //     ),
-            //     environment: {
-            //         SNS_TOPIC: sns_topic.topicArn,
-            //         CALLBACK_TABLE: callbackTable,
-            //         JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //         TASK_TYPE: "placeholder",
-            //         CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
-            //     },
-            //     timeout: Duration.seconds(900),
-            //     role: roles._fn_acm_cb_role,
-            //     memorySize: 512,
-            // }),
-
-            fn_acm_cb: new PythonFunction(scope, 'acm_callback', <PythonFunctionProps>{
+           fn_acm_cb: new PythonFunction(scope, 'acm_callback', <PythonFunctionProps>{
                 entry: `${this.src}/acm_cb`,
                 architecture: Architecture.X86_64,
                 runtime: Runtime.PYTHON_3_9,
@@ -901,30 +800,6 @@ export class StepFunctionRpTsConstruct extends Construct {
                 },
                 layers: [layers.sharedPythonLibLayer],
             }),
-
-
-            // fn_acm_cb_handler: new _lambda.DockerImageFunction(
-            //     scope,
-            //     "acm_callback_handler",
-            //     {
-            //         code: _lambda.DockerImageCode.fromImageAsset(
-            //             path.join(__dirname, "../../lambda/ssl-for-saas/acm_cb_handler")
-            //         ),
-            //         environment: {
-            //             PAYLOAD_EVENT_KEY: "placeholder",
-            //             CALLBACK_TABLE: callbackTable,
-            //             JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //             TASK_TYPE: "placeholder",
-            //             GRAPHQL_API_URL: appsync.graphqlUrl,
-            //             GRAPHQL_API_KEY: appsync.apiKey || "",
-            //             CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
-            //             SNS_TOPIC: sns_topic.topicArn,
-            //         },
-            //         timeout: Duration.seconds(900),
-            //         role: roles._fn_acm_cb_handler_role,
-            //         memorySize: 1024,
-            //     }
-            // ),
 
             fn_acm_cb_handler: new PythonFunction(scope, 'acm_callback_handler', <PythonFunctionProps>{
                 entry: `${this.src}/acm_cb_handler`,
@@ -948,26 +823,6 @@ export class StepFunctionRpTsConstruct extends Construct {
                 layers: [layers.sharedPythonLibLayer],
             }),
 
-
-            // fn_sns_failure_notify: new _lambda.DockerImageFunction(
-            //     this,
-            //     "sns_failure_notify",
-            //     {
-            //         code: _lambda.DockerImageCode.fromImageAsset(
-            //             path.join(__dirname, "../../lambda/ssl-for-saas/sns_failure_notify")
-            //         ),
-            //         environment: {
-            //             SNS_TOPIC: sns_topic.topicArn,
-            //             CALLBACK_TABLE: callbackTable,
-            //             JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //             TASK_TYPE: "placeholder",
-            //         },
-            //         timeout: Duration.seconds(900),
-            //         role: roles._fn_sns_notify_role,
-            //         memorySize: 1024,
-            //     }
-            // ),
-
             fn_sns_failure_notify: new PythonFunction(scope, 'sns_failure_notify', <PythonFunctionProps>{
                 entry: `${this.src}/sns_failure_notify`,
                 architecture: Architecture.X86_64,
@@ -985,21 +840,6 @@ export class StepFunctionRpTsConstruct extends Construct {
                 },
                 layers: [layers.sharedPythonLibLayer],
             }),
-
-            // fn_sns_notify: new _lambda.DockerImageFunction(this, "sns_notify", {
-            //     code: _lambda.DockerImageCode.fromImageAsset(
-            //         path.join(__dirname, "../../lambda/ssl-for-saas/sns_notify")
-            //     ),
-            //     environment: {
-            //         SNS_TOPIC: sns_topic.topicArn,
-            //         CALLBACK_TABLE: callbackTable,
-            //         JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //         TASK_TYPE: "placeholder",
-            //     },
-            //     timeout: Duration.seconds(900),
-            //     role: roles._fn_sns_notify_role,
-            //     memorySize: 1024,
-            // }),
 
             fn_sns_notify: new PythonFunction(scope, 'sns_notify', <PythonFunctionProps>{
                 entry: `${this.src}/sns_notify`,
@@ -1020,25 +860,6 @@ export class StepFunctionRpTsConstruct extends Construct {
             }),
 
 
-            // fn_failure_handling: new _lambda.DockerImageFunction(
-            //     this,
-            //     "function_to_handle_ssl_for_sass_failure",
-            //     {
-            //         code: _lambda.DockerImageCode.fromImageAsset(
-            //             path.join(__dirname, "../../lambda/ssl-for-saas/failure_handling")
-            //         ),
-            //         environment: {
-            //             SNS_TOPIC: sns_topic.topicArn,
-            //             CALLBACK_TABLE: callbackTable,
-            //             JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //             TASK_TYPE: "placeholder",
-            //         },
-            //         timeout: Duration.seconds(900),
-            //         role: roles._fn_failure_handling_lambda_role,
-            //         memorySize: 1024,
-            //     }
-            // ),
-
             fn_failure_handling: new PythonFunction(scope, 'function_to_handle_ssl_for_sass_failure', <PythonFunctionProps>{
                 entry: `${this.src}/failure_handling`,
                 architecture: Architecture.X86_64,
@@ -1056,22 +877,6 @@ export class StepFunctionRpTsConstruct extends Construct {
                 },
                 layers: [layers.sharedPythonLibLayer,layers.openSSlLayer],
             }),
-
-            // fn_job_status_update: new _lambda.DockerImageFunction(this, "job_status_update", {
-            //     code: _lambda.DockerImageCode.fromImageAsset(
-            //         path.join(__dirname, "../../lambda/ssl-for-saas/job_status_update")
-            //     ),
-            //     environment: {
-            //         PAYLOAD_EVENT_KEY: "placeholder",
-            //         CALLBACK_TABLE: callbackTable,
-            //         JOB_INFO_TABLE: sslFoSaasJobInfoTable,
-            //         TASK_TYPE: "placeholder",
-            //         SNS_TOPIC: sns_topic.topicArn,
-            //     },
-            //     timeout: Duration.seconds(900),
-            //     role: roles._fn_acm_cron_role,
-            //     memorySize: 1024,
-            // })
 
             fn_job_status_update: new PythonFunction(scope, 'job_status_update', <PythonFunctionProps>{
                 entry: `${this.src}/job_status_update`,
