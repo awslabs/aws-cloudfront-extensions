@@ -363,6 +363,21 @@
 
 .chart-item {
   width: 33%;
+  position: relative;
+  .select-domain,
+  .loading-data {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.85);
+    z-index: 1;
+  }
 }
 
 .version-compare {
