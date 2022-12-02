@@ -338,6 +338,7 @@ const MetricChart: React.FC<MetricChartProps> = (props: MetricChartProps) => {
           options={{
             xaxis: {
               categories: chartCategory,
+              type: "datetime",
               labels: {
                 show: false,
               },
