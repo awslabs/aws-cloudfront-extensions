@@ -350,16 +350,24 @@ const MetricChart: React.FC<MetricChartProps> = (props: MetricChartProps) => {
               height: 250,
               type: "line",
               zoom: {
-                enabled: false,
+                enabled: true,
               },
               animations: {
                 enabled: false,
               },
               toolbar: {
-                show: false,
+                show: true,
                 tools: {
+                  pan: false,
+                  reset: false,
                   download: false,
+                  selection: false,
                 },
+              },
+            },
+            tooltip: {
+              x: {
+                format: "HH:mm:ss dd MMM yyyy",
               },
             },
             // tooltip: {
