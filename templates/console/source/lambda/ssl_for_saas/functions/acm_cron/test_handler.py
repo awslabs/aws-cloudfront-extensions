@@ -7,13 +7,13 @@ from layer.common.constants_ import ACM_METADATA_TABLE, CONFIG_VERSION_TABLE, JO
 
 os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 os.environ.setdefault(ACM_METADATA_TABLE,
-                      'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructacmmetadataAE01DAD1-1PSG8OYZCNPE5')
+                      'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructacmmetadataAE01DAD1-1V8Y8Y8EKVW5K')
 os.environ.setdefault(CONFIG_VERSION_TABLE,
                       'CloudFrontExtnConsoleStack-CloudFrontConfigVersionConstructCloudFrontConfigVersionTableF219CCBB-15HF8YDW5AVJ4')
 os.environ.setdefault('GRAPHQL_API_KEY', 'da2-y2k7si5ctzaetppba56r7nb754')
 os.environ.setdefault('GRAPHQL_API_URL', 'https://gtjgvw6jk5fxvklgk7yge7kzqq.appsync-api.us-east-1.amazonaws.com/graphql')
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
-                      'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-R0CQ1O54JK2T')
+                      'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-1JYPAMATXT90U')
 os.environ.setdefault('STEP_FUNCTION_ARN',
                       'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
 os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')

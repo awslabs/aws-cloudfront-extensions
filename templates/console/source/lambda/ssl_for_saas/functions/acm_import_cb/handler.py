@@ -9,7 +9,7 @@ from typing import Any
 
 from types_ import Event
 from layer.acm_service.client import AcmUtilsService
-from layer.acm_service.types_ import ImportCertificateInput, Tag, CertificateMetadata
+from layer.acm_service.types_ import ImportCertificateInput, Tag, CertificateMetadata, NotificationInput
 from layer.cloudfront_service.client import CloudFrontUtilsService
 from layer.common.cert_utils import get_domain_list_from_cert
 from layer.common.file_utils import convert_string_to_file
@@ -28,7 +28,8 @@ job_info_client = JobInfoUtilsService(logger=logger)
 FILE_FOLDER = '/tmp'
 PEM_FILE = FILE_FOLDER + "/cert.pem"
 _GET_FILE = lambda x: open(os.path.join(FILE_FOLDER, x), "rb").read()
-
+# get sns topic arn from environment variable
+sns_topic_arn = os.environ.get('SNS_TOPIC')
 task_type = os.getenv('TASK_TYPE')
 
 
@@ -118,6 +119,18 @@ def handler(event: Event, context: Any) -> Response:
             'certCreateStageStatus': 'SUCCESS',
             'certValidationStageStatus': 'INPROGRESS'
         })
+
+        cloudfront_dist = []
+        for record in event['input']['fn_acm_cb_handler_map']:
+            cloudfront_dist.append(NotificationInput(
+                distributionDomainName=record['fn_cloudfront_bind']['Payload']['body']['distributionDomainName'],
+                distributionArn=record['fn_cloudfront_bind']['Payload']['body']['distributionArn'],
+                aliases=record['fn_cloudfront_bind']['Payload']['body']['aliases'],
+            ))
+        msg = acm_client.get_distribution_msg(cloudfront_distributions=cloudfront_dist)
+        sns_client.publish_by_topic(topic_arn=sns_topic_arn,
+                                    msg=json.dumps(msg, indent=2, default=str),
+                                    subject='SSL for SaaS event received')
         return Response(statusCode=http.HTTPStatus.OK, body=json.dumps('step to acm import callback complete'))
     except Exception as e:
         logger.error("Exception occurred, just update the ddb table")

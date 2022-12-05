@@ -93,23 +93,25 @@ class CloudFrontUtilsService:
         config = DistributionConfig(**content)
         return config
 
-    def construct_cloudfront_config_with_version(self, certificate_arn: str, distribution_id: str,
-                                                 distribution_version: str, sub_domain_name_list: List[str]) \
+    def construct_cloudfront_config_with_version(self, certificate_arn: str = '', distribution_id: str = '',
+                                                 distribution_version: str = '', sub_domain_name_list: List[str] = None) \
             -> DistributionConfig:
         config = self.fetch_cloudfront_config_version(distribution_id, distribution_version)
+        config['CallerReference'] = str(uuid.uuid4())
 
-        return self._construct_cloudfront_config(config, certificate_arn, sub_domain_name_list)
+        return self.construct_cloudfront_config(config, certificate_arn, sub_domain_name_list)
 
-    def construct_cloudfront_config_with_dist_id(self, certificate_arn: str, distribution_id: str,
-                                                 sub_domain_name_list: List[str]) -> DistributionConfig:
+    def construct_cloudfront_config_with_dist_id(self, certificate_arn: str = '', distribution_id: str = '',
+                                                 sub_domain_name_list: List[str] = None) -> DistributionConfig:
         config = self.get_distribution_config_by_distribution_id(distribution_id)
-        return self._construct_cloudfront_config(config, certificate_arn, sub_domain_name_list)
+        config['CallerReference'] = str(uuid.uuid4())
+        return self.construct_cloudfront_config(config, certificate_arn, sub_domain_name_list)
 
-    def _construct_cloudfront_config(self, template: DistributionConfig, certificate_arn: str,
-                                     sub_domain_list: List[str]) -> DistributionConfig:
-        template['CallerReference'] = str(uuid.uuid4())
-        template['Aliases']['Items'] = sub_domain_list
-        template['Aliases']['Quantity'] = len(template['Aliases']['Items'])
+    def construct_cloudfront_config(self, template: DistributionConfig, certificate_arn: str,
+                                    sub_domain_list: List[str]) -> DistributionConfig:
+        if sub_domain_list is not None and len(sub_domain_list) > 0:
+            template['Aliases']['Items'] = sub_domain_list
+            template['Aliases']['Quantity'] = len(template['Aliases']['Items'])
         # config['DefaultRootObject'] = default_root_object
         # support single origin for now, will support multiple origin in future TBD
         # config['Origins']['Items'] = [
@@ -131,10 +133,11 @@ class CloudFrontUtilsService:
         #     }]
         # config['DefaultCacheBehavior']['TargetOriginId'] = default_cache_behavior_target_origin_id
         # config['DefaultCacheBehavior']['CachePolicyId'] = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-        template['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
-        template['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
-        template['ViewerCertificate']['MinimumProtocolVersion'] = 'TLSv1.2_2021'
-        template['ViewerCertificate']['SSLSupportMethod'] = 'sni-only'
+        if certificate_arn is not None and certificate_arn != '':
+            template['ViewerCertificate'].pop('CloudFrontDefaultCertificate')
+            template['ViewerCertificate']['ACMCertificateArn'] = certificate_arn
+            template['ViewerCertificate']['MinimumProtocolVersion'] = 'TLSv1.2_2021'
+            template['ViewerCertificate']['SSLSupportMethod'] = 'sni-only'
         # disable the logging for new cloudfront distribution
         template['Logging']['Enabled'] = False
         template['Logging']['IncludeCookies'] = False
@@ -148,11 +151,23 @@ class CloudFrontUtilsService:
         self.logger.info('Creating distribution with config: %s', json.dumps(config, default=str))
         resp = self.client.create_distribution_with_tags(
             DistributionConfigWithTags=config
-
         )
         self.logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s, with tags %s',
                          resp['Distribution']['Id'],
                          resp['Distribution']['ARN'], resp['Distribution']['DomainName'],
                          str(json.dumps(config['Tags'], default=str)))
+        named_ = CreateDistributionWithTagsOutput(**resp)
+        return named_['Distribution']
+
+    def update_distribution(self, config: DistributionConfig, cloudfront_id: str, etag: str) -> Distribution:
+        self.logger.info('Creating distribution with config: %s', json.dumps(config, default=str))
+        resp = self.client.update_distribution(
+            DistributionConfig=config,
+            Id=cloudfront_id,
+            IfMatch=etag
+        )
+        self.logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s',
+                         resp['Distribution']['Id'],
+                         resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
         named_ = CreateDistributionWithTagsOutput(**resp)
         return named_['Distribution']

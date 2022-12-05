@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Any
 
+from layer.acm_service.client import AcmUtilsService
 from layer.common.response import Response
 from layer.job_service.client import JobInfoUtilsService
 from layer.sns_service.client import SnsUtilsService
@@ -14,6 +15,7 @@ logger.setLevel(logging.INFO)
 sns_topic_arn = os.environ.get('SNS_TOPIC')
 sns_client = SnsUtilsService(logger=logger)
 job_info_client = JobInfoUtilsService(logger=logger)
+acm_client = AcmUtilsService(logger=logger)
 
 
 def handler(event: Any, context: Any) -> Response:
@@ -30,34 +32,5 @@ def handler(event: Any, context: Any) -> Response:
         })
     else:
         logger.error('No job info found for job token: ' + job_token)
-
-    msg = []
-    # iterate distribution list from event
-    for record in event['input']['fn_acm_cb_handler_map']:
-        msg.append("Distribution domain name {} created, ARN: {}, aliases: {}"
-                   .format(record['fn_acm_cb_handler']['Payload']['body']['distributionDomainName'],
-                           record['fn_acm_cb_handler']['Payload']['body']['distributionArn'],
-                           record['fn_acm_cb_handler']['Payload']['body']['aliases']
-                           )
-                   )
-
-    logger.info("deliver message: %s to sns topic arn: %s", str(msg), sns_topic_arn)
-    # multiplex same sns notify function for cert creat and import
-    status = ''
-    if 'fn_acm_cb' in event['input']:
-        status = event['input']['fn_acm_cb']['status']
-    elif 'fn_acm_import_cb' in event['input']:
-        status = event['input']['fn_acm_import_cb']['status']
-
-    message_to_be_published = {
-        'Deployment Status': status,
-        'Details': str(msg),
-    }
-
-    sns_client.publish_by_topic(
-        topic_arn=sns_topic_arn,
-        msg=str(message_to_be_published),
-        subject='SSL for SaaS event received'
-    )
 
     return Response(statusCode=http.HTTPStatus.OK, body=json.dumps('SNS Notification Sent'))

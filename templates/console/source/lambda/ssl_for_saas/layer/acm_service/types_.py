@@ -1,5 +1,5 @@
 import datetime
-from typing import List, TypedDict, NamedTuple
+from typing import List, TypedDict, NamedTuple, Any
 
 from layer.common.types_ import ResponseMetadata
 
@@ -498,3 +498,9 @@ class ImportCertificateOutput(TypedDict):
 
     # Metadata pertaining to the operation's result.
     ResponseMetadata: ResponseMetadata
+
+
+class NotificationInput(TypedDict):
+    distributionDomainName: str
+    distributionArn: str
+    aliases: Any

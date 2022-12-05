@@ -344,6 +344,7 @@ class AcmUtilsService:
         cert_status = 'notIssued'
 
         # iterate all certificates
+        certificates.reverse()
         for certificate in certificates:
             # select certificates with tag 'token_id'
             tags = self.list_certificate_tags_by_arn(certificate['CertificateArn'])
@@ -410,6 +411,12 @@ class AcmUtilsService:
             'taskToken': task_token,
             'domainName': domain_name
         }, field_name='taskStatus', value=task_status)
+
+    def update_acm_metadata_task_token_by_job_id(self, job_id: str, task_token: str):
+        self.logger.info(f'update task jobid {job_id} task_token to {task_token}')
+        self.ddb_util.update_item(table=self.acm_metadata_table, key={
+            'jobToken': job_id
+        }, field_name='taskToken', value=task_token)
 
     # query job_id specific taskToken
     def query_certificate_job_id(self, task_token: str) -> str:
@@ -483,6 +490,46 @@ class AcmUtilsService:
 
         named_ = ImportCertificateOutput(**resp)
         return named_['CertificateArn']
+
+    def get_notification_content(self, job_token: str, cloudfront_distributions: List[NotificationInput],
+                                 dcv_msg: List[ResourceRecord]) -> str:
+        # self.logger.info("Received event: " + json.dumps(event))
+        # Update the job info table to mark the cloudfront distribution creation succeed
+        # response = self.job_util.get_job_info_by_id(job_token)
+        # if response is not None:
+        #     self.job_util.update_job_fields_by_dict(job_token, {
+        #         'cloudfront_distribution_created_number': response['cloudfront_distribution_total_number'],
+        #         'cert_total_number': response['cert_total_number'],
+        #         'distStageStatus': 'SUCCESS',
+        #     })
+        # else:
+        #     self.logger.error('No job info found for job token: ' + job_token)
+
+        msg = self.get_distribution_msg(cloudfront_distributions=cloudfront_distributions)
+        message_to_be_published = {
+            'CloudFront Details': msg,
+            'Acm Certificate Dcv': dcv_msg
+        }
+
+        return json.dumps(message_to_be_published, indent=3, default=str)
+
+        # self.sns_client.publish_by_topic(
+        #     topic_arn=topic_arn,
+        #     msg=json.dumps(message_to_be_published, indent=3, default=str),
+        #     subject='SSL for SaaS event received'
+        # )
+
+    def get_distribution_msg(self, cloudfront_distributions: List[NotificationInput]) -> List[str]:
+        msg = []
+        # iterate distribution list from event
+        for record in cloudfront_distributions:
+            msg.append("Distribution domain name {} created, ARN: {}, aliases: {}"
+                       .format(record['distributionDomainName'],
+                               record['distributionArn'],
+                               record['aliases']
+                               )
+                       )
+        return msg
 
     def close(self):
         self.client.close()

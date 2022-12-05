@@ -93,6 +93,9 @@ declare interface SslFunctionsSummary {
 
     // lambda function to be called by appsyync function and api handler to update the job validation task status
     fn_job_status_update: _lambda.IFunction,
+
+    // bind acm cert to cloudfront
+    fn_cloudfront_bind: _lambda.IFunction
 }
 
 declare interface SslStepFunctionsSegments {
@@ -147,10 +150,8 @@ declare interface SslStepFunctionsSegments {
     //   "originsItemsDomainName": "risetron.s3.ap-east-1.amazonaws.com"
     // }
     acm_callback_handler_job: _task.LambdaInvoke,
+    cloudfront_bind_job: _task.LambdaInvoke,
     sns_notify_job: _task.LambdaInvoke,
-
-    wait_10s_for_cert_create: _step.Wait,
-    wait_10s_for_cert_import: _step.Wait,
 }
 
 export class StepFunctionRpTsConstruct extends Construct {
@@ -218,42 +219,57 @@ export class StepFunctionRpTsConstruct extends Construct {
             "ACM Callback Handler Map",
             {
                 maxConcurrency: 5,
+                // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
                 itemsPath: _step.JsonPath.stringAt("$.cnameList"),
                 resultPath: "$.fn_acm_cb_handler_map",
             }
         );
+        // stepFunctionSegments.acm_callback_handler_job.next(stepFunctionSegments.cloudfront_bind_job);
         acm_callback_handler_map.iterator(stepFunctionSegments.acm_callback_handler_job);
         acm_callback_handler_map.addCatch(stepFunctionSegments.failure_handling_job, {
             resultPath: "$.error",
         });
 
+        const bind_handler_map = new _step.Map(
+            this,
+            "Bind ACM cert to cloudfront",
+            {
+                maxConcurrency: 5,
+                // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+                itemsPath: _step.JsonPath.stringAt("$.fn_acm_cb_handler_map"),
+                resultPath: "$.fn_cloudfront_acm_bind_map",
+            }
+        );
+        bind_handler_map.iterator(stepFunctionSegments.cloudfront_bind_job);
+        // bind_handler_map.addCatch(stepFunctionSegments.failure_handling_job, {
+        //     resultPath: "$.error",
+        // });
+        bind_handler_map.next(stepFunctionSegments.sns_notify_job);
         stepFunctionSegments.failure_handling_job.next(stepFunctionSegments.snsFailureNotify);
 
         // entry point for step function with cert create/import process
-        const stepFunctionEntry = new _step.Choice(this, "Initial entry point")
+        const stepFunctionEntry = new _step.Choice(this, "Create and Process Acm Certificate")
             .when(
                 _step.Condition.and(
                     _step.Condition.stringEquals("$.acm_op", "create"),
                     _step.Condition.stringEquals("$.auto_creation", "true")
                 ),
                 stepFunctionSegments.acm_callback_job
-                    .next(stepFunctionSegments.wait_10s_for_cert_create)
-                    .next(acm_callback_handler_map)
-            ).when(
+                    .next(bind_handler_map)
+            )
+            .when(
                 _step.Condition.and(
                     _step.Condition.stringEquals("$.acm_op", "import"),
                     _step.Condition.stringEquals("$.auto_creation", "true")
                 ),
                 stepFunctionSegments.acm_import_callback_job
-                    .next(stepFunctionSegments.wait_10s_for_cert_import)
-                    .next(acm_callback_handler_map)
-                    .next(stepFunctionSegments.sns_notify_job)
+                    .next(bind_handler_map)
             );
 
-
+        acm_callback_handler_map.next(stepFunctionEntry);
 
         const stepFunction = new _step.StateMachine(this, "SSL for SaaS", {
-            definition: stepFunctionEntry,
+            definition: acm_callback_handler_map,
             role: roles._stepFunction_loggin_role,
             stateMachineName: "SSL-for-SaaS-StateMachine",
             stateMachineType: _step.StateMachineType.STANDARD,
@@ -737,6 +753,7 @@ export class StepFunctionRpTsConstruct extends Construct {
                     ddb_rw_policy,
                     sns_update_policy(sns_topic.topicArn),
                     kms_policy,
+                    acm_admin_policy
                 ]
             ),
 
@@ -896,6 +913,28 @@ export class StepFunctionRpTsConstruct extends Construct {
                 },
                 layers: [layers.sharedPythonLibLayer],
             }),
+
+            fn_cloudfront_bind: new PythonFunction(scope, 'job_cloudfront_bind', <PythonFunctionProps>{
+                entry: `${this.src}/cloudfront_bind`,
+                architecture: Architecture.X86_64,
+                runtime: Runtime.PYTHON_3_9,
+                index: 'handler.py',
+                handler: 'handler',
+                timeout: Duration.seconds(900),
+                role: roles._fn_acm_cb_handler_role,
+                memorySize: 1024,
+                environment: {
+                    PAYLOAD_EVENT_KEY: "placeholder",
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                    GRAPHQL_API_URL: appsync.graphqlUrl,
+                    GRAPHQL_API_KEY: appsync.apiKey || "",
+                    CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+                    SNS_TOPIC: sns_topic.topicArn,
+                },
+                layers: [layers.sharedPythonLibLayer],
+            }),
         }
     }
 
@@ -942,6 +981,36 @@ export class StepFunctionRpTsConstruct extends Construct {
                 }
             ),
 
+            cloudfront_bind_job: new _task.LambdaInvoke(
+                this,
+                "Cloudfront Callback Job to bind acm",
+                {
+                    lambdaFunction: functions.fn_cloudfront_bind,
+                    // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+                    payload: _step.TaskInput.fromObject({
+                        // task_token: _step.JsonPath.taskToken,
+                        input: _step.JsonPath.entirePayload,
+                        callback: "true",
+                    }),
+                    resultPath: "$.fn_acm_cb_handler",
+                }
+            ),
+
+            // check_acm_job: new _task.LambdaInvoke(
+            //     this,
+            //     "Check acm cert status and block the workflow",
+            //     {
+            //         lambdaFunction: functions.fn_acm_status_checker,
+            //         integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+            //         payload: _step.TaskInput.fromObject({
+            //             task_token: _step.JsonPath.taskToken,
+            //             input: _step.JsonPath.entirePayload,
+            //             callback: "true",
+            //         }),
+            //         resultPath: "$.fn_acm_cb_handler",
+            //     }
+            // ),
+
             acm_import_callback_job: new _task.LambdaInvoke(
                 this,
                 "ACM Import Callback Job",
@@ -965,14 +1034,14 @@ export class StepFunctionRpTsConstruct extends Construct {
                         input: _step.JsonPath.entirePayload,
                     }),
                     resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
-                    resultPath: "$.fn_acm_cb_handler",
+                    resultPath: "$.fn_cloudfront_bind",
                     timeout: Duration.seconds(900),
                 }
             ),
 
             sns_notify_job: new _task.LambdaInvoke(
                 this,
-                "Success Notification Job",
+                "Success Completed Job and Update Job Detail",
                 {
                     lambdaFunction: functions.fn_sns_notify,
                     payload: _step.TaskInput.fromObject({
@@ -981,22 +1050,6 @@ export class StepFunctionRpTsConstruct extends Construct {
                     // Lambda's result is in the attribute `Payload`
                     resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
                     resultPath: "$.fn_sns_notify",
-                }
-            ),
-
-            wait_10s_for_cert_create: new _step.Wait(
-                this,
-                "Wait 10s for ACM Cert Create",
-                {
-                    time: _step.WaitTime.duration(Duration.seconds(10)),
-                }
-            ),
-
-            wait_10s_for_cert_import: new _step.Wait(
-                this,
-                "Wait 10s for ACM Cert Import",
-                {
-                    time: _step.WaitTime.duration(Duration.seconds(10)),
                 }
             ),
         }
