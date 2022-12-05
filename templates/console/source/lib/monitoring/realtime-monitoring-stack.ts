@@ -78,9 +78,8 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
 
     const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
       streamName: "cloudfront-real-time-log-data-stream",
-      shardCount: 200,
+      shardCount: props.shardCount,
       encryption: StreamEncryption.MANAGED
-
     });
 
     const glueDatabase = new glue.Database(this, "cf_realtime_log_glue_database", {
