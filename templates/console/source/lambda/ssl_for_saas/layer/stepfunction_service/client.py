@@ -19,22 +19,25 @@ class StepFunctionUtilsService:
 
     def set_task(self, token: str, task: str, output: Any = None):
         task_name = task.lower()
-        if task_name == 'success':
-            self.stepf_client.send_task_success(
-                taskToken=token,
-                output=json.dumps(output, default=str)
-            )
-        elif task_name == 'failure':
-            self.stepf_client.send_task_failure(
-                taskToken=token,
-                error=json.dumps(output)
-            )
-        elif task_name == 'heartbeat':
-            self.stepf_client.send_task_heartbeat(
-                taskToken=token
-            )
-        else:
-            raise Exception('unknown task type [%s]', task)
+        try:
+            if task_name == 'success':
+                self.stepf_client.send_task_success(
+                    taskToken=token,
+                    output=json.dumps(output, default=str)
+                )
+            elif task_name == 'failure':
+                self.stepf_client.send_task_failure(
+                    taskToken=token,
+                    error=json.dumps(output)
+                )
+            elif task_name == 'heartbeat':
+                self.stepf_client.send_task_heartbeat(
+                    taskToken=token
+                )
+            else:
+                raise Exception('unknown task type [%s]', task)
+        except Exception as e:
+            self.logger.error(f'send task error {e}')
 
     def invoke_step_function(self, state_machine_arn: str, func_input: Any) -> str:
         self.logger.info('start to invoke step function with input %s', func_input)
