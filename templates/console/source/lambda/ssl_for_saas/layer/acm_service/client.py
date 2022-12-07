@@ -363,16 +363,18 @@ class AcmUtilsService:
                     if cert_info['Certificate']['Status'] == 'ISSUED':
                         cert_status = 'certIssued'
                         self.logger.info('certificate issued: %s', certificate['CertificateArn'])
-                        break
+                        # break
                     elif cert_info['Certificate']['Status'] == 'PENDING_VALIDATION':
                         cert_status = 'certNotIssued'
                         self.logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'],
                                          resp['Certificate']['Status'])
+                        return cert_status
                     elif cert_info['Certificate']['Status'] == 'VALIDATION_TIMED_OUT' or \
                             cert_info['Certificate']['Status'] == 'FAILED':
                         cert_status = 'certFailed'
                         self.logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'],
                                          resp['Certificate']['Status'])
+                        return cert_status
 
         return cert_status
 

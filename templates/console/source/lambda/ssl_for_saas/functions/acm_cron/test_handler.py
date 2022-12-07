@@ -19,6 +19,17 @@ os.environ.setdefault('STEP_FUNCTION_ARN',
 os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
 
 
+def test_for():
+    range = [1, 2, 3, 4, 5, 6, 7]
+    for i in range:
+        print(f'outter {i}')
+        for x in range:
+            print(f'inner {x}')
+            if x == 3:
+                break
+
+    print('done')
+
 @pytest.mark.skip(reason="dev only")
 class Test(TestCase):
     def test_handler(self):
