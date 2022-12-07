@@ -60,16 +60,18 @@ def query_certificate_status(task_token):
                 if resp['Certificate']['Status'] == 'ISSUED':
                     cert_status = 'certIssued'
                     logger.info('certificate issued: %s', certificate['CertificateArn'])
-                    break
+                    # break
                 elif resp['Certificate']['Status'] == 'PENDING_VALIDATION':
                     cert_status = 'certNotIssued'
                     logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'],
                                 resp['Certificate']['Status'])
+                    return cert_status
                 elif resp['Certificate']['Status'] == 'VALIDATION_TIMED_OUT' or \
                         resp['Certificate']['Status'] == 'FAILED':
                     cert_status = 'certFailed'
                     logger.info('certificate not issued: %s with status %s', certificate['CertificateArn'],
                                 resp['Certificate']['Status'])
+                    return cert_status
     return cert_status
 
 # query job_id specific taskToken
