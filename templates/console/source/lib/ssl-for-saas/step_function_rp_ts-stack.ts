@@ -241,9 +241,9 @@ export class StepFunctionRpTsConstruct extends Construct {
             }
         );
         bind_handler_map.iterator(stepFunctionSegments.cloudfront_bind_job);
-        // bind_handler_map.addCatch(stepFunctionSegments.failure_handling_job, {
-        //     resultPath: "$.error",
-        // });
+        bind_handler_map.addCatch(stepFunctionSegments.failure_handling_job, {
+            resultPath: "$.error",
+        });
         bind_handler_map.next(stepFunctionSegments.sns_notify_job);
         stepFunctionSegments.failure_handling_job.next(stepFunctionSegments.snsFailureNotify);
 
