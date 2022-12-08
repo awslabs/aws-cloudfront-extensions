@@ -57,9 +57,7 @@ class CloudFrontUtilsService:
                     resp = self.get_distribution_by_id(
                         distribution_id=dist_id,
                     )
-                    if 'Distribution' not in resp:
-                        self.logger.error("Can not found source cloudfront distribution with id: %s", dist_id)
-                        raise Exception("Can not found source cloudfront distribution with id: %s", dist_id)
+                    self.logger.info(f'found distribution {resp["Id"]}: {resp["ARN"]}')
             else:
                 self.logger.error("Request missing existing_cf_info section which is not optional field"
                                   "(example: {\"existing_cf_info\": {\"distribution_id\": \"E1J2U5I18F046Q\", "
