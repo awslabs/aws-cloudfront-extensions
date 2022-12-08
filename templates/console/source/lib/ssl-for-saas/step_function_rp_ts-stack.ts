@@ -219,9 +219,12 @@ export class StepFunctionRpTsConstruct extends Construct {
             "ACM Callback Handler Map",
             {
                 maxConcurrency: 5,
-                // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
                 itemsPath: _step.JsonPath.stringAt("$.cnameList"),
                 resultPath: "$.fn_acm_cb_handler_map",
+                parameters: {
+                    "aws_request_id.$": "$.aws_request_id",
+                    "value.$": "$$.Map.Item.Value"
+                }
             }
         );
         // stepFunctionSegments.acm_callback_handler_job.next(stepFunctionSegments.cloudfront_bind_job);

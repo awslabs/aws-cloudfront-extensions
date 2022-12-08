@@ -25,15 +25,15 @@ sns_client = SnsUtilsService(logger=logger)
 
 def handler(event: Event, context) -> Response:
     logger.info('Received event: %s', json.dumps(event, indent=4, default=str))
-    logger.info('Received context: %s', json.dumps(context.aws_request_id, indent=4, default=str))
-    job_token = context.aws_request_id
+    logger.info('Received context: %s', json.dumps(event['input']['aws_request_id'], indent=4, default=str))
+    job_token = event['input']['aws_request_id']
     try:
-        sub_domain_name_list = event['input']['sanList'] if event['input']['sanList'] else None
+        sub_domain_name_list = event['input']['value']['sanList'] if event['input']['value']['sanList'] else None
         # customization configuration of CloudFront distribution
-        original_cf_distribution_id = event['input']['existing_cf_info']['distribution_id']
+        original_cf_distribution_id = event['input']['value']['existing_cf_info']['distribution_id']
         # FIXME: just create cloudfront without cert
-        if 'config_version_id' in event['input']['existing_cf_info']:
-            original_cf_distribution_version = event['input']['existing_cf_info']['config_version_id']
+        if 'config_version_id' in event['input']['value']['existing_cf_info']:
+            original_cf_distribution_version = event['input']['value']['existing_cf_info']['config_version_id']
             config = cloudfront_client.construct_cloudfront_config_with_version(
                 distribution_id=original_cf_distribution_id,
                 distribution_version=original_cf_distribution_version,

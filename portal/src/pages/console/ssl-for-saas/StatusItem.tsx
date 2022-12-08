@@ -78,7 +78,7 @@ const StatusItem: React.FC<StatusItemProps> = (props: StatusItemProps) => {
           {t(STATUS_LIST_MAP[step].desc)}
         </div>
         <div
-          className={`job-status-list-item-content-status ${status.toLowerCase()}`}
+          className={`job-status-list-item-content-status ${status?.toLowerCase()}`}
         >
           <div>
             {status === StatusType.COMPLETED && (
