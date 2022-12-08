@@ -327,6 +327,7 @@ class AcmUtilsService:
             'domainName': domain
         })
 
+    @retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(20), retry=retry_if_exception_type(exceptions.Timeout))
     def list_certificate_tags_by_arn(self, certificate_arn: str) -> List[Tag]:
         resp = self.client.list_tags_for_certificate(
             CertificateArn=certificate_arn

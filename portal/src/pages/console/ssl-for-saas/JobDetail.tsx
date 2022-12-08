@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Breadcrumb from "components/Breadcrumb";
 import Button from "components/Button";
 import HeaderPanel from "components/HeaderPanel";
@@ -42,6 +42,7 @@ const JobDetail: React.FC = () => {
     promptInfo: "",
     dcv_validation_msg: "",
   });
+  const jobInfoRef = useRef(jobInfo);
   const [loadingData, setLoadingData] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openCloudfrontModal, setOpenCloudfrontModal] = useState(false);
@@ -73,8 +74,15 @@ const JobDetail: React.FC = () => {
       const resData = await appSyncRequestQuery(getJobInfo, {
         jobId: jobId,
       });
-      const jobInfo: SSLJob = resData.data.getJobInfo;
-      setJobInfo(jobInfo);
+      const jobInfoNew: SSLJob = resData.data.getJobInfo;
+      if (!jobInfoNew) {
+        return;
+      }
+      if (JSON.stringify(jobInfoRef.current) != JSON.stringify(jobInfoNew)) {
+        fetchCertList();
+        setJobInfo(jobInfoNew);
+        jobInfoRef.current = jobInfoNew;
+      }
     } catch (error) {
       // setLoadingData(false);
       console.error(error);
@@ -99,9 +107,10 @@ const JobDetail: React.FC = () => {
       console.error(error);
     }
   };
-  useEffect(() => {
-    fetchCertList();
-  }, [jobId, jobInfo]);
+  // useEffect(() => {
+  //   console.log(`reset cert`);
+  //   fetchCertList();
+  // }, [jobId, jobInfo]);
 
   // Get Distribution by job Id
   const fetchCloudFrontList = async () => {
@@ -118,6 +127,7 @@ const JobDetail: React.FC = () => {
       console.error(error);
     }
   };
+
   useEffect(() => {
     fetchCloudFrontList();
   }, [jobId, jobInfo]);
@@ -194,7 +204,7 @@ const JobDetail: React.FC = () => {
       <div className="pb-50">
         <HeaderPanel
           title={t("ssl:jobDetail.jobOverview")}
-          desc={jobInfo.jobType}
+          desc={jobInfo?.jobType}
           action={
             <div>
               <Button
