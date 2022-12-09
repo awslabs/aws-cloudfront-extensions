@@ -989,30 +989,13 @@ export class StepFunctionRpTsConstruct extends Construct {
                 "Cloudfront Callback Job to bind acm",
                 {
                     lambdaFunction: functions.fn_cloudfront_bind,
-                    // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
                     payload: _step.TaskInput.fromObject({
-                        // task_token: _step.JsonPath.taskToken,
                         input: _step.JsonPath.entirePayload,
                         callback: "true",
                     }),
                     resultPath: "$.fn_acm_cb_handler",
                 }
             ),
-
-            // check_acm_job: new _task.LambdaInvoke(
-            //     this,
-            //     "Check acm cert status and block the workflow",
-            //     {
-            //         lambdaFunction: functions.fn_acm_status_checker,
-            //         integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-            //         payload: _step.TaskInput.fromObject({
-            //             task_token: _step.JsonPath.taskToken,
-            //             input: _step.JsonPath.entirePayload,
-            //             callback: "true",
-            //         }),
-            //         resultPath: "$.fn_acm_cb_handler",
-            //     }
-            // ),
 
             acm_import_callback_job: new _task.LambdaInvoke(
                 this,
@@ -1036,7 +1019,9 @@ export class StepFunctionRpTsConstruct extends Construct {
                     payload: _step.TaskInput.fromObject({
                         input: _step.JsonPath.entirePayload,
                     }),
-                    resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
+                    resultSelector: {
+                        Payload: _step.JsonPath.stringAt("$.Payload")
+                    },
                     resultPath: "$.fn_cloudfront_bind",
                     timeout: Duration.seconds(900),
                 }

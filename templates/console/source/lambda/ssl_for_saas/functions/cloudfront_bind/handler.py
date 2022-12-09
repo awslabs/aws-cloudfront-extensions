@@ -35,7 +35,8 @@ class PayloadContainer(TypedDict):
     Payload: Payload
 
 
-class Input(Cname):
+class Input(TypedDict):
+    value: Cname
     fn_cloudfront_bind: PayloadContainer
 
 
@@ -45,7 +46,7 @@ class Event(TypedDict):
 
 def handler(event: Event, context) -> Response:
     logger.info('Received event: %s', json.dumps(event, indent=4, default=str))
-    domain_name = event['input']['domainName']
+    domain_name = event['input']['value']['domainName']
     # logger.info("Domain name : " + domain_name)
     # scan domain name in DynamoDB and filter status is CERT_ISSUED, TBD retry here
     response = acm_client.scan_for_cert(domain_name)
@@ -64,7 +65,7 @@ def handler(event: Event, context) -> Response:
     try:
         # delete such domain name in DynamoDB
         resp = acm_client.delete_by_task_id_and_domain(task_token, domain_name)
-        sub_domain_name_list = event['input']['sanList'] if event['input']['sanList'] else None
+        sub_domain_name_list = event['input']['value']['sanList'] if event['input']['value']['sanList'] else None
 
         resp = cloudfront_client.client.get_distribution_config(
             Id=distribution_id
