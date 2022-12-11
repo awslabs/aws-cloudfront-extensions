@@ -113,6 +113,12 @@ export class ConsoleStack extends cdk.Stack {
       allowedValues: ["false", "true"],
       default: "false",
     });
+    const shardCount = new cdk.CfnParameter(this, "KinesisShardCount", {
+      description: "The shard count of Kinesis data stream",
+      type: "Number",
+      default: 50,
+    });
+
 
     // create email SSL subscription
     const sslEmailAddress = new cdk.CfnParameter(this, "EmailAddress", {
@@ -145,6 +151,7 @@ export class ConsoleStack extends cdk.Stack {
               logKeepingDays.logicalId,
               deleteLog.logicalId,
               useStartTime.logicalId,
+              shardCount.logicalId,
             ],
           },
           {
@@ -185,6 +192,9 @@ export class ConsoleStack extends cdk.Stack {
           [useStartTime.logicalId]: {
             default: "Use Start Time (Non-Realtime Only)",
           },
+          [shardCount.logicalId]: {
+            default: "Kinesis Data Stream Shard Count (Realtime Only)",
+          }, 
           [sslEmailAddress.logicalId]: {
             default: "Notification Email",
           },
@@ -287,7 +297,7 @@ export class ConsoleStack extends cdk.Stack {
       build_time: new Date().getTime() + "",
     });
 
-    // 2 Monitoring Stacks
+    // Monitoring Stacks
     // Non-RealtimeMonitoring
     const nonRealtimeMonitoring = new NonRealtimeMonitoringStack(
       this,
@@ -299,12 +309,14 @@ export class ConsoleStack extends cdk.Stack {
         logKeepingDays: logKeepingDays.valueAsNumber,
         deleteLogNonRealtime: deleteLog.valueAsString,
         useStartTimeNonRealtime: useStartTime.valueAsString,
+        shardCount: shardCount.valueAsNumber,
         portalBucket: webConsole.portalBucket,
       }
     );
     (
       nonRealtimeMonitoring.nestedStackResource as cdk.CfnStack
     ).cfnOptions.condition = nonRealTimeMonitoringCondition;
+
     // RealtimeMonitoring
     const realtimeMonitoring = new RealtimeMonitoringStack(this, "Realtime", {
       nonRealTimeMonitoring: monitoringType.valueAsString,
@@ -313,6 +325,7 @@ export class ConsoleStack extends cdk.Stack {
       logKeepingDays: logKeepingDays.valueAsNumber,
       deleteLogNonRealtime: deleteLog.valueAsString,
       useStartTimeNonRealtime: useStartTime.valueAsString,
+      shardCount: shardCount.valueAsNumber,
       portalBucket: webConsole.portalBucket,
     });
     (

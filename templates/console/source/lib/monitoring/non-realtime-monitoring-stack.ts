@@ -29,7 +29,8 @@ export interface MonitoringProps extends cdk.NestedStackProps {
   monitoringInterval: string,
   logKeepingDays: number,
   deleteLogNonRealtime: string,
-  useStartTimeNonRealtime: string
+  useStartTimeNonRealtime: string,
+  shardCount: number,
   portalBucket: cdk.aws_s3.Bucket
 }
 
