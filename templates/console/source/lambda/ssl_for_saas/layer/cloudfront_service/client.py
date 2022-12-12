@@ -157,6 +157,7 @@ class CloudFrontUtilsService:
         named_ = CreateDistributionWithTagsOutput(**resp)
         return named_['Distribution']
 
+    @retry(wait=wait_fixed(2) + wait_random(0, 2), stop=stop_after_attempt(100))
     def update_distribution(self, config: DistributionConfig, cloudfront_id: str, etag: str) -> Distribution:
         self.logger.info('Creating distribution with config: %s', json.dumps(config, default=str))
         resp = self.client.update_distribution(
