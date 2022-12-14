@@ -311,6 +311,7 @@ export class ConsoleStack extends cdk.Stack {
         useStartTimeNonRealtime: useStartTime.valueAsString,
         shardCount: shardCount.valueAsNumber,
         portalBucket: webConsole.portalBucket,
+        appsyncApi: commonConstruct.appsyncApi,
       }
     );
     (
@@ -327,6 +328,7 @@ export class ConsoleStack extends cdk.Stack {
       useStartTimeNonRealtime: useStartTime.valueAsString,
       shardCount: shardCount.valueAsNumber,
       portalBucket: webConsole.portalBucket,
+      appsyncApi: commonConstruct.appsyncApi,
     });
     (
       realtimeMonitoring.nestedStackResource as cdk.CfnStack

@@ -224,3 +224,4 @@ $RECYCLE.BIN/
 
 !react-app-env.d.ts
 /bin/
+.vscode/settings.json
