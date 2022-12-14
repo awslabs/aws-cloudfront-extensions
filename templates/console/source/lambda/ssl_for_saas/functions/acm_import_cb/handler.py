@@ -37,44 +37,11 @@ def handler(event: Event, context: Any) -> Response:
     logger.info("Received event: " + json.dumps(event, indent=2, default=str))
 
     task_token = event['task_token']
-    # if event['input']['dist_aggregate']:
-    #     dist_aggregate = event
 
     domain_name_list = event['input']['cnameList']
 
     task_token = acm_client.check_generate_task_token(task_token)
     job_token = event['input']['aws_request_id']
-    cert_total_number = len(event['input']['cnameList'])
-    auto_creation = event['input']['auto_creation']
-    cert_create_stage_status = 'INPROGRESS'
-    cert_validation_stage_status = 'NOTSTART'
-    dist_stage_status = 'NOTSTART'
-    cloudfront_total_number = 0 if (auto_creation == 'false') else cert_total_number
-    job_type = event['input']['acm_op']
-    creation_date = str(datetime.now())
-
-    body_without_pem = copy.deepcopy(event['input'])
-
-    if 'pemList' in body_without_pem:
-        del body_without_pem['pemList']
-
-    job_info_client.create_job_info(JobInfo(
-        jobId=job_token,
-        job_input=json.dumps(body_without_pem, indent=4, default=str),
-        cert_total_number=cert_total_number,
-        cloudfront_distribution_total_number=cloudfront_total_number,
-        cert_completed_number=0,
-        cloudfront_distribution_created_number=0,
-        jobType=job_type,
-        creationDate=creation_date,
-        certCreateStageStatus=cert_create_stage_status,
-        certValidationStageStatus=cert_validation_stage_status,
-        distStageStatus=dist_stage_status,
-        promptInfo='',
-        certList=[],
-        dcv_validation_msg='',
-        distList=[]
-    ))
 
     try:
         cloudfront_client.validate_source_cloudfront_dist(domain_name_list)

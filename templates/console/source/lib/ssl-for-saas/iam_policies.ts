@@ -73,6 +73,7 @@ export const cloudfront_create_update_policy = new iam.PolicyStatement({
         "cloudfront:GetDistributionConfig",
         "cloudfront:UpdateDistribution",
         "cloudfront:ListTagsForResource",
+        "cloudfront:ListDistributions",
     ],
 });
 
@@ -111,6 +112,14 @@ export const stepFunction_loggin_policy = new iam.PolicyStatement({
         "logs:DescribeLogGroups",
     ],
 });
+
+export const quota_service_policy = new iam.PolicyStatement({
+    resources: ["*"],
+    actions: [
+        "servicequotas:GetServiceQuota",
+        "servicequotas:GetAWSDefaultServiceQuota",
+    ]
+})
 
 export const sns_update_policy = function (topicArn:string): iam.PolicyStatement {
     return new iam.PolicyStatement({

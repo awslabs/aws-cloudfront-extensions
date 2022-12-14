@@ -41,33 +41,6 @@ def handler(event: Event, context) -> Response:
 
     auto_creation = event['input']['auto_creation']
     cert_total_number = len(event['input']['cnameList'])
-    cloudfront_total_number = 0 if (auto_creation == 'false') else cert_total_number
-    job_type = event['input']['acm_op']
-    creation_date = str(datetime.now())
-    cert_create_stage_status = 'INPROGRESS'
-    cert_validation_stage_status = 'NOTSTART'
-    dist_stage_status = 'NOTSTART'
-
-    body_without_pem = copy.deepcopy(event['input'])
-    if 'pemList' in body_without_pem:
-        del body_without_pem['pemList']
-    job_info_client.create_job_info(JobInfo(
-        jobId=job_token,
-        job_input=json.dumps(body_without_pem, indent=4, default=str),
-        cert_total_number=cert_total_number,
-        cloudfront_distribution_total_number=cloudfront_total_number,
-        cert_completed_number=0,
-        cloudfront_distribution_created_number=0,
-        jobType=job_type,
-        creationDate=creation_date,
-        certCreateStageStatus=cert_create_stage_status,
-        certValidationStageStatus=cert_validation_stage_status,
-        distStageStatus=dist_stage_status,
-        promptInfo='',
-        certList=[],
-        dcv_validation_msg='',
-        distList=[]
-    ))
 
     try:
         if 'true' == auto_creation:
@@ -78,14 +51,6 @@ def handler(event: Event, context) -> Response:
             sns_msg = acm_client.aggregate_dist(domain_name_list, task_token, task_type, job_token)
         else:
             sns_msg = acm_client.none_aggregate_dist(domain_name_list, task_token, task_type, job_token)
-        sns_str = json.dumps(sns_msg, indent=4, default=str)
-
-        job_info_client.update_job_fields_by_dict(job_token, {
-            'certCreateStageStatus': 'SUCCESS',
-            'certValidationStageStatus': 'INPROGRESS',
-            'cert_completed_number': cert_total_number,
-            'dcv_validation_msg': sns_client.generate_notify_content(sns_str)
-        })
 
         cloudfront_dist = []
         for record in event['input']['fn_acm_cb_handler_map']:
@@ -101,6 +66,13 @@ def handler(event: Event, context) -> Response:
             cloudfront_distributions=cloudfront_dist
         )
         sns_client.publish_by_topic(topic_arn=sns_topic_arn, msg=sns_content, subject='SSL for SaaS event received')
+
+        job_info_client.update_job_fields_by_dict(job_token, {
+            'certCreateStageStatus': 'SUCCESS',
+            'certValidationStageStatus': 'INPROGRESS',
+            'cert_completed_number': cert_total_number,
+            'dcv_validation_msg': sns_content
+        })
         logger.info('Certificate creation job %s completed successfully', job_token)
 
         return Response(statusCode=http.HTTPStatus.OK, body=sns_msg)

@@ -35,7 +35,7 @@ import {
     kms_policy,
     sns_update_policy,
     s3_read_policy,
-    tag_update_policy
+    tag_update_policy, quota_service_policy
 } from "./iam_policies";
 import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import {PythonFunction, PythonFunctionProps, PythonLayerVersion} from "@aws-cdk/aws-lambda-python-alpha";
@@ -68,6 +68,7 @@ declare interface SslFunctionRolesSummary {
     _fn_appsync_func_role:iam.Role,
     _fn_sns_notify_role: iam.Role,
     _fn_ssl_api_handler_role: iam.Role,
+    _fn_job_create_check_quota_role: iam.Role
 }
 
 declare interface SslFunctionsSummary {
@@ -95,7 +96,10 @@ declare interface SslFunctionsSummary {
     fn_job_status_update: _lambda.IFunction,
 
     // bind acm cert to cloudfront
-    fn_cloudfront_bind: _lambda.IFunction
+    fn_cloudfront_bind: _lambda.IFunction,
+
+    // create ssl job and check acm and cloudfront resources quota
+    fn_job_create_check_resource: _lambda.IFunction
 }
 
 declare interface SslStepFunctionsSegments {
@@ -152,6 +156,8 @@ declare interface SslStepFunctionsSegments {
     acm_callback_handler_job: _task.LambdaInvoke,
     cloudfront_bind_job: _task.LambdaInvoke,
     sns_notify_job: _task.LambdaInvoke,
+
+    job_create_check_resource_job: _task.LambdaInvoke
 }
 
 export class StepFunctionRpTsConstruct extends Construct {
@@ -216,7 +222,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         // invoke lambda from map state
         const acm_callback_handler_map = new _step.Map(
             this,
-            "ACM Callback Handler Map",
+            "CloudFront & ACM Creation Map",
             {
                 maxConcurrency: 5,
                 itemsPath: _step.JsonPath.stringAt("$.cnameList"),
@@ -233,9 +239,15 @@ export class StepFunctionRpTsConstruct extends Construct {
             resultPath: "$.error",
         });
 
+        stepFunctionSegments.job_create_check_resource_job.addCatch(stepFunctionSegments.failure_handling_job, {
+            resultPath: "$.error",
+        });
+
+        stepFunctionSegments.job_create_check_resource_job.next(acm_callback_handler_map);
+
         const bind_handler_map = new _step.Map(
             this,
-            "Bind ACM cert to cloudfront",
+            "Bind ACM SSL Cert to CloudFront Map",
             {
                 maxConcurrency: 5,
                 // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
@@ -272,12 +284,12 @@ export class StepFunctionRpTsConstruct extends Construct {
         acm_callback_handler_map.next(stepFunctionEntry);
 
         const stepFunction = new _step.StateMachine(this, "SSL for SaaS", {
-            definition: acm_callback_handler_map,
+            definition: stepFunctionSegments.job_create_check_resource_job,
             role: roles._stepFunction_loggin_role,
             stateMachineName: "SSL-for-SaaS-StateMachine",
             stateMachineType: _step.StateMachineType.STANDARD,
             // set global timeout, don't set timeout in callback inside
-            timeout: Duration.hours(60),
+            timeout: Duration.days(60),
             logs: {
                 destination: new logs.LogGroup(this, "ssl_step_function_logs", {
                     logGroupName: "/aws/step-functions/ssl_step_function_logs",
@@ -771,6 +783,21 @@ export class StepFunctionRpTsConstruct extends Construct {
                     kms_policy,
                     sns_update_policy(sns_topic.topicArn),
                 ]
+            ),
+
+            _fn_job_create_check_quota_role: this.createRoleWithPolicies(
+                "_fn_job_create_check_quota_role", new iam.ServicePrincipal("lambda.amazonaws.com"),
+                ...[
+                    lambdaRunPolicy,
+                    acm_admin_policy,
+                    ddb_rw_policy,
+                    stepFunction_run_policy,
+                    tag_update_policy,
+                    kms_policy,
+                    sns_update_policy(sns_topic.topicArn),
+                    quota_service_policy,
+                    cloudfront_create_update_policy
+                ]
             )
         }
     }
@@ -938,6 +965,28 @@ export class StepFunctionRpTsConstruct extends Construct {
                 },
                 layers: [layers.sharedPythonLibLayer],
             }),
+
+            fn_job_create_check_resource: new PythonFunction(scope, 'job_create_check_resource', <PythonFunctionProps>{
+                entry: `${this.src}/quota_check`,
+                architecture: Architecture.X86_64,
+                runtime: Runtime.PYTHON_3_9,
+                index: 'handler.py',
+                handler:'handler',
+                timeout: Duration.seconds(900),
+                role: roles._fn_job_create_check_quota_role,
+                memorySize: 1024,
+                environment: {
+                    PAYLOAD_EVENT_KEY: "placeholder",
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                    GRAPHQL_API_URL: appsync.graphqlUrl,
+                    GRAPHQL_API_KEY: appsync.apiKey || "",
+                    CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+                    SNS_TOPIC: sns_topic.topicArn,
+                },
+                layers: [layers.sharedPythonLibLayer],
+            }),
         }
     }
 
@@ -986,7 +1035,7 @@ export class StepFunctionRpTsConstruct extends Construct {
 
             cloudfront_bind_job: new _task.LambdaInvoke(
                 this,
-                "Cloudfront Callback Job to bind acm",
+                "Bind SSL Cert to CloudFront Job",
                 {
                     lambdaFunction: functions.fn_cloudfront_bind,
                     payload: _step.TaskInput.fromObject({
@@ -1013,7 +1062,7 @@ export class StepFunctionRpTsConstruct extends Construct {
 
             acm_callback_handler_job: new _task.LambdaInvoke(
                 this,
-                "ACM Callback Handler Job",
+                "CloudFront & ACM Creation Job",
                 {
                     lambdaFunction: functions.fn_acm_cb_handler,
                     payload: _step.TaskInput.fromObject({
@@ -1038,6 +1087,20 @@ export class StepFunctionRpTsConstruct extends Construct {
                     // Lambda's result is in the attribute `Payload`
                     resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
                     resultPath: "$.fn_sns_notify",
+                }
+            ),
+
+            job_create_check_resource_job: new _task.LambdaInvoke(
+                this,
+                "Quota Check",
+                {
+                    lambdaFunction: functions.fn_job_create_check_resource,
+                    payload: _step.TaskInput.fromObject({
+                        input: _step.JsonPath.entirePayload,
+                    }),
+                    // Lambda's result is in the attribute `Payload`
+                    resultSelector: {Payload: _step.JsonPath.stringAt("$.Payload")},
+                    resultPath: "$.fn_job_create_check_resource",
                 }
             ),
         }
