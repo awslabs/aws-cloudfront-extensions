@@ -203,7 +203,7 @@ def cert_create_or_import():
                         )
                     gen_cname_info_list.append(tmpCnameInfo)
 
-                input['cnameList'] = gen_cname_info_list
+                body['cnameList'] = gen_cname_info_list
 
             job_info_client.create_job_info(JobInfo(
                 jobId=raw_context.aws_request_id,
@@ -223,7 +223,7 @@ def cert_create_or_import():
                 distList=[]
             ))
 
-            stepfunctions_client.invoke_step_function(step_function_arn, input)
+            stepfunctions_client.invoke_step_function(step_function_arn, body)
             return Response(statusCode=http.HTTPStatus.OK, body=raw_context.aws_request_id)
         else:
             logger.info('auto_creation is not true or false')
