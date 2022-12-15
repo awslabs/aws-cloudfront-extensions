@@ -181,15 +181,25 @@ def cert_create_or_import(input: Input) -> Response:
                     convert_string_to_file(pem_value['CertPem'], PEM_FILE)
                     _domainList = get_domain_list_from_cert(PEM_FILE, logger)
                     _domainName = _domainList[0] if _domainList else ''
-                    tmpCnameInfo = Cname(
-                        domainName=_domainName,
-                        sanList=_domainList,
-                        existing_cf_info=SourceCfInfo(
-                            distribution_id=pem_value['existing_cf_info']['distribution_id'],
-                            config_version_id=pem_value['existing_cf_info']['config_version_id']
-                        ),
-                        originsItemsDomainName=''
-                    )
+                    if 'config_version_id' in pem_value['existing_cf_info']:
+                        tmpCnameInfo = Cname(
+                            domainName=_domainName,
+                            sanList=_domainList,
+                            existing_cf_info=SourceCfInfo(
+                                distribution_id=pem_value['existing_cf_info']['distribution_id'],
+                                config_version_id=pem_value['existing_cf_info']['config_version_id']
+                            ),
+                            originsItemsDomainName=''
+                        )
+                    else:
+                        tmpCnameInfo = Cname(
+                            domainName=_domainName,
+                            sanList=_domainList,
+                            existing_cf_info=SourceCfInfo(
+                                distribution_id=pem_value['existing_cf_info']['distribution_id'],
+                            ),
+                            originsItemsDomainName=''
+                        )
                     gen_cname_info_list.append(tmpCnameInfo)
 
                 input['cnameList'] = gen_cname_info_list

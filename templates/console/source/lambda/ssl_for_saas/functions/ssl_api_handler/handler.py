@@ -203,8 +203,27 @@ def cert_create_or_import():
                         )
                     gen_cname_info_list.append(tmpCnameInfo)
 
-                body['cnameList'] = gen_cname_info_list
-            stepfunctions_client.invoke_step_function(step_function_arn, body)
+                input['cnameList'] = gen_cname_info_list
+
+            job_info_client.create_job_info(JobInfo(
+                jobId=raw_context.aws_request_id,
+                job_input=json.dumps(body_without_pem, indent=4, default=str),
+                cert_total_number=certTotalNumber if acm_op == "create" else pemTotalNumber,
+                cloudfront_distribution_total_number=cloudfront_total_number,
+                cert_completed_number=0,
+                cloudfront_distribution_created_number=0,
+                jobType=job_type,
+                creationDate=creation_date,
+                certCreateStageStatus=cert_create_stage_status,
+                certValidationStageStatus=cert_validation_stage_status,
+                distStageStatus=dist_stage_status,
+                promptInfo='',
+                certList=[],
+                dcv_validation_msg='',
+                distList=[]
+            ))
+
+            stepfunctions_client.invoke_step_function(step_function_arn, input)
             return Response(statusCode=http.HTTPStatus.OK, body=raw_context.aws_request_id)
         else:
             logger.info('auto_creation is not true or false')
