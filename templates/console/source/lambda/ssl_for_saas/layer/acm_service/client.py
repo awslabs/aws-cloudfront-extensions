@@ -289,6 +289,7 @@ class AcmUtilsService:
             sns_records.extend(resp.DnsValidationRecords)
         return sns_records
 
+    @retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(20), retry=retry_if_exception_type(exceptions.Timeout))
     def scan_by_conditions(self, filters: dict[str, Any]) -> List[CertificateMetadata]:
         resp = self.ddb_util.scan(table=self.acm_metadata_table, filters=filters)
         # raise exception if response['Items'] is empty
@@ -310,7 +311,6 @@ class AcmUtilsService:
             result.append(metadata)
         return result
 
-    @retry(wait=wait_fixed(1) + wait_random(0, 2), stop=stop_after_attempt(20), retry=retry_if_exception_type(exceptions.Timeout))
     def scan_for_cert(self, domain_name: str) -> List[CertificateMetadata]:
         return self.scan_by_conditions({
             'domainName': domain_name,
