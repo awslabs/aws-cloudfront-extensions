@@ -250,9 +250,8 @@ export class StepFunctionRpTsConstruct extends Construct {
             "Bind ACM SSL Cert to CloudFront Map",
             {
                 maxConcurrency: 5,
-                // integrationPattern: _step.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
                 itemsPath: _step.JsonPath.stringAt("$.fn_acm_cb_handler_map"),
-                resultPath: "$.fn_cloudfront_acm_bind_map",
+                resultPath: _step.JsonPath.DISCARD,
             }
         );
         bind_handler_map.iterator(stepFunctionSegments.cloudfront_bind_job);

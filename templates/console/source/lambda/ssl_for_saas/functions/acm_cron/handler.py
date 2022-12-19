@@ -1,5 +1,4 @@
 import http
-import json
 import logging
 from typing import Any
 
