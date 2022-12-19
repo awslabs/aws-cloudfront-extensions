@@ -29,7 +29,7 @@ def handler(event: Any, context: Any) -> Response:
     logger.error("Exception occurred, just update the ddb table")
     job_info = job_info_client.get_job_info_by_id(job_id=job_token)
 
-    if job_info is not None and job_info['distStageStatus'] == 'INPROGRESS':
+    if job_info is not None and 'distStageStatus' in job_info and job_info['distStageStatus'] == 'INPROGRESS':
         job_info_client.update_job_field(job_id=job_token, field='distStageStatus', value='FAILED')
     else:
         logger.error(f"failed to get the job info of job_id:{job_token} ")
