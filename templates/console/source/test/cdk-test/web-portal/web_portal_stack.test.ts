@@ -1,0 +1,59 @@
+/*
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+import {Template} from "aws-cdk-lib/assertions";
+import {App, aws_cognito as cognito, Stack} from "aws-cdk-lib";
+import * as webPortalStack from "../../../lib/web-portal/web_portal_stack";
+import {TestUtils} from "../test-util/utils";
+import {PortalConstruct} from "../../../lib/web-portal/web_portal_stack";
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
+
+describe("CloudFrontExtensionWebPortalStack", () => {
+    test("Test Web Console", () => {
+        const app = new App();
+
+        // WHEN
+        const appStack = new Stack(app, "appStack", {});
+        // Creates the AppSync API
+        const mockAppSyncApi = TestUtils.mockAppSyncApi(appStack)
+        const mockCogintoUserPool = TestUtils.mockcognitoUserPool(appStack);
+        const mockCogintoUserPoolClient = mockCogintoUserPool.addClient("CloudFrontExtn_WebPortal");
+
+        const stack = new webPortalStack.WebPortalStack(
+            app,
+            "MyWebPortalStack",
+            {
+                aws_api_key: mockAppSyncApi.apiKey,
+                aws_appsync_authenticationType: appsync.AuthorizationType.USER_POOL,
+                aws_appsync_graphqlEndpoint: mockAppSyncApi.graphqlUrl,
+                aws_appsync_region: 'us-east-1',
+                aws_project_region: 'us-east-1',
+                aws_user_pools_id: mockCogintoUserPool.userPoolId,
+                aws_user_pools_web_client_id: mockCogintoUserPoolClient.userPoolClientId,
+                aws_cognito_region: 'us-east-1',
+                build_time: new Date().getTime() + "",
+            }
+        );
+
+        // Prepare the stack for assertions.
+        const template = Template.fromStack(stack);
+
+        // THEN
+        template.hasResourceProperties("AWS::S3::Bucket", {});
+
+        template.hasResourceProperties("AWS::CloudFront::Distribution", {});
+    });
+});
