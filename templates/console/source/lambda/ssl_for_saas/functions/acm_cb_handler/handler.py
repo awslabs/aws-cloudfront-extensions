@@ -17,7 +17,6 @@ task_type = os.getenv('TASK_TYPE')
 # get sns topic arn from environment variable
 sns_topic_arn = os.environ.get('SNS_TOPIC')
 
-acm_client = AcmUtilsService(logger=logger)
 job_info_client = JobInfoUtilsService(logger=logger)
 cloudfront_client = CloudFrontUtilsService(logger=logger)
 sns_client = SnsUtilsService(logger=logger)

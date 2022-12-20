@@ -159,14 +159,18 @@ class CloudFrontUtilsService:
 
     @retry(wait=wait_fixed(2) + wait_random(0, 2), stop=stop_after_attempt(100))
     def update_distribution(self, config: DistributionConfig, cloudfront_id: str, etag: str) -> Distribution:
-        self.logger.info('Creating distribution with config: %s', json.dumps(config, default=str))
-        resp = self.client.update_distribution(
-            DistributionConfig=config,
-            Id=cloudfront_id,
-            IfMatch=etag
-        )
-        self.logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s',
-                         resp['Distribution']['Id'],
-                         resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
-        named_ = CreateDistributionWithTagsOutput(**resp)
-        return named_['Distribution']
+        try:
+            self.logger.info('Creating distribution with config: %s', json.dumps(config, default=str))
+            resp = self.client.update_distribution(
+                DistributionConfig=config,
+                Id=cloudfront_id,
+                IfMatch=etag
+            )
+            self.logger.info('distribution start to create, ID: %s, ARN: %s, Domain Name: %s',
+                             resp['Distribution']['Id'],
+                             resp['Distribution']['ARN'], resp['Distribution']['DomainName'])
+            named_ = CreateDistributionWithTagsOutput(**resp)
+            return named_['Distribution']
+        except Exception as e:
+            self.logger.error(f'update distribution failed cloudfront id: {cloudfront_id}, cloudconfig: {json.dumps(config, default=str)}, err: {e}')
+            raise e
