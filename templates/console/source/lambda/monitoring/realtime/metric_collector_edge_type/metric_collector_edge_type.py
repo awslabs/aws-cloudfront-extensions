@@ -1,14 +1,11 @@
 import json
 import logging
 import os
-import time
 from datetime import datetime, timedelta
 
 import boto3
-from metric_helper import collect_metric_data 
+from metric_helper import collect_metric_data
 
-SLEEP_TIME = 1
-RETRY_COUNT = 60
 ATHENA_QUERY_OUTPUT = "s3://" + os.environ['S3_BUCKET'] + "/athena_results/"
 athena_client = boto3.client('athena')
 dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
@@ -31,6 +28,7 @@ def lambda_handler(event, context):
             "Content-Type": "application/json"
         }
     }
+    
     event_time = event["time"]
     event_datetime = datetime.strptime(
         event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=5)
@@ -39,8 +37,8 @@ def lambda_handler(event, context):
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
     table = dynamodb.Table(DDB_TABLE_NAME)
-    metric = "chr"
+    metric = "edgeType"
     collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table)
     log.info('[lambda_handler] End')
-
+    
     return response
