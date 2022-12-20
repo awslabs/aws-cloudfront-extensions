@@ -17,7 +17,7 @@ metric_header = "request"
 
 @app.resolver(type_name="Query", field_name="listCountry")
 def list_country(domain, start_time, end_time):
-    """Get a list of country from DynamoDB table"""
+    """Get a list of country from DynamoDB table and sort them by request number"""
     logger.info(f"Listing country for domain {domain} from {start_time} to {end_time}")
     table = dynamodb_client.Table(DDB_TABLE_NAME)
     response = table.query(
@@ -33,10 +33,34 @@ def list_country(domain, start_time, end_time):
         return []
 
     res_items = response["Items"]
-    # Get distinct country from res_items
-    country_list = list(set([item["country"] for item in res_items]))
+    # [
+    #     {
+    #         "metricData":{
+    #             "US":"36",
+    #             "KR":"32"
+    #         },
+    #         "metricId":"request-d12345.cloudfront.net",
+    #         "timestamp":"1671446940"
+    #     }
+    # ]
+    country_result = {}
+    for item in res_items:
+        for country in item["metricData"]:
+            if country not in country_result:
+                country_result[country] = int(item["metricData"][country])
+            else:
+                country_result[country] += int(item["metricData"][country])
 
-    return country_list
+    # Sort country_result in desc order
+    sorted_country_result = sorted(
+        country_result.items(), key=lambda kv: kv[1], reverse=True
+    )
+
+    country_array = []
+    for s in sorted_country_result:
+        country_array.append({"country": s[0], "request": s[1]})
+
+    return country_array
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.APPSYNC_RESOLVER)
