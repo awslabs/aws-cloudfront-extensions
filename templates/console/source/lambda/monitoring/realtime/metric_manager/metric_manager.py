@@ -67,7 +67,7 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                 ).strftime("%Y-%m-%d %H:%M:%S")
 
                 # Get metric data for all countries
-                # TODO: 
+                # TODO:
                 if metric in METRIC_SUM:
                     sum_value = 0
                     for country_item in query_item["metricData"]:
@@ -82,20 +82,28 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                             found = False
                             for m in m_dict:
                                 if sc["StatusCode"] == m["StatusCode"]:
-                                    m["Count"] = int(m["Count"]) + int(sc["Count"])
+                                    m["Count"] = str(int(m["Count"]) + int(sc["Count"]))
                                     found = True
                                     break
                             if not found:
                                 m_dict.append(sc)
                     detailed_data_item["Value"] = m_dict
-                elif metric == "statusCodeLatency" or metric == "statusCodeOriginLatency":
+                elif (
+                    metric == "statusCodeLatency" or metric == "statusCodeOriginLatency"
+                ):
                     m_dict = []
                     for country_item in query_item["metricData"]:
                         for sc in query_item["metricData"][country_item]:
                             found = False
                             for m in m_dict:
                                 if sc["StatusCode"] == m["StatusCode"]:
-                                    m["Latency"] = Decimal((int(m["Count"]) * float(m["Latency"]) + int(sc["Count"]) * float(sc["Latency"]))/(int(m["Count"]) + int(sc["Count"]))).quantize(Decimal('0.000'))
+                                    m["Latency"] = Decimal(
+                                        (
+                                            int(m["Count"]) * float(m["Latency"])
+                                            + int(sc["Count"]) * float(sc["Latency"])
+                                        )
+                                        / (int(m["Count"]) + int(sc["Count"]))
+                                    ).quantize(Decimal("0.000"))
                                     found = True
                                     break
                             if not found:
@@ -108,7 +116,7 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                             found = False
                             for m in m_dict:
                                 if sc["EdgeType"] == m["EdgeType"]:
-                                    m["Count"] = int(m["Count"]) + int(sc["Count"])
+                                    m["Count"] = str(int(m["Count"]) + int(sc["Count"]))
                                     found = True
                                     break
                             if not found:
@@ -121,7 +129,13 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                             found = False
                             for m in m_dict:
                                 if sc["EdgeType"] == m["EdgeType"]:
-                                    m["Latency"] = Decimal((int(m["Count"]) * float(m["Latency"]) + int(sc["Count"]) * float(sc["Latency"]))/(int(m["Count"]) + int(sc["Count"]))).quantize(Decimal('0.000'))
+                                    m["Latency"] = Decimal(
+                                        (
+                                            int(m["Count"]) * float(m["Latency"])
+                                            + int(sc["Count"]) * float(sc["Latency"])
+                                        )
+                                        / (int(m["Count"]) + int(sc["Count"]))
+                                    ).quantize(Decimal("0.000"))
                                     found = True
                                     break
                             if not found:
@@ -136,7 +150,13 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                                 latency_count = int(sc["Count"])
                                 latency_value = sc["Latency"]
                             else:
-                                latency_value = Decimal((int(latency_count) * float(latency_value) + int(sc["Count"]) * float(sc["Latency"]))/(int(latency_count) + int(sc["Count"]))).quantize(Decimal('0.00'))
+                                latency_value = Decimal(
+                                    (
+                                        int(latency_count) * float(latency_value)
+                                        + int(sc["Count"]) * float(sc["Latency"])
+                                    )
+                                    / (int(latency_count) + int(sc["Count"]))
+                                ).quantize(Decimal("0.00"))
                     detailed_data_item["Value"] = latency_value
                 elif metric == "chr" or metric == "chrBandWidth":
                     chr_metric = 0
@@ -147,26 +167,40 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                                 chr_count = int(sc["Count"])
                                 chr_metric = sc["Metric"]
                             else:
-                                chr_metric = Decimal((int(chr_count) * float(chr_metric) + int(sc["Count"]) * float(sc["Metric"]))/(int(chr_count) + int(sc["Count"]))).quantize(Decimal('0.00'))
+                                chr_metric = Decimal(
+                                    (
+                                        int(chr_count) * float(chr_metric)
+                                        + int(sc["Count"]) * float(sc["Metric"])
+                                    )
+                                    / (int(chr_count) + int(sc["Count"]))
+                                ).quantize(Decimal("0.00"))
                     detailed_data_item["Value"] = chr_metric
                 else:
                     detailed_data_item["Value"] = query_item["metricData"]
 
                 detailed_data.append(detailed_data_item)
     else:
-        # TODO: need to implement
         for query_item in response["Items"]:
             if query_item["timestamp"] != str(int(start_time)):
                 detailed_data_item = {}
                 detailed_data_item["Time"] = datetime.fromtimestamp(
                     int(query_item["timestamp"])
                 ).strftime("%Y-%m-%d %H:%M:%S")
-                if country not in query_item["metricData"]:
-                    raise Exception(
-                        f"The country value {country} is not valid, please specify a valid country"
-                    )
-                # Only get the metric data for the specified country
-                detailed_data_item["Value"] = query_item["metricData"][country]
+                if metric == "topNUrlRequests" or metric == "topNUrlSize":
+                    #TODO:implement
+                    detailed_data_item["Value"] = query_item["metricData"]
+                else:
+                    if country not in query_item["metricData"]:
+                        raise Exception(
+                            f"The country value {country} is not valid, please specify a valid country"
+                        )
+                    # Only get the metric data for the specified country
+                    if metric == "chr" or metric == "chrBandWidth":
+                        detailed_data_item["Value"] = query_item["metricData"][country][0]["Metric"]
+                    elif metric == "latencyRatio":
+                        detailed_data_item["Value"] = query_item["metricData"][country][0]["Latency"]
+                    else:
+                        detailed_data_item["Value"] = query_item["metricData"][country]
                 detailed_data.append(detailed_data_item)
 
     return detailed_data
@@ -208,7 +242,7 @@ def get_metric_data(start_time, end_time, metric, domain, country):
             cdn_data_item["DetailData"] = detailed_data
             cdn_data.append(cdn_data_item)
     else:
-        ori_metric = metric_item
+        ori_metric = metric
         metric = get_real_metric(metric)
         log.info("[get_metric_data] Start to get query result from ddb table")
         detailed_data = query_metric_ddb(start_time, end_time, metric, domain, country)
