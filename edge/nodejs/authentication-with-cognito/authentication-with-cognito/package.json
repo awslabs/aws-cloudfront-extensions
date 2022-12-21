@@ -7,7 +7,7 @@
   "author": "SAM CLI",
   "license": "Apache-2.0",
   "dependencies": {
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwk-to-pem": "^2.0.4"
   },
   "scripts": {
