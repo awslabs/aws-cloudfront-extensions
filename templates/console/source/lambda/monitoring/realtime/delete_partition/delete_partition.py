@@ -33,7 +33,7 @@ def lambda_handler(event, context):
         minute = str('%02d' % minute)
         
         # 00~23
-        for hour in range(24): 
+        for hour in range(24):
             hour = str('%02d' % hour)
         
             delete_json = {

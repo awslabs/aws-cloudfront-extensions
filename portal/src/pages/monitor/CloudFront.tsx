@@ -200,7 +200,7 @@ const CloudFront: React.FC = () => {
                 setCdnBandWidthData(item.DetailData);
               } else if (item.Metric === "bandwidthOrigin") {
                 setCdnBandWidthOriginData(item.DetailData);
-              } else if (item.Metric === "latencyratio") {
+              } else if (item.Metric === "latencyRatio") {
                 setCdnLatencyRatioData(item.DetailData);
               } else if (item.Metric === "downloadSpeed") {
                 setCdnDownloadSpeedData(item.DetailData);
