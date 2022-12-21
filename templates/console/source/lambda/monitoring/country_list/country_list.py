@@ -57,8 +57,11 @@ def list_country(domain, start_time, end_time):
     )
 
     country_array = []
+    sum_req = 0
     for s in sorted_country_result:
         country_array.append({"country": s[0], "request": s[1]})
+        sum_req += int(s[1])
+    country_array.append({"country": "All", "request": sum_req})
 
     return country_array
 
