@@ -54,13 +54,22 @@ def collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GL
             
             domain_country_dict = {}
             result_rows = item_query_result["ResultSet"]["Rows"]
-            if metric == 'request' or metric == 'requestOrigin' or metric == 'bandwidth' or metric == 'bandwidthOrigin' or metric == 'downstreamTraffic':
+            if metric == 'bandwidth' or metric == 'bandwidthOrigin' or metric == 'downstreamTraffic':
                 for i in range(1, len(result_rows)):
                     if item_query_result['ResultSet']['Rows'][i]['Data'][0].get('VarCharValue') != None:
                         item_query_value = result_rows[i]['Data'][0]['VarCharValue']
                         domain = result_rows[i]['Data'][1]['VarCharValue']
                         country = result_rows[i]['Data'][2]['VarCharValue']
                         domain_country_dict = insert_value(domain_country_dict, domain, country, item_query_value)
+            elif metric == 'request' or metric == 'requestOrigin':
+                for i in range(1, len(result_rows)):
+                    if item_query_result['ResultSet']['Rows'][i]['Data'][0].get('VarCharValue') != None:
+                        request_row = {}
+                        request_row["Count"] = result_rows[i]['Data'][0]['VarCharValue']
+                        request_row["Latency"] = result_rows[i]['Data'][1]['VarCharValue']
+                        domain = result_rows[i]['Data'][2]['VarCharValue']
+                        country = result_rows[i]['Data'][3]['VarCharValue']
+                        domain_country_dict = insert_value_with_list(domain_country_dict, domain, country, request_row)
             elif metric == 'edgeType':
                 for i in range(1, len(result_rows)):
                     if result_rows[i]['Data'][0].get('VarCharValue') != None:
@@ -308,9 +317,9 @@ def construct_query_string(
     db_name, start_time, end_time, metric, table_name, m_interval, latency_limit
 ):
     # Dynamically build query string using partition
-    if metric == "request":
+    if metric == "request" or metric == "requestLatency":
         query_string = (
-            'SELECT count(timestamp), "cs-host", "c-country" FROM "'
+            'SELECT count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "'
             + db_name
             + '"."'
             + table_name
@@ -324,9 +333,9 @@ def construct_query_string(
             + str(format_date_time(start_time))
             + ' group by "cs-host", "c-country";'
         )
-    elif metric == "requestOrigin":
+    elif metric == "requestOrigin" or metric == "requestOriginLatency":
         query_string = (
-            'SELECT count(timestamp), "cs-host", "c-country" FROM "'
+            'SELECT count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "'
             + db_name
             + '"."'
             + table_name
