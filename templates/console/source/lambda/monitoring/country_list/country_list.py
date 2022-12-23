@@ -12,7 +12,7 @@ dynamodb_client = boto3.resource("dynamodb", region_name=region)
 
 logger = Logger(service="Monitoring")
 app = AppSyncResolver()
-metric_header = "request"
+metric_header = "bandwidth"
 
 
 @app.resolver(type_name="Query", field_name="listCountry")

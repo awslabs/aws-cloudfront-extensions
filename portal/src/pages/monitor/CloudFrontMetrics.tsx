@@ -418,7 +418,7 @@ const CloudFrontMetrics: React.FC = () => {
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Downstream traffic"
-                            yAxisUnit="BPS(Byte per second)"
+                            yAxisUnit="Bytes"
                             metricType={MetricType.downstreamTraffic}
                             startTime={startDate}
                             endTime={endDate}
@@ -429,8 +429,8 @@ const CloudFrontMetrics: React.FC = () => {
                             isTable
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
-                            graphTitle="Origin Bandwidth"
-                            yAxisUnit="BPS(Byte per second)"
+                            graphTitle="Top 10 URL with most traffic"
+                            yAxisUnit="Bytes"
                             metricType={MetricType.topNUrlSize}
                             startTime={startDate}
                             endTime={endDate}
@@ -450,7 +450,7 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
-                            graphTitle="Cache Hit Rate(Caclulated based on Requests)"
+                            graphTitle="Cache Hit Rate(Calculated based on Requests)"
                             yAxisUnit="Percentage(%)"
                             metricType={MetricType.chr}
                             startTime={startDate}
@@ -461,7 +461,7 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
-                            graphTitle="Cache Hit Rate(Caclulated based on Bandwidth)"
+                            graphTitle="Cache Hit Rate(Calculated based on Bandwidth)"
                             yAxisUnit="Percentage(%)"
                             metricType={MetricType.chrBandWidth}
                             startTime={startDate}

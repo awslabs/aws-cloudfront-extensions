@@ -235,7 +235,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         setDataKey("Path");
         setDataValue("Count");
         setTableKeyName("URL");
-        setTableValueName("Reqeusts");
+        setTableValueName("Requests");
         settableDataList(tmpSeriesData?.[0] || []);
       }
 
@@ -244,7 +244,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         setDataKey("Path");
         setDataValue("Size");
         setTableKeyName("URL");
-        setTableValueName("BPS(Byte per seconds)");
+        setTableValueName("Bytes");
         settableDataList(tmpSeriesData?.[0] || []);
       }
 
