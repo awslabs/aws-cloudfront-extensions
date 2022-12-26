@@ -357,7 +357,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
               list={tableDataList}
             />
           ) : (
-            <Chart options={options} height={320} series={series} />
+            <Chart options={options} height={260} series={series} />
           )}
         </div>
       </HeaderPanel>
