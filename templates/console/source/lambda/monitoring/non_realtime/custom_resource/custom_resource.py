@@ -5,13 +5,13 @@ import boto3
 from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
 
-LAMBDA_ARN = os.environ['LAMBDA_ARN']
 lambda_client = boto3.client('lambda')
 log = logging.getLogger()
 log.setLevel('INFO')
 
 
 def lambda_handler(event, context):
+    LAMBDA_ARN = os.environ['LAMBDA_ARN']
     request_type = event['RequestType'].upper() if (
         'RequestType' in event) else ""
     log.info(request_type)

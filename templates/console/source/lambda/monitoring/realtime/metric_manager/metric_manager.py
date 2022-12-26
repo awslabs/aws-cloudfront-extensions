@@ -43,11 +43,11 @@ COUNTRY_ALL = "all"
 log = logging.getLogger()
 log.setLevel("INFO")
 
+dynamodb = boto3.resource("dynamodb", region_name=os.environ.get('REGION_NAME', 'us-east-1'))
 
 def query_metric_ddb(start_time, end_time, metric, domain, country):
     """Query from Dynamodb table with country filter"""
     TABLE_NAME = os.environ["DDB_TABLE_NAME"]
-    dynamodb = boto3.resource("dynamodb", region_name=os.environ["REGION_NAME"])
     real_metric = get_real_metric(metric)
 
     detailed_data = []

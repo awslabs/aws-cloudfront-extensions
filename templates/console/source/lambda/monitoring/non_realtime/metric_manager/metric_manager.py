@@ -9,7 +9,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 athena_client = boto3.client('athena')
-M_INTERVAL = int(os.environ['INTERVAL'])
+M_INTERVAL = int(os.environ.get('INTERVAL', 5))
 METRIC_DICT = [
     "request", "requestOrigin", "statusCode", "statusCodeOrigin", "chr",
     "chrBandWidth", "bandwidth", "bandwidthOrigin", "topNUrlRequests",
