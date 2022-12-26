@@ -322,7 +322,7 @@ const CloudFrontMetrics: React.FC = () => {
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
-                            graphTitle="Origen Requests latency"
+                            graphTitle="Origin Requests latency"
                             yAxisUnit=""
                             metricType={MetricType.requestOriginLatency}
                             startTime={startDate}
