@@ -18,6 +18,8 @@ import moment from "moment";
 import "rsuite/dist/rsuite.min.css";
 import { AmplifyConfigType } from "assets/js/type";
 import LoadingText from "components/LoadingText";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import Button from "components/Button";
 
 export enum MetricType {
   request = "request",
@@ -81,6 +83,7 @@ const CloudFrontMetrics: React.FC = () => {
   );
   const [countryList, setCountryList] = useState<KeyValueType[]>([]);
   const [curCountryCode, setcurCountryCode] = useState("All");
+  const [isRefresh, setIsRefresh] = useState(0);
 
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
@@ -178,7 +181,23 @@ const CloudFrontMetrics: React.FC = () => {
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
-      <PagePanel title="CloudFront monitoring">
+      <PagePanel
+        title="CloudFront monitoring"
+        actions={
+          <>
+            <Button
+              btnType="icon"
+              onClick={() => {
+                setIsRefresh((prev) => {
+                  return prev + 1;
+                });
+              }}
+            >
+              <RefreshIcon fontSize="small" /> Refresh
+            </Button>
+          </>
+        }
+      >
         <div className="monitor-cotainer">
           <div className="left-filter">
             <div>
@@ -200,8 +219,8 @@ const CloudFrontMetrics: React.FC = () => {
                     disabled={amplifyConfig.aws_monitoring_url === ""}
                     format="yyyy-MM-dd HH:mm"
                     defaultValue={[
-                      moment().add(-12, "hours").toDate(),
-                      new Date(),
+                      moment().utc().add(-12, "hours").toDate(),
+                      moment().utc().toDate(),
                     ]}
                     // disabledDate={afterToday?.()}
                     onChange={(range) => {
@@ -253,7 +272,7 @@ const CloudFrontMetrics: React.FC = () => {
               >
                 <AntTab label="Requests/ StatusCode/ Latency" />
                 <AntTab label="Bandwidth/ Downstream Traffic" />
-                <AntTab label="Cache Hit Rate/ Cache result type" />
+                <AntTab label="Cache Hit Rate/ Cache Result Type" />
               </AntTabs>
               <TabPanel value={activeTab} index={0}>
                 <div className="monitor-chart-list">
@@ -262,6 +281,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td style={{ width: "50%" }}>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Requests"
@@ -273,6 +293,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Origin Requests"
@@ -286,6 +307,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Requests latency"
@@ -297,6 +319,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Origen Requests latency"
@@ -310,6 +333,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Status code count"
@@ -321,6 +345,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Origin status code count"
@@ -334,6 +359,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Status code latency"
@@ -345,6 +371,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Origin status code latency"
@@ -358,6 +385,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Lantency (Time taken > 1 sec)"
@@ -370,6 +398,7 @@ const CloudFrontMetrics: React.FC = () => {
                         <td>
                           <MonitorCharts
                             isTable
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Top 10 URL with most requests"
@@ -391,6 +420,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td style={{ width: "50%" }}>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Bandwidth"
@@ -402,6 +432,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Origin Bandwidth"
@@ -415,6 +446,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td style={{ width: "50%" }}>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Downstream traffic"
@@ -427,6 +459,7 @@ const CloudFrontMetrics: React.FC = () => {
                         <td>
                           <MonitorCharts
                             isTable
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Top 10 URL with most traffic"
@@ -448,6 +481,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td style={{ width: "50%" }}>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Cache Hit Rate(Calculated based on Requests)"
@@ -459,6 +493,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="Cache Hit Rate(Calculated based on Bandwidth)"
@@ -472,6 +507,7 @@ const CloudFrontMetrics: React.FC = () => {
                       <tr>
                         <td style={{ width: "50%" }}>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="x-edge-response-result-type-count"
@@ -483,6 +519,7 @@ const CloudFrontMetrics: React.FC = () => {
                         </td>
                         <td>
                           <MonitorCharts
+                            isRefresh={isRefresh}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
                             graphTitle="x-edge-response-result-type average latency"

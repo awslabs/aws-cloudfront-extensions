@@ -19,6 +19,7 @@ interface MonitorChartsProps {
   metricType: string;
   startTime: string;
   endTime: string;
+  isRefresh: number;
 }
 
 const MonitorCharts: React.FC<MonitorChartsProps> = (
@@ -33,6 +34,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     startTime,
     endTime,
     metricType,
+    isRefresh,
   } = props;
   const amplifyConfig: AmplifyConfigType = useSelector(
     (state: AppStateProps) => state.amplifyConfig
@@ -42,7 +44,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       redrawOnParentResize: true,
       id: domainName,
       width: "100%",
-      height: 200,
+      // height: 200,
       type: "line",
       zoom: {
         enabled: false,
@@ -51,7 +53,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         enabled: false,
       },
     },
-    colors: ["#0073bb", "#ec7211"],
+    colors: ["#0073bb", "#ec7211", "#2ca02c", "#d62728"],
     grid: {
       padding: {
         top: 20,
@@ -214,6 +216,20 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         },
       ];
 
+      if (
+        metricType === MetricType.chr ||
+        metricType === MetricType.chrBandWidth
+      ) {
+        tmpSeries = [
+          {
+            name: data.Metric,
+            data: tmpSeriesData.map((element: any) => {
+              return parseFloat(element);
+            }),
+          },
+        ];
+      }
+
       // statusCode or statusCodeOrigin
       if (
         metricType === MetricType.statusCode ||
@@ -228,24 +244,6 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         metricType === MetricType.statusCodeOriginLatency
       ) {
         tmpSeries = buildMultiLineData(tmpSeriesData, "StatusCode", "Latency");
-      }
-
-      // Top N request URL
-      if (metricType === MetricType.topNUrlRequests) {
-        setDataKey("Path");
-        setDataValue("Count");
-        setTableKeyName("URL");
-        setTableValueName("Requests");
-        settableDataList(tmpSeriesData?.[0] || []);
-      }
-
-      // Top N URL with traffic
-      if (metricType === MetricType.topNUrlSize) {
-        setDataKey("Path");
-        setDataValue("Size");
-        setTableKeyName("URL");
-        setTableValueName("Bytes");
-        settableDataList(tmpSeriesData?.[0] || []);
       }
 
       // x-edge-response-result-type-count
@@ -279,6 +277,24 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       });
       setSeries([]);
     }
+
+    // Top N request URL
+    if (metricType === MetricType.topNUrlRequests) {
+      setDataKey("Path");
+      setDataValue("Count");
+      setTableKeyName("URL");
+      setTableValueName("Requests");
+      settableDataList(tmpSeriesData?.[0] || []);
+    }
+
+    // Top N URL with traffic
+    if (metricType === MetricType.topNUrlSize) {
+      setDataKey("Path");
+      setDataValue("Size");
+      setTableKeyName("URL");
+      setTableValueName("Bytes");
+      settableDataList(tmpSeriesData?.[0] || []);
+    }
   };
   // const tmpStartTime = "2022-12-22 07:35:00";
   // const tmpEndTime = "2022-12-22 07:40:00";
@@ -299,6 +315,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
           "x-api-key": amplifyConfig.aws_monitoring_api_key,
         },
       });
+
       if (response.data) {
         const resData = response?.data?.Response?.Data?.[0]?.CdnData?.[0];
         buildMetricData(resData);
@@ -320,7 +337,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     if (domainName && startTime && endTime) {
       getMetricsData();
     }
-  }, [domainName, startTime, endTime, curCountry]);
+  }, [domainName, startTime, endTime, curCountry, isRefresh]);
 
   return (
     <div className="monitor-chart">
@@ -340,7 +357,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
               list={tableDataList}
             />
           ) : (
-            <Chart options={options} series={series} />
+            <Chart options={options} height={320} series={series} />
           )}
         </div>
       </HeaderPanel>
