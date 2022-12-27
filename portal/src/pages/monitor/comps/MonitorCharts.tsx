@@ -66,7 +66,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
   const chartDefaultOptions: ApexOptions = {
     chart: {
       redrawOnParentResize: true,
-      id: domainName,
+      id: domainName + Math.random() * 100,
       width: "100%",
       // height: 200,
       type: "line",
@@ -293,6 +293,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         tmpSeries = buildMultiLineData(tmpSeriesData, "EdgeType", "Latency");
       }
 
+      console.info("isModalisModalisModalisModalisModal:", isModal);
       if (isModal) {
         // Set Modal Data
         setchartModalOptions({
@@ -401,9 +402,10 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
 
       if (response.data) {
         const resData = response?.data?.Response?.Data?.[0]?.CdnData?.[0];
-        buildMetricData(resData);
         if (isModal) {
           buildMetricData(resData, true);
+        } else {
+          buildMetricData(resData);
         }
       }
       setLoadingData(false);
@@ -423,7 +425,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     if (domainName && chartModalStartTime && chartModalEndTime) {
       getMetricsData(true, chartModalStartTime, chartModalEndTime);
     }
-  }, [chartModalStartTime, chartModalEndTime, domainName]);
+  }, [chartModalStartTime, chartModalEndTime]);
 
   return (
     <>

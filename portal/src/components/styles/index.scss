@@ -660,11 +660,12 @@
   // display: flex;
   // justify-content: space-between;
   position: relative;
+  padding-top: 20px;
   .time-select-content {
     position: absolute;
     top: -10px;
     right: 0;
-    width: 460px;
+    width: 448px;
     z-index: 9999;
   }
 }
@@ -694,45 +695,6 @@
       margin-top: 36px;
       padding: 2px 0;
       right: 0;
-      // .time-range-picker {
-      //   position: relative;
-      //   padding: 0px;
-      //   .react-minimal-datetime-range__range-input-wrapper {
-      //     border-radius: 0;
-      //     border: 0;
-      //   }
-      //   .react-minimal-datetime-range {
-      //     width: 540px;
-      //     right: 0;
-      //     margin-top: 4px;
-      //   }
-      //   .react-minimal-datetime-date-piker {
-      //     text-align: right;
-      //   }
-
-      //   // .react-minimal-datetime-range-calendar__table-cel.no-border,
-      //   // .react-minimal-datetime-range-calendar__table-cel,
-      //   .react-minimal-datetime-range-calendar__table-cel.react-minimal-datetime-range-calendar__date-item:not(
-      //       .disabled
-      //     ) {
-      //     padding: 10px;
-      //   }
-
-      //   .react-minimal-datetime-range__button {
-      //     border-radius: 0px;
-      //     cursor: pointer;
-      //     display: inline-block;
-      //     font-size: 12px;
-      //     margin-right: 10px;
-      //     padding: 8px 15px;
-      //     color: #ec7211;
-      //   }
-      //   .react-minimal-datetime-range__button--confirm {
-      //     background: #ec7211;
-      //     border: 1px solid #ec7211;
-      //     color: #fff;
-      //   }
-      // }
     }
   }
 }
