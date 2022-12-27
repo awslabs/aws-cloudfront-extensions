@@ -11,3 +11,26 @@ export interface AmplifyConfigType {
   aws_monitoring_api_key: string;
   aws_monitoring_stack_name: string;
 }
+
+export enum MetricType {
+  request = "request",
+  requestOrigin = "requestOrigin",
+  requestLatency = "requestLatency",
+  requestOriginLatency = "requestOriginLatency",
+  statusCode = "statusCode",
+  statusCodeOrigin = "statusCodeOrigin",
+  statusCodeLatency = "statusCodeLatency",
+  statusCodeOriginLatency = "statusCodeOriginLatency",
+  latencyRatio = "latencyRatio",
+  topNUrlRequests = "topNUrlRequests",
+
+  bandwidth = "bandwidth",
+  bandwidthOrigin = "bandwidthOrigin",
+  downstreamTraffic = "downstreamTraffic",
+  topNUrlSize = "topNUrlSize",
+
+  chr = "chr",
+  chrBandWidth = "chrBandWidth",
+  edgeType = "edgeType",
+  edgeTypeLatency = "edgeTypeLatency",
+}

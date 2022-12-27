@@ -70,7 +70,8 @@
     "details": "详情",
     "compare": "比较",
     "versionWithNote": "带有说明的版本",
-    "allVersion": "所有版本"
+    "allVersion": "所有版本",
+    "close": "关闭"
   },
   "status": {
     "error": "错误"

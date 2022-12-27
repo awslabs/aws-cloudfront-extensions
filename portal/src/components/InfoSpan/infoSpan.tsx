@@ -14,7 +14,12 @@ const InfoSpan: React.FC<spanInfo> = (props: spanInfo) => {
     dispatch({ type: ActionType.SET_INFO_BAR_TYPE, infoBarType: spanType });
   }, [dispatch, spanType]);
   return (
-    <span className="gsui-info-span" onClick={openInfoBar}>
+    <span
+      className="gsui-info-span"
+      onClick={() => {
+        spanType && openInfoBar();
+      }}
+    >
       Info
     </span>
   );

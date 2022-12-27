@@ -10,7 +10,7 @@
   },
   "menu": {
     "home": "Home",
-    "monitoring": "Monitoring",
+    "monitoring": "CloudFront monitoring",
     "cloudFrontTraffic": "CloudFront traffic",
     "distributionMgmt": "Distribution management",
     "snapshot": "Snapshot",
@@ -70,7 +70,8 @@
     "details": "Details",
     "compare": "Compare",
     "versionWithNote": "Version with Note",
-    "allVersion": "All Versions"
+    "allVersion": "All Versions",
+    "close": "Close"
   },
   "status": {
     "error": "Error"

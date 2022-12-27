@@ -7,42 +7,19 @@ import { AntTab, AntTabs, TabPanel } from "components/Tab";
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import MonitorCharts from "./comps/MonitorCharts";
-import { ActionType, AppStateProps } from "reducer/appReducer";
-import { useDispatch, useSelector } from "react-redux";
+import { ActionType } from "reducer/appReducer";
+import { useDispatch } from "react-redux";
 import { KeyValueType, MonitorTable } from "./comps/MonitorTable";
 import { appSyncRequestQuery } from "assets/js/request";
 import { listCountry, listDistribution } from "graphql/queries";
 import { SelectItem } from "components/Select/select";
-import DateRangePicker from "rsuite/esm/DateRangePicker";
-import moment from "moment";
-import "rsuite/dist/rsuite.min.css";
-import { AmplifyConfigType } from "assets/js/type";
+// import DateRangePicker from "rsuite/esm/DateRangePicker";
+// import "rsuite/dist/rsuite.min.css";
 import LoadingText from "components/LoadingText";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Button from "components/Button";
-
-export enum MetricType {
-  request = "request",
-  requestOrigin = "requestOrigin",
-  requestLatency = "requestLatency",
-  requestOriginLatency = "requestOriginLatency",
-  statusCode = "statusCode",
-  statusCodeOrigin = "statusCodeOrigin",
-  statusCodeLatency = "statusCodeLatency",
-  statusCodeOriginLatency = "statusCodeOriginLatency",
-  latencyRatio = "latencyRatio",
-  topNUrlRequests = "topNUrlRequests",
-
-  bandwidth = "bandwidth",
-  bandwidthOrigin = "bandwidthOrigin",
-  downstreamTraffic = "downstreamTraffic",
-  topNUrlSize = "topNUrlSize",
-
-  chr = "chr",
-  chrBandWidth = "chrBandWidth",
-  edgeType = "edgeType",
-  edgeTypeLatency = "edgeTypeLatency",
-}
+import TimeRange from "./comps/TimeRange";
+import { MetricType } from "assets/js/type";
 
 interface DistributionType {
   aliases: { Quantity: number; Items: string[] };
@@ -67,23 +44,24 @@ const CloudFrontMetrics: React.FC = () => {
       link: "",
     },
   ];
-  const amplifyConfig: AmplifyConfigType = useSelector(
-    (state: AppStateProps) => state.amplifyConfig
-  );
+
   const [activeTab, setActiveTab] = useState(2);
   const [loadingCloudFront, setLoadingCloudFront] = useState(false);
   const [cloudFrontList, setCloudFrontList] = useState<SelectItem[]>([]);
   const [currentCloudFront, setCurrentCloudFront] = useState("");
   const [loadingCountry, setLoadingCountry] = useState(false);
-  const [startDate, setStartDate] = useState(
-    encodeURI(moment().utc().add(-12, "hours").format("YYYY-MM-DD HH:mm:ss"))
-  );
-  const [endDate, setEndDate] = useState(
-    encodeURI(moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss"))
-  );
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  // const [startDate, setStartDate] = useState(
+  //   encodeURI(moment().utc().add(-12, "hours").format("YYYY-MM-DD HH:mm:ss"))
+  // );
+  // const [endDate, setEndDate] = useState(
+  //   encodeURI(moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss"))
+  // );
   const [countryList, setCountryList] = useState<KeyValueType[]>([]);
   const [curCountryCode, setcurCountryCode] = useState("All");
   const [isRefresh, setIsRefresh] = useState(0);
+  const [curTimeRangeType, setCurTimeRangeType] = useState("12h");
 
   // Get Distribution List
   const getCloudfrontDistributionList = async () => {
@@ -219,28 +197,21 @@ const CloudFrontMetrics: React.FC = () => {
                     }}
                   />
                 </FormItem>
-                <FormItem optionTitle="Date and time range" optionDesc="">
-                  <DateRangePicker
-                    disabled={amplifyConfig.aws_monitoring_url === ""}
-                    format="yyyy-MM-dd HH:mm"
-                    defaultValue={[
-                      moment().utc().add(-12, "hours").toDate(),
-                      moment().utc().toDate(),
-                    ]}
-                    // disabledDate={afterToday?.()}
-                    onChange={(range) => {
-                      if (range !== null) {
-                        setStartDate(
-                          encodeURI(
-                            moment.utc(range[0]).format("YYYY-MM-DD HH:mm:ss")
-                          )
-                        );
-                        setEndDate(
-                          encodeURI(
-                            moment.utc(range[1]).format("YYYY-MM-DD HH:mm:ss")
-                          )
-                        );
-                      }
+                <FormItem
+                  optionTitle="Date and time range (*UTC)"
+                  optionDesc=""
+                >
+                  <TimeRange
+                    curTimeRangeType={curTimeRangeType}
+                    startTime={startDate}
+                    endTime={endDate}
+                    changeTimeRange={(range) => {
+                      console.info("range:", range);
+                      setStartDate(range[0]);
+                      setEndDate(range[1]);
+                    }}
+                    changeRangeType={(type) => {
+                      setCurTimeRangeType(type);
                     }}
                   />
                 </FormItem>
@@ -256,7 +227,7 @@ const CloudFrontMetrics: React.FC = () => {
                   <MonitorTable
                     showSelect
                     keyName="Country"
-                    valueName="Requests"
+                    valueName="Total Requests"
                     list={countryList}
                     curCountryCode={curCountryCode}
                     changeCountryCode={(code) => {
@@ -275,9 +246,9 @@ const CloudFrontMetrics: React.FC = () => {
                   setActiveTab(newTab);
                 }}
               >
-                <AntTab label="Requests/ StatusCode/ Latency" />
-                <AntTab label="Bandwidth/ Downstream Traffic" />
-                <AntTab label="Cache Hit Rate/ Cache Result Type" />
+                <AntTab label="Requests / Error rate / Latency" />
+                <AntTab label="Bandwidth / Data transfer" />
+                <AntTab label="Cache hit rate / Cache result" />
               </AntTabs>
               <TabPanel value={activeTab} index={0}>
                 <div className="monitor-chart-list">
@@ -288,6 +259,7 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
                             graphTitle="Requests"
                             yAxisUnit="Count"
@@ -300,6 +272,7 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
                             graphTitle="Origin Requests"
                             yAxisUnit="Count"
@@ -314,9 +287,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Requests latency"
-                            yAxisUnit=""
+                            graphTitle="Rrequests latency"
+                            yAxisUnit="Milliseconds (ms)"
                             metricType={MetricType.requestLatency}
                             startTime={startDate}
                             endTime={endDate}
@@ -326,9 +300,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
                             graphTitle="Origin Requests latency"
-                            yAxisUnit=""
+                            yAxisUnit="Milliseconds (ms)"
                             metricType={MetricType.requestOriginLatency}
                             startTime={startDate}
                             endTime={endDate}
@@ -339,10 +314,11 @@ const CloudFrontMetrics: React.FC = () => {
                         <td>
                           <MonitorCharts
                             isRefresh={isRefresh}
+                            rangeType={curTimeRangeType}
                             curCountry={curCountryCode}
                             domainName={currentCloudFront}
-                            graphTitle="Status code count"
-                            yAxisUnit=""
+                            graphTitle="Requests 3xx/4xx/5xx error rate"
+                            yAxisUnit="Percentage (%)"
                             metricType={MetricType.statusCode}
                             startTime={startDate}
                             endTime={endDate}
@@ -352,9 +328,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Origin status code count"
-                            yAxisUnit=""
+                            graphTitle="Origin requests 3xx/4xx/5xx error rate"
+                            yAxisUnit="Percentage (%)"
                             metricType={MetricType.statusCodeOrigin}
                             startTime={startDate}
                             endTime={endDate}
@@ -366,9 +343,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Status code latency"
-                            yAxisUnit=""
+                            graphTitle="Requests 3xx/4xx/5xx error latency"
+                            yAxisUnit="Milliseconds (ms)"
                             metricType={MetricType.statusCodeLatency}
                             startTime={startDate}
                             endTime={endDate}
@@ -378,9 +356,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Origin status code latency"
-                            yAxisUnit=""
+                            graphTitle="Origin requests 3xx/4xx/5xx error latency"
+                            yAxisUnit="Milliseconds (ms)"
                             metricType={MetricType.statusCodeOriginLatency}
                             startTime={startDate}
                             endTime={endDate}
@@ -392,9 +371,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Lantency (Time taken > 1 sec)"
-                            yAxisUnit=""
+                            graphTitle="Requests latency (> 1 sec) rate"
+                            yAxisUnit="Percentage (%)"
                             metricType={MetricType.latencyRatio}
                             startTime={startDate}
                             endTime={endDate}
@@ -405,8 +385,9 @@ const CloudFrontMetrics: React.FC = () => {
                             isTable
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Top 10 URL with most requests"
+                            graphTitle="Top 10 URLs with most requests"
                             yAxisUnit=""
                             metricType={MetricType.topNUrlRequests}
                             startTime={startDate}
@@ -427,9 +408,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
                             graphTitle="Bandwidth"
-                            yAxisUnit="BPS(Byte per second)"
+                            yAxisUnit="Bps (Bits per second)"
                             metricType={MetricType.bandwidth}
                             startTime={startDate}
                             endTime={endDate}
@@ -439,9 +421,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Origin Bandwidth"
-                            yAxisUnit="BPS(Byte per second)"
+                            graphTitle="Origin bandwidth"
+                            yAxisUnit="Bps (Bits per second)"
                             metricType={MetricType.bandwidthOrigin}
                             startTime={startDate}
                             endTime={endDate}
@@ -453,9 +436,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Downstream traffic"
-                            yAxisUnit="Bytes"
+                            graphTitle="Data transfer"
+                            yAxisUnit="Gigabytes (GB)"
                             metricType={MetricType.downstreamTraffic}
                             startTime={startDate}
                             endTime={endDate}
@@ -466,9 +450,10 @@ const CloudFrontMetrics: React.FC = () => {
                             isTable
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Top 10 URL with most traffic"
-                            yAxisUnit="Bytes"
+                            graphTitle="Top 10 URLs with most traffic"
+                            yAxisUnit=""
                             metricType={MetricType.topNUrlSize}
                             startTime={startDate}
                             endTime={endDate}
@@ -488,9 +473,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Cache Hit Rate(Calculated based on Requests)"
-                            yAxisUnit="Percentage(%)"
+                            graphTitle="Cache hit rate (calculated using requests)"
+                            yAxisUnit="Percentage (%)"
                             metricType={MetricType.chr}
                             startTime={startDate}
                             endTime={endDate}
@@ -500,9 +486,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Cache Hit Rate(Calculated based on Bandwidth)"
-                            yAxisUnit="Percentage(%)"
+                            graphTitle="Cache hit rate (calculated using bandwidth)"
+                            yAxisUnit="Percentage (%)"
                             metricType={MetricType.chrBandWidth}
                             startTime={startDate}
                             endTime={endDate}
@@ -514,8 +501,9 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="x-edge-response-result-type-count"
+                            graphTitle="Cache result"
                             yAxisUnit="Count"
                             metricType={MetricType.edgeType}
                             startTime={startDate}
@@ -526,9 +514,10 @@ const CloudFrontMetrics: React.FC = () => {
                           <MonitorCharts
                             isRefresh={isRefresh}
                             curCountry={curCountryCode}
+                            rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="x-edge-response-result-type average latency"
-                            yAxisUnit="time(minllseconds)"
+                            graphTitle="Cache result latency"
+                            yAxisUnit="Milliseconds (ms)"
                             metricType={MetricType.edgeTypeLatency}
                             startTime={startDate}
                             endTime={endDate}

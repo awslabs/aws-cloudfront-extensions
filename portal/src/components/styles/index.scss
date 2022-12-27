@@ -544,6 +544,10 @@
   border-radius: 0 !important;
 }
 
+.MuiDialog-paperWidthMd {
+  max-width: calc(100% - 120px) !important;
+}
+
 .invalid {
   .gsui-autocomplete-select input,
   .gsui-textinput input,
@@ -604,17 +608,21 @@
       padding-right: 10px;
     }
   }
-  .monitor-chart {
-    min-height: 100px;
-    background-color: #fff;
-    margin-top: -20px;
-    box-shadow: 1px 2px 2px #ddd;
-    .chart-unit {
-      font-weight: 700;
-      font-size: 12px;
-      position: absolute;
-      margin: 10px 0 0 15px;
-    }
+}
+
+.monitor-chart {
+  min-height: 100px;
+  background-color: #fff;
+  margin-top: -20px;
+  box-shadow: 1px 2px 2px #ddd;
+  .chart-unit {
+    font-weight: 700;
+    font-size: 12px;
+    position: absolute;
+    margin: 10px 0 0 15px;
+  }
+  .zoom {
+    cursor: pointer;
   }
 }
 
@@ -644,6 +652,87 @@
     td {
       border-bottom: 1px solid #0073bb;
       border-top: 1px solid #0073bb;
+    }
+  }
+}
+
+.modal-time-range {
+  // display: flex;
+  // justify-content: space-between;
+  position: relative;
+  .time-select-content {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    width: 460px;
+    z-index: 9999;
+  }
+}
+
+.specify-time {
+  border: 1px solid #aab7b8;
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  .item {
+    background-color: #fff;
+    display: inline-block;
+    padding: 8px 10px;
+    cursor: pointer;
+    &:active {
+      background-color: #eee;
+    }
+    &.item-active {
+      font-weight: bold;
+      color: #0073bb;
+    }
+    &.custom {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #aab7b8;
+      margin-top: 36px;
+      padding: 2px 0;
+      right: 0;
+      // .time-range-picker {
+      //   position: relative;
+      //   padding: 0px;
+      //   .react-minimal-datetime-range__range-input-wrapper {
+      //     border-radius: 0;
+      //     border: 0;
+      //   }
+      //   .react-minimal-datetime-range {
+      //     width: 540px;
+      //     right: 0;
+      //     margin-top: 4px;
+      //   }
+      //   .react-minimal-datetime-date-piker {
+      //     text-align: right;
+      //   }
+
+      //   // .react-minimal-datetime-range-calendar__table-cel.no-border,
+      //   // .react-minimal-datetime-range-calendar__table-cel,
+      //   .react-minimal-datetime-range-calendar__table-cel.react-minimal-datetime-range-calendar__date-item:not(
+      //       .disabled
+      //     ) {
+      //     padding: 10px;
+      //   }
+
+      //   .react-minimal-datetime-range__button {
+      //     border-radius: 0px;
+      //     cursor: pointer;
+      //     display: inline-block;
+      //     font-size: 12px;
+      //     margin-right: 10px;
+      //     padding: 8px 15px;
+      //     color: #ec7211;
+      //   }
+      //   .react-minimal-datetime-range__button--confirm {
+      //     background: #ec7211;
+      //     border: 1px solid #ec7211;
+      //     color: #fff;
+      //   }
+      // }
     }
   }
 }

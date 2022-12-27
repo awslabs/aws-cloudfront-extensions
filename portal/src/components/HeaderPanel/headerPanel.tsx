@@ -6,6 +6,7 @@ import InfoSpan from "../InfoSpan";
 
 interface HeaderPanelProps {
   hasInfo?: boolean;
+  infoLink?: string;
   infoType?: InfoBarTypes;
   count?: number;
   className?: string;
@@ -22,6 +23,7 @@ export const HeaderPanel: React.FC<HeaderPanelProps> = (
 ) => {
   const {
     hasInfo,
+    infoLink,
     infoType,
     title,
     count,
@@ -40,7 +42,12 @@ export const HeaderPanel: React.FC<HeaderPanelProps> = (
           <div className="sub-title">
             {title}
             {count ? <span>({count})</span> : ""}
-            {hasInfo && <InfoSpan spanType={infoType} />}
+            {hasInfo && !infoLink && <InfoSpan spanType={infoType} />}
+            {hasInfo && infoLink && (
+              <a href={infoLink} target="_blank" rel="noreferrer">
+                <InfoSpan spanType={undefined} />
+              </a>
+            )}
           </div>
           {desc && <div className="sub-desc">{desc}</div>}
         </div>

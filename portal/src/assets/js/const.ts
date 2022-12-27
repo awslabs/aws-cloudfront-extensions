@@ -19,3 +19,6 @@ export const ZH_LANGUAGE_LIST = ["zh", "zh_CN", "zh_TW"];
 export const GITHUB_LINK =
   "https://github.com/awslabs/aws-cloudfront-extensions";
 export const URL_FEEDBACK = GITHUB_LINK + "/issues";
+
+export const MONITOR_HELP_LINK =
+  "https://awslabs.github.io/aws-cloudfront-extensions/en/monitoring/metrics-dashboard/";
