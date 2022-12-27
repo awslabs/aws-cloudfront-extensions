@@ -60,8 +60,8 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     // create Dynamodb table to save the cloudfront metrics data
     const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
       billingMode: dynamodb.BillingMode.PROVISIONED,
-      readCapacity: 10,
-      writeCapacity: 10,
+      readCapacity: 20,
+      writeCapacity: 20,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       partitionKey: { name: 'metricId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },

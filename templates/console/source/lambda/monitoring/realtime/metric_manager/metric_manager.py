@@ -186,20 +186,20 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                     #TODO: support country filter
                     detailed_data_item["Value"] = query_item["metricData"]
                 else:
-                    if country not in query_item["metricData"]:
-                        raise Exception(
-                            f"The country value {country} is not valid, please specify a valid country"
-                        )
-                    # Only get the metric data for the specified country
-                    if metric == "chr" or metric == "chrBandWidth":
-                        detailed_data_item["Value"] = query_item["metricData"][country][0]["Metric"]
-                    elif metric == "latencyRatio" or metric == "requestLatency" or metric == "requestOriginLatency":
-                        detailed_data_item["Value"] = query_item["metricData"][country][0]["Latency"]
-                    elif metric == "request" or metric == "requestOrigin":
-                        detailed_data_item["Value"] = query_item["metricData"][country][0]["Count"]
-                    else:
-                        detailed_data_item["Value"] = query_item["metricData"][country]
-                detailed_data.append(detailed_data_item)
+                    if country in query_item["metricData"]:
+                        # Only get the metric data for the specified country
+                        if metric == "chr" or metric == "chrBandWidth":
+                            detailed_data_item["Value"] = query_item["metricData"][country][0]["Metric"]
+                        elif metric == "latencyRatio" or metric == "requestLatency" or metric == "requestOriginLatency":
+                            detailed_data_item["Value"] = query_item["metricData"][country][0]["Latency"]
+                        elif metric == "request" or metric == "requestOrigin":
+                            detailed_data_item["Value"] = query_item["metricData"][country][0]["Count"]
+                        else:
+                            detailed_data_item["Value"] = query_item["metricData"][country]
+
+                if "Value" in detailed_data_item:
+                    # Skip if no value in specific country
+                    detailed_data.append(detailed_data_item)
 
     return detailed_data
 
@@ -317,7 +317,6 @@ def lambda_handler(event, context):
         response["body"] = json.dumps(resp_body, cls=DecimalEncoder)
         response["statusCode"] = 200
 
-        log.info("[lambda_handler] " + json.dumps(response))
     except Exception as error:
         log.error(str(error))
 
