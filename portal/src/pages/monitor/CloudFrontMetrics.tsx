@@ -145,11 +145,16 @@ const CloudFrontMetrics: React.FC = () => {
         end_time: Math.ceil(new Date(decodeURI(endDate)).getTime() / 1000),
       });
       const tmpCountryStringList: string[] = resData?.data?.listCountry || [];
-      const tmpCountryList: KeyValueType[] = [];
-      tmpCountryStringList.sort().forEach((element) => {
-        tmpCountryList.push(buildDataFromCountryString(element));
-      });
-      setCountryList(tmpCountryList);
+      if (tmpCountryStringList && tmpCountryStringList.length > 0) {
+        const tmpCountryList: KeyValueType[] = [];
+        const all = tmpCountryStringList.pop();
+        [all, ...tmpCountryStringList].forEach((element: any) => {
+          tmpCountryList.push(buildDataFromCountryString(element));
+        });
+        setCountryList(tmpCountryList);
+      } else {
+        setCountryList([]);
+      }
       setLoadingCountry(false);
     } catch (error) {
       setLoadingCountry(false);

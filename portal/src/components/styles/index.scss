@@ -609,7 +609,12 @@
     background-color: #fff;
     margin-top: -20px;
     box-shadow: 1px 2px 2px #ddd;
-    // padding: 10px 10px 10px;
+    .chart-unit {
+      font-weight: 700;
+      font-size: 12px;
+      position: absolute;
+      margin: 10px 0 0 15px;
+    }
   }
 }
 

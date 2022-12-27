@@ -71,17 +71,18 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       offsetY: 10,
     },
     yaxis: {
-      tickAmount: 2,
-      title: {
-        text: yAxisUnit,
-        rotate: -90,
-        offsetX: 7,
-        // offsetY: -140,
-        style: {
-          fontWeight: "500",
-          color: "#666",
-        },
-      },
+      tickAmount: 5,
+      // title: {
+      //   text: yAxisUnit,
+      //   rotate: 0,
+      //   // align: "left",
+      //   offsetX: 0,
+      //   offsetY: -100,
+      //   style: {
+      //     fontWeight: "700",
+      //     color: "#666",
+      //   },
+      // },
       forceNiceScale: false,
       min: 0,
       labels: {
@@ -145,8 +146,8 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       type: "datetime",
       tickAmount: 10,
       categories: [
-        new Date(startTime).getTime() * 1000,
-        new Date(endTime).getTime() * 1000,
+        new Date(decodeURI(startTime)).getTime() * 1000,
+        new Date(decodeURI(endTime)).getTime() * 1000,
       ],
       labels: {
         datetimeFormatter: {
@@ -267,11 +268,15 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     } else {
       setOptions({
         ...chartDefaultOptions,
+        legend: {
+          ...chartDefaultOptions.legend,
+          show: false,
+        },
         xaxis: {
           ...chartDefaultOptions.xaxis,
           categories: [
-            new Date(startTime).getTime(),
-            new Date(endTime).getTime(),
+            new Date(decodeURI(startTime)).getTime(),
+            new Date(decodeURI(endTime)).getTime(),
           ],
         },
       });
@@ -296,10 +301,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       settableDataList(tmpSeriesData?.[0] || []);
     }
   };
-  // const tmpStartTime = "2022-12-22 07:35:00";
-  // const tmpEndTime = "2022-12-22 07:40:00";
-  // const tmpStartTime = "2022-12-20 20:00:00";
-  // const tmpEndTime = "2022-12-21 09:00:00";
+
   const getMetricsData = async () => {
     setLoadingData(true);
     const url2 = `${
@@ -357,7 +359,10 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
               list={tableDataList}
             />
           ) : (
-            <Chart options={options} height={260} series={series} />
+            <>
+              <div className="chart-unit">{yAxisUnit}</div>
+              <Chart options={options} height={260} series={series} />
+            </>
           )}
         </div>
       </HeaderPanel>
