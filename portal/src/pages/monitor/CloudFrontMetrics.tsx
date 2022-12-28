@@ -20,6 +20,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import Button from "components/Button";
 import TimeRange from "./comps/TimeRange";
 import { MetricType } from "assets/js/type";
+import moment from "moment";
 
 interface DistributionType {
   aliases: { Quantity: number; Items: string[] };
@@ -119,8 +120,8 @@ const CloudFrontMetrics: React.FC = () => {
       setLoadingCountry(true);
       const resData = await appSyncRequestQuery(listCountry, {
         domain: currentCloudFront,
-        start_time: Math.ceil(new Date(decodeURI(startDate)).getTime() / 1000),
-        end_time: Math.ceil(new Date(decodeURI(endDate)).getTime() / 1000),
+        start_time: Math.ceil(moment.utc(startDate).toDate().getTime() / 1000),
+        end_time: Math.ceil(moment.utc(endDate).toDate().getTime() / 1000),
       });
       const tmpCountryStringList: string[] = resData?.data?.listCountry || [];
       if (tmpCountryStringList && tmpCountryStringList.length > 0) {
