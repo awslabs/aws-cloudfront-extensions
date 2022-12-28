@@ -9,7 +9,7 @@ from boto3.dynamodb.conditions import Key
 
 athena_client = boto3.client("athena")
 # Minute
-M_INTERVAL = int(os.environ.get('INTERVAL', 5))
+M_INTERVAL = int(os.environ.get("INTERVAL", 5))
 METRIC_DICT = [
     "request",
     "requestOrigin",
@@ -43,7 +43,10 @@ COUNTRY_ALL = "all"
 log = logging.getLogger()
 log.setLevel("INFO")
 
-dynamodb = boto3.resource("dynamodb", region_name=os.environ.get('REGION_NAME', 'us-east-1'))
+dynamodb = boto3.resource(
+    "dynamodb", region_name=os.environ.get("REGION_NAME", "us-east-1")
+)
+
 
 def query_metric_ddb(start_time, end_time, metric, domain, country):
     """Query from Dynamodb table with country filter"""
@@ -56,8 +59,8 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
         KeyConditionExpression=Key("metricId").eq(real_metric + "-" + domain)
         & Key("timestamp").between(int(start_time), int(end_time))
     )
-    log.info("[query_metric_ddb] The query result is")
-    log.info(str(response))
+    # log.info("[query_metric_ddb] The query result is")
+    # log.info(str(response))
 
     if country == COUNTRY_ALL:
         for query_item in response["Items"]:
@@ -88,7 +91,9 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                         for sc in query_item["metricData"][country_item]:
                             req_count += int(sc["Count"])
                             req_time += int(sc["Count"]) * float(sc["Latency"])
-                    detailed_data_item["Value"] = Decimal(req_time / req_count).quantize(Decimal("0.000"))
+                    detailed_data_item["Value"] = Decimal(
+                        req_time / req_count
+                    ).quantize(Decimal("0.000"))
                 elif metric == "statusCode" or metric == "statusCodeOrigin":
                     m_dict = []
                     for country_item in query_item["metricData"]:
@@ -162,7 +167,9 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                         for sc in query_item["metricData"][country_item]:
                             latency_count += int(sc["Count"])
                             latency_value += int(sc["Count"]) * float(sc["Latency"])
-                    detailed_data_item["Value"] = Decimal(latency_value / latency_count).quantize(Decimal("0.00"))
+                    detailed_data_item["Value"] = Decimal(
+                        latency_value / latency_count
+                    ).quantize(Decimal("0.00"))
                 elif metric == "chr" or metric == "chrBandWidth":
                     chr_metric = 0
                     chr_count = 0
@@ -170,7 +177,9 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                         for sc in query_item["metricData"][country_item]:
                             chr_count += int(sc["Count"])
                             chr_metric += int(sc["Count"]) * float(sc["Metric"])
-                    detailed_data_item["Value"] = Decimal(chr_metric / chr_count).quantize(Decimal("0.00"))
+                    detailed_data_item["Value"] = Decimal(
+                        chr_metric / chr_count
+                    ).quantize(Decimal("0.00"))
                 else:
                     detailed_data_item["Value"] = query_item["metricData"]
 
@@ -183,23 +192,72 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                     int(query_item["timestamp"])
                 ).strftime("%Y-%m-%d %H:%M:%S")
                 if metric == "topNUrlRequests" or metric == "topNUrlSize":
-                    #TODO: support country filter
+                    # TODO: support country filter
                     detailed_data_item["Value"] = query_item["metricData"]
                 else:
                     if country in query_item["metricData"]:
                         # Only get the metric data for the specified country
                         if metric == "chr" or metric == "chrBandWidth":
-                            detailed_data_item["Value"] = query_item["metricData"][country][0]["Metric"]
-                        elif metric == "latencyRatio" or metric == "requestLatency" or metric == "requestOriginLatency":
-                            detailed_data_item["Value"] = query_item["metricData"][country][0]["Latency"]
+                            detailed_data_item["Value"] = query_item["metricData"][
+                                country
+                            ][0]["Metric"]
+                        elif (
+                            metric == "latencyRatio"
+                            or metric == "requestLatency"
+                            or metric == "requestOriginLatency"
+                        ):
+                            detailed_data_item["Value"] = query_item["metricData"][
+                                country
+                            ][0]["Latency"]
                         elif metric == "request" or metric == "requestOrigin":
-                            detailed_data_item["Value"] = query_item["metricData"][country][0]["Count"]
+                            detailed_data_item["Value"] = query_item["metricData"][
+                                country
+                            ][0]["Count"]
                         else:
-                            detailed_data_item["Value"] = query_item["metricData"][country]
+                            detailed_data_item["Value"] = query_item["metricData"][
+                                country
+                            ]
 
                 if "Value" in detailed_data_item:
                     # Skip if no value in specific country
                     detailed_data.append(detailed_data_item)
+
+    if metric == "topNUrlRequests":
+        sum_top_value = {}
+        top_detailed_data = []
+        
+        for top_row in detailed_data:
+            for top_item in top_row["Value"]:
+                if top_item["Path"] not in sum_top_value:
+                    sum_top_value[top_item["Path"]] = int(top_item["Count"])
+                else:
+                    sum_top_value[top_item["Path"]] = int(
+                        sum_top_value[top_item["Path"]]
+                    ) + int(top_item["Count"])
+
+        sum_top_value = sorted(sum_top_value.items(), key=lambda x: x[1], reverse=True)
+        top_detailed_data = [
+            {"Path": k, "Count": v} for k, v in sum_top_value
+        ]
+        detailed_data = [{"Value": top_detailed_data}]
+    elif metric == "topNUrlSize":
+        sum_top_value = {}
+        top_detailed_data = []
+        
+        for top_row in detailed_data:
+            for top_item in top_row["Value"]:
+                if top_item["Path"] not in sum_top_value:
+                    sum_top_value[top_item["Path"]] = int(top_item["Size"])
+                else:
+                    sum_top_value[top_item["Path"]] = int(
+                        sum_top_value[top_item["Path"]]
+                    ) + int(top_item["Size"])
+
+        sum_top_value = sorted(sum_top_value.items(), key=lambda x: x[1], reverse=True)
+        top_detailed_data = [
+            {"Path": k, "Size": v} for k, v in sum_top_value
+        ]
+        detailed_data = [{"Value": top_detailed_data}]
 
     return detailed_data
 
