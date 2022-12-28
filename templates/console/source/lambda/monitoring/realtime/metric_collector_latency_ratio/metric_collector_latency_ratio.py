@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
     table = dynamodb.Table(DDB_TABLE_NAME)
     metric = "latencyRatio"
-    collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table)
+    collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table, LATENCY_LIMIT)
     log.info("[lambda_handler] End")
     
     return response

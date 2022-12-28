@@ -41,12 +41,12 @@ def insert_value(domain_country_dict, domain, country, item_query_value):
     return domain_country_dict
 
 
-def collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table):
+def collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table, latency_limit=1):
     try:
         gen_data = {}
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
-                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL)
+                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, latency_limit)
         
         for query_item in gen_data['Detail']:
             item_query_result = get_athena_query_result(
