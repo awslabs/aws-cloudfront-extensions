@@ -120,6 +120,8 @@ def collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GL
                     if result_rows[i]['Data'][0].get('VarCharValue') != None:
                         chr_row = {}
                         chr_row["Metric"] = result_rows[i]["Data"][0]["VarCharValue"]
+                        if float(chr_row["Metric"]) > 100:
+                            chr_row["Metric"] = '100.00'
                         chr_row["Count"] = result_rows[i]["Data"][1]["VarCharValue"]
                         domain = result_rows[i]["Data"][2]["VarCharValue"]
                         country = result_rows[i]["Data"][3]["VarCharValue"]
