@@ -290,7 +290,7 @@ const CloudFrontMetrics: React.FC = () => {
                             curCountry={curCountryCode}
                             rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Rrequests latency"
+                            graphTitle="Requests latency"
                             yAxisUnit="Milliseconds (ms)"
                             metricType={MetricType.requestLatency}
                             startTime={startDate}
