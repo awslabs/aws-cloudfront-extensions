@@ -440,7 +440,7 @@ const CloudFrontMetrics: React.FC = () => {
                             rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
                             graphTitle="Data transfer"
-                            yAxisUnit="Gigabytes (GB)"
+                            yAxisUnit="Bytes"
                             metricType={MetricType.downstreamTraffic}
                             startTime={startDate}
                             endTime={endDate}

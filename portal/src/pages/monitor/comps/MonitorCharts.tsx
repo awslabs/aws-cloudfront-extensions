@@ -97,7 +97,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     yaxis: {
       tickAmount: 5,
       forceNiceScale: false,
-      min: 0,
+      // min: 0,
       labels: {
         show: true,
         align: "right",
@@ -230,9 +230,112 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     return tmpSeries;
   };
 
+  const buildStatusCodeChartData = (
+    seriesData: any[],
+    keyName: string,
+    valueName: string
+  ) => {
+    const tmpSeriesKeys: any[] = [];
+    const valueSeriesData = seriesData.map((item: any) => item.Value);
+    valueSeriesData.forEach((element: any) => {
+      element.map((obj: any) => {
+        if (!tmpSeriesKeys.includes(obj[keyName])) {
+          tmpSeriesKeys.push(obj[keyName]);
+        }
+      });
+    });
+    const tmpSeries: { name: string; data: any[] }[] = [];
+    tmpSeriesKeys.map(function (key) {
+      const data: any[] = [];
+      valueSeriesData.forEach((element: any, index: number) => {
+        let found = false;
+        element.map((obj: any) => {
+          if (key === obj[keyName]) {
+            data.push(
+              (parseInt(obj[valueName]) /
+                parseInt(seriesData?.[index]?.["Sum"])) *
+                100
+            );
+            found = true;
+          }
+        });
+        if (!found) {
+          data.push(null);
+        }
+      });
+      if (!key.toString().startsWith("2")) {
+        tmpSeries.push({
+          name: key + "",
+          data: [null, ...data, null],
+        });
+      }
+    });
+    return tmpSeries;
+  };
+
   const buildMetricData = (data: any, isModal = false) => {
     const originCategories = data.DetailData.map((item: any) => item.Time);
     const tmpSeriesData = data.DetailData.map((item: any) => item.Value);
+
+    const setChartWithData = (categories: any, series: any) => {
+      if (isModal) {
+        // Set Modal Data
+        setchartModalOptions({
+          ...chartDefaultOptions,
+          xaxis: {
+            ...chartDefaultOptions.xaxis,
+            categories: categories,
+          },
+        });
+        setChartModalSeries(series);
+      } else {
+        setOptions({
+          ...chartDefaultOptions,
+          xaxis: {
+            ...chartDefaultOptions.xaxis,
+            categories: categories,
+          },
+        });
+        setSeries(series);
+      }
+    };
+
+    const setChartWithoutData = () => {
+      if (isModal) {
+        // Set Modal Data
+        setChartModalSeries([]);
+        setchartModalOptions({
+          ...chartDefaultOptions,
+          legend: {
+            ...chartDefaultOptions.legend,
+            show: false,
+          },
+          xaxis: {
+            ...chartDefaultOptions.xaxis,
+            categories: [
+              new Date(chartModalStartTime).getTime(),
+              new Date(chartModalEndTime).getTime(),
+            ],
+          },
+        });
+      } else {
+        setOptions({
+          ...chartDefaultOptions,
+          legend: {
+            ...chartDefaultOptions.legend,
+            show: false,
+          },
+          xaxis: {
+            ...chartDefaultOptions.xaxis,
+            categories: [
+              new Date(startTime).getTime(),
+              new Date(endTime).getTime(),
+            ],
+          },
+        });
+        setSeries([]);
+      }
+    };
 
     if (originCategories.length > 0) {
       let tmpCategories = [];
@@ -272,7 +375,20 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         metricType === MetricType.statusCode ||
         metricType === MetricType.statusCodeOrigin
       ) {
-        tmpSeries = buildMultiLineData(tmpSeriesData, "StatusCode", "Count");
+        const statusCodeSeriesData = data.DetailData;
+        statusCodeSeriesData.forEach((element: any) => {
+          element.Sum = element.Value.reduce(
+            (accumulator: number, item: any) => {
+              return accumulator + parseInt(item.Count);
+            },
+            0
+          );
+        });
+        tmpSeries = buildStatusCodeChartData(
+          statusCodeSeriesData,
+          "StatusCode",
+          "Count"
+        );
       }
 
       // statusCodeLatency or statusCodeOriginLatency
@@ -293,62 +409,13 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         tmpSeries = buildMultiLineData(tmpSeriesData, "EdgeType", "Latency");
       }
 
-      console.info("isModalisModalisModalisModalisModal:", isModal);
-      if (isModal) {
-        // Set Modal Data
-        setchartModalOptions({
-          ...chartDefaultOptions,
-          xaxis: {
-            ...chartDefaultOptions.xaxis,
-            categories: tmpCategories,
-          },
-        });
-        setChartModalSeries(tmpSeries);
+      if (tmpSeries && tmpSeries.length > 0) {
+        setChartWithData(tmpCategories, tmpSeries);
       } else {
-        setOptions({
-          ...chartDefaultOptions,
-          xaxis: {
-            ...chartDefaultOptions.xaxis,
-            categories: tmpCategories,
-          },
-        });
-        setSeries(tmpSeries);
+        setChartWithoutData();
       }
     } else {
-      if (isModal) {
-        // Set Modal Data
-        setChartModalSeries([]);
-        setchartModalOptions({
-          ...chartDefaultOptions,
-          legend: {
-            ...chartDefaultOptions.legend,
-            show: false,
-          },
-          xaxis: {
-            ...chartDefaultOptions.xaxis,
-            categories: [
-              new Date(chartModalStartTime).getTime(),
-              new Date(chartModalEndTime).getTime(),
-            ],
-          },
-        });
-      } else {
-        setOptions({
-          ...chartDefaultOptions,
-          legend: {
-            ...chartDefaultOptions.legend,
-            show: false,
-          },
-          xaxis: {
-            ...chartDefaultOptions.xaxis,
-            categories: [
-              new Date(startTime).getTime(),
-              new Date(endTime).getTime(),
-            ],
-          },
-        });
-        setSeries([]);
-      }
+      setChartWithoutData();
     }
 
     // Top N request URL
