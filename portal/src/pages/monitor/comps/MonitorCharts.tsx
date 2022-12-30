@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import LoadingText from "components/LoadingText";
-import { AmplifyConfigType, MetricType } from "assets/js/type";
+import {
+  AmplifyConfigType,
+  LegendMetricNameMap,
+  MetricType,
+} from "assets/js/type";
 import { useSelector } from "react-redux";
 import { AppStateProps } from "reducer/appReducer";
 import { MonitorTable } from "./MonitorTable";
@@ -361,7 +365,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
 
       let tmpSeries = [
         {
-          name: data.Metric,
+          name: LegendMetricNameMap[data.Metric],
           data: [null, ...tmpSeriesData, null],
         },
       ];
@@ -372,7 +376,7 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       ) {
         tmpSeries = [
           {
-            name: data.Metric,
+            name: LegendMetricNameMap[data.Metric],
             data: tmpSeriesData.map((element: any) => {
               return parseFloat(element);
             }),

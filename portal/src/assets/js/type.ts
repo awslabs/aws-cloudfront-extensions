@@ -34,3 +34,26 @@ export enum MetricType {
   edgeType = "edgeType",
   edgeTypeLatency = "edgeTypeLatency",
 }
+
+export const LegendMetricNameMap: any = {
+  request: "Requests",
+  requestOrigin: "OriginRequests",
+  requestLatency: "Average",
+  requestOriginLatency: "Average",
+  statusCode: "",
+  statusCodeOrigin: "",
+  statusCodeLatency: "Average",
+  statusCodeOriginLatency: "Average",
+  latencyRatio: "Requests",
+  topNUrlRequests: "",
+
+  bandwidth: "Bandwidth",
+  bandwidthOrigin: "OriginBandwidth",
+  downstreamTraffic: "Download",
+  topNUrlSize: "",
+
+  chr: "CacheHitRate",
+  chrBandWidth: "CacheHitRate",
+  edgeType: "",
+  edgeTypeLatency: "",
+};
