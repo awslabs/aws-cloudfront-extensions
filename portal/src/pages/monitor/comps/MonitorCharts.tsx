@@ -197,7 +197,8 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
   const buildMultiLineData = (
     seriesData: any[],
     keyName: string,
-    valueName: string
+    valueName: string,
+    isStatusCode = false
   ) => {
     const tmpSeriesKeys: any[] = [];
     seriesData.forEach((element: any) => {
@@ -222,10 +223,19 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
           data.push(null);
         }
       });
-      tmpSeries.push({
-        name: key + "",
-        data: [null, ...data, null],
-      });
+      if (isStatusCode) {
+        if (!key.toString().startsWith("2")) {
+          tmpSeries.push({
+            name: key + "",
+            data: [null, ...data, null],
+          });
+        }
+      } else {
+        tmpSeries.push({
+          name: key + "",
+          data: [null, ...data, null],
+        });
+      }
     });
     return tmpSeries;
   };
@@ -396,7 +406,12 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
         metricType === MetricType.statusCodeLatency ||
         metricType === MetricType.statusCodeOriginLatency
       ) {
-        tmpSeries = buildMultiLineData(tmpSeriesData, "StatusCode", "Latency");
+        tmpSeries = buildMultiLineData(
+          tmpSeriesData,
+          "StatusCode",
+          "Latency",
+          true
+        );
       }
 
       // x-edge-response-result-type-count
