@@ -5,6 +5,7 @@
 - [客户端IP透传](true-client-ip.md)
 - [预热](pre-warming.md)
 - [根据地理位置跳转](redirect-by-country.md)
+- [图片缩放](resize-image.md)
 - [获取更多扩展](more-extension-in-sar.md)
 
 

@@ -8,7 +8,12 @@ theme:
     - search.suggest
     - search.highlight
 markdown_extensions:
-  - admonition    
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 plugins:
   - search
 extra:
