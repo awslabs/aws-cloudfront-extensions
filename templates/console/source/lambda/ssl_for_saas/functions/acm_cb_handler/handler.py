@@ -3,13 +3,11 @@ import json
 import logging
 import os
 
-from types_ import Event
-from layer.acm_service.client import AcmUtilsService
+from .types_ import Event
 from layer.cloudfront_service.client import CloudFrontUtilsService
 from layer.cloudfront_service.types_ import DistributionConfigWithTags, Tags, Tag
 from layer.common.response import Response
 from layer.job_service.client import JobInfoUtilsService
-from layer.sns_service.client import SnsUtilsService
 
 logger = logging.getLogger('boto3:acm_cb_handler')
 logger.setLevel(logging.INFO)
@@ -19,7 +17,6 @@ sns_topic_arn = os.environ.get('SNS_TOPIC')
 
 job_info_client = JobInfoUtilsService(logger=logger)
 cloudfront_client = CloudFrontUtilsService(logger=logger)
-sns_client = SnsUtilsService(logger=logger)
 
 
 def handler(event: Event, context) -> Response:

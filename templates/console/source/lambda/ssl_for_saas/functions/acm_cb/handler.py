@@ -1,17 +1,14 @@
-import copy
 import os
-from datetime import datetime
 import http
 import json
 import logging
 
 from layer.acm_service.types_ import NotificationInput
-from types_ import Event
+from .types_ import Event
 from layer.acm_service.client import AcmUtilsService
 from layer.cloudfront_service.client import CloudFrontUtilsService
 from layer.common.response import Response
 from layer.job_service.client import JobInfoUtilsService
-from layer.job_service.types_ import JobInfo
 from layer.sns_service.client import SnsUtilsService
 
 logger = logging.getLogger('boto3:acm_cb')

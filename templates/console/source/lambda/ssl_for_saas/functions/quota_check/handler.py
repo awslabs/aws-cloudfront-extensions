@@ -1,6 +1,5 @@
 import logging
 import boto3
-import os
 import json
 
 from layer.job_service.client import JobInfoUtilsService

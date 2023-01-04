@@ -38,6 +38,7 @@ class StepFunctionUtilsService:
                 raise Exception('unknown task type [%s]', task)
         except Exception as e:
             self.logger.error(f'send task error {e}')
+            raise e
 
     def invoke_step_function(self, state_machine_arn: str, func_input: Any) -> str:
         self.logger.info('start to invoke step function with input %s', func_input)

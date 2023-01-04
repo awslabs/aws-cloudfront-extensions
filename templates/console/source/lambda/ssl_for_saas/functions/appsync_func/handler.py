@@ -10,8 +10,7 @@ import boto3
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import AppSyncResolver
 from aws_lambda_powertools.logging.correlation_paths import APPSYNC_RESOLVER
-from cerberus import Validator
-from types_ import Input
+from .types_ import Input
 from layer.acm_service.client import AcmUtilsService
 from layer.acm_service.types_ import Certificate, Tag, ImportCertificateInput
 from layer.common.cert_utils import get_domain_list_from_cert

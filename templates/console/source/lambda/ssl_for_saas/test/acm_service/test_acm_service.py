@@ -87,6 +87,8 @@ class TestAcmUtils:
                                       )])
             assert resp[0] == cert_arn
             with pytest.raises(Exception):
+                client.scan_by_conditions.retry.wait = wait_none()
+                client.scan_by_conditions.retry.reraise = True
                 resp = client.scan_for_cert(domain_name=test_domain)
                 assert len(resp) == 0
             resp = client.fetch_dcv_value(cert_arn=cert_arn)

@@ -1,13 +1,11 @@
-import copy
 import http
 import json
 import logging
 import os
 import uuid
-from datetime import datetime
 from typing import Any
 
-from types_ import Event
+from .types_ import Event
 from layer.acm_service.client import AcmUtilsService
 from layer.acm_service.types_ import ImportCertificateInput, Tag, CertificateMetadata, NotificationInput
 from layer.cloudfront_service.client import CloudFrontUtilsService
@@ -15,7 +13,6 @@ from layer.common.cert_utils import get_domain_list_from_cert
 from layer.common.file_utils import convert_string_to_file
 from layer.common.response import Response
 from layer.job_service.client import JobInfoUtilsService
-from layer.job_service.types_ import JobInfo
 from layer.sns_service.client import SnsUtilsService
 
 logger = logging.getLogger('boto3:acm_import_cb')

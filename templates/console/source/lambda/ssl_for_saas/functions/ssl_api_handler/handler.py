@@ -10,7 +10,7 @@ import boto3
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 
-from types_ import Input
+from .types_ import Input
 from layer.acm_service.client import AcmUtilsService
 from layer.acm_service.types_ import Certificate, ImportCertificateInput, Tag
 from layer.common.cert_utils import get_domain_list_from_cert
