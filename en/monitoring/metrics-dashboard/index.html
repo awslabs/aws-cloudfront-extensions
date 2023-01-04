@@ -10,8 +10,14 @@
       
         <link rel="canonical" href="https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/monitoring/metrics-dashboard/">
       
+      
+        <link rel="prev" href="../real-time-monitoring/">
+      
+      
+        <link rel="next" href="../../distribution-management/overview/">
+      
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.1">
     
     
       
@@ -19,11 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.975780f9.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3bd4f189.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
-        
       
       
 
@@ -54,7 +59,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="None" data-md-color-accent="None">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
   
     
     
@@ -1022,13 +1027,10 @@
                 
                   
 
-  <a href="https://github.com/awslabs/aws-cloudfront-extensions/edit/master/docs/monitoring/metrics-dashboard.md" title="Edit this page" class="md-content__button md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
+  
+  
 
 
-  <h1>Metrics dashboard</h1>
 
 <p>Metrics dashboard is customizable time range for Non-real time or Real time monitoring that you can use to track CloudFront traffic graphical metrics in a single dashboard. The dashboard uses CloudFront standard log or realtime log to get the metrics. The solution provides a metric API if you only need to get the metric data via RESTful API and don't need the dashboard.</p>
 <p>With the Metrics dashboard, you can do the following:</p>
@@ -1059,6 +1061,108 @@
 <td><a href="../non-real-time-monitoring/#metrics">Non-real time traffic metrics</a></td>
 <td>Non-Realtime log for CloudFront distribution with 1-hour delay</td>
 <td>5 minutes</td>
+</tr>
+</tbody>
+</table>
+<p>Metrics definition:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Metric</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>Sample SQL to get metric in Athena</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requests</td>
+<td>The number of requests from the client to CloudFront</td>
+<td>SELECT count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672813380.0 AND timestamp &gt; 1672813320.0 group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Origin requests</td>
+<td>The number of requests back to the origin</td>
+<td>SELECT count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672813620.0 AND timestamp &gt; 1672813560.0 AND ("x-edge-detailed-result-type" = 'Miss' OR ("x-edge-detailed-result-type" like '%Origin%' AND "x-edge-detailed-result-type" &lt;&gt; 'OriginShieldHit')) group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Requests latency</td>
+<td>The latency of the requests from the client to CloudFront</td>
+<td>SELECT count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672813380.0 AND timestamp &gt; 1672813320.0 group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Origin requests latency</td>
+<td>The latency of the requests back to the origin</td>
+<td>SELECT count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672813620.0 AND timestamp &gt; 1672813560.0 AND ("x-edge-detailed-result-type" = 'Miss' OR ("x-edge-detailed-result-type" like '%Origin%' AND "x-edge-detailed-result-type" &lt;&gt; 'OriginShieldHit')) group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Requests 3xx/4xx/5xx error rate</td>
+<td>The percentage of 3xx/4xx/5xx status code from the client to CloudFront</td>
+<td>SELECT "sc-status", count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672815240.0 AND timestamp &gt; 1672815180.0 GROUP BY "sc-status", "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Origin requests 3xx/4xx/5xx error rate</td>
+<td>The percentage of 3xx/4xx/5xx status code back to the origin</td>
+<td>SELECT "sc-status", count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672815360.0 AND timestamp &gt; 1672815300.0 AND ("x-edge-detailed-result-type" = 'Miss' OR ("x-edge-detailed-result-type" like '%Origin%' AND "x-edge-detailed-result-type" &lt;&gt; 'OriginShieldHit')) group by "sc-status", "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Requests 3xx/4xx/5xx error latency</td>
+<td>The latency of 3xx/4xx/5xx status code from the client to CloudFront</td>
+<td>SELECT "sc-status", count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672815240.0 AND timestamp &gt; 1672815180.0 GROUP BY "sc-status", "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Origin requests 3xx/4xx/5xx error latency</td>
+<td>The latency of 3xx/4xx/5xx status code back to the origin</td>
+<td>SELECT "sc-status", count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672815360.0 AND timestamp &gt; 1672815300.0 AND ("x-edge-detailed-result-type" = 'Miss' OR ("x-edge-detailed-result-type" like '%Origin%' AND "x-edge-detailed-result-type" &lt;&gt; 'OriginShieldHit')) group by "sc-status", "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Requests latency (&gt; 1 sec) rate</td>
+<td>The percentage of requests whose latency are larger than 1 second</td>
+<td>SELECT cast((sum(case when "time-taken" &gt;= 1.0 then 1 else 0 end) * 100.0 / count(*)) as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 7 AND timestamp &lt;= 1672815720.0 AND timestamp &gt; 1672815660.0 group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Top 10 URLs with most requests</td>
+<td>Top 10 urls calculated by the number of requests</td>
+<td>SELECT b.* from (SELECT "cs-host", "cs-uri-stem", cnt, row_number() over (partition by "cs-host", "cs-uri-stem" order by cnt desc) rank from (select "cs-host", "cs-uri-stem", count(1) as cnt from "db"."cf_log" where year = 2023 AND month = 1 AND day = 3 AND timestamp &lt;= 1672790399.0 AND timestamp &gt; 1672704000.0 group by "cs-host", "cs-uri-stem") a) b where b.rank &lt;= 100 order by "cs-host", "cnt" desc;</td>
+</tr>
+<tr>
+<td>Bandwidth</td>
+<td>The bandwidth from the client to CloudFront</td>
+<td>SELECT sum("sc-bytes")/(60<em>1)</em>8, "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672813620.0 AND timestamp &gt; 1672813560.0 group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Origin bandwidth</td>
+<td>The bandwidth back to origin</td>
+<td>SELECT sum("sc-bytes")/(60<em>1)</em>8, "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 7 AND timestamp &lt;= 1672815900.0 AND timestamp &gt; 1672815840.0 AND ("x-edge-detailed-result-type" = 'Miss' OR ("x-edge-detailed-result-type" like '%Origin%' AND "x-edge-detailed-result-type" &lt;&gt; 'OriginShieldHit')) group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Data transfer</td>
+<td>The down stream traffic in response to the request</td>
+<td>SELECT sum("sc-bytes"), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 7 AND timestamp &lt;= 1672816260.0 AND timestamp &gt; 1672816200.0 group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Top 10 URLs with most traffic</td>
+<td>Top 10 url calculated by traffic</td>
+<td>SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() over (partition by "cs-host", "cs-uri-stem" order by sc_size desc) rank from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from "db"."cf_log" where year = 2023 AND month = 1 AND day = 3 AND timestamp &lt;= 1672790399.0 AND timestamp &gt; 1672704000.0 group by "cs-host", "cs-uri-stem") a) b where b.rank &lt;= 100 order by "cs-host", "sc_size" desc;</td>
+</tr>
+<tr>
+<td>Cache hit rate (calculated using requests)</td>
+<td>Cache hit rate calculated by the number of requests</td>
+<td>SELECT cast((sum(case when "x-edge-result-type" like '%Hit' then 1 else 0 end) * 100.0 / count(1)) as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 7 AND timestamp &lt;= 1672816680.0 AND timestamp &gt; 1672816620.0 AND "x-edge-response-result-type" &lt;&gt; 'LimitExceeded' AND "x-edge-response-result-type" &lt;&gt; 'CapacityExceeded' group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Cache hit rate (calculated using bandwidth)</td>
+<td>Cache hit ratio calculated by bandwidth</td>
+<td>SELECT cast((sum(case when "x-edge-result-type" like '%Hit' then "sc-bytes" else 0 end)<em>100.0/(60</em>5)<em>8) / (sum("sc-bytes")/(60</em>5)*8 ) as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 6 AND timestamp &lt;= 1672813320.0 AND timestamp &gt; 1672813260.0 AND "x-edge-response-result-type" &lt;&gt; 'LimitExceeded' AND "x-edge-response-result-type" &lt;&gt; 'CapacityExceeded' group by "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Cache result</td>
+<td>The request count for different x-edge-result-type</td>
+<td>SELECT "x-edge-result-type", count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 7 AND timestamp &lt;= 1672816980.0 AND timestamp &gt; 1672816920.0 group by "x-edge-result-type", "cs-host", "c-country";</td>
+</tr>
+<tr>
+<td>Cache result latency</td>
+<td>The latency of the request for different x-edge-result-type</td>
+<td>SELECT "x-edge-result-type", count(timestamp), cast(avg("time-taken") as decimal(38,3)), "cs-host", "c-country" FROM "db"."cf_log" WHERE year = 2023 AND month = 1 AND day = 4 AND hour = 7 AND timestamp &lt;= 1672816980.0 AND timestamp &gt; 1672816920.0 group by "x-edge-result-type", "cs-host", "c-country";</td>
 </tr>
 </tbody>
 </table>
@@ -1098,42 +1202,6 @@
       
         <footer class="md-footer">
   
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../real-time-monitoring/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Real time monitoring with Amazon Kinesis" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Real time monitoring with Amazon Kinesis
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../../distribution-management/overview/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Overview
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
-  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
@@ -1155,12 +1223,11 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.12658920.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      <script src="../../assets/javascripts/bundle.5cf534bf.min.js"></script>
       
-    
     
   </body>
 </html>
