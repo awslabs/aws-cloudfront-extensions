@@ -122,7 +122,7 @@ title "cdk synth"
 export PATH=$(npm bin):$PATH
 run cd ${SRC_PATH}
 echo $PWD
-run npm install
+run npm install --legacy-peer-deps
 # todo: ignore jest for now, because test not work
 # do_cmd npm run build       # build javascript from typescript to validate the code
                            # cdk synth doesn't always detect issues in the typescript
