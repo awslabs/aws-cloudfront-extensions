@@ -185,7 +185,10 @@ type Query {
     # Get CloudFront behavior config
     behaviorById(id: String!): [String]
 
-    # query for config-version part
+    # Get country list for the distribution in a specific time range
+    listCountry(domain: String!, start_time: Int!, end_time: Int!): [String]
+
+    # Query for config-version part
     applyConfig(src_distribution_id: String, version: String, target_distribution_ids: [String]): String
 
     listDistribution: [Cloudfront_info]

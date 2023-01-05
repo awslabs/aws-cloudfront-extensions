@@ -59,6 +59,11 @@ export const behaviorById = /* GraphQL */ `
     behaviorById(id: $id)
   }
 `;
+export const listCountry = /* GraphQL */ `
+  query ListCountry($domain: String!, $start_time: Int!, $end_time: Int!) {
+    listCountry(domain: $domain, start_time: $start_time, end_time: $end_time)
+  }
+`;
 export const applyConfig = /* GraphQL */ `
   query ApplyConfig(
     $src_distribution_id: String

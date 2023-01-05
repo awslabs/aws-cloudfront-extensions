@@ -7,14 +7,14 @@ from datetime import timedelta
 
 log = logging.getLogger()
 log.setLevel('INFO')
-client = boto3.client('glue')
-DB_NAME = os.environ['GLUE_DATABASE_NAME']
-TABLE_NAME = os.environ['GLUE_TABLE_NAME']
-CATALOG_ID = os.environ['ACCOUNT_ID']
-S3_URL = "s3://" + os.environ['S3_BUCKET']
 
 def lambda_handler(event, context):
 
+    client = boto3.client('glue')
+    DB_NAME = os.environ['GLUE_DATABASE_NAME']
+    TABLE_NAME = os.environ['GLUE_TABLE_NAME']
+    CATALOG_ID = os.environ['ACCOUNT_ID']
+    S3_URL = "s3://" + os.environ['S3_BUCKET']
 
     event_time = event["time"]
     event_datetime = datetime.strptime(event_time, "%Y-%m-%dT%H:%M:%SZ")

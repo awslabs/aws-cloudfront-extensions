@@ -37,9 +37,9 @@
 
 1. 登录您的AWS账号，并进入[S3控制台](https://s3.console.aws.amazon.com/s3/home)。
 
-2. 创建一个S3桶，并在桶中创建一个文件夹，例如名称为images的文件夹，将您的原始图片上传到此文件夹中。
-   
-<img src='../../images/S3-file-no-generation.png'>
+2. 创建一个S3桶，并在桶中创建一个文件夹，例如名称为images的文件夹，将您的原始图片上传到此文件夹中。   
+        
+      ![S3-file-no-generation](../../images/S3-file-no-generation.png)
 
 3. 进入[CloudFront控制台](https://us-east-1.console.aws.amazon.com/cloudfront/)，点击创建分配按钮。
 
@@ -52,23 +52,23 @@
 
 7. 在权限标签页中，更新存储桶策略中的Action和Resource值。(更新Action为s3:ListBucket，更新Resource为S3桶的ARN，具体参考如下示例)。
 
-```
-{
-    "Version": "2008-10-17",
-    "Id": "PolicyForCloudFrontPrivateContent",
-    "Statement": [
-        {
-            "Sid": "1",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH"
-            },
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::input-your-bucket-name"
-        }
-    ]
-}
-```
+       ```
+       {
+           "Version": "2008-10-17",
+           "Id": "PolicyForCloudFrontPrivateContent",
+           "Statement": [
+               {
+                   "Sid": "1",
+                   "Effect": "Allow",
+                   "Principal": {
+                       "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH"
+                   },
+                   "Action": "s3:ListBucket",
+                   "Resource": "arn:aws:s3:::input-your-bucket-name"
+               }
+           ]
+       }
+       ```
 
 8. 部署[CloudFront Extensions控制台](../deployment.md)。在扩展存储库中，选择**image-resize**。
 

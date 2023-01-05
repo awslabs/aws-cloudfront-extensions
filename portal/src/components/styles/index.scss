@@ -363,6 +363,21 @@
 
 .chart-item {
   width: 33%;
+  position: relative;
+  .select-domain,
+  .loading-data {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.85);
+    z-index: 1;
+  }
 }
 
 .version-compare {
@@ -529,6 +544,10 @@
   border-radius: 0 !important;
 }
 
+.MuiDialog-paperWidthMd {
+  max-width: calc(100% - 120px) !important;
+}
+
 .invalid {
   .gsui-autocomplete-select input,
   .gsui-textinput input,
@@ -548,4 +567,144 @@
 
 [data-amplify-authenticator] {
   padding-top: 100px;
+}
+
+.monitor-cotainer {
+  display: flex;
+  .left-filter {
+    width: 350px;
+  }
+  .right-charts {
+    flex: 1;
+    padding-left: 20px;
+  }
+}
+
+.pr {
+  position: relative;
+}
+
+.chart-mask {
+  position: absolute;
+  z-index: 99;
+  background-color: rgba($color: #fff, $alpha: 0.5);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-chart-list {
+  // background-color: #fff;
+  padding: 20px 0 50px;
+  .chart-content-table {
+    td {
+      vertical-align: top;
+    }
+    td:nth-child(odd) {
+      padding-right: 10px;
+    }
+  }
+}
+
+.monitor-chart {
+  min-height: 100px;
+  background-color: #fff;
+  margin-top: -20px;
+  box-shadow: 1px 2px 2px #ddd;
+  .chart-unit {
+    font-weight: 700;
+    font-size: 12px;
+    position: absolute;
+    margin: 10px 0 0 15px;
+  }
+  .zoom {
+    cursor: pointer;
+  }
+}
+
+.monitor-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  th,
+  td {
+    padding: 9px 10px;
+    // border-bottom: 1px solid #eaeded;
+    .key {
+      color: #0073bb;
+    }
+  }
+  th.select,
+  th.select {
+    width: 30px;
+    text-align: center;
+  }
+  tr {
+    border-bottom: 1px solid #eaeded;
+  }
+  tr.checked {
+    border: 1px solid #0073bb;
+    background-color: #f1faff;
+    td {
+      border-bottom: 1px solid #0073bb;
+      border-top: 1px solid #0073bb;
+    }
+  }
+}
+
+.modal-time-range {
+  // display: flex;
+  // justify-content: space-between;
+  position: relative;
+  padding-top: 20px;
+  .time-select-content {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    width: 448px;
+    z-index: 9999;
+  }
+}
+
+.specify-time {
+  border: 1px solid #aab7b8;
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  .item {
+    background-color: #fff;
+    display: inline-block;
+    padding: 8px 10px;
+    cursor: pointer;
+    &:active {
+      background-color: #eee;
+    }
+    &.item-active {
+      font-weight: bold;
+      color: #0073bb;
+    }
+    &.custom {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #aab7b8;
+      margin-top: 36px;
+      padding: 2px 0;
+      right: 0;
+    }
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+.MuiTab-root {
+  max-width: none !important;
 }

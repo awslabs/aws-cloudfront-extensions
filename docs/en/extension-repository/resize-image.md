@@ -37,8 +37,8 @@ To user this CloudFront extension
 1. Login your AWS account and go to [S3 console](https://s3.console.aws.amazon.com/s3/home).
 
 2. Create an S3 bucket, and a folder with any name(e.g. images), put your image(e.g. demo.png) in the folder.
-   
-<img src='../../images/S3-file-no-generation.png'>
+
+      ![S3-file-no-generation](../../images/S3-file-no-generation.png)
 
 3. Go to [CloudFront console](https://us-east-1.console.aws.amazon.com/cloudfront/), Click Create distribution button.
 
@@ -50,23 +50,23 @@ To user this CloudFront extension
 
 7. In permission tab, update Action and Resource values in the bucket policy. (Update Action to s3:ListBucket, update Resource to S3 bucket ARN created in step 2).
 
-```
-{
-    "Version": "2008-10-17",
-    "Id": "PolicyForCloudFrontPrivateContent",
-    "Statement": [
-        {
-            "Sid": "1",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH"
-            },
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::input-your-bucket-name"
-        }
-    ]
-}
-```
+      ```
+      {
+          "Version": "2008-10-17",
+          "Id": "PolicyForCloudFrontPrivateContent",
+          "Statement": [
+              {
+                  "Sid": "1",
+                  "Effect": "Allow",
+                  "Principal": {
+                      "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2NHBYQWR0YVVH"
+                  },
+                  "Action": "s3:ListBucket",
+                  "Resource": "arn:aws:s3:::input-your-bucket-name"
+              }
+          ]
+      }
+      ```
 
 
 8. Deploy [CloudFront Extensions Console](../deployment.md). In extensions repository, find **image-resize**.

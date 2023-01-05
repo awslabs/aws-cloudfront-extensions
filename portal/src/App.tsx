@@ -15,7 +15,7 @@ import SaveVersion from "pages/console/Version/SaveVersion";
 import CompareVersion from "pages/console/Version/CompareVersion";
 import Button from "components/Button";
 import CertificationList from "pages/console/ssl-for-saas/CertificationList";
-import CloudFront from "pages/monitor/CloudFront";
+import CloudFront from "pages/monitor/CloudFrontMetrics";
 import WAF from "pages/monitor/WAF";
 import { AmplifyConfigType } from "assets/js/type";
 import { AMPLIFY_CONFIG_JSON } from "assets/js/const";

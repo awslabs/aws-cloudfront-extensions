@@ -43,6 +43,7 @@
   `requestID`: The request ID, which you can use in PrewarmStatus API to get the prewarm status.
 
 ## PrewarmStatus 
+
 - HTTP request method: `GET`
 - Request
 
@@ -69,6 +70,7 @@
     "successUrl": ["https://www.example.com/images/xx.png"]
 }
 ```
+
 - Response parameters
 
   `status`: the overall prewarm status

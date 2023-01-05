@@ -14,6 +14,9 @@
 # production
 /build
 
+aws-exports.json
+aws-monitoring-exports.json
+
 # misc
 .DS_Store
 .env.local
@@ -45,3 +48,5 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+amplify
+.graphqlconfig.yml

@@ -33,9 +33,9 @@ Use the following steps to deploy this solution on AWS.
 
 #### Deployment steps
 
-1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/PrewarmStack.template.json) as a starting point for your own implementation.
+1. Sign in to the AWS Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json) as a starting point for your own implementation.
 
-      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/default/PrewarmStack.template.json)
+      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json)
 
 
 2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
@@ -45,7 +45,7 @@ Use the following steps to deploy this solution on AWS.
       | Parameter | Default value | Description |
       |-----------|---------------|---------|
       | ShowSuccessUrls | false | Show success url list in Prewarm status API (true or false). |
-      | InstanceType | m6g.large | EC2 spot instance type to send pre-warm requests. |
+      | InstanceType | c6a.large | EC2 spot instance type to send pre-warm requests. |
       | ThreadNumber | 6 | Thread number to run in parallel in EC2. |
   
 
@@ -58,6 +58,94 @@ You can view the status of the stack in the CloudFormation Console in the Status
 
 To see details for the stack resources, choose the **Outputs** tab. 
 
+
+## How to use Pre-warming
+
+Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior before pre-warming.
+
+### Pre-warm by Postman
+
+1. After deployment, open the **Outputs** tab of CloudFormation stack, and you can see the following information:
+    ![Prewarm Output](../../images/prewarm_output.png)
+
+    - **PrewarmAPIkey**: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.
+    - **PrewarmApiEndpoint**: Pre-warm API's URL is followd by the prewarm keyword. Eg. if PrewarmApiEndpoint is **https://123456789.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm API will be **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
+    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status**
+2. Open a tool that can send HTTP requests, such as Postman.
+3. Send pre-warm request (refer to [API references](../api-reference-guide/extension-repository.md#pre-warming) for more details), and add a key value pair in the header: key is **x-api-key**, value is your API key.
+
+    ![Prewarm API Key](../images/prewarm_apikey.png)
+    ![Prewarm Trigger](../images/prewarm_trigger.png)
+
+4. The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.
+5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.
+    ![Prewarm Status](../images/prewarm_status.png)
+
+
+### Pre-warm by Curl
+
+#### Pre-warm
+
+Script content:
+
+**prewarmlist.json**
+
+      {
+            "url_list": [
+                  "https://www.example.com/index.html",
+                  "https://www.example.com/images/demo.png"
+            ],
+            "cf_domain": "d1234567890r.cloudfront.net",
+            "region": ["ATL56-C1", "DFW55-C3"]
+      }
+
+
+**prewarm.sh**
+
+
+      prewarmuri="https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm"
+      curl --header 'x-api-key: KEY12345678900Tg9P' -XPOST -d @prewarmlist.json $prewarmuri
+
+
+Execute the script:
+
+      sh prewarm.sh
+
+
+Example of the script output:
+
+      {"requestID": "e1efca9a-8d92-4058-a1e9-002fd423f6e5"}
+
+
+### Prewarm status 
+
+Script content:
+
+**prewarmstatus.sh**
+
+      #!/bin/bash
+      statusurl="https://3e23456789h.execute-api.us-east-1.amazonaws.com/prod/status?requestID=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
+      curl  --header 'x-api-key: KEY123456789Tg9P' $statusurl
+
+Execute the script:
+
+      sh prewarmstatus.sh
+
+Example of the script output:
+
+      {
+            "status": "COMPLETED",
+            "total": 2,
+            "completed": 2,
+            "inProgress": 0,
+            "failedUrl": [],
+            "inProgressUrl": []
+      }
+
+
+## Troubleshooting
+
+The pre-warm solution will automatically start the EC2 Spot instance and execute the script on EC2 to pre-warm resources. The location of the pre-warm script is /etc/agent/agent.py, these EC2 instances will be deleted automatically after the pre-warming is completed. You can login to the EC2 instance and view the specific execution log in /var/log/user-data.log for debugging.
 
 
 

@@ -1,4 +1,5 @@
 import * as glue from "@aws-cdk/aws-glue-alpha";
+import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { S3ToLambda } from '@aws-solutions-constructs/aws-s3-lambda';
 import * as cdk from 'aws-cdk-lib';
 import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
@@ -29,8 +30,10 @@ export interface MonitoringProps extends cdk.NestedStackProps {
   monitoringInterval: string,
   logKeepingDays: number,
   deleteLogNonRealtime: string,
-  useStartTimeNonRealtime: string
-  portalBucket: cdk.aws_s3.Bucket
+  useStartTimeNonRealtime: string,
+  shardCount: number,
+  portalBucket: cdk.aws_s3.Bucket,
+  appsyncApi?: appsync.GraphqlApi
 }
 
 export class NonRealtimeMonitoringStack extends cdk.NestedStack {
