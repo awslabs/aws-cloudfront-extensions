@@ -12,7 +12,7 @@ dynamodb_client = boto3.resource("dynamodb", region_name=region)
 
 logger = Logger(service="Monitoring")
 app = AppSyncResolver()
-metric_header = "bandwidth"
+metric_header = "request"
 
 
 @app.resolver(type_name="Query", field_name="listCountry")
@@ -33,23 +33,25 @@ def list_country(domain, start_time, end_time):
         return []
 
     res_items = response["Items"]
-    # [
-    #     {
-    #         "metricData":{
-    #             "US":"36",
-    #             "KR":"32"
-    #         },
-    #         "metricId":"request-d12345.cloudfront.net",
-    #         "timestamp":"1671446940"
+    # {
+    #     "metricId": "request-d123.cloudfront.net",
+    #     "timestamp": 1670578440,
+    #     "metricData": {
+    #         "US": [{
+    #             "Count": "21"
+    #         }],
+    #         "KR": [{
+    #             "Count": "10"
+    #         }]
     #     }
-    # ]
+    # }
     country_result = {}
     for item in res_items:
         for country in item["metricData"]:
             if country not in country_result:
-                country_result[country] = int(item["metricData"][country])
+                country_result[country] = int(item["metricData"][country][0]["Count"])
             else:
-                country_result[country] += int(item["metricData"][country])
+                country_result[country] += int(item["metricData"][country][0]["Count"])
 
     # Sort country_result in desc order
     sorted_country_result = sorted(

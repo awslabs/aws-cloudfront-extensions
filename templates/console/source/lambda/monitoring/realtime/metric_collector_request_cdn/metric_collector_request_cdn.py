@@ -13,6 +13,7 @@ DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 M_INTERVAL = int(os.environ['INTERVAL'])
+IS_REALTIME = eval(os.environ["IS_REALTIME"])
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -20,7 +21,6 @@ log.setLevel('INFO')
 
 def lambda_handler(event, context):
     log.info('[lambda_handler] Start')
-    log.info('[lambda_handler] Event ' + json.dumps(event))
 
     response = {
         "isBase64Encoded": "false",
@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     end_time = event_datetime.strftime("%Y-%m-%d %H:%M:%S")
     table = dynamodb.Table(DDB_TABLE_NAME)
     metric = "request"
-    collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table)
+    collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table, IS_REALTIME)
     log.info('[lambda_handler] End')
     
     return response

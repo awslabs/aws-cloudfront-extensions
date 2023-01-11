@@ -1,3 +1,4 @@
+geoname_id,locale_code,continent_code,continent_name,country_iso_code,country_name,is_in_european_union
 49518,en,AF,Africa,RW,Rwanda,0
 51537,en,AF,Africa,SO,Somalia,0
 69543,en,AS,Asia,YE,Yemen,0
@@ -38,7 +39,7 @@
 617790,en,EU,Europe,MD,Moldova,0
 630336,en,EU,Europe,BY,Belarus,0
 660013,en,EU,Europe,FI,Finland,1
-661882,en,EU,Europe,AX,"Åland",1
+661882,en,EU,Europe,AX,"Åland Islands",1
 690791,en,EU,Europe,UA,Ukraine,0
 718075,en,EU,Europe,MK,"North Macedonia",0
 719819,en,EU,Europe,HU,Hungary,1
@@ -130,7 +131,7 @@
 2400553,en,AF,Africa,GA,Gabon,0
 2403846,en,AF,Africa,SL,"Sierra Leone",0
 2410758,en,AF,Africa,ST,"São Tomé and Príncipe",0
-2411586,en,EU,Europe,GI,Gibraltar,1
+2411586,en,EU,Europe,GI,Gibraltar,0
 2413451,en,AF,Africa,GM,Gambia,0
 2420477,en,AF,Africa,GN,Guinea,0
 2434508,en,AF,Africa,TD,Chad,0
