@@ -652,6 +652,29 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       layers: [cloudfrontSharedLayer]
     });
 
+    const metricsCollectorEdgeType = new lambda.Function(this, 'metricsCollectorEdgeType', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_collector_edge_type.lambda_handler',
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_edge_type')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTableName,
+        S3_BUCKET: cfLogBucket.bucketName,
+        ACCOUNT_ID: this.account,
+        DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        USE_START_TIME: props.useStartTimeNonRealtime,
+        IS_REALTIME: 'False',
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
     const metricsManager = new lambda.Function(this, 'MetricsManager', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'metric_manager.lambda_handler',
@@ -699,40 +722,6 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       serviceToken: customResourceProvider.serviceToken,
       resourceType: "Custom::AddPartNonRealtime",
     });
-
-    // if (props && props.appsyncApi) {
-    //   const extDeployerApi = props?.appsyncApi;
-
-    //   // AWS Lambda Powertools
-    //   const powertools_layer = lambda.LayerVersion.fromLayerVersionArn(
-    //     this,
-    //     `PowertoolLayerNon`,
-    //     `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
-    //   );
-    //   const listCountry = new lambda.Function(this, 'listCountryNon', {
-    //     runtime: lambda.Runtime.PYTHON_3_9,
-    //     handler: 'country_list.lambda_handler',
-    //     memorySize: 512,
-    //     timeout: cdk.Duration.seconds(900),
-    //     code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/country_list')),
-    //     role: lambdaRole,
-    //     environment: {
-    //       DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
-    //     },
-    //     logRetention: logs.RetentionDays.ONE_WEEK,
-    //     layers: [powertools_layer]
-    //   });
-
-    //   const listCountryDs = extDeployerApi.addLambdaDataSource('listDs', listCountry);
-    //   listCountryDs.createResolver({
-    //     typeName: "Query",
-    //     fieldName: "listCountryNon",
-    //     requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-    //     responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-    //   });
-
-    //   listCountry.node.addDependency(cloudfrontMetricsTable);
-    // }
 
     addPartition.node.addDependency(glueDatabase);
     addPartition.node.addDependency(glueTable);
@@ -802,6 +791,11 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     metricsCollectorDownstreamTraffic.node.addDependency(glueTable);
     metricsCollectorDownstreamTraffic.node.addDependency(cfGlueTable);
     metricsCollectorDownstreamTraffic.node.addDependency(cfLogBucket);
+    metricsCollectorEdgeType.node.addDependency(cloudfrontMetricsTable);
+    metricsCollectorEdgeType.node.addDependency(glueDatabase);
+    metricsCollectorEdgeType.node.addDependency(glueTable);
+    metricsCollectorEdgeType.node.addDependency(cfGlueTable);
+    metricsCollectorEdgeType.node.addDependency(cfLogBucket);
 
     metricsManager.node.addDependency(cloudfrontMetricsTable);
     metricsManager.node.addDependency(glueDatabase);

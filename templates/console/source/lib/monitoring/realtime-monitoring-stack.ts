@@ -880,40 +880,6 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       layers: [cloudfrontSharedLayer]
     });
 
-    // if (props && props.appsyncApi) {
-    //   const extDeployerApi = props?.appsyncApi;
-
-    //   // AWS Lambda Powertools
-    //   const powertools_layer = lambda.LayerVersion.fromLayerVersionArn(
-    //     this,
-    //     `PowertoolLayer`,
-    //     `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
-    //   );
-    //   const listCountry = new lambda.Function(this, 'listCountry', {
-    //     runtime: lambda.Runtime.PYTHON_3_9,
-    //     handler: 'country_list.lambda_handler',
-    //     memorySize: 512,
-    //     timeout: cdk.Duration.seconds(900),
-    //     code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/country_list')),
-    //     role: lambdaRole,
-    //     environment: {
-    //       DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-    //     },
-    //     logRetention: logs.RetentionDays.ONE_WEEK,
-    //     layers: [powertools_layer]
-    //   });
-
-    //   const listCountryDs = extDeployerApi.addLambdaDataSource('listCountryDs', listCountry);
-    //   listCountryDs.createResolver({
-    //     typeName: "Query",
-    //     fieldName: "listCountry",
-    //     requestMappingTemplate: appsync.MappingTemplate.lambdaRequest(),
-    //     responseMappingTemplate: appsync.MappingTemplate.lambdaResult()
-    //   });
-
-    //   listCountry.node.addDependency(cloudfront_metrics_table);
-    // }
-
     addPartition.node.addDependency(cloudfront_metrics_table);
     addPartition.node.addDependency(glueDatabase);
     addPartition.node.addDependency(glueTableCFN);
