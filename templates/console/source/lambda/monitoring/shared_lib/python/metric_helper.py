@@ -504,9 +504,9 @@ def construct_query_string(
             + ' group by "cs-host", "c-country";'
         )
     elif metric == "edgeType" or metric == "edgeTypeLatency":
-        # edgeTypeLatency: average time-taken for requests group by x-edge-result-type
+        # edgeTypeLatency: average time-taken for requests group by x-edge-response-result-type
         query_string = (
-            'SELECT "x-edge-result-type", count(timestamp), cast(avg("time-taken")*1000 as decimal(38,3)), "cs-host", "c-country" FROM "'
+            'SELECT "x-edge-response-result-type", count(timestamp), cast(avg("time-taken")*1000 as decimal(38,3)), "cs-host", "c-country" FROM "'
             + db_name
             + '"."'
             + table_name
@@ -518,7 +518,7 @@ def construct_query_string(
             + str(format_date_time(end_time))
             + " AND timestamp > "
             + str(format_date_time(start_time))
-            + ' group by "x-edge-result-type", "cs-host", "c-country";'
+            + ' group by "x-edge-response-result-type", "cs-host", "c-country";'
         )
     else:
         raise Exception("[schedule_athena_query] Invalid metric " + metric)
