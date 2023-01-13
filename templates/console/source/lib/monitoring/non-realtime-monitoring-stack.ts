@@ -892,6 +892,12 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestOrigin);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorLatencyRatio);
 
+    const cloudfront5MinutesRuleThird = new Rule(this, 'CFStandardLogs_5_minutes_rule_3', {
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
+    });
+    const lambdaMetricsCollectorEdgeType = new LambdaFunction(metricsCollectorEdgeType);
+    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorEdgeType);
+
     const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),
     });
