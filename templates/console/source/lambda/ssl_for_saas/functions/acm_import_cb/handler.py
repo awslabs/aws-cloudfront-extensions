@@ -5,7 +5,7 @@ import os
 import uuid
 from typing import Any
 
-from .types_ import Event
+from functions.acm_import_cb.types_ import Event
 from layer.acm_service.client import AcmUtilsService
 from layer.acm_service.types_ import ImportCertificateInput, Tag, CertificateMetadata, NotificationInput
 from layer.cloudfront_service.client import CloudFrontUtilsService

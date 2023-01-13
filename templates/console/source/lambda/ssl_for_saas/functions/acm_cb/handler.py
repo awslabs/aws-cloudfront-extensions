@@ -4,7 +4,7 @@ import json
 import logging
 
 from layer.acm_service.types_ import NotificationInput
-from .types_ import Event
+from functions.acm_cb.types_ import Event
 from layer.acm_service.client import AcmUtilsService
 from layer.cloudfront_service.client import CloudFrontUtilsService
 from layer.common.response import Response

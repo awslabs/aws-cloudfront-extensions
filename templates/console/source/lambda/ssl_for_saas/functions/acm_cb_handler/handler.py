@@ -3,7 +3,7 @@ import json
 import logging
 import os
 
-from .types_ import Event
+from functions.acm_cb_handler.types_ import Event
 from layer.cloudfront_service.client import CloudFrontUtilsService
 from layer.cloudfront_service.types_ import DistributionConfigWithTags, Tags, Tag
 from layer.common.response import Response
