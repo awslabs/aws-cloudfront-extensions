@@ -82,15 +82,15 @@ def handler(event, context):
     if cert_request_number > cert_space_remaining:
         logger.error(
             f"Cert quota exceeded, cert space remaining: {cert_space_remaining}, but request  cert number: {cert_request_number}")
-        raise Exception(
-            f"Cert quota exceeded, cert space remaining: {cert_space_remaining}, but request  cert number: {cert_request_number}")
+        # raise Exception(
+        #     f"Cert quota exceeded, cert space remaining: {cert_space_remaining}, but request  cert number: {cert_request_number}")
     if cloudfront_dist_request_number > cf_dist_remaining:
         logger.error(
             f"Cloudfront quota exceeded, cloudfront space remaining: {cf_dist_remaining}, but request  cloudfront "
             f"number: {cloudfront_dist_request_number}")
-        raise Exception(
-            f"Cloudfront quota exceeded, cloudfront space remaining: {cf_dist_remaining}, but request  cloudfront "
-            f"number: {cloudfront_dist_request_number}")
+        # raise Exception(
+        #     f"Cloudfront quota exceeded, cloudfront space remaining: {cf_dist_remaining}, but request  cloudfront "
+        #     f"number: {cloudfront_dist_request_number}")
 
     return {
         'statusCode': 200,
