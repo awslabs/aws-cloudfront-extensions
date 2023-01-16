@@ -106,24 +106,12 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
               type: "string"
             },
             {
-              name: "time-to-first-byte",
-              type: "float"
-            },
-            {
               name: "sc-status",
               type: "int"
             },
             {
               name: "sc-bytes",
               type: "int"
-            },
-            {
-              name: "cs-method",
-              type: "string"
-            },
-            {
-              name: "cs-protocol",
-              type: "string"
             },
             {
               name: "cs-host",
@@ -138,92 +126,12 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
               type: "int"
             },
             {
-              name: "x-edge-location",
-              type: "string"
-            },
-            {
-              name: "x-edge-request-id",
-              type: "string"
-            },
-            {
-              name: "x-host-header",
-              type: "string"
-            },
-            {
               name: "time-taken",
               type: "float"
             },
             {
-              name: "cs-protocol-version",
-              type: "string"
-            },
-            {
-              name: "c-ip-version",
-              type: "string"
-            },
-            {
-              name: "cs-user-agent",
-              type: "string"
-            },
-            {
-              name: "cs-referer",
-              type: "string"
-            },
-            {
-              name: "cs-cookie",
-              type: "string"
-            },
-            {
-              name: "cs-uri-query",
-              type: "string"
-            },
-            {
               name: "x-edge-response-result-type",
               type: "string"
-            },
-            {
-              name: "x-forwarded-for",
-              type: "string"
-            },
-            {
-              name: "ssl-protocol",
-              type: "string"
-            },
-            {
-              name: "ssl-cipher",
-              type: "string"
-            },
-            {
-              name: "x-edge-result-type",
-              type: "string"
-            },
-            {
-              name: "fle-encrypted-fields",
-              type: "string"
-            },
-            {
-              name: "fle-status",
-              type: "string"
-            },
-            {
-              name: "sc-content-type",
-              type: "string"
-            },
-            {
-              name: "sc-content-len",
-              type: "int"
-            },
-            {
-              name: "sc-range-start",
-              type: "int"
-            },
-            {
-              name: "sc-range-end",
-              type: "int"
-            },
-            {
-              name: "c-port",
-              type: "int"
             },
             {
               name: "x-edge-detailed-result-type",
@@ -232,30 +140,6 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
             {
               name: "c-country",
               type: "string"
-            },
-            {
-              name: "cs-accept-encoding",
-              type: "string"
-            },
-            {
-              name: "cs-accept",
-              type: "string"
-            },
-            {
-              name: "cache-behavior-path-pattern",
-              type: "string"
-            },
-            {
-              name: "cs-headers",
-              type: "string"
-            },
-            {
-              name: "cs-header-names",
-              type: "string"
-            },
-            {
-              name: "cs-headers-count",
-              type: "int"
             },
             {
               name: "isp",
