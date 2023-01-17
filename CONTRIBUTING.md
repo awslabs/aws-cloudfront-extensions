@@ -68,10 +68,10 @@ The project has below folders
 
 - .github/workflows: the workflow after a PR is created and managed by github actions
 - docs: documents which are used for introducing the project and workshop
-- edge/nodejs: lambda@Edge codes written in nodejs
-- edge/python: lambda@Edge codes written in python
-- scripts: shell scripts used in workflows
-- templates: cdk scripts for deployment such as AWS WAF rules
+- lambda-edges/nodejs: lambda@Edge codes written in nodejs
+- lambda-edges/python: lambda@Edge codes written in python
+- github-action-scripts: shell scripts used in github action workflows
+- templates: cdk scripts for Solution infrastructure code
 - website: resources for holding a workshop
 
 #### What is the PR workflow and release workflow?

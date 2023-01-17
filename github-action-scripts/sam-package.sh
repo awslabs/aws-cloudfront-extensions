@@ -44,5 +44,5 @@ for app_path in ${app_path_list[@]}; do
 	echo $(pwd)
 	sam package -t edge/$app_path/template.yaml --output-template-file edge/$app_path/packaged.yaml --s3-bucket cloudfront-extensions-package --s3-prefix $codeUri  --region us-east-1
 
-	python3 scripts/python/normalize-sam-template.py edge/$app_path/packaged.yaml $app_version
+	python3 github-action-scripts/python/normalize-sam-template.py edge/$app_path/packaged.yaml $app_version
 done

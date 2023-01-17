@@ -950,7 +950,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'app.lambda_handler',
       memorySize: 2048,
       role: lambdaRole,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../lambda-edges/python/rt_log_transformer/rt_log_transformer')),
       timeout: cdk.Duration.minutes(2)
     });
 
