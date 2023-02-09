@@ -44,13 +44,14 @@ log = logging.getLogger()
 log.setLevel('INFO')
 
 
-def write_in_ddb(req_id, url_list, pop, create_time):
+def write_in_ddb(req_id, url_list, pop, create_time, protocol):
     table_item = {
         "pop": pop,
         "urlList": url_list,
         "reqId": req_id,
         "create_time": create_time,
-        "url": 'metadata'
+        "url": 'metadata',
+        'protocol': protocol
     }
     ddb_response = table.put_item(Item=table_item)
     log.info(table_item)
@@ -104,6 +105,14 @@ def lambda_handler(event, context):
         cf_domain = event_body['cf_domain']
     else:
         cf_domain = None
+
+    if 'protocol' in event_body:
+        protocol = event_body['protocol']
+        if protocol not in ['http', 'https']:
+            return compose_error_response('Invalid protocol, please specify http or https')
+    else:
+        protocol = 'http'
+
     pop_region = event_body['region']
     current_time = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
@@ -115,7 +124,7 @@ def lambda_handler(event, context):
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
-    write_in_ddb(req_id, url_list, pop_region, current_time)
+    write_in_ddb(req_id, url_list, pop_region, current_time, protocol)
     inv_resp = start_invalidation(url_list, cf_domain, pop_region,
                                   req_id, current_time)
     if inv_resp is None:
