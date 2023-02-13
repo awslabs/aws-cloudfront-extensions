@@ -52,15 +52,23 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
     """Query from Dynamodb table with country filter"""
     TABLE_NAME = os.environ["DDB_TABLE_NAME"]
     real_metric = get_real_metric(metric)
+    limit = 1000
 
     detailed_data = []
     table = dynamodb.Table(TABLE_NAME)
     response = table.query(
         KeyConditionExpression=Key("metricId").eq(real_metric + "-" + domain)
-        & Key("timestamp").between(int(start_time), int(end_time))
+        & Key("timestamp").between(int(start_time), int(end_time)),
+        Limit=limit,
     )
-    # log.info("[query_metric_ddb] The query result is")
-    # log.info(str(response))
+    tmp_response = response
+    while 'LastEvaluatedKey' in tmp_response:
+        tmp_response = table.query(
+            KeyConditionExpression=Key("metricId").eq(real_metric + "-" + domain) & Key("timestamp").between(int(start_time), int(end_time)),
+            Limit=limit,
+            ExclusiveStartKey=tmp_response['LastEvaluatedKey']
+        )
+        response['Items'] += tmp_response['Items']
 
     if country == COUNTRY_ALL:
         for query_item in response["Items"]:
