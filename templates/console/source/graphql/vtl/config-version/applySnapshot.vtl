@@ -1,0 +1,6 @@
+$util.validate($util.matches("^[A-Z0-9]{10,25}$", $ctx.args.src_distribution_id), "Invalid Source Distribution Id")
+#foreach( $id in $ctx.args.target_distribution_ids )
+    $util.validate($util.matches("^[A-Z0-9]{10,25}$", $id), "Invalid Distribution Id")
+#end
+
+{"version": "2017-02-28", "operation": "Invoke", "payload": $util.toJson($ctx)}

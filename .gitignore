@@ -211,4 +211,14 @@ $RECYCLE.BIN/
 
 
 .aws-sam
+
 # End of https://www.gitignore.io/api/osx,node,linux,windows
+/templates/console/source/lambda/custom_resource/package/
+/templates/console/source/lambda/deployer/package/
+/templates/console/source/lambda/custom_resource/common/
+/templates/console/source/lambda/deployer/common/
+**/.coverage
+**/.testfile_not_used
+/templates/console/source/lambda/common/lambda-assets/
+/buildspec_2.yml
+/deploy_vtag.yml

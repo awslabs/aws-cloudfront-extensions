@@ -1,0 +1,69 @@
+{
+  "title": "Extensions",
+  "list": {
+    "name": "Name",
+    "desc": "Description",
+    "stage": "CloudFront Stage",
+    "details": "Details",
+    "link": "Link",
+    "updated": "Updated"
+  },
+  "update": {
+    "upToDate": "Up to date",
+    "upToDateDesc": "All your extenstions are up to date",
+    "newVersion": "A newer version of the extensions were detected, are you sure you need to update all extenstions?",
+    "updateExt": "Update Extenstions"
+  },
+  "delete": {
+    "deleteTips": "Are you sure you want to deploy the extention "
+  },
+  "deploy": {
+    "deployExt": "Deploy Extensions",
+    "step": {
+      "fa": "Function associations",
+      "review": "Review",
+      "chooseCFD": "Choose CloudFront distribution",
+      "specifyParam": "Specify Parameters"
+    },
+    "chooseCF": {
+      "distribution": "Distributions",
+      "distributionDesc1": "Choose a CloudFront distribution or create a new one in ",
+      "distributionDesc2": "CloudFront console",
+      "distributionDesc3": " to deploy CloudFront Extensions.",
+      "chooseCFD": "Choose CloudFront distribution",
+      "behaviors": "Behaviors",
+      "behaviorsDesc": "Choose a behavior to deploy the extensions",
+      "selectBehavior": "Select behavior",
+      "chooseCFDError": "Please select a CloudFront distribution",
+      "selectBehaviorError": "Please select behavior"
+    },
+    "fa": {
+      "title": "Function associations",
+      "titleDesc": "Choose an edge function to associate with this cache behavior, and the CloudFront event that invokes the function.",
+      "alert": "WARNING: You are about to associate a function that will overwirte the existing function for the following cache behaviors. Are you sure you want to continue?",
+      "ext": "Extention",
+      "statge": "CloudFront stage",
+      "selectStage": "Select stage",
+      "param": "Parameters",
+      "inputPrefix": "Please input "
+    },
+    "review": {
+      "param": "Parameters",
+      "key": "key",
+      "value": "Value",
+      "distributionId": "Distribution Id",
+      "behaviors": "Behaviors",
+      "cfStage": "CloudFront Stage"
+    }
+  },
+  "result": {
+    "status": "Deploy status",
+    "notDeployed": "Your extension are now being deployed",
+    "beingDeploy": "The extension are being deployed to CloudFront distribution ",
+    "howToUse": "How to use extensions",
+    "fromHere": "Form sections come here.",
+    "helpful": "Here are some helpful resources to get started",
+    "firstLink": "First link to documentation",
+    "secondLink": "Second link to documentation"
+  }
+}

@@ -1,0 +1,5 @@
+$util.validate($util.matches("^[A-Z0-9]{10,25}$", $ctx.args.distribution_id), "Invalid Source Distribution Id")
+$util.validate($util.matches("^\d+$", $ctx.args.version1), "Invalid version, should only contains number")
+$util.validate($util.matches("^\d+$", $ctx.args.version2), "Invalid version, should only contains number")
+
+{"version": "2017-02-28", "operation": "Invoke", "payload": $util.toJson($ctx)}

@@ -1,0 +1,43 @@
+{
+  "category": "Networking & Content Delivery",
+  "title": "CloudFront Extensions",
+  "subTitle": "Amazon CloudFront operation toolkit",
+  "desc": "The solution provides a set of management and automation tools allowing customers to manage hundreds of CloudFront distributions.",
+  "benifits": {
+    "title": "Benefits and features",
+    "beft1": "Monitoring",
+    "beft1Desc": "You can monitor CloudFront traffic such as cache hit ratio, bandwidth, and status code. For more information, refer to Monitoring (https://awslabs.github.io/aws-cloudfront-extensions/en/monitoring/overview/).",
+    "beft2": "Distribution management",
+    "beft2Desc": "You can save one specific CloudFront distribution configuration as a snapshot, compare different snapshots and apply a snapshot to other distributions; audit all CloudFront distribution changes which will be saved automatically; automate the process from requesting new certificate or importing existing SSL certificates to CloudFront distributions. For more information, refer to Distribution Management (https://awslabs.github.io/aws-cloudfront-extensions/en/distribution-management/overview/).",
+    "beft3": "Extension repository",
+    "beft3Desc": "You can deploy commonly used out-of-box extensions such as Lambda@Edge functions, CloudFront functions, and CloudFormation templates through friendly user interface. You can use these extensions without any programming, and customize them to fit your specific needs. For more information, refer to Extensions Repository (https://awslabs.github.io/aws-cloudfront-extensions/en/extension-repository/overview/)."
+  },
+  "usecase": {
+    "title": "Use cases",
+    "usecase1": "Migration",
+    "usecase1Desc": "When migrating from other CDN providers to AWS, customers need to batch create CloudFront distributions with associated SSL certificates.",
+    "usecase2": "CDN pre-warming",
+    "usecase2Desc": "Customers need to pre-heat cache for files (in App Stores) or game patches.",
+    "usecase3": "CDN monitoring",
+    "usecase3Desc": "Customers who need real-time or non-real-time monitoring metrics such as download speed, cache hit rate, and bandwidth. Customers can integrate the solution with their CDN monitoring platform through APIs.",
+    "usecase4": "CDN version control",
+    "usecase4Desc": "When customer has a large number of CloudFront distributions, they may want to take a snapshot of a specific CloudFront distribution configuration and track its changes.",
+    "usecase5": "Common Lambda@Edge functions",
+    "usecase5Desc": "Customer may want to deploy Lambda@Edge functions, such as Image Resize, Redirect-by-country, etc."
+  },
+  "getStarted": {
+    "title": "Get started",
+    "desc": "Find common extensions for your CloudFront"
+  },
+  "gettingStarted": {
+    "title": "Getting started",
+    "startCF": "Getting started with CloudFront Extensions"
+  },
+  "moreResource": {
+    "title": "More resources",
+    "doc": "Documentation",
+    "faq": "FAQ",
+    "issue": "Submit issues",
+    "workshop": "Workshop"
+  }
+}

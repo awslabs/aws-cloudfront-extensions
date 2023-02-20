@@ -1,0 +1,113 @@
+{
+  "sslList": "证书列表",
+  "createNew": "创建新证书",
+  "importExist": "导入现有证书",
+  "certJobList": "证书任务",
+  "sslJobList": "用于 SaaS 任务列表的 SSL",
+  "guide": {
+    "howItWorks": "它是如何运作的",
+    "create": {
+      "step1": "步骤 1：在 ACM 中请求 SSL 证书",
+      "step1Title": "自动化流程",
+      "step1Desc": "使用给定的域名，通过 AWS 证书管理 （ACM） 服务请求新的 SSL 证书。",
+      "step2": "步骤 2：验证证书",
+      "step2Title": "手动流程",
+      "step2Desc": "该步骤也称为域控制验证过程 （DCV）。证书颁发机构（在本例中为 ACM）需要此步骤来验证您（请求 SSL 证书的人员）是否已授权使用域名（CNAME）。",
+      "step3": "步骤 3：创建分配（可选）",
+      "step3Title": "自动化流程",
+      "step3Desc": "解决方案将自动为您创建相应的分配。这是可选的。"
+    },
+    "import": {
+      "step1": "步骤 1：导入 SSL 证书",
+      "step1Desc": "将现有 SSL 证书导入 Amazon Certificate Management （ACM） Service。请确保输入的 SSL 证书由公共证书自动认证 （CA） 颁发。",
+      "step2": "步骤 2：自动创建分配（可选） ",
+      "step2Desc": "如果您在步骤 1 中打开自动创建分配开关则解决方案将自动为您创建相应的分配。"
+    }
+  },
+  "importMethod": "导入方式",
+  "autoCreateDistribution": "自动创建分配",
+  "autoCreateDistributionDesc": "请求证书，然后创建分配",
+  "donotCreateDistribution": "不创建分配",
+  "donotCreateDistributionDesc": "仅请求证书",
+  "sourceDistribution": "源分配 ",
+  "sourceDistributionDesc": "应用现有分配中的源设置。它将使用 ",
+  "chooseDistributionAsSource": "选择分配作为源",
+  "selectVersion": "选择版本 ",
+  "confirmSetting": "确认认证设置？",
+  "confirmRequestParam": "请确认 SSL 请求参数 ",
+  "confirm": "确认",
+  "curSSLParam": "SaaS 请求参数的当前 SSL",
+  "confirmApply": "请输入确认以应用设置",
+  "create": {
+    "domainNames": "证书的域名 （CNAME）",
+    "domainNameForCert": "证书的域名",
+    "pasteDomainNames": "粘贴自定义域名",
+    "domainNamePlaceHolder": "域名, sanlist[0] ,sanlist[1], sanlist[2], ….sanlist[120]",
+    "certCreateSent": "证书创建已发送",
+    "certCreationTrigger": "触发了证书创建"
+  },
+  "import": {
+    "certDetail": "认证详情",
+    "importCerts": "导入一个或多个证书",
+    "importOne": "导入一个证书",
+    "importOneDesc": "导入一个",
+    "importMulti": "导入多个证书",
+    "importMultiDesc": "通过提供证书链接等导入多个证书。",
+    "certBody": "证书 body",
+    "certBodyDesc": "列出您使用的任何自定义域名以及用于文件 URL 的 CloudFront 域名。",
+    "pemEncode": "PEM-encoded certificate",
+    "certPrivkey": "证书 private key",
+    "certPrivKeyDesc": "列出您使用的任何自定义域名以及用于文件 URL 的 CloudFront 域名。",
+    "certChain": "证书 chain",
+    "certChainDesc": "列出您使用的任何自定义域名以及用于文件 URL 的 CloudFront 域名。",
+    "commingLater": "将在以后的版本中推出",
+    "certImportSent": "证书导入已发送",
+    "certImportTrigger": "证书导入已触发"
+  },
+  "list": {
+    "cnames": "域名",
+    "certArn": "证书 ARN",
+    "issuer": "Issuer",
+    "status": "SSL/TLS 证书状态",
+    "keyAlgorithm": "算法",
+    "expiresOn": "证书过期日期"
+  },
+  "jobDetail": {
+    "jobOverview": "任务概述",
+    "overallStatus": "总体任务状态",
+    "curExpCert": "当前/预期证书",
+    "curExpCF": "当前/预期 分配",
+    "jobStatus": "任务状态",
+    "requestCert": "申请 ACM 证书",
+    "promptInfo": "如果创建了所有 SSL 证书，则将完成该步骤",
+    "validateCertTop": "验证证书（手动）",
+    "validateCertBottom": "如果颁发了所有 SSL 证书，则将完成该步骤",
+    "createCFTop": "创建分配 ",
+    "createCFBottom": "如果创建了所有 SSL 证书，则将完成该步骤",
+    "certArn": "证书 ARN",
+    "cfArn": "分配 ARN"
+  },
+  "jobList": {
+    "jobId": "任务 ID",
+    "jobType": "任务类型",
+    "totalCerts": "证书总数",
+    "totalCF": "分配总数",
+    "createdAt": "创建时间"
+  },
+  "status": {
+    "notStartd": "未启动",
+    "inProgress": "进行中",
+    "success": "成功",
+    "failed": "失败",
+    "noneed": "不需要",
+    "requestName": "在 ACM 中请求 SSL 证书",
+    "requestDesc": "使用给定的域名，通过 AWS 证书管理 （ACM） 服务请求新的 SSL 证书。",
+    "validName": "验证证书",
+    "validDesc": "该步骤也称为域控制验证过程 （DCV）。证书颁发机构（在本例中为 ACM）需要此步骤来验证您（请求 SSL 证书的人员）是否已授权使用域名（CNAME）。",
+    "createName": "创建分配",
+    "createDesc": "如果您在步骤 1 中打开开关“自动创建分配”，则解决方案将自动为您创建相应的分配。",
+    "step": "步骤 ",
+    "auto": "自动化流程",
+    "manual": "手动过程"
+  }
+}

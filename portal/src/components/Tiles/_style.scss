@@ -1,0 +1,39 @@
+.gsui-tiles-wrap {
+  display: flex;
+  padding: 0px;
+  label {
+    // margin: 0 10px;
+    flex: 1;
+    padding: 8px 16px;
+    border: 1px solid #aab7b8;
+    background-color: #fff;
+    cursor: pointer;
+    .name {
+      vertical-align: middle;
+      font-size: $font-size-base;
+      span {
+        display: inline-block;
+        margin-top: -2px;
+        padding-left: 5px;
+      }
+    }
+    .desc {
+      font-size: $font-size-12;
+      color: #687078;
+      padding-left: 17px;
+    }
+    &.disabled {
+      cursor: not-allowed;
+    }
+    &:first-child {
+      margin-right: 8px;
+    }
+    &:last-child {
+      margin-left: 8px;
+    }
+    &.active {
+      border: 1px solid #0073bb;
+      background: #f1faff;
+    }
+  }
+}

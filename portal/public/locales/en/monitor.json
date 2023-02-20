@@ -1,0 +1,30 @@
+{
+  "name": "CloudFront Monitoring",
+  "cloudFront": {
+    "alert": "Please active monitoring feature to get CloudFront distribution metrics in the dashboard.",
+    "monitoring": "Monitoring",
+    "chooseDistribution": "Choose a CloudFront distribution",
+    "chart": {
+      "request": "Request",
+      "requestOrigin": "Request Origin",
+      "statusCode": "Status Code",
+      "statusCodeOrigin": "Status Code Origin",
+      "cacheHitRate": "Cache Hit Rate",
+      "cacheHitRateBW": "Cache Hit Rate BandWidth",
+      "bandWidth": "BandWidth",
+      "bandWidthOrigin": "BandWidth Origin",
+      "latencyRatio": "Latency Larger Than 1s Ratio",
+      "downloadSpeed": "Download Speed",
+      "downloadSpeedOrigin": "Download Speed Origin",
+      "topNUrlReq": "Top N Url Requests",
+      "topNUrlSize": "Top N Url Size",
+      "downStreamTraffic": "Downstream Traffic"
+    },
+    "updateDomainList": "Update Domain List",
+    "applyConfig": "Distribution to apply configurations",
+    "selectDistribution": "Select distribution"
+  },
+  "waf": {
+    "name": "WAF Monitoring"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "configSnapshot": "配置快照",
+  "name": "快照",
+  "compare": {
+    "name": "比较",
+    "headTitle": "请选择要比较的快照",
+    "selectSnapshot": "选择快照",
+    "showDiffOnly": " 仅显示不同的部分",
+    "configSection": "配置部分",
+    "snapshot": "快照",
+    "same": "相同 ",
+    "show": "显示",
+    "hide": "隐藏",
+    "diff": "不同 "
+  },
+  "save": {
+    "name": "保存",
+    "saveNote": "保存特定配置快照的描述",
+    "setting": "快照设置",
+    "desc": "描述",
+    "betaTest": "beta testing"
+  },
+  "list": {
+    "title": "Distribution 列表",
+    "id": "ID",
+    "cname": "备用域名",
+    "domainName": "分配域名",
+    "snapshotCount": "快照数量",
+    "status": "状态",
+    "deploying": "部署",
+    "snapshotList": "快照列表"
+  },
+  "detail": {
+    "cname": "备用域名",
+    "nocname": "没有备用域名",
+    "snapshotList": "快照列表",
+    "action": {
+      "compareCurrent": "与当前配置比较",
+      "compare": "比较",
+      "updateDesc": "更新描述",
+      "applyOther": "应用于其他分配",
+      "delete": "删除",
+      "deleteTip": "已删除 CloudFront 快照"
+    },
+    "item": {
+      "name": "快照名称",
+      "date": "日期",
+      "desc": "描述"
+    },
+    "applySetting": "应用设置？",
+    "applyConfig": "应用配置",
+    "selectDistribution": "选择分配",
+    "confirmToApply": "请输入确认以应用",
+    "confirm": "确认",
+    "createSnapshot": "创建新的 CloudFront 快照",
+    "createTips": "Cloudfront 快照已创建",
+    "snapshotName": "快照名称",
+    "desc": "描述"
+  },
+  "detailConfig": "快照的详细配置:",
+  "withSnapshot": " 和快照: ",
+  "selectSnapshot": "选择快照"
+}

@@ -1,0 +1,63 @@
+{
+  "configSnapshot": "Configuration Snapshot",
+  "name": "Snapshot",
+  "compare": {
+    "name": "Compare",
+    "headTitle": "Please select the snapshot to compare",
+    "selectSnapshot": "Select snapshot",
+    "showDiffOnly": " Show Different Sections Only",
+    "configSection": "Config Section",
+    "snapshot": "Snapshot",
+    "same": "Same ",
+    "show": "Show",
+    "hide": "Hide",
+    "diff": "Different "
+  },
+  "save": {
+    "name": "Save",
+    "saveNote": "Save note for specific config snapshot",
+    "setting": "Snapshot settings",
+    "desc": "Description",
+    "betaTest": "beta testing"
+  },
+  "list": {
+    "title": "Distribution List",
+    "id": "ID",
+    "cname": "CNAMEs",
+    "domainName": "Domain name",
+    "snapshotCount": "Snapshot count",
+    "status": "Deployment status",
+    "deploying": "Deploying",
+    "snapshotList": "Snapshot List"
+  },
+  "detail": {
+    "cname": "CNAME",
+    "nocname": "No CNAME",
+    "snapshotList": "Snapshot List",
+    "action": {
+      "compareCurrent": "Compare with current Config",
+      "compare": "Compare",
+      "updateDesc": "Update Description",
+      "applyOther": "Apply to other distributions",
+      "delete": "Delete",
+      "deleteTip": "Cloudfront snapshot deleted"
+    },
+    "item": {
+      "name": "Snapshot Name",
+      "date": "Date",
+      "desc": "Description"
+    },
+    "applySetting": "Apply Settings?",
+    "applyConfig": "Distribution to apply configurations",
+    "selectDistribution": "Select distribution",
+    "confirmToApply": "Please input Confirm to apply",
+    "confirm": "Confirm",
+    "createSnapshot": "Create new Cloudfront Snapshot",
+    "createTips": "Cloudfront snapshot created",
+    "snapshotName": "Snapshot Name",
+    "desc": "Description"
+  },
+  "detailConfig": "Detail Configuration of distribution: ",
+  "withSnapshot": " with snapshot: ",
+  "selectSnapshot": "Select snapshot"
+}

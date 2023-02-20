@@ -1,0 +1,30 @@
+{
+  "name": "CloudFront监控",
+  "cloudFront": {
+    "alert": "请主动监控功能，在控制面板中获取CloudFront分布指标。",
+    "monitoring": "监控",
+    "chooseDistribution": "选择一个CloudFront分配",
+    "chart": {
+      "request": "请求数量",
+      "requestOrigin": "回源请求数量",
+      "statusCode": "状态码",
+      "statusCodeOrigin": "回源状态码",
+      "cacheHitRate": "缓存命中率（通过请求数量计算）",
+      "cacheHitRateBW": "缓存命中率（通过带宽计算）",
+      "bandWidth": "带宽",
+      "bandWidthOrigin": "回源带宽",
+      "latencyRatio": "时延大于1秒的比例",
+      "downloadSpeed": "下载速度",
+      "downloadSpeedOrigin": "回源下载速度",
+      "topNUrlReq": "访问量最多的URL",
+      "topNUrlSize": "访问流量最大的URL",
+      "downStreamTraffic": "下游流量"
+    },
+    "updateDomainList": "更新域名列表",
+    "applyConfig": "请选择需要监控的CloudFront分配",
+    "selectDistribution": "选择分配"
+  },
+  "waf": {
+    "name": "WAF监控"
+  }
+}
