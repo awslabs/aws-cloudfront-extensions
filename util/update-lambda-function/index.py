@@ -1,11 +1,11 @@
+from urllib.request import urlopen
+import zipfile
+from pathlib import Path
 import cfnresponse
 import os
 import boto3
 import json
 from io import BytesIO
-from urllib.request import urlopen
-import zipfile
-from pathlib import Path
 
 def handler(event, context):
     print (str(event))
