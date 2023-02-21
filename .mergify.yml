@@ -25,13 +25,3 @@ pull_request_rules:
         method: squash
         strict_method: merge
         commit_message: title+body
-    conditions:
-      - -label~=(blocked|do-not-merge)
-      - label~=CI-Succeeded
-      - -merged
-      - -closed
-      - author!=dependabot[bot]
-      - author!=dependabot-preview[bot]
-      - "#approved-reviews-by>=1"
-      - approved-reviews-by~=^(cc4i|NingLu|dengmingtong|yanbasic)
-      - "#changes-requested-reviews-by=0"
