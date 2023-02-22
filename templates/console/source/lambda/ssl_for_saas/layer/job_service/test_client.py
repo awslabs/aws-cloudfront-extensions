@@ -19,8 +19,8 @@ os.environ.setdefault('GRAPHQL_API_URL', 'https://gtjgvw6jk5fxvklgk7yge7kzqq.app
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
                       'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-R0CQ1O54JK2T')
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
-os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
+                      'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
+os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:${account_id}:CloudFront_Distribution_Notification')
 
 
 @pytest.mark.skip(reason="dev only")

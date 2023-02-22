@@ -11,8 +11,8 @@ os.environ.setdefault(ACM_METADATA_TABLE,
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
                       'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-1P7G2L61960H9')
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
-os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-west-1:489670441870:CloudFront_Distribution_Notification')
+                      'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
+os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-west-1:${account_id}:CloudFront_Distribution_Notification')
 
 
 @pytest.mark.skip(reason="dev only")
@@ -52,7 +52,7 @@ class Test(TestCase):
                 "aws_request_id": "a9543ea5-96d5-4c12-9672-cf9f30bdabf2",
                 "error": {
                     "Error": "AccessDenied",
-                    "Cause": "{\"errorMessage\":\"An error occurred (AccessDenied) when calling the ListDistributions operation: User: arn:aws:sts::489670441870:assumed-role/CloudFrontExtnConsoleStac-StepFunctionRpTsConstruc-CE87L7NJDH83/CloudFrontExtnConsoleStac-jobcreatecheckresourceE5-Af8wxqssWRFY is not authorized to perform: cloudfront:ListDistributions because no identity-based policy allows the cloudfront:ListDistributions action\",\"errorType\":\"AccessDenied\",\"requestId\":\"dea16a3e-368b-4b4a-a26a-6bad7010a7f2\",\"stackTrace\":[\"  File \\\"/var/task/handler.py\\\", line 78, in handler\\n    cf_dist_remaining = int(get_quota_number('cloudfront', 'L-24B04930')) - get_cloudfront_number()\\n\",\"  File \\\"/var/task/handler.py\\\", line 51, in get_cloudfront_number\\n    response = cf_client.list_distributions()\\n\",\"  File \\\"/opt/python/botocore/client.py\\\", line 515, in _api_call\\n    return self._make_api_call(operation_name, kwargs)\\n\",\"  File \\\"/opt/python/botocore/client.py\\\", line 934, in _make_api_call\\n    raise error_class(parsed_response, operation_name)\\n\"]}"
+                    "Cause": "{\"errorMessage\":\"An error occurred (AccessDenied) when calling the ListDistributions operation: User: arn:aws:sts::${account_id}:assumed-role/CloudFrontExtnConsoleStac-StepFunctionRpTsConstruc-CE87L7NJDH83/CloudFrontExtnConsoleStac-jobcreatecheckresourceE5-Af8wxqssWRFY is not authorized to perform: cloudfront:ListDistributions because no identity-based policy allows the cloudfront:ListDistributions action\",\"errorType\":\"AccessDenied\",\"requestId\":\"dea16a3e-368b-4b4a-a26a-6bad7010a7f2\",\"stackTrace\":[\"  File \\\"/var/task/handler.py\\\", line 78, in handler\\n    cf_dist_remaining = int(get_quota_number('cloudfront', 'L-24B04930')) - get_cloudfront_number()\\n\",\"  File \\\"/var/task/handler.py\\\", line 51, in get_cloudfront_number\\n    response = cf_client.list_distributions()\\n\",\"  File \\\"/opt/python/botocore/client.py\\\", line 515, in _api_call\\n    return self._make_api_call(operation_name, kwargs)\\n\",\"  File \\\"/opt/python/botocore/client.py\\\", line 934, in _make_api_call\\n    raise error_class(parsed_response, operation_name)\\n\"]}"
                 },
                 "fn_failure_handling": {
                     "ExecutedVersion": "$LATEST",

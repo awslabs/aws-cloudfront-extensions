@@ -66,7 +66,7 @@ class TestAcmCb:
                                 "statusCode": 200,
                                 "body": {
                                     "distributionId": "E3QLD3IAS7JVEQ",
-                                    "distributionArn": "arn:aws:cloudfront::648149843064:distribution/E3QLD3IAS7JVEQ",
+                                    "distributionArn": "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/E3QLD3IAS7JVEQ",
                                     "distributionDomainName": "d2hvdoqthkhrrv.cloudfront.net",
                                     "aliases": {
                                         "Quantity": 0

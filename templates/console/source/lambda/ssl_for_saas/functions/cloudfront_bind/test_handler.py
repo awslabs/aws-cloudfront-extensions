@@ -15,8 +15,8 @@ os.environ.setdefault('GRAPHQL_API_URL', 'https://gtjgvw6jk5fxvklgk7yge7kzqq.app
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
                       'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-118SHL7KYLSN6')
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
-os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
+                      'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
+os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
 
 
 @pytest.mark.skip(reason="dev only")
@@ -39,7 +39,7 @@ class Test(TestCase):
                         "statusCode": 200,
                         "body": {
                             "distributionId": "E3U0EWVS0978CR",
-                            "distributionArn": "arn:aws:cloudfront::648149843064:distribution/E3U0EWVS0978CR",
+                            "distributionArn": "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/E3U0EWVS0978CR",
                             "distributionDomainName": "d2tmq1ppzhlmip.cloudfront.net",
                             "aliases": {
                                 "Quantity": 0

@@ -1,9 +1,11 @@
 import * as glue from "@aws-cdk/aws-glue-alpha";
+import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import * as cdk from 'aws-cdk-lib';
 import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
+  AccessLogFormat,
   EndpointType,
-  LambdaRestApi,
+  LambdaRestApi, LogGroupLogDestination,
   RequestValidator
 } from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
@@ -28,26 +30,14 @@ import { MonitoringProps } from './non-realtime-monitoring-stack';
 
 export class RealtimeMonitoringStack extends cdk.NestedStack {
 
-  readonly monitroingUrl: string;
+  readonly monitoringUrl: string;
   readonly secretValue: string;
 
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id, props);
-    this.monitroingUrl = '';
+    this.monitoringUrl = '';
     this.secretValue = '';
     this.templateOptions.description = "(SO8150) - Cloudfront Realime monitoring stack";
-
-    // const CloudFrontDomainList = new CfnParameter(this, 'CloudFrontDomainList', {
-    //   description: 'The domain name to be monitored, input CName if your CloudFront distribution has one or else you can input CloudFront domain name, for example: d1v8v39goa3nap.cloudfront.net. For multiple domain, using \',\' as seperation. Use ALL to monitor all domains',
-    //   type: 'String',
-    //   default: '',
-    // })
-
-    // const CloudFrontLogKeepingDays = new CfnParameter(this, 'CloudFrontLogKeepDays', {
-    //   description: 'Max number of days to keep cloudfront realtime logs in S3',
-    //   type: 'Number',
-    //   default: 120,
-    // })
 
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
@@ -70,8 +60,8 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     // create Dynamodb table to save the cloudfront metrics data
     const cloudfront_metrics_table = new dynamodb.Table(this, 'CloudFrontMetricsTable', {
       billingMode: dynamodb.BillingMode.PROVISIONED,
-      readCapacity: 10,
-      writeCapacity: 10,
+      readCapacity: 40,
+      writeCapacity: 20,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       partitionKey: { name: 'metricId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },
@@ -89,9 +79,8 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
 
     const cloudfront_realtime_log_stream = new kinesis.Stream(this, "TaskStream", {
       streamName: "cloudfront-real-time-log-data-stream",
-      shardCount: 200,
+      shardCount: props.shardCount,
       encryption: StreamEncryption.MANAGED
-
     });
 
     const glueDatabase = new glue.Database(this, "cf_realtime_log_glue_database", {
@@ -117,24 +106,12 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
               type: "string"
             },
             {
-              name: "time-to-first-byte",
-              type: "float"
-            },
-            {
               name: "sc-status",
               type: "int"
             },
             {
               name: "sc-bytes",
               type: "int"
-            },
-            {
-              name: "cs-method",
-              type: "string"
-            },
-            {
-              name: "cs-protocol",
-              type: "string"
             },
             {
               name: "cs-host",
@@ -149,92 +126,12 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
               type: "int"
             },
             {
-              name: "x-edge-location",
-              type: "string"
-            },
-            {
-              name: "x-edge-request-id",
-              type: "string"
-            },
-            {
-              name: "x-host-header",
-              type: "string"
-            },
-            {
               name: "time-taken",
               type: "float"
             },
             {
-              name: "cs-protocol-version",
-              type: "string"
-            },
-            {
-              name: "c-ip-version",
-              type: "string"
-            },
-            {
-              name: "cs-user-agent",
-              type: "string"
-            },
-            {
-              name: "cs-referer",
-              type: "string"
-            },
-            {
-              name: "cs-cookie",
-              type: "string"
-            },
-            {
-              name: "cs-uri-query",
-              type: "string"
-            },
-            {
               name: "x-edge-response-result-type",
               type: "string"
-            },
-            {
-              name: "x-forwarded-for",
-              type: "string"
-            },
-            {
-              name: "ssl-protocol",
-              type: "string"
-            },
-            {
-              name: "ssl-cipher",
-              type: "string"
-            },
-            {
-              name: "x-edge-result-type",
-              type: "string"
-            },
-            {
-              name: "fle-encrypted-fields",
-              type: "string"
-            },
-            {
-              name: "fle-status",
-              type: "string"
-            },
-            {
-              name: "sc-content-type",
-              type: "string"
-            },
-            {
-              name: "sc-content-len",
-              type: "int"
-            },
-            {
-              name: "sc-range-start",
-              type: "int"
-            },
-            {
-              name: "sc-range-end",
-              type: "int"
-            },
-            {
-              name: "c-port",
-              type: "int"
             },
             {
               name: "x-edge-detailed-result-type",
@@ -243,30 +140,6 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
             {
               name: "c-country",
               type: "string"
-            },
-            {
-              name: "cs-accept-encoding",
-              type: "string"
-            },
-            {
-              name: "cs-accept",
-              type: "string"
-            },
-            {
-              name: "cache-behavior-path-pattern",
-              type: "string"
-            },
-            {
-              name: "cs-headers",
-              type: "string"
-            },
-            {
-              name: "cs-header-names",
-              type: "string"
-            },
-            {
-              name: "cs-headers-count",
-              type: "int"
             },
             {
               name: "isp",
@@ -427,6 +300,15 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           resources: [
+            `arn:aws:iam::${cdk.Aws.ACCOUNT_ID}:role/*`
+          ],
+          actions: [
+            "iam:*",
+          ],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
             `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*`,
             `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*:log-stream:*`
           ],
@@ -488,7 +370,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       compatibleRuntimes: [
         lambda.Runtime.PYTHON_3_9,
       ],
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/shared_lib')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/shared_lib')),
       description: 'shared lib for all other lambda functions to use',
     });
 
@@ -546,7 +428,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -566,7 +450,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -586,7 +472,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -606,18 +494,20 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
 
-    const metricsCollectorDownloadSpeedCDN = new lambda.Function(this, 'metricsCollectorDownloadSpeedCDN', {
+    const metricsCollectorLatencyRatio = new lambda.Function(this, 'metricsCollectorLatencyRatio', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_download_speed_cdn.lambda_handler',
+      handler: 'metric_collector_latency_ratio.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_download_speed_cdn')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_latency_ratio')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
@@ -626,33 +516,58 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        LATENCY_LIMIT: '1',
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
 
-    const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metricsCollectorDownloadSpeedOrigin', {
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_collector_download_speed_origin.lambda_handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_download_speed_origin')),
-      role: lambdaRole,
-      environment: {
-        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
-        GLUE_DATABASE_NAME: glueDatabase.databaseName,
-        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
-        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
-        ACCOUNT_ID: this.account,
-        DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
-      },
-      logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
-    });
+    // const metricsCollectorDownloadSpeedCDN = new lambda.Function(this, 'metricsCollectorDownloadSpeedCDN', {
+    //   runtime: lambda.Runtime.PYTHON_3_9,
+    //   handler: 'metric_collector_download_speed_cdn.lambda_handler',
+    //   memorySize: 512,
+    //   timeout: cdk.Duration.seconds(900),
+    //   code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_download_speed_cdn')),
+    //   role: lambdaRole,
+    //   environment: {
+    //     DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+    //     GLUE_DATABASE_NAME: glueDatabase.databaseName,
+    //     GLUE_TABLE_NAME: 'cloudfront_realtime_log',
+    //     S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+    //     ACCOUNT_ID: this.account,
+    //     DOMAIN_LIST: props.domainList,
+    //     INTERVAL: props.monitoringInterval,
+    //     REGION_NAME: this.region
+    //   },
+    //   logRetention: logs.RetentionDays.ONE_WEEK,
+    //   layers: [cloudfrontSharedLayer]
+    // });
 
-    const metricsCollectorRequestCDN = new lambda.Function(this, 'metricsCollectorRequestCDN', {
+    // const metricsCollectorDownloadSpeedOrigin = new lambda.Function(this, 'metricsCollectorDownloadSpeedOrigin', {
+    //   runtime: lambda.Runtime.PYTHON_3_9,
+    //   handler: 'metric_collector_download_speed_origin.lambda_handler',
+    //   memorySize: 512,
+    //   timeout: cdk.Duration.seconds(900),
+    //   code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_download_speed_origin')),
+    //   role: lambdaRole,
+    //   environment: {
+    //     DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+    //     GLUE_DATABASE_NAME: glueDatabase.databaseName,
+    //     GLUE_TABLE_NAME: 'cloudfront_realtime_log',
+    //     S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+    //     ACCOUNT_ID: this.account,
+    //     DOMAIN_LIST: props.domainList,
+    //     INTERVAL: props.monitoringInterval,
+    //     REGION_NAME: this.region
+    //   },
+    //   logRetention: logs.RetentionDays.ONE_WEEK,
+    //   layers: [cloudfrontSharedLayer]
+    // });
+
+    const metricsCollectorRequestCDN = new lambda.Function(this, 'metricsCollectorRequest', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'metric_collector_request_cdn.lambda_handler',
       memorySize: 512,
@@ -666,7 +581,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -686,13 +603,15 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
 
-    const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'metricsCollectorStatusCodeCDN', {
+    const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'metricsCollectorSC', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'metric_collector_status_code_cdn.lambda_handler',
       memorySize: 512,
@@ -706,13 +625,15 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
 
-    const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'metricsCollectorStatusCodeOrigin', {
+    const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'metricsCollectorSCOrigin', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'metric_collector_status_code_origin.lambda_handler',
       memorySize: 512,
@@ -726,7 +647,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -746,7 +669,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -766,7 +691,9 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -786,18 +713,20 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
 
-    const metricsManager = new lambda.Function(this, 'metricsManager', {
+    const metricsCollectorEdgeType = new lambda.Function(this, 'metricsCollectorEdgeType', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'metric_manager.lambda_handler',
-      memorySize: 256,
+      handler: 'metric_collector_edge_type.lambda_handler',
+      memorySize: 512,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_manager')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/realtime/metric_collector_edge_type')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
@@ -806,7 +735,30 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
         ACCOUNT_ID: this.account,
         DOMAIN_LIST: props.domainList,
-        REGION_NAME: this.region
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        IS_REALTIME: 'True',
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
+    const metricsManager = new lambda.Function(this, 'metricsManager', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'metric_manager.lambda_handler',
+      memorySize: 2048,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/metric_manager')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: 'cloudfront_realtime_log',
+        S3_BUCKET: cloudfront_monitoring_s3_bucket.bucketName,
+        ACCOUNT_ID: this.account,
+        DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
@@ -848,17 +800,23 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     metricsCollectorChrRequest.node.addDependency(glueTableCFN);
     metricsCollectorChrRequest.node.addDependency(cloudfront_monitoring_s3_bucket);
 
-    metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorDownloadSpeedOrigin.node.addDependency(glueDatabase);
-    metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTable);
-    metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTableCFN);
-    metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
+    metricsCollectorLatencyRatio.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorLatencyRatio.node.addDependency(glueDatabase);
+    metricsCollectorLatencyRatio.node.addDependency(glueTable);
+    metricsCollectorLatencyRatio.node.addDependency(glueTableCFN);
+    metricsCollectorLatencyRatio.node.addDependency(cloudfront_monitoring_s3_bucket);
 
-    metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_metrics_table);
-    metricsCollectorDownloadSpeedCDN.node.addDependency(glueDatabase);
-    metricsCollectorDownloadSpeedCDN.node.addDependency(glueTable);
-    metricsCollectorDownloadSpeedCDN.node.addDependency(glueTableCFN);
-    metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
+    // metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_metrics_table);
+    // metricsCollectorDownloadSpeedOrigin.node.addDependency(glueDatabase);
+    // metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTable);
+    // metricsCollectorDownloadSpeedOrigin.node.addDependency(glueTableCFN);
+    // metricsCollectorDownloadSpeedOrigin.node.addDependency(cloudfront_monitoring_s3_bucket);
+
+    // metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_metrics_table);
+    // metricsCollectorDownloadSpeedCDN.node.addDependency(glueDatabase);
+    // metricsCollectorDownloadSpeedCDN.node.addDependency(glueTable);
+    // metricsCollectorDownloadSpeedCDN.node.addDependency(glueTableCFN);
+    // metricsCollectorDownloadSpeedCDN.node.addDependency(cloudfront_monitoring_s3_bucket);
 
     metricsCollectorStatusCodeCDN.node.addDependency(cloudfront_metrics_table);
     metricsCollectorStatusCodeCDN.node.addDependency(glueDatabase);
@@ -902,12 +860,19 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     metricsCollectorDownstreamTraffic.node.addDependency(glueTableCFN);
     metricsCollectorDownstreamTraffic.node.addDependency(cloudfront_monitoring_s3_bucket);
 
+    metricsCollectorEdgeType.node.addDependency(cloudfront_metrics_table);
+    metricsCollectorEdgeType.node.addDependency(glueDatabase);
+    metricsCollectorEdgeType.node.addDependency(glueTable);
+    metricsCollectorEdgeType.node.addDependency(glueTableCFN);
+    metricsCollectorEdgeType.node.addDependency(cloudfront_monitoring_s3_bucket);
+
     metricsManager.node.addDependency(cloudfront_metrics_table);
     metricsManager.node.addDependency(glueDatabase);
     metricsManager.node.addDependency(glueTable);
     metricsManager.node.addDependency(glueTableCFN);
     metricsManager.node.addDependency(cloudfront_monitoring_s3_bucket);
 
+    const logGroup = new logs.LogGroup(this, "CloudfrontPerformanceMetrics_realtime_ApiGatewayAccessLogs");
     const rest_api = new LambdaRestApi(this, 'CloudfrontPerformanceMetrics', {
       handler: metricsManager,
       description: "restful api to get the cloudfront performance data",
@@ -925,6 +890,10 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
         allowCredentials: true,
         allowOrigins: ['*'],
+      },
+      deployOptions: {
+        accessLogDestination: new LogGroupLogDestination(logGroup),
+        accessLogFormat: AccessLogFormat.clf(),
       }
     });
 
@@ -958,7 +927,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     usagePlan.addApiStage({
       stage: rest_api.deploymentStage,
     });
-    this.monitroingUrl = `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${rest_api.deploymentStage.stageName}`;
+    this.monitoringUrl = `https://${rest_api.restApiId}.execute-api.${this.region}.amazonaws.com/${rest_api.deploymentStage.stageName}`;
 
     //Policy to allow client to call this restful api
     const api_client_policy = new ManagedPolicy(this, "CFMetricAPIClientPolicy", {
@@ -979,7 +948,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       functionName: "cf-real-time-logs-transformer",
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'app.lambda_handler',
-      memorySize: 10240,
+      memorySize: 2048,
       role: lambdaRole,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
       timeout: cdk.Duration.minutes(2)
@@ -1084,24 +1053,24 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(destinationRole)
     cloudfront_realtime_log_delivery_stream_cfn.node.addDependency(cloudfrontRealtimeLogTransformer)
 
-    const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudfrontLogs_5_minutes_rule_first', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+    const cloudfront5MinutesRuleFirst = new Rule(this, 'CloudFrontLogs_5_minutes_rule_first', {
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
 
     const lambdaMetricsCollectorBandwidthCdn = new LambdaFunction(metricsCollectorBandwidthCdn);
     const lambdaMetricsCollectorBandwidthOrigin = new LambdaFunction(metricsCollectorBandwidthOrigin);
     const lambdaMetricsCollectorChrBandwidth = new LambdaFunction(metricsCollectorChrBandwidth);
-    const lambdaMetricsCollectorDownloadSpeedOrigin = new LambdaFunction(metricsCollectorDownloadSpeedOrigin);
-    const lambdaMetricsCollectorDownloadSpeedCDN = new LambdaFunction(metricsCollectorDownloadSpeedCDN);
+    // const lambdaMetricsCollectorDownloadSpeedOrigin = new LambdaFunction(metricsCollectorDownloadSpeedOrigin);
+    // const lambdaMetricsCollectorDownloadSpeedCDN = new LambdaFunction(metricsCollectorDownloadSpeedCDN);
 
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthOrigin);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorChrBandwidth);
-    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedCDN);
-    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedOrigin);
+    // cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedCDN);
+    // cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownloadSpeedOrigin);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthCdn);
 
-    const cloudfront5MinutesRuleSecond = new Rule(this, 'CloudfrontLogs_5_minutes_rule_second', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+    const cloudfront5MinutesRuleSecond = new Rule(this, 'CloudFrontLogs_5_minutes_rule_second', {
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorStatusCodeCDN = new LambdaFunction(metricsCollectorStatusCodeCDN);
     const lambdaMetricsCollectorStatusCodeOrigin = new LambdaFunction(metricsCollectorStatusCodeOrigin);
@@ -1115,28 +1084,36 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorRequestOrigin);
     cloudfront5MinutesRuleSecond.addTarget(lambdaMetricsCollectorChrRequest);
 
-    const cloudfront5MinutesRuleThird = new Rule(this, 'CloudfrontLogs_5_minutes_rule_third', {
-      schedule: Schedule.expression("cron(0/5 * * * ? *)"),
+    const cloudfront5MinutesRuleThird = new Rule(this, 'CloudFrontLogs_5_minutes_rule_third', {
+      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
-    const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
-    const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
     const lambdaMetricsCollectorDownstreamTraffic = new LambdaFunction(metricsCollectorDownstreamTraffic);
+    const lambdaMetricsCollectorLatencyRatio = new LambdaFunction(metricsCollectorLatencyRatio);
+    const lambdaMetricsCollectorEdgeType = new LambdaFunction(metricsCollectorEdgeType);
 
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopTraffic);
-    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorTopRequest);
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorDownstreamTraffic);
+    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorLatencyRatio);
+    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorEdgeType);
 
-    const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
+    const cloudfrontRuleAddPartition = new Rule(this, 'CloudFrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),
     });
     const lambdaAddPartition = new LambdaFunction(addPartition);
     cloudfrontRuleAddPartition.addTarget(lambdaAddPartition);
 
-    const cloudfrontRuleDeletePartition = new Rule(this, 'CloudfrontLogs_delete_partition', {
+    const cloudfrontRuleDeletePartition = new Rule(this, 'CloudFrontLogs_delete_partition', {
       schedule: Schedule.expression("cron(0 5 * * ? *)"),
     });
     const lambdaDeletePartition = new LambdaFunction(deletePartition);
     cloudfrontRuleDeletePartition.addTarget(lambdaDeletePartition);
+
+    const cloudfrontRuleTopUrl = new Rule(this, 'CloudFrontRuleTopUrl', {
+      schedule: Schedule.expression("cron(0 1 * * ? *)"),
+    });
+    const lambdaMetricsCollectorTopTraffic = new LambdaFunction(metricsCollectorTopTraffic);
+    const lambdaMetricsCollectorTopRequest = new LambdaFunction(metricsCollectorTopRequest);
+    cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopTraffic);
+    cloudfrontRuleTopUrl.addTarget(lambdaMetricsCollectorTopRequest);
 
     // Custom resource to add partitions once the CloudFormation is completed
     const crLambda = new lambda.Function(this, "AddPartRealTimeCR", {
@@ -1147,12 +1124,16 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       role: lambdaRole,
       environment: {
         LAMBDA_ARN: addPartition.functionArn,
+        APPSYNC_NAME: props.appsyncLambda.functionName,
+        DDB_TABLE_NAME: cloudfront_metrics_table.tableName,
+        LIST_COUNTRY_ROLE_ARN: lambdaRole.roleArn, 
       },
       memorySize: 256,
       timeout: cdk.Duration.seconds(300),
     });
 
     crLambda.node.addDependency(addPartition)
+    crLambda.node.addDependency(cloudfront_metrics_table)
 
     const customResourceProvider = new cr.Provider(this, 'customResourceProviderRT', {
       onEventHandler: crLambda,
@@ -1171,7 +1152,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
         action: 'putObject',
         parameters: {
           Body: JSON.stringify({
-            'aws_monitoring_url': this.monitroingUrl,
+            'aws_monitoring_url': this.monitoringUrl,
             'aws_monitoring_api_key': this.secretValue,
             'aws_monitoring_stack_name': 'RealtimeMonitoringStack'
           }),
@@ -1200,7 +1181,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       exportName: 'monitoringApiKeyArn'
     });
     new cdk.CfnOutput(this, "Monitoring Url", {
-      value: this.monitroingUrl,
+      value: this.monitoringUrl,
       exportName: 'monitoringUrl'
     });
   }

@@ -35,6 +35,8 @@ export class RepoConstruct extends Construct {
         new iam.ServicePrincipal("lambda.amazonaws.com"),
         new iam.ServicePrincipal("appsync.amazonaws.com"),
         new iam.ServicePrincipal('ec2.amazonaws.com'),
+        new iam.ServicePrincipal('edgelambda.amazonaws.com'),
+        new iam.ServicePrincipal('cloudfront.amazonaws.com')
       ),
     });
 
@@ -70,7 +72,9 @@ export class RepoConstruct extends Construct {
           actions: [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
-            "logs:PutLogEvents"
+            "logs:PutLogEvents",
+            "logs:PutRetentionPolicy",
+            "logs:DescribeLogGroups"
           ],
         }),
       ]

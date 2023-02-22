@@ -222,3 +222,8 @@ $RECYCLE.BIN/
 /templates/console/source/lambda/common/lambda-assets/
 /buildspec_2.yml
 /deploy_vtag.yml
+
+.scannerwork
+
+**/.viperlightignore
+**/.viperlightrc

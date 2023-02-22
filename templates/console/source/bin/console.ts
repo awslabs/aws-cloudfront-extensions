@@ -5,7 +5,6 @@ import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from "cdk
 import { ConsoleStack } from "../lib/console-stack";
 import { Aspects } from "aws-cdk-lib";
 
-
 const app = new cdk.App();
 
 new ConsoleStack(app, "CloudFrontExtnConsoleStack", {

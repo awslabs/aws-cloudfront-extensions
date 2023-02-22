@@ -19,8 +19,8 @@ os.environ.setdefault('GRAPHQL_API_URL', 'grapql_http')
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
                       JOB_INFO_TABLE_NAME)
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
-os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
+                      'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
+os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
 
 
 class TestJobInfo:
