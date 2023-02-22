@@ -33,7 +33,7 @@ def get_cf_domain_prefix(parsed_url):
     return parsed_url.netloc.replace(URL_SUFFIX, '')
 
 
-def cf_invalidation_status(dist_id, inv_id):
+def cf_invalidation_status(cf_client, dist_id, inv_id):
     try:
         waiter = cf_client.get_waiter('invalidation_completed')
         waiter.wait(
@@ -110,7 +110,7 @@ def get_messages_from_queue(client, queue_url):
     return []
 
 
-def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
+def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, cf_client):
     sqs = boto3.client('sqs', region_name=aws_region)
     dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
     table = dynamodb_client.Table(ddb_table_name)
@@ -144,7 +144,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
                     if inv_id == 'CreateInvalidationError':
                         invalidation_result = False
                     else:
-                        invalidation_result = cf_invalidation_status(
+                        invalidation_result = cf_invalidation_status(cf_client,
                             dist_id, inv_id)
 
                 if invalidation_result:
@@ -204,4 +204,4 @@ if __name__ == "__main__":
     print(ddb_table_name)
     print(aws_region)
     print(str(thread_concurrency))
-    prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency)
+    prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, cf_client)
