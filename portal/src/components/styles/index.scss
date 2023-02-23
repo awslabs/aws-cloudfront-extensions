@@ -1,0 +1,710 @@
+// config
+@import "variables";
+
+//layout
+@import "reboot";
+
+//mixin
+@import "mixin";
+
+// animation
+@import "animation";
+
+// Header
+@import "../layouts/PageHeader/style";
+
+// Footer
+@import "../layouts/PageFooter/style";
+
+// Container
+@import "../layouts/PageContainer/style";
+
+// PageLanding
+@import "../layouts/PageLanding/style";
+
+// external link
+@import "../ExtLink/style";
+
+// side menu
+@import "../SideMenu/style";
+
+// button
+@import "../Button/style";
+
+// button Dropdown
+@import "../ButtonDropdown/style";
+
+// header panel
+@import "../HeaderPanel/style";
+
+// loading text
+@import "../LoadingText/style";
+
+// alert
+@import "../Alert/style";
+
+// autocomplete
+@import "../AutoComplete/style";
+
+// copy button
+@import "../CopyButton/style";
+
+// copy text
+@import "../CopyText/style";
+
+// info Span
+@import "../InfoSpan/style";
+
+// create step
+@import "../CreateStep/style";
+
+// form item
+@import "../FormItem/style";
+
+// text input
+@import "../TextInput/style";
+
+// help panel
+@import "../HelpPanel/style";
+
+// select
+@import "../Select/style";
+
+// multiple select
+@import "../MultiSelect/style";
+
+// Modal
+@import "../Modal/style";
+
+// page panel
+@import "../PagePanel/style";
+
+// status
+@import "../Status/style";
+
+// tab
+@import "../Tab/style";
+
+// table panel
+@import "../TablePanel/style";
+
+// tag list
+@import "../TagList/style";
+
+// text area
+@import "../TextArea/style";
+
+// tiles
+@import "../Tiles/style";
+
+//value with label
+@import "../ValueWithLabel/style";
+
+//value with label
+@import "../Switch/style";
+
+// // s3 select
+// @import "../components/S3Select/style";
+
+// //upload
+// @import "../components/Upload/style";
+
+// //progress
+// @import "../components/Progress/style";
+
+.gsui-copy-pop-over {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 5px 10px;
+  margin: -12px 0 0 -8px;
+  color: green;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+}
+
+.select-no-data {
+  padding: 10px;
+  color: #999;
+}
+
+.code {
+  background-color: #eee;
+  padding: 10px;
+}
+
+.hide {
+  display: none !important;
+}
+
+.cp {
+  cursor: pointer;
+}
+
+.no-data {
+  padding: 20px;
+  color: #888;
+}
+
+.sign-out {
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.json-format {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.white-bg {
+  background-color: #fff;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-15 {
+  margin-top: 15px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.mb-15 {
+  margin-bottom: 15px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.ml-5 {
+  margin-left: 5px;
+}
+
+.ml-10 {
+  margin-left: 10px;
+}
+
+.ml-20 {
+  margin-left: 20px;
+}
+
+.ml-80 {
+  margin-left: 80px;
+}
+
+.mr-10 {
+  margin-right: 10px;
+}
+
+.mr-20 {
+  margin-right: 20px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
+.flex-3 {
+  flex: 3;
+}
+
+.flex-4 {
+  flex: 3;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-warp {
+  flex-wrap: wrap;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.border-left-c {
+  border-left: 1px solid #eaeded;
+}
+
+.pd-lr-10 {
+  padding: 0 10px;
+}
+
+.pd-10 {
+  padding: 10px;
+}
+
+.pd-20 {
+  padding: 20px;
+}
+
+.ptb-10 {
+  padding: 10px 0;
+}
+
+.ptb-20 {
+  padding: 20px 0;
+}
+
+.pr {
+  position: relative;
+}
+
+.pb-20 {
+  padding-bottom: 20px;
+}
+
+.pr-10 {
+  padding-right: 10px;
+}
+
+.pr-20 {
+  padding-right: 20px;
+}
+
+.pb-50 {
+  padding-bottom: 50px;
+}
+
+.pb-100 {
+  padding-bottom: 100px;
+}
+
+.reverse {
+  transform: rotate(-180deg);
+}
+
+.reverse-90 {
+  transform: rotate(-90deg);
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.inline-block {
+  display: inline-block !important;
+}
+
+.m-w-320 {
+  max-width: 320px;
+}
+
+.m-w-800 {
+  max-width: 800px;
+}
+
+.m-w-75p {
+  max-width: 75%;
+}
+
+.m-w-45p {
+  max-width: 45%;
+}
+
+.m-w-1024 {
+  max-width: 1024px;
+}
+
+.bread-crumb {
+  padding: 10px 0 15px 0;
+}
+
+.button-action {
+  padding-bottom: 40px;
+  &.no-pb {
+    padding-bottom: 0;
+  }
+  button {
+    margin-left: 12px;
+  }
+}
+
+.chart-item {
+  width: 33%;
+  position: relative;
+  .select-domain,
+  .loading-data {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.85);
+    z-index: 1;
+  }
+}
+
+.version-compare {
+  .bg-gray {
+    background-color: #efefef;
+    padding: 2px 10px 0px 10px;
+    border-radius: 4px;
+  }
+  table.compare {
+    > thead > tr > th,
+    > tbody > tr > td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+      .key {
+        font-weight: bold;
+      }
+      .same {
+        color: green;
+      }
+      .diff {
+        color: red;
+      }
+      .show-btn {
+        color: #0073bb;
+        cursor: pointer;
+        b {
+          font-weight: normal;
+          text-decoration: underline;
+        }
+      }
+    }
+    > thead > tr > th {
+      border-bottom: 1px solid #ddd;
+      background-color: #efefef;
+    }
+  }
+}
+
+.create-cert-guide-img {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.import-cert-guide-img {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.create-cert-guide-card {
+  border: 1px solid #ccc;
+  margin: 20px;
+  min-height: 260px;
+  .card-header {
+    font-size: 18px;
+    background-color: #eee;
+    padding: 10px;
+  }
+  .card-body {
+    padding: 10px 10px 20px;
+    .sub-title {
+      color: #888;
+    }
+    .desc {
+      line-height: 1.6em;
+    }
+  }
+}
+
+.import-step-list {
+  padding: 20px;
+  .import-step-list-item {
+    margin-top: 15px;
+    .item-name {
+      font-size: 18px;
+      padding: 5px 0;
+    }
+    .item-desc {
+      line-height: 1.5em;
+    }
+  }
+}
+
+.job-status-list-item {
+  border: 1px solid #ddd;
+  &-title {
+    background-color: #eee;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+  &-content {
+    padding: 20px 50px;
+    &-sub-title {
+      color: #888;
+    }
+    &-desc {
+      line-height: 1.6em;
+      padding-bottom: 10px;
+    }
+    &-status {
+      color: #fff;
+      padding: 10px;
+      display: flex;
+      &.success {
+        background-color: #1d8102;
+      }
+      &.inprogress {
+        background-color: #0073bb;
+      }
+      &.notstart {
+        background-color: #7f7f7f;
+      }
+      &.noneed {
+        background-color: #888888;
+      }
+      &.failed {
+        background-color: #d13212;
+      }
+      .bar {
+        padding-top: 8px;
+      }
+      .number {
+        padding-left: 10px;
+        width: 80px;
+      }
+      .top-text,
+      .bottom-text {
+        font-size: 12px;
+      }
+      .bottom-text {
+        min-height: 20px;
+      }
+    }
+  }
+}
+
+.job-status-number {
+  font-size: 36px;
+  padding-right: 15px;
+  line-height: 1em;
+  color: #0073bb;
+}
+
+.arrow-width {
+  width: 9px;
+}
+
+/**material ui*/
+.PrivateSwitchBase-root-1 {
+  padding: 0 !important;
+}
+
+.MuiList-padding {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.MuiAutocomplete-listbox {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.MuiPaper-rounded {
+  border-radius: 0 !important;
+}
+
+.MuiDialog-paperWidthMd {
+  max-width: calc(100% - 120px) !important;
+}
+
+.invalid {
+  .gsui-autocomplete-select input,
+  .gsui-textinput input,
+  .MuiSelect-select {
+    // color: $error !important;
+    border: 1px solid $error !important;
+    border-left: 4px solid $error !important;
+  }
+  .input-icon {
+    color: $error !important;
+  }
+}
+
+.swal2-container {
+  z-index: 1999 !important;
+}
+
+[data-amplify-authenticator] {
+  padding-top: 100px;
+}
+
+.monitor-cotainer {
+  display: flex;
+  .left-filter {
+    width: 350px;
+  }
+  .right-charts {
+    flex: 1;
+    padding-left: 20px;
+  }
+}
+
+.pr {
+  position: relative;
+}
+
+.chart-mask {
+  position: absolute;
+  z-index: 99;
+  background-color: rgba($color: #fff, $alpha: 0.5);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-chart-list {
+  // background-color: #fff;
+  padding: 20px 0 50px;
+  .chart-content-table {
+    td {
+      vertical-align: top;
+    }
+    td:nth-child(odd) {
+      padding-right: 10px;
+    }
+  }
+}
+
+.monitor-chart {
+  min-height: 100px;
+  background-color: #fff;
+  margin-top: -20px;
+  box-shadow: 1px 2px 2px #ddd;
+  .chart-unit {
+    font-weight: 700;
+    font-size: 12px;
+    position: absolute;
+    margin: 10px 0 0 15px;
+  }
+  .zoom {
+    cursor: pointer;
+  }
+}
+
+.monitor-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  th,
+  td {
+    padding: 9px 10px;
+    // border-bottom: 1px solid #eaeded;
+    .key {
+      color: #0073bb;
+    }
+  }
+  th.select,
+  th.select {
+    width: 30px;
+    text-align: center;
+  }
+  tr {
+    border-bottom: 1px solid #eaeded;
+  }
+  tr.checked {
+    border: 1px solid #0073bb;
+    background-color: #f1faff;
+    td {
+      border-bottom: 1px solid #0073bb;
+      border-top: 1px solid #0073bb;
+    }
+  }
+}
+
+.modal-time-range {
+  // display: flex;
+  // justify-content: space-between;
+  position: relative;
+  padding-top: 20px;
+  .time-select-content {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    width: 448px;
+    z-index: 9999;
+  }
+}
+
+.specify-time {
+  border: 1px solid #aab7b8;
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  .item {
+    background-color: #fff;
+    display: inline-block;
+    padding: 8px 10px;
+    cursor: pointer;
+    &:active {
+      background-color: #eee;
+    }
+    &.item-active {
+      font-weight: bold;
+      color: #0073bb;
+    }
+    &.custom {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #aab7b8;
+      margin-top: 36px;
+      padding: 2px 0;
+      right: 0;
+    }
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+.MuiTab-root {
+  max-width: none !important;
+}

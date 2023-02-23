@@ -1,0 +1,20 @@
+ {
+   "input": {
+      "aws_request_id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      "domainName": "ssl-for-saas.dev.demo.solutions.aws.a2z.org.cn",
+      "sanList": [
+        "ssl-for-saas.dev.demo.solutions.aws.a2z.org.cn"
+        ],
+      "cnameList": [
+        "ssl-for-saas.dev.demo.solutions.aws.a2z.org.cn"
+        ],
+     "auto_creation": "true",
+     "acm_op": "create",
+      "originsItemsDomainName": "cloudfront-test-source-bucket-2021.s3.us-east-1.amazonaws.com",
+      "existing_cf_info":
+       {
+         "distribution_id": "E195R1W5GIVPF5",
+         "config_version_id": "2"
+       }
+   }
+ }

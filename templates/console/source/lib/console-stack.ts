@@ -88,8 +88,14 @@ export class ConsoleStack extends cdk.Stack {
       type: "String",
       default: "",
     });
+    const monitoringInterval = new cdk.CfnParameter(this, "MonitoringInterval", {
+      description:
+        "The interval for monitoring metrics in minutes, the default interval is 5 min, eg. it will get the metric data at 09:00, 09:05, 09:10 etc.",
+      type: "String",
+      default: "5",
+    });
     const logKeepingDays = new cdk.CfnParameter(this, "CloudFrontLogKeepDays", {
-      description: "Max number of days to keep cloudfront realtime logs in S3",
+      description: "Max number of days to keep CloudFront standard logs or realtime logs in S3",
       type: "Number",
       default: 120,
     });
@@ -107,11 +113,18 @@ export class ConsoleStack extends cdk.Stack {
       allowedValues: ["false", "true"],
       default: "false",
     });
+    const shardCount = new cdk.CfnParameter(this, "KinesisShardCount", {
+      description: "The shard count of Kinesis data stream",
+      type: "Number",
+      default: 50,
+    });
+
 
     // create email SSL subscription
     const sslEmailAddress = new cdk.CfnParameter(this, "EmailAddress", {
       description: "Email address to receive SSL certificates notification",
       type: "String",
+      allowedPattern: '\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}'
     });
 
     this.templateOptions.metadata = {
@@ -134,9 +147,11 @@ export class ConsoleStack extends cdk.Stack {
             Parameters: [
               monitoringType.logicalId,
               domainList.logicalId,
+              monitoringInterval.logicalId,
               logKeepingDays.logicalId,
               deleteLog.logicalId,
               useStartTime.logicalId,
+              shardCount.logicalId,
             ],
           },
           {
@@ -165,6 +180,9 @@ export class ConsoleStack extends cdk.Stack {
           [domainList.logicalId]: {
             default: "CloudFront Domain List",
           },
+          [monitoringInterval.logicalId]: {
+            default: "Monitoring Interval",
+          },
           [logKeepingDays.logicalId]: {
             default: "Log Keeping Days",
           },
@@ -174,6 +192,9 @@ export class ConsoleStack extends cdk.Stack {
           [useStartTime.logicalId]: {
             default: "Use Start Time (Non-Realtime Only)",
           },
+          [shardCount.logicalId]: {
+            default: "Kinesis Data Stream Shard Count (Realtime Only)",
+          }, 
           [sslEmailAddress.logicalId]: {
             default: "Notification Email",
           },
@@ -276,7 +297,7 @@ export class ConsoleStack extends cdk.Stack {
       build_time: new Date().getTime() + "",
     });
 
-    // 2 Monitoring Stacks
+    // Monitoring Stacks
     // Non-RealtimeMonitoring
     const nonRealtimeMonitoring = new NonRealtimeMonitoringStack(
       this,
@@ -284,23 +305,30 @@ export class ConsoleStack extends cdk.Stack {
       {
         nonRealTimeMonitoring: monitoringType.valueAsString,
         domainList: domainList.valueAsString,
+        monitoringInterval: monitoringInterval.valueAsString,
         logKeepingDays: logKeepingDays.valueAsNumber,
         deleteLogNonRealtime: deleteLog.valueAsString,
         useStartTimeNonRealtime: useStartTime.valueAsString,
+        shardCount: shardCount.valueAsNumber,
         portalBucket: webConsole.portalBucket,
+        appsyncLambda: commonConstruct.listCountry,
       }
     );
     (
       nonRealtimeMonitoring.nestedStackResource as cdk.CfnStack
     ).cfnOptions.condition = nonRealTimeMonitoringCondition;
+
     // RealtimeMonitoring
     const realtimeMonitoring = new RealtimeMonitoringStack(this, "Realtime", {
       nonRealTimeMonitoring: monitoringType.valueAsString,
       domainList: domainList.valueAsString,
+      monitoringInterval: monitoringInterval.valueAsString,
       logKeepingDays: logKeepingDays.valueAsNumber,
       deleteLogNonRealtime: deleteLog.valueAsString,
       useStartTimeNonRealtime: useStartTime.valueAsString,
+      shardCount: shardCount.valueAsNumber,
       portalBucket: webConsole.portalBucket,
+      appsyncLambda: commonConstruct.listCountry,
     });
     (
       realtimeMonitoring.nestedStackResource as cdk.CfnStack

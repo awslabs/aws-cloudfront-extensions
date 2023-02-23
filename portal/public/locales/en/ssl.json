@@ -1,0 +1,113 @@
+{
+  "sslList": "Certification List",
+  "createNew": "Create with new certificates",
+  "importExist": "Create with imported certificates",
+  "certJobList": "Certification Jobs",
+  "sslJobList": "SSL for SaaS Job List",
+  "guide": {
+    "howItWorks": "How it works",
+    "create": {
+      "step1": "Step1: Request SSL Certificates in ACM",
+      "step1Title": "Automatic process",
+      "step1Desc": "With given domain names, request new SSL Certificates via Amazon Certificate Management (ACM) Service. ",
+      "step2": "Step2: Validate Certificates",
+      "step2Title": "Manual process",
+      "step2Desc": "The step is also known as Domain Control Validation process (DCV). This step is required by Certificate Authority, (in our case, ACM) to verify you (the person who is requesting the SSL Certificate) is authroized to use the domain names (the CNAMEs).",
+      "step3": "Step3: Create Distributions (Optional) ",
+      "step3Title": "Automatic process",
+      "step3Desc": "Solution will automatically create corresponding CloudFront distributions for you. This is optional."
+    },
+    "import": {
+      "step1": "Step1: Import SSL Certificates",
+      "step1Desc": "Import existing SSL Certificates into Amazon Certificate Management (ACM) Service. Please make sure the input SSL Certificate were issued by a public Certificated Autority (CA).",
+      "step2": "Step2: Automatically Create CloudFront Distributions (Optional) ",
+      "step2Desc": "If you turn on switch “Automatically Create CloudFront Distribution” in the step1, then the solution will automatically create corresponding CloudFront distributions for you."
+    }
+  },
+  "importMethod": "Import method",
+  "autoCreateDistribution": "Automatically create distributions",
+  "autoCreateDistributionDesc": "Request certificates and then create distributions",
+  "donotCreateDistribution": "Do not create distributions",
+  "donotCreateDistributionDesc": "Only request certificates",
+  "sourceDistribution": "Source distribution",
+  "sourceDistributionDesc": "Apply the origin setting from an existing CloudFront distribution. It will use the ",
+  "chooseDistributionAsSource": "Choose a CloudFront distribution as source",
+  "selectVersion": "Select version ",
+  "confirmSetting": "Confirm Certification Settings?",
+  "confirm": "Confirm",
+  "confirmRequestParam": "Please confirm the SSL request parameters",
+  "curSSLParam": "Current SSL for SaaS request parameters",
+  "confirmApply": "Please input Confirm to apply",
+  "create": {
+    "domainNames": "Domain names (CNAMEs) for Certificates",
+    "domainNameForCert": "Domain names for a certificate",
+    "pasteDomainNames": "Paste in custom domain names",
+    "domainNamePlaceHolder": "domain name, sanlist[0] ,sanlist[1], sanlist[2], ….sanlist[120]",
+    "certCreateSent": "Cert create Sent",
+    "certCreationTrigger": "Cert creation triggered"
+  },
+  "import": {
+    "certDetail": "Certification details",
+    "importCerts": "Import one or more Certification",
+    "importOne": "Import one certification",
+    "importOneDesc": "Import one",
+    "importMulti": "Import multiple certifications",
+    "importMultiDesc": "Import multiple certification by providing cert link, etc.",
+    "certBody": "Certificate body",
+    "certBodyDesc": "List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files.",
+    "pemEncode": "PEM-encoded certificate",
+    "certPrivkey": "Certificate private key",
+    "certPrivKeyDesc": "List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files.",
+    "certChain": "Certificate chain",
+    "certChainDesc": "List any custom domain names that you use in addition to the CloudFront domain name for the URLs for your files.",
+    "commingLater": "Will be comming in later releases",
+    "certImportSent": "Cert import Sent",
+    "certImportTrigger": "Cert import triggered"
+  },
+  "list": {
+    "cnames": "CNAMEs",
+    "certArn": "ARN",
+    "issuer": "Issuer",
+    "status": "Certificate status",
+    "keyAlgorithm": "Public Key info",
+    "expiresOn": "Certificate expires on"
+  },
+  "jobDetail": {
+    "jobOverview": "Job overview",
+    "overallStatus": "Overall Job Status",
+    "curExpCert": "Current / Expected Certificates ",
+    "curExpCF": "Current / Expected CloudFront Distribution",
+    "jobStatus": "Job Status",
+    "requestCert": "Request ACM Certificates",
+    "promptInfo": "The step will be completed if all SSL certificates were created",
+    "validateCertTop": "Validate certificate (manual)",
+    "validateCertBottom": "The step will be completed if all SSL certificates were issued",
+    "createCFTop": "Create CloudFront distribution",
+    "createCFBottom": "The step will be completed if all SSL certificates were created",
+    "certArn": "Cert Arn",
+    "cfArn": "CloudFront Arn"
+  },
+  "jobList": {
+    "jobId": "Job Id",
+    "jobType": "Job Type",
+    "totalCerts": "Total Certificates",
+    "totalCF": "Total Distributions",
+    "createdAt": "Created"
+  },
+  "status": {
+    "notStartd": "Not Started",
+    "inProgress": "In Progress",
+    "success": "Success",
+    "failed": "Failed",
+    "noneed": "Not Needed",
+    "requestName": "Request SSL Certificates in ACM",
+    "requestDesc": "With given domain names, request new SSL Certificates via Amazon Certificate Management (ACM) Service. ",
+    "validName": "Validate Certificates",
+    "validDesc": "The step is also known as Domain Control Validation process (DCV). This step is required by Certificate Authority, (in our case, ACM) to verify you (the person who is requesting the SSL Certificate) is authroized to use the domain names (the CNAMEs).",
+    "createName": "Create CloudFront Distributions",
+    "createDesc": "If you turn on switch “Automatically Create CloudFront Distribution” in the step1, then the solution will automatically create corresponding CloudFront distributions for you.",
+    "step": "Step ",
+    "auto": "Automatic process",
+    "manual": "Manual process"
+  }
+}

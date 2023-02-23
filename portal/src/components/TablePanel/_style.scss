@@ -1,0 +1,116 @@
+.gsui-table-pannel {
+  background-color: #fff;
+  padding-top: 10px;
+  .desc {
+    padding: 0 20px;
+    color: #666;
+    font-size: 14px;
+    margin-top: -10px;
+  }
+  // padding: 1rem;
+  .table-header {
+    width: 100%;
+    display: flex;
+    padding: 10px 20px 10px 20px;
+    justify-content: space-between;
+    .title {
+      flex: 1;
+      font-size: $font-size-18;
+      font-weight: 700;
+    }
+    .action {
+      // flex: 1;
+      text-align: right;
+      button {
+        margin-left: 10px;
+      }
+    }
+    .filter {
+      flex: 1;
+      max-width: 700px;
+    }
+    // .pagination {
+    //   // flex: 1;
+    // }
+  }
+  .gsui-table {
+    width: 100%;
+    .gsui-table-header {
+      display: flex;
+      justify-content: space-between;
+      background-color: #fafafa;
+      border-top: 1px solid #eaeded;
+      border-bottom: 1px solid #eaeded;
+      &-th {
+        // flex-shrink: 0;
+        padding: 10px 0px;
+        font-weight: bold;
+        &.checkbox {
+          padding-top: 12px;
+          width: 60px;
+          text-align: center;
+        }
+        &.normal {
+          min-width: 0;
+          flex: 1;
+        }
+        &-data {
+          padding: 0px 10px;
+          border-right: 1px solid #eaeded;
+        }
+      }
+    }
+    .gsui-table-body-list {
+      background-color: #fff;
+    }
+    .gsui-table-body {
+      display: flex;
+      justify-content: space-between;
+      border: 1px solid transparent;
+      border-bottom: 1px solid #eaeded;
+      &.selected {
+        border: 1px solid #0073bb;
+        background-color: #f1faff;
+      }
+      &-td {
+        // flex-shrink: 0;
+        padding: 10px 0px;
+        &.checkbox {
+          padding-top: 12px;
+          width: 60px;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+        &.normal {
+          min-width: 0;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+        &-data {
+          // flex: 1;
+          min-width: 0;
+          // white-space: nowrap;
+          overflow: hidden;
+          // text-overflow: ellipsis;
+          // vertical-align: middle;
+          word-break: break-all;
+          padding: 0px 10px;
+          border-right: 1px solid transparent;
+        }
+      }
+    }
+  }
+  .table-loading {
+    text-align: center;
+    padding: 20px;
+  }
+  .table-empty {
+    color: #555;
+    padding: 20px;
+    text-align: center;
+  }
+}

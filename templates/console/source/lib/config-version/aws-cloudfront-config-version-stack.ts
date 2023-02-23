@@ -17,9 +17,12 @@ import {
 } from "aws-cdk-lib/aws-iam";
 import * as logs from "aws-cdk-lib/aws-logs";
 import {
+  AccessLogFormat,
   AuthorizationType,
   EndpointType,
   LambdaRestApi,
+  LogGroupLogDestination,
+  RequestValidator,
 } from "aws-cdk-lib/aws-apigateway";
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { Rule } from "aws-cdk-lib/aws-events";
@@ -27,6 +30,7 @@ import targets = require("aws-cdk-lib/aws-events-targets");
 import { Trail } from "aws-cdk-lib/aws-cloudtrail";
 import { CommonProps } from "../cf-common/cf-common-stack";
 import { MyCustomResource } from "./custom-resources/cloudfront-config-custom-resource";
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { Construct } from "constructs";
 
 export class CloudFrontConfigVersionStack extends Stack {
@@ -151,23 +155,23 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       ],
     });
 
-    const acm_admin_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["acm:*"],
-    });
-
     const ddb_rw_policy = new iam.PolicyStatement({
       resources: [
         cloudfront_config_version_table.tableArn,
         cloudfront_config_latestVersion_table.tableArn,
         cloudfront_config_snapshot_table.tableArn,
       ],
-      actions: ["dynamodb:*"],
-    });
-
-    const stepFunction_run_policy = new iam.PolicyStatement({
-      resources: ["*"],
-      actions: ["states:*"],
+      actions: [
+        "dynamodb:CreateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem",
+        "dynamodb:UpdateTable",
+      ],
     });
 
     const s3_rw_policy = new iam.PolicyStatement({
@@ -184,29 +188,50 @@ export class CloudFrontConfigVersionConstruct extends Construct {
 
     const lambda_rw_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["lambda:*"],
+      actions: [
+          "lambda:GetFunction",
+          "lambda:EnableReplication"
+      ],
     });
 
     const cloudfront_create_update_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["cloudfront:*"],
+      actions: [
+        "cloudfront:GetDistribution",
+        "cloudfront:CreateDistribution",
+        "cloudfront:TagResource",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:ListTagsForResource",
+        "cloudfront:ListDistributions",
+      ],
     });
 
     const eventBridge_create_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["events:*"],
+      actions: [
+          "events:ListRules",
+          "events:PutRule",
+          "events:PutTargets"
+      ],
     });
 
     const iam_create_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: ["iam:*"],
+      actions: [
+          "iam:CreateRole",
+          "iam:GetRole",
+          "iam:PassRole",
+          "iam:CreatePolicy",
+          "iam:AttachRolePolicy"
+          ]
     });
 
     lambdaRole.addToPolicy(ddb_rw_policy);
     lambdaRole.addToPolicy(s3_rw_policy);
-    lambdaRole.addToPolicy(lambda_rw_policy);
     lambdaRole.addToPolicy(cloudfront_create_update_policy);
     lambdaRole.addToPolicy(lambdaRunPolicy);
+    lambdaRole.addToPolicy(lambda_rw_policy);
     lambdaRole.addToPolicy(eventBridge_create_policy);
     lambdaRole.addToPolicy(iam_create_policy);
 
@@ -327,6 +352,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       new targets.LambdaFunction(cloudfrontConfigVersionExporter)
     );
 
+    const logGroup = new logs.LogGroup(
+      this,
+      "cloudfront_config_snapshot_ApiGatewayAccessLogs"
+    );
     const snapshot_rest_api = new LambdaRestApi(
       this,
       "cloudfront_config_snapshot_restfulApi",
@@ -338,84 +367,23 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         endpointConfiguration: {
           types: [EndpointType.EDGE],
         },
+        deployOptions: {
+          accessLogDestination: new LogGroupLogDestination(logGroup),
+          accessLogFormat: AccessLogFormat.clf(),
+        },
       }
     );
 
-    // TODO: temp remove the version api
-    // const version_rest_api = new LambdaRestApi(
-    //   this,
-    //   "cloudfront_config_version_restfulApi",
-    //   {
-    //     handler: cloudfrontConfigVersionManager,
-    //     description: "restful api to manage cloudfront configuration changes",
-    //     proxy: false,
-    //     restApiName: "CloudfrontVersionManager",
-    //     endpointConfiguration: {
-    //       types: [EndpointType.EDGE],
-    //     },
-    //   }
-    // );
-
-    // const config_diff_proxy = rest_api.root.addResource("cf_config_manager");
-    // config_diff_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-
-    // const version_proxy = version_rest_api.root.addResource("version");
-
-    // const get_distribution_cname_proxy = version_proxy.addResource(
-    //   "get_distribution_cname"
-    // );
-    // get_distribution_cname_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const diff_proxy = version_proxy.addResource("diff");
-    // diff_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const versionList_proxy = version_proxy.addResource("list_versions");
-    // versionList_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // // const apply_config_proxy = version_proxy.addResource("apply_config");
-    // // apply_config_proxy.addMethod("GET", undefined, {
-    // //   authorizationType: AuthorizationType.IAM,
-    // //   apiKeyRequired: true,
-    // // });
-    //
-    // const config_tag_update_proxy =
-    //   version_proxy.addResource("config_tag_update");
-    // config_tag_update_proxy.addMethod("POST", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const cf_list_proxy = version_proxy.addResource("cf_list");
-    // cf_list_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const config_link_path = version_proxy.addResource("config_link");
-    // const config_link_proxy = config_link_path.addResource("{versionId}");
-    // config_link_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
-    //
-    // const config_content_path = version_proxy.addResource("config_content");
-    // const config_content_proxy = config_content_path.addResource("{versionId}");
-    // config_content_proxy.addMethod("GET", undefined, {
-    //   // authorizationType: AuthorizationType.IAM,
-    //   apiKeyRequired: true,
-    // });
+    const requestValidator = new RequestValidator(
+      this,
+      "SnapshotRequestValidator",
+      {
+        restApi: snapshot_rest_api,
+        requestValidatorName: "snapshotApiValidator",
+        validateRequestBody: false,
+        validateRequestParameters: true,
+      }
+    );
 
     const snapshot_proxy = snapshot_rest_api.root.addResource("snapshot");
 
@@ -423,54 +391,92 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     apply_snapshot_proxy.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.src_distribution_id": true,
+        "method.request.querystring.target_distribution_ids": true,
+        "method.request.querystring.snapshot_name": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const diff_cloudfront_snapshot_proxy = snapshot_proxy.addResource(
       "diff_cloudfront_snapshot"
     );
     diff_cloudfront_snapshot_proxy.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distribution_id": true,
+        "method.request.querystring.snapshot1": true,
+        "method.request.querystring.snapshot2": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const config_snapshot_tag_update_proxy = snapshot_proxy.addResource(
       "config_snapshot_tag_update"
     );
     config_snapshot_tag_update_proxy.addMethod("POST", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distribution_id": true,
+        "method.request.querystring.note": true,
+        "method.request.querystring.snapshot_name": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const get_applied_snapshot_name_proxy = snapshot_proxy.addResource(
       "get_applied_snapshot_name"
     );
     get_applied_snapshot_name_proxy.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const get_snapshot_link_proxy =
       snapshot_proxy.addResource("get_snapshot_link");
     get_snapshot_link_proxy.addMethod("GET", undefined, {
       authorizationType: AuthorizationType.IAM,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+        "method.request.querystring.snapShotName": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const list_snapshots_proxy = snapshot_proxy.addResource("list_snapshots");
     list_snapshots_proxy.addMethod("GET", undefined, {
-      // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const create_snapshot_proxy = snapshot_proxy.addResource("create_snapshot");
     create_snapshot_proxy.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+        "method.request.querystring.snapShotName": true,
+        "method.request.querystring.snapShotNote": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const delete_snapshot_proxy = snapshot_proxy.addResource("delete_snapshot");
     delete_snapshot_proxy.addMethod("POST", undefined, {
       // authorizationType: AuthorizationType.IAM,
       apiKeyRequired: true,
+      requestParameters: {
+        "method.request.querystring.distributionId": true,
+        "method.request.querystring.snapShotName": true,
+      },
+      requestValidator: requestValidator,
     });
 
     const usagePlan = snapshot_rest_api.addUsagePlan("Snapshot_api_UsagePlan", {
@@ -532,6 +538,10 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "applyConfig",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(__dirname, "../../graphql/vtl/config-version/applyConfig.vtl")
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
@@ -547,56 +557,133 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getAppliedSnapshotName",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getAppliedSnapshotName.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "updateConfigTag",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/updateConfigTag.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "updateConfigSnapshotTag",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/updateConfigSnapshotTag.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "diffCloudfrontConfig",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/diffCloudfrontConfig.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "diffCloudfrontConfigSnapshot",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/diffCloudfrontConfigSnapshot.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "listCloudfrontVersions",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/listCloudfrontVersions.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "listCloudfrontSnapshots",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/listCloudfrontSnapshots.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigLink",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigLink.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigSnapshotLink",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigSnapshotLink.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigContent",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigContent.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
       typeName: "Query",
       fieldName: "getConfigSnapshotContent",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/getConfigSnapshotContent.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({
@@ -607,6 +694,13 @@ export class CloudFrontConfigVersionConstruct extends Construct {
     lambdaDs.createResolver({
       typeName: "Mutation",
       fieldName: "applySnapshot",
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "../../graphql/vtl/config-version/applySnapshot.vtl"
+        )
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.lambdaResult(),
     });
 
     lambdaDs.createResolver({

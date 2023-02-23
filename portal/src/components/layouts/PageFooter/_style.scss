@@ -1,0 +1,74 @@
+.gsui-footer {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 20px;
+  background-color: $black-bg;
+  color: #fff;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 999;
+  .page-bottom {
+    padding: 0 20px 0 0px;
+    text-align: left;
+    font-size: 12px;
+    line-height: 30px;
+    height: 30px;
+    background-color: #232f3e;
+    position: relative;
+    .item {
+      display: inline-block;
+      display: inline-block;
+      margin-left: 25px;
+      font-size: 14px;
+      color: #fff;
+      padding-left: 23px;
+      cursor: pointer;
+    }
+    .bottom-icon {
+      position: absolute;
+      margin: 5px 0 0 -22px;
+    }
+    .feedback {
+      float: left;
+    }
+    .language {
+      float: left;
+      .language-select {
+        color: #444444;
+        position: absolute;
+        margin-left: -20px;
+        bottom: 30px;
+        background-color: #ffffff;
+        border: 1px solid #ccc;
+        ul,
+        li {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+        li {
+          padding: 2px 15px;
+          &:hover {
+            background-color: #f1f1f1;
+          }
+        }
+      }
+    }
+    .notice {
+      float: right;
+      color: #aab7b8;
+      border-left: 0;
+      cursor: pointer;
+    }
+    .privacy {
+      float: right;
+      padding: 0 2em 0 2em;
+      font-weight: regular;
+      color: #eee;
+      font-size: 12px;
+      padding: 0 1em;
+      cursor: pointer;
+    }
+  }
+}

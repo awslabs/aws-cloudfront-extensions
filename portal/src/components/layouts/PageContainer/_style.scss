@@ -1,0 +1,20 @@
+.gsui-main {
+  flex: 1;
+  position: relative;
+  height: calc(100vh - 40px - 30px);
+  overflow: hidden;
+  display: flex;
+  &-content {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    .gsui-container {
+      flex: 1;
+      background-color: #f2f3f3;
+      overflow: auto;
+      .gsui-content {
+        padding: 10px 40px;
+      }
+    }
+  }
+}

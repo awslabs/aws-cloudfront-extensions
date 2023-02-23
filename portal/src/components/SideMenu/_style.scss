@@ -1,0 +1,74 @@
+.gsui-side-menu {
+  width: 280px;
+  overflow: auto;
+  box-shadow: 1px 1px 1px #ccc;
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  .collapse-menu {
+    flex: 1;
+    cursor: pointer;
+    &:hover {
+      background-color: #f2f2f2;
+    }
+    .menu-icon {
+      position: absolute;
+      right: 8px;
+      top: 10px;
+      cursor: pointer;
+    }
+  }
+
+  .close-icon {
+    position: absolute;
+    right: 15px;
+    top: 16px;
+    cursor: pointer;
+  }
+  .head-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    padding: 15px 30px 10px 30px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    a {
+      text-decoration: none;
+      color: #212529;
+    }
+  }
+  .menu-item {
+    padding: 5px 10px 5px 30px;
+    font-size: $font-size-sm;
+    line-height: $font-size-28;
+    .collapse-title {
+      user-select: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    i.icon {
+      position: absolute;
+      margin: -2px 0 0 -20px;
+    }
+    a {
+      color: #444;
+    }
+    a:hover {
+      color: #ec7211 !important;
+      text-decoration: none;
+    }
+    .active {
+      a {
+        font-weight: 600;
+        color: #ec7211;
+      }
+    }
+  }
+  .external-link {
+    margin: 20px;
+    border-top: 1px solid #ccc;
+    padding: 20px 5px 20px;
+    a {
+      color: #444;
+    }
+  }
+}

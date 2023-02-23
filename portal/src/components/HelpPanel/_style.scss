@@ -1,0 +1,76 @@
+.lh-helper {
+  position: relative;
+  width: 280px;
+  overflow: auto;
+  box-shadow: -1px -1px 1px #ccc;
+  .gsui-help-panel-title {
+    display: flex;
+    flex-shrink: 0;
+    .collapse-menu {
+      flex: 1;
+      cursor: pointer;
+      &:hover {
+        background-color: #f2f2f2;
+      }
+      .menu-icon {
+        position: absolute;
+        left: 8px;
+        top: 10px;
+        cursor: pointer;
+      }
+    }
+    .close-icon {
+      position: absolute;
+      right: 15px;
+      top: 16px;
+      cursor: pointer;
+    }
+    .head-title {
+      font-size: $font-size-18;
+      font-weight: bold;
+      padding: 15px 30px 10px 30px;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+  }
+
+  .gsui-help-container {
+    padding: 10px 20px 20px;
+    .gsui-help-content {
+      font-size: 14px;
+      line-height: 20px;
+      color: #545b64;
+      margin-bottom: 5px;
+      padding: 0 10px;
+      code {
+        background-color: #eee;
+        color: #666;
+        padding: 4px 4px;
+        border-radius: 3px;
+      }
+    }
+    .gsui-help-title {
+      font-size: 14px;
+      line-height: 28px;
+      font-weight: bold;
+      color: #222222;
+      padding: 0 10px;
+    }
+    .gsui-help-more {
+      margin: 20px 0;
+      border-top: 1px solid #d5dbdb;
+      padding: 15px 10px 10px;
+      .learn-more {
+        font-size: 16px;
+        line-height: 30px;
+        i {
+          position: absolute;
+          margin: -3px 0 0 5px;
+        }
+      }
+      .gsui-help-link-item {
+        line-height: 20px;
+      }
+    }
+  }
+}

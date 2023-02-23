@@ -1,0 +1,43 @@
+{
+  "category": "网络与内容交付",
+  "title": "CloudFront Extensions",
+  "subTitle": "Amazon CloudFront 运维工具箱",
+  "desc": "本解决方案提供了一套用于运维CloudFront的自动化工具，帮助Amazon CloudFront用户管理上百个CloudFront分配(Distributions)。",
+  "benifits": {
+    "title": "优点和特点",
+    "beft1": "监控",
+    "beft1Desc": "您可以通过web控制台的仪表板监控CloudFront流量，如缓存命中率、带宽和状态代码。了解更多信息，请参考监控 (https://awslabs.github.io/aws-cloudfront-extensions/zh/monitoring/overview/)",
+    "beft2": "分配管理",
+    "beft2Desc": "您可以将指定的CloudFront分配的配置保存为快照、比较不同的快照、并将快照应用于其他分配；审核所有CloudFront分配的配置更改；自动化实现请求新证书或将现有SSL证书导入ACM并配置CloudFront分配的过程。了解更多信息，请参考分配管理 (https://awslabs.github.io/aws-cloudfront-extensions/zh/distribution-management/overview/)。",
+    "beft3": "扩展存储库",
+    "beft3Desc": "您可以部署常用的开箱即用CloudFront扩展程序，例如Lambda@Edge、CloudFront Functions和CloudFormation模板。您可以在不进行任何编程的情况下使用这些扩展，并自定义它们以满足您的特定需求。了解更多信息，请参考扩展存储库 (https://awslabs.github.io/aws-cloudfront-extensions/zh/extension-repository/overview/)。"
+  },
+  "usecase": {
+    "title": "使用场景",
+    "usecase1": "迁移",
+    "usecase1Desc": "当客户从其他CDN迁移至AWS时，需要批量生成关联SSL证书的CloudFront分配。例如，独立站SaaS厂商站点批量迁移。",
+    "usecase2": "CDN预热",
+    "usecase2Desc": "客户需要对文件预热（如应用商城）、游戏预热。",
+    "usecase3": "CDN监控",
+    "usecase3Desc": "对于下载速度、缓存命中率、带宽等指标进行实时或非实时监控的客户。客户可通过API集成至统一CDN监控平台。",
+    "usecase4": "CDN版本管理",
+    "usecase4Desc": "当客户账号有大量CloudFront分配时，需要为某版本的CloudFront分配的配置进行快照 或 查询修改历史。",
+    "usecase5": "通用Lambda@Edge函数",
+    "usecase5Desc": "客户需要一键部署Image Resize，Redirect-by-country等功能"
+  },
+  "getStarted": {
+    "title": "开始使用",
+    "desc": "查找适用于您的 CloudFront 的常见扩展"
+  },
+  "gettingStarted": {
+    "title": "入门",
+    "startCF": "入门 CloudFront Extensions"
+  },
+  "moreResource": {
+    "title": "更多资源",
+    "doc": "文档",
+    "faq": "常见问题",
+    "issue": "问题反馈",
+    "workshop": "动手实验"
+  }
+}

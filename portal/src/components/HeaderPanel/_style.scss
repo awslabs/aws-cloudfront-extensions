@@ -1,0 +1,43 @@
+.gsui-header-panel {
+  background-color: #fff;
+  box-shadow: 1px 1px 2px #ccc;
+  margin-bottom: 30px;
+  .header {
+    display: flex;
+    // min-height: 64px;
+    padding: 20px 20px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #eaeded;
+    align-items: center;
+    justify-content: space-between;
+    .header-title {
+      flex: 1;
+      .sub-title {
+        font-size: $font-size-18;
+        font-weight: 600;
+        padding: 0 0 0 0;
+        letter-spacing: -0.5px;
+        span {
+          font-weight: normal;
+          color: #666;
+          margin-left: 5px;
+          // font-size: 16px;
+        }
+      }
+      .sub-desc {
+        color: #687078;
+        font-size: $font-size-12;
+      }
+    }
+    .action {
+      // flex: 1;
+      text-align: right;
+    }
+  }
+  .content {
+    padding: 20px;
+    &.no-padding {
+      padding: 0;
+    }
+  }
+}
