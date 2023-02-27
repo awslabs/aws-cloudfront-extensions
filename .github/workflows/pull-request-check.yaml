@@ -41,6 +41,8 @@ jobs:
   build:
     needs: opensource-license-review
     runs-on: ubuntu-latest
+    env:
+      CI: "true"
 #    strategy:
 #      matrix:
 #        node-version:
