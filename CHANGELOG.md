@@ -35,3 +35,4 @@ Publish following applications
 
 ### Fixed
 
+testpr -- 1
