@@ -42,9 +42,9 @@ jobs:
     needs: opensource-license-review
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        node-version: '18.x'
-        python-version: '3.8'
+#      matrix:
+#        node-version:
+#        python-version:
 #    outputs:
 #      self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     steps:
@@ -55,11 +55,11 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18.x'
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.8'
       - name: Pre Build
         run: |
           npm install -g aws-cdk
