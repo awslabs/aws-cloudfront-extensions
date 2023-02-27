@@ -165,12 +165,12 @@ run npx cdk synth -c EnableDashboardCustomDomain=true --json --output ${GLOBAL_S
 #mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 #export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
 #run npx cdk synth --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]} -q 2>/dev/null
-export ECR_REPO=$3
+export ECR_REPO=$4
 if [ ! -z "$ECR_REPO" ]; then
 run echo "$ECR_REPO">>"${__dir}/ecr-repos"
 fi
 
-export ECR_CN_REPO=$4
+export ECR_CN_REPO=$5
 if [ ! -z "$ECR_CN_REPO" ]; then
 run echo "$ECR_CN_REPO">>"${__dir}/cn-ecr-repos"
 fi
