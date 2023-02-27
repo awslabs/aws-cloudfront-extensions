@@ -21,7 +21,7 @@ US_NODE = ['IAD89-P1', 'IAD89-P2', 'SFO5-P2',
 CN_NODE = ['PVG52-E1', 'SZX51-E1', 'BJS9-E1', 'ZHY50-E1']
 
 ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
-               EU_NODE + JP_NODE + SA_NODE + US_NODE))
+               EU_NODE + JP_NODE + SA_NODE + US_NODE + CN_NODE))
 pop_map = {
     'all': ALL_POP,
     'apac': APAC_NODE,
@@ -30,7 +30,8 @@ pop_map = {
     'eu': EU_NODE,
     'jp': JP_NODE,
     'sa': SA_NODE,
-    'us': US_NODE
+    'us': US_NODE,
+    'cn': CN_NODE
 }
 
 aws_region = os.environ['AWS_REGION']
