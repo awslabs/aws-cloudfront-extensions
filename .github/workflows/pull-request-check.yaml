@@ -3,6 +3,8 @@ name: "pull request check"
 on:
   pull_request:
     types: [opened, reopened, edited, synchronize]
+permissions:
+  content: write
 
 jobs:
   git-secrets:
@@ -43,8 +45,6 @@ jobs:
       matrix:
         node-version: [ 18.x, 19.x ]
         python-version: ["3.8", "3.9", "3.10"]
-    permissions:
-      content: write
 #    outputs:
 #      self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     steps:
