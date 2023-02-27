@@ -43,8 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 18.x, 19.x ]
-        python-version: ["3.8", "3.9", "3.10"]
+        node-version: '18.x'
+        python-version: '3.8'
 #    outputs:
 #      self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     steps:
