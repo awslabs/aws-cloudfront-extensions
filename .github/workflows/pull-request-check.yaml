@@ -41,7 +41,7 @@ jobs:
   build:
     needs: opensource-license-review
     runs-on: ubuntu-latest
-    strategy:
+#    strategy:
 #      matrix:
 #        node-version:
 #        python-version:
