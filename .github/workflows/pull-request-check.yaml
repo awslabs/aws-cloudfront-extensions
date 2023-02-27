@@ -42,7 +42,7 @@ jobs:
     needs: opensource-license-review
     runs-on: ubuntu-latest
     env:
-      CI: "true"
+      CI: "false"
 #    strategy:
 #      matrix:
 #        node-version:
