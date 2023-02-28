@@ -119,7 +119,8 @@ jobs:
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby 2.6
+        uses: ruby/setup-ruby@v1
           with:
             ruby-version: 2.6
       - name: cfn_nag
