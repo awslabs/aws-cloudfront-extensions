@@ -177,7 +177,7 @@ jobs:
         run: |
           wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
           wget -q https://viperlight-scanner.s3.amazonaws.com/latest/viperlight.zip
-          unzip -q viperlight.zip -d ../viperlight
+          unzip -q viperlight.zip -d viperlight
           rm -r ./viperlight.zip
           cd viperlight  
           ./install.sh
