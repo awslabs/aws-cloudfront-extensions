@@ -191,7 +191,7 @@ jobs:
           echo "Completed content scanning `date`"
 
   cdk_unit_test:
-    runs-on: ubuntu-test
+    runs-on: ubuntu-latest
     needs: opensource-license-review
     env:
       CI: "false"
@@ -209,7 +209,7 @@ jobs:
           npm run test      
 
   python_unit_test:
-    runs-on: ubuntu-test
+    runs-on: ubuntu-latest
     needs: opensource-license-review
     env:
       CI: "false"
