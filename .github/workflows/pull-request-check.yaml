@@ -38,6 +38,7 @@ jobs:
           fail-on-severity: moderate
           # Use comma-separated names to pass list arguments:
           deny-licenses: LGPL-2.0, BSD-2-Clause
+
   build:
     needs: opensource-license-review
     runs-on: ubuntu-latest
@@ -141,3 +142,81 @@ jobs:
           set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
           # cfn_nag_scan --input-path .
           # echo "Completed CloudFormation template scanning `date`"
+
+#  sematic_validate:
+#    name: Validate PR title
+#    runs-on: ubuntu-latest
+#    needs: opensource-license-review
+#    permissions:
+#      pull-requests: write
+#    steps:
+#      - uses: amannn/action-semantic-pull-request@v5.0.2
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with :
+#          types: |
+#            feat
+#            fix
+#            docs
+#            style
+#            refactor
+#            perf
+#            test
+#            build
+#            ci
+#            chore
+#            revert
+
+  viperlight:
+    runs-on: ubuntu-latest
+    needs: opensource-license-review
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Viperlight Scan
+        run: |
+          wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
+          wget -q https://viperlight-scanner.s3.amazonaws.com/latest/viperlight.zip
+          unzip -q viperlight.zip -d ../viperlight
+          rm -r ./viperlight.zip
+          cd viperlight  
+          ./install.sh
+          viperlight --version
+          echo "Content scanning utility installation complete `date`"
+          echo "Starting content scanning `date` in `pwd`"
+          cd ${{ github.workspace }}/templates/console/source
+          viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
+          echo "Completed content scanning `date`"
+
+  cdk_unit_test:
+    runs-on: ubuntu-test
+    needs: opensource-license-review
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Run Typescript Unit Test
+        run: |
+          cd ${{ github.workspace }}/templates/console/source
+          npm install --legacy-peer-deps
+          npm run test      
+
+  python_unit_test:
+    runs-on: ubuntu-test
+    needs: opensource-license-review
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Run Python Test
+        run: |
+          cd ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
+          pip install poetry
+          poetry install
+          python -m pytest --cov --cov-config=.coveragerc test
