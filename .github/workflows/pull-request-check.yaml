@@ -89,7 +89,7 @@ jobs:
         run: |
           # aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec_2.yml || true
           set -euxo pipefail
-          __dir="${CODEBUILD_SRC_DIR}/templates/console/deployment"
+          __dir="${{ github.workspace }}/templates/console/deployment"
           function join_by { local IFS="$1"; shift; echo "$*"; }
           export ECR_REPOS=$(join_by , `cat "${__dir}/ecr-repos"`)
           echo "ECR_REPOS=${ECR_REPOS}" >> $GITHUB_ENV

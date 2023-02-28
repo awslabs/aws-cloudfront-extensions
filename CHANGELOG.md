@@ -34,5 +34,3 @@ Publish following applications
 ### Changed
 
 ### Fixed
-
-testpr -- 3
