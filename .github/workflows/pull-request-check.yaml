@@ -227,4 +227,4 @@ jobs:
           pip install poetry          
           poetry install
           export PYTHONPATH=../ssl_for_saas
-          python -m pytest --cov --cov-config=.coveragerc test
+          poetry run pytest --cov --cov-config=.coveragerc test
