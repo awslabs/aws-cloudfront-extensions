@@ -223,7 +223,7 @@ jobs:
       - name: Run Python Test
         run: |
           cd ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
-          pip install pytest
+          # pip install pytest
           pip install poetry          
           poetry install --no-root
-          python -m pytest --cov --cov-config=.coveragerc test
+          python3 -m pytest --cov --cov-config=.coveragerc test
