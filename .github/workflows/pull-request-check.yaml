@@ -111,11 +111,14 @@ jobs:
               deploy_vtag.yml
               CHANGELOG.md
               .cfnnagignore
-              .cfnnag_*
+              .cfnnag_global_suppress_list
+              .cfnnag_*              
 
   cfn_nag_scan:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      CI: "false"
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
@@ -127,13 +130,14 @@ jobs:
         run: |
           # install Ruby
           # sudo apt-get install ruby-full
-          ls -R
+          # ls -R
           gem install cfn-nag
           cfn_nag -v
           echo "CloudFormation template scanning utility installation complete `date`"
           echo "Starting CloudFormation template scanning `date` in `pwd`"
+          cd build-artifacts/
           export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
           if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-          set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path build-artifacts/templates/console/deployment/global-s3-assets/
+          set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
           # cfn_nag_scan --input-path .
           # echo "Completed CloudFormation template scanning `date`"
