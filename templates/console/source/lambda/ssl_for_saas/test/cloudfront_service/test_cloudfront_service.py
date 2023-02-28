@@ -42,7 +42,7 @@ class TestCloudfrontService:
     def test_validate_source_cloudfront_dist(self, monkeypatch):
         from layer.cloudfront_service.client import CloudFrontUtilsService
         client = CloudFrontUtilsService()
-        ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
+        ddb = boto3.client("dynamodb")
         create_config_version_table(ddb, client.config_version_table)
         distr_id = 'ED1GHHCCBZVHL'
         client.ddb_client.put_items(table=client.config_version_table, entries={

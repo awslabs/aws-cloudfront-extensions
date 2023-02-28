@@ -20,9 +20,9 @@ class TestDDBService:
     @mock_dynamodb
     def test_all_cases(self, monkeypatch):
         from layer.ddb_service.client import DynamoDbUtilsService
+        ddb = boto3.client("dynamodb")
         client = DynamoDbUtilsService()
         table_name = CONFIG_VERSION_TABLE
-        ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
         create_config_version_table(ddb, table_name)
         with pytest.raises(Exception):
             client.put_items(table=None, entries={

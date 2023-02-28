@@ -44,7 +44,7 @@ class TestJobInfo:
     def test_create_job_info(self, monkeypatch):
         from layer.job_service.client import JobInfoUtilsService
         client = JobInfoUtilsService()
-        ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
+        ddb = boto3.client("dynamodb")
         create_job_info_table(ddb, client.job_info_table)
         job_id = 'job_id'
         job_info = JobInfo(

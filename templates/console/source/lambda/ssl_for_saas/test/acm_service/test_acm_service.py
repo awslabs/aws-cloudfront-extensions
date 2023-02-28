@@ -58,7 +58,7 @@ class TestAcmUtils:
         client = AcmUtilsService()
         cert_arn = _get_a_mock_cert(client)
         assert cert_arn is not None
-        ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
+        ddb = boto3.client("dynamodb")
         create_acm_metadata_table(ddb, client.acm_metadata_table)
         test_task_token = "token"
         monkeypatch.setattr(client.stepf_client, 'set_task', lambda *args, **kwargs: {})
