@@ -78,11 +78,11 @@ jobs:
       - name: build
         run: |
           chmod +x ./templates/console/deployment/build-s3-dist.sh
-          ${{ github.workspace }}/templates/console/deployment/build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION ${{ vars.ECR }} ${{ vars.ECR_CN }}
+          ${{ github.workspace }}/templates/console/deployment/build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION ${{ vars.ECR }} ${{ vars.ECR_CN }} ${{ vars.AWS_ASSET_ACCOUNT_ID }} ${{ vars.REGIONS }} ${{ vars.AWS_ASSET_PUBLISH_ROLE }}
           mkdir -p ${{ github.workspace }}/templates/console/deployment/open-source/ && touch ./templates/console/deployment/open-source/.empty
           cd edges/cdk/deployment
-          ./build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION
-          cp -r ${{ github.workspace }}/edges/cdk/deployment/global-s3-assets/* $${{ github.workspace }}/templates/console/deployment/global-s3-assets/custom-domain/
+#          ./build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION
+#          cp -r ${{ github.workspace }}/edges/cdk/deployment/global-s3-assets/* $${{ github.workspace }}/templates/console/deployment/global-s3-assets/custom-domain/
           ls -LR ${{ github.workspace }}/templates/console/deployment/
 
       - name: post_build
