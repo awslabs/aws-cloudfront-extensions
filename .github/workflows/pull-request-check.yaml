@@ -95,6 +95,8 @@ jobs:
           echo "ECR_REPOS=${ECR_REPOS}" >> $GITHUB_ENV
           export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
           echo "CN_ECR_REPOS=${CN_ECR_REPOS}" >> $GITHUB_ENV
+          git config --global user.email "cloudfront-extns-helper@example.com"
+          git config --global user.name "cloudfront-extns-helper"
           git tag -a $BUILD_VERSION -m "${{ github.run_number }} ${{ github.job_workflow_sha }}"
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
