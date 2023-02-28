@@ -227,5 +227,5 @@ jobs:
           pip install poetry          
           poetry install          
           export PYTHONPATH=../ssl_for_saas
-          echo "" >> $GITHUB_ENV          
+          echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV          
           poetry run pytest --cov --cov-config=.coveragerc test
