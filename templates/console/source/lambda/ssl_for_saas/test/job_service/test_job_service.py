@@ -9,7 +9,7 @@ from layer.common.constants_ import ACM_METADATA_TABLE, CONFIG_VERSION_TABLE, JO
 from layer.job_service.types_ import JobInfo
 from test.test_utils import create_job_info_table
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 os.environ.setdefault(ACM_METADATA_TABLE,
                       'cert_metadata_table')
 os.environ.setdefault(CONFIG_VERSION_TABLE,

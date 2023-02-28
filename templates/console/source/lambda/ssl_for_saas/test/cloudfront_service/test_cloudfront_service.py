@@ -12,7 +12,7 @@ from layer.common.constants_ import ACM_METADATA_TABLE, CONFIG_VERSION_TABLE
 from layer.common.types_ import Cname, SourceCfInfo
 from test.test_utils import create_config_version_table, sample_cloudfront_config
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 os.environ.setdefault(CONFIG_VERSION_TABLE,
                       CONFIG_VERSION_TABLE)
 os.environ.setdefault('GRAPHQL_API_KEY', 'grapql_key')

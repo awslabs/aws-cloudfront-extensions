@@ -6,7 +6,7 @@ from moto import mock_dynamodb
 from layer.common.constants_ import CONFIG_VERSION_TABLE
 from test.test_utils import create_config_version_table
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 
 
 class TestDDBService:
