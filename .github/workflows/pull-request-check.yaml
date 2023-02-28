@@ -68,7 +68,7 @@ jobs:
           cdk --version
           BSS_IMAGE_ASSET_REPOSITORY_NAME=$(echo "${{ vars.SOLUTION_NAME }}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
           echo "BSS_IMAGE_ASSET_REPOSITORY_NAME=${BSS_IMAGE_ASSET_REPOSITORY_NAME}" >> $GITHUB_ENV
-          BUILD_VERSION=v2.0.0_${{ github.job }}
+          BUILD_VERSION=v2.0.0_${{ github.run_number }}
           echo "BUILD_VERSION=${BUILD_VERSION}" >> $GITHUB_ENV
           if [ $(git tag -l "$BUILD_VERSION") ]; then
             git tag -d ${BUILD_VERSION}
@@ -95,7 +95,7 @@ jobs:
           echo "ECR_REPOS=${ECR_REPOS}" >> $GITHUB_ENV
           export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
           echo "CN_ECR_REPOS=${CN_ECR_REPOS}" >> $GITHUB_ENV
-          git tag -a $BUILD_VERSION -m "${{ github.job }} ${{ github.job_workflow_sha }}"
+          git tag -a $BUILD_VERSION -m "${{ github.run_number }} ${{ github.job_workflow_sha }}"
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
