@@ -216,10 +216,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Run Python Test
         run: |
           cd ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
