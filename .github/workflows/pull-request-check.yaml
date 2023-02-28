@@ -170,6 +170,8 @@ jobs:
   viperlight:
     runs-on: ubuntu-latest
     needs: opensource-license-review
+    env:
+      CI: "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -191,6 +193,8 @@ jobs:
   cdk_unit_test:
     runs-on: ubuntu-test
     needs: opensource-license-review
+    env:
+      CI: "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -207,6 +211,8 @@ jobs:
   python_unit_test:
     runs-on: ubuntu-test
     needs: opensource-license-review
+    env:
+      CI: "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
