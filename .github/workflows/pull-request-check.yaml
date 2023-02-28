@@ -54,11 +54,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.8
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
@@ -119,10 +119,13 @@ jobs:
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
+      - uses: ruby/setup-ruby@v1
+          with:
+            ruby-version: 2.6
       - name: cfn_nag
         run: |
           # install Ruby
-          sudo apt-get install ruby-full
+          # sudo apt-get install ruby-full
           gem install cfn-nag
           cfn_nag -v
           echo "CloudFormation template scanning utility installation complete `date`"
