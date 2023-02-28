@@ -226,4 +226,4 @@ jobs:
           # pip install pytest
           pip install poetry          
           poetry install
-          python3 -m pytest --cov --cov-config=.coveragerc test
+          python -m pytest --cov --cov-config=.coveragerc test
