@@ -34,6 +34,23 @@ pop_map = {
     'cn': CN_NODE
 }
 
+INDIA_REC = ['BOM78-P1', 'BOM78-P4']
+JAPAN_REC = ['NRT57-P2', 'NRT57-P3']
+OCEANIA_REC = ['SYD1-C1', 'SYD62-P2']
+SOUTHEAST_ASIA_REC = ['SIN2-P1', 'SIN2-P2']
+SOUTH_KOREA_REC = ['ICN57-P1', 'ICN57-P2']
+
+ALL_REC = list(set(INDIA_REC + JAPAN_REC + OCEANIA_REC +
+               SOUTHEAST_ASIA_REC + SOUTH_KOREA_REC))
+rec_map = {
+    'all': ALL_REC,
+    'india': INDIA_REC,
+    'japan': JAPAN_REC,
+    'oceania': OCEANIA_REC,
+    'south_korea': SOUTH_KOREA_REC,
+    'southeast_asia': SOUTHEAST_ASIA_REC
+}
+
 aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
 dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
@@ -108,13 +125,38 @@ def lambda_handler(event, context):
     pop_region = event_body['region']
     current_time = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
+    # new added parameter
+    region_type = event_body['region_type']
     if type(pop_region) == str:
-        if pop_region.lower() not in pop_map.keys():
+        if pop_region != 'all':
             return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
-        pop_region = pop_map[pop_region.lower()]
+        elif region_type == 'region':
+            pop_region = pop_map["all"]
+        elif region_type == 'country':
+            pop_region = rec_map["all"]
     elif len(pop_region) == 0:
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
+    else:
+        if region_type == 'region':
+            pop_region_opt = []
+            for i in pop_region:
+                pop_region_opt.append(pop_map[i.lower()])
+            pop_region = pop_region_opt
+        elif region_type == 'country':
+            pop_rec_opt = []
+            for i in pop_region:
+                pop_rec_opt.append(rec_map[i.lower()])
+            pop_region = pop_rec_opt
+
+    # modified as above
+    # if type(pop_region) == str:
+    #     if pop_region.lower() not in pop_map.keys():
+    #         return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
+    #     pop_region = pop_map[pop_region.lower()]
+    # elif len(pop_region) == 0:
+    #     return compose_error_response(
+    #         'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
 
     write_in_ddb(req_id, url_list, pop_region, current_time)
     inv_resp = start_invalidation(url_list, cf_domain, pop_region,
