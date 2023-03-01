@@ -67,7 +67,8 @@ def write_in_ddb(req_id, url_list, pop, create_time):
         "pop": pop,
         "urlList": url_list,
         "reqId": req_id,
-        "create_time": create_time,
+        # edit it to keep the same column name with agent and same style with other columns
+        "createTime": create_time,
         "url": 'metadata'
     }
     ddb_response = table.put_item(Item=table_item)
