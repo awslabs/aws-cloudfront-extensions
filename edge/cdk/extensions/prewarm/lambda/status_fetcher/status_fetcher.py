@@ -24,7 +24,7 @@ def pop_prefix(pop_list):
     return pop_prefix
 
 
-def prewarm_status_from_ddb(req_id):
+def prewarm_status_from_ddb(req_id, dynamodb):
     """Query from Prewarm status Dynamodb table"""
     overall_status = 'IN_PROGRESS'
     create_time = ''
@@ -46,10 +46,14 @@ def prewarm_status_from_ddb(req_id):
         }
 
     for query_item in response['Items']:
+        if 'create' in query_item:
+            create_time = query_item['create_time']
+        else:
+            create_time = datetime.datetime.now().strftime('%Y%m%dT%H%M%SZ')
+
         if 'urlList' in query_item:
             # metadata info
             url_list = query_item['urlList']
-            create_time = query_item['create_time']
             continue
 
         if query_item['status'] == 'SUCCESS':
@@ -87,10 +91,11 @@ def prewarm_status_from_ddb(req_id):
             overall_status = 'TIMEOUT'
 
     in_progress_list = url_list
-    for succ_url in success_list:
-        in_progress_list.remove(succ_url)
-    for fail_url in fail_list:
-        in_progress_list.remove(fail_url)
+    if len(in_progress_list) > 0:
+        for succ_url in success_list:
+            in_progress_list.remove(succ_url)
+        for fail_url in fail_list:
+            in_progress_list.remove(fail_url)
 
     if SHOW_SUCC_URLS.lower() == 'true':
         return {
@@ -124,7 +129,7 @@ def lambda_handler(event, context):
     req_id = event["queryStringParameters"]["requestID"]
 
     try:
-        status_data = prewarm_status_from_ddb(req_id)
+        status_data = prewarm_status_from_ddb(req_id, dynamodb)
         response['body'] = json.dumps(status_data)
         response['statusCode'] = 200
     except Exception as error:
