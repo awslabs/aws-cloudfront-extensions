@@ -33,7 +33,7 @@ pop_map = {
     'us': US_NODE,
     'cn': CN_NODE
 }
-
+# REC: regional edge cache
 INDIA_REC = ['BOM78-P1', 'BOM78-P4']
 JAPAN_REC = ['NRT57-P2', 'NRT57-P3']
 OCEANIA_REC = ['SYD1-C1', 'SYD62-P2']
@@ -46,9 +46,15 @@ rec_map = {
     'all': ALL_REC,
     'india': INDIA_REC,
     'japan': JAPAN_REC,
-    'oceania': OCEANIA_REC,
-    'south_korea': SOUTH_KOREA_REC,
-    'southeast_asia': SOUTHEAST_ASIA_REC
+    'new_zealand': OCEANIA_REC,
+    'malaysia':SOUTHEAST_ASIA_REC,
+    'china':SOUTHEAST_ASIA_REC,
+    'indonesia':SOUTHEAST_ASIA_REC,
+    'philippines':SOUTHEAST_ASIA_REC,
+    'singapore':SOUTHEAST_ASIA_REC,
+    'thailand':SOUTHEAST_ASIA_REC,
+    'vietnam':SOUTHEAST_ASIA_REC,
+    'south_korea': SOUTH_KOREA_REC
 }
 
 aws_region = os.environ['AWS_REGION']
