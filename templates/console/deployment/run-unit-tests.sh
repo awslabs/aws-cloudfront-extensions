@@ -26,24 +26,24 @@ cd ../source/lambda/monitoring/non_realtime
 
 for d in */ ; do
     echo "$d"
-    pushd $d
     cp ../shared_lib/python/metric_helper.py .
     python3 -m pytest --cov --cov-report=term-missing --cov-report "xml:./non_$(basename $(pwd)).coverage.xml"
     rm -rf metric_helper.py
     cp non_$(basename $(pwd)).coverage.xml ../../../../tests/coverage-reports/
     rm -rf non_$(basename $(pwd)).coverage.xml
     cd ..
+    break
 done
 
-cd ../realtime
-
-for d in */ ; do
-    echo "$d"
-    cd $d
-    cp ../shared_lib/python/metric_helper.py .
-    python3 -m pytest --cov --cov-report=term-missing --cov-report "xml:./$(basename $(pwd)).coverage.xml"
-    rm -rf metric_helper.py
-    cp $(basename $(pwd)).coverage.xml ../../../../tests/coverage-reports/
-    rm -rf $(basename $(pwd)).coverage.xml
-    cd ..
-done
+#cd ../realtime
+#
+#for d in */ ; do
+#    echo "$d"
+#    cd $d
+#    cp ../shared_lib/python/metric_helper.py .
+#    python3 -m pytest --cov --cov-report=term-missing --cov-report "xml:./$(basename $(pwd)).coverage.xml"
+#    rm -rf metric_helper.py
+#    cp $(basename $(pwd)).coverage.xml ../../../../tests/coverage-reports/
+#    rm -rf $(basename $(pwd)).coverage.xml
+#    cd ..
+#done

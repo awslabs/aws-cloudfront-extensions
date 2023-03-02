@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     
         delete_json = {
             'Values': [
-                year, month, day, hour 
+                year, month, day, hour
             ]
         }
         delete_dict.append(delete_json)

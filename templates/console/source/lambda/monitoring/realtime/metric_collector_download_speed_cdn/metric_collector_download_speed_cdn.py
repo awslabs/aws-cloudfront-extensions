@@ -15,8 +15,7 @@ dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION_NAME'])
 DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
-
-INTERVAL = 5
+M_INTERVAL = int(os.environ['INTERVAL'])
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -100,7 +99,7 @@ def gen_detailed_by_interval(metric, start_time, end_time, domain):
         log.info("[gen_detailed_by_interval] Setup interval list")
         interval_item = {}
         interval_item['start'] = temp_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        temp_datetime += timedelta(minutes=5)
+        temp_datetime += timedelta(minutes=M_INTERVAL)
         if not temp_datetime < end_datetime:
             interval_item['end'] = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
             athena_qs = assemble_speed(metric, interval_item['start'],
