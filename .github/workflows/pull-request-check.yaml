@@ -172,21 +172,21 @@ jobs:
     name: Semgrep Scan
     needs: opensource-license-review
     runs-on: ubuntu-latest
-      container:
-        # A Docker image with Semgrep installed. Do not change this.
-        image: returntocorp/semgrep
-      # Skip any PR created by dependabot to avoid permission issues:
-      if: (github.actor != 'dependabot[bot]')
-      steps:
-        # Fetch project source with GitHub Actions Checkout.
-        - uses: actions/checkout@v3
-        # Run the "semgrep ci" command on the command line of the docker image.
-        - run: semgrep ci
-          env:
-            # Connect to Semgrep Cloud Platform through your SEMGREP_APP_TOKEN.
-            # Generate a token from Semgrep Cloud Platform > Settings
-            # and add it to your GitHub secrets.
-            SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+    container:
+      # A Docker image with Semgrep installed. Do not change this.
+      image: returntocorp/semgrep
+    # Skip any PR created by dependabot to avoid permission issues:
+    if: (github.actor != 'dependabot[bot]')
+    steps:
+      # Fetch project source with GitHub Actions Checkout.
+      - uses: actions/checkout@v3
+      # Run the "semgrep ci" command on the command line of the docker image.
+      - run: semgrep ci
+        env:
+          # Connect to Semgrep Cloud Platform through your SEMGREP_APP_TOKEN.
+          # Generate a token from Semgrep Cloud Platform > Settings
+          # and add it to your GitHub secrets.
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
   viperlight:
     runs-on: ubuntu-latest
