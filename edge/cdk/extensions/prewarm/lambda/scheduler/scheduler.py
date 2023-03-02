@@ -47,13 +47,13 @@ rec_map = {
     'india': INDIA_REC,
     'japan': JAPAN_REC,
     'new_zealand': OCEANIA_REC,
-    'malaysia':SOUTHEAST_ASIA_REC,
-    'china':SOUTHEAST_ASIA_REC,
-    'indonesia':SOUTHEAST_ASIA_REC,
-    'philippines':SOUTHEAST_ASIA_REC,
-    'singapore':SOUTHEAST_ASIA_REC,
-    'thailand':SOUTHEAST_ASIA_REC,
-    'vietnam':SOUTHEAST_ASIA_REC,
+    'malaysia': SOUTHEAST_ASIA_REC,
+    'china': SOUTHEAST_ASIA_REC,
+    'indonesia': SOUTHEAST_ASIA_REC,
+    'philippines': SOUTHEAST_ASIA_REC,
+    'singapore': SOUTHEAST_ASIA_REC,
+    'thailand': SOUTHEAST_ASIA_REC,
+    'vietnam': SOUTHEAST_ASIA_REC,
     'south_korea': SOUTH_KOREA_REC
 }
 
