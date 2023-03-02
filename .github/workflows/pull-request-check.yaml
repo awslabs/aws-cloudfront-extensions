@@ -44,12 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: "false"
-#    strategy:
-#      matrix:
-#        node-version:
-#        python-version:
-#    outputs:
-#      self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -99,7 +93,7 @@ jobs:
           git config --global user.email "cloudfront-extns-helper@example.com"
           git config --global user.name "cloudfront-extns-helper"
           git tag -a $BUILD_VERSION -m "${{ github.run_number }} ${{ github.job_workflow_sha }}"
-      - name: Archive production artifacts
+      - name: archive production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
@@ -167,9 +161,7 @@ jobs:
 #            chore
 #            revert
 
-  semgrep:
-    # User definable name of this GitHub Actions job.
-    name: Semgrep Scan
+  semgrep-scan:
     needs: opensource-license-review
     runs-on: ubuntu-latest
     container:
