@@ -244,10 +244,7 @@ jobs:
           export PYTHONPATH=../ssl_for_saas
           echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV          
           poetry run pytest --cov --cov-config=.coveragerc test
-#      - name: Run Other Python Test
-#        env:
-#          AWS_DEFAULT_REGION: us-east-1
-#        run: |
+
 
   codeguru:
     needs: opensource-license-review
