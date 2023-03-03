@@ -258,12 +258,12 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::261557372226:role/CodguruGithubRole
           role-duration-seconds: 900 # the ttl of the session, in seconds.
-          aws-region: ap-southeast-1 # use your region here.
+          aws-region: us-west-2
       - name: CodeGuru Reviewer
         uses: aws-actions/codeguru-reviewer@v1.1
         with:
   #        build_path: target # build artifact(s) directory
-          s3_bucket: codeguru-reviewer-cloudfront-extn-bucket
+          s3_bucket: codeguru-reviewer-cloudfront-extn-bucket2
       - name: Upload review result
         if: ${{ github.event_name != 'push' }}
         uses: github/codeql-action/upload-sarif@v1
