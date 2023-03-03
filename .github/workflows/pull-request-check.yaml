@@ -249,22 +249,22 @@ jobs:
   codeguru:
     needs: opensource-license-review
     runs-on: ubuntu-latest
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: configure aws credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::261557372226:role/CodguruGithubRole
-        role-duration-seconds: 900 # the ttl of the session, in seconds.
-        aws-region: us-east-1 # use your region here.
-    - name: CodeGuru Reviewer
-      uses: aws-actions/codeguru-reviewer@v1.1
-      with:
-#        build_path: target # build artifact(s) directory
-        s3_bucket: codeguru-reviewer-cloudfront-extn-bucket
-    - name: Upload review result
-      if: ${{ github.event_name != 'push' }}
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        sarif_file: codeguru-results.sarif.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::261557372226:role/CodguruGithubRole
+          role-duration-seconds: 900 # the ttl of the session, in seconds.
+          aws-region: us-east-1 # use your region here.
+      - name: CodeGuru Reviewer
+        uses: aws-actions/codeguru-reviewer@v1.1
+        with:
+  #        build_path: target # build artifact(s) directory
+          s3_bucket: codeguru-reviewer-cloudfront-extn-bucket
+      - name: Upload review result
+        if: ${{ github.event_name != 'push' }}
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: codeguru-results.sarif.json
