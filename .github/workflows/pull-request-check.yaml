@@ -221,12 +221,14 @@ jobs:
           cd ${{ github.workspace }}/templates/console/source
           npm install --legacy-peer-deps
           npm run test
+          cd coverage
+          sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' lcov.info
       - name: archive coverage report
         uses: actions/upload-artifact@v3
         with:
           name: cdk-coverage-report
           path: |
-            templates/console/source/coverage/**/*
+            templates/console/source/coverage/lcov.info
 
   python-unit-test:
     runs-on: ubuntu-latest
@@ -260,29 +262,23 @@ jobs:
             templates/console/source/lambda/ssl_for_saas/*.coverage.xml
 
   sonarqube:
-    needs: python-unit-test
+    needs: [python-unit-test, cdk-unit-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
-      - name: Download all workflow run artifacts
+      - name: Download python coverage report
         uses: actions/download-artifact@v3
         with:
           name: python-coverage-report
           path: ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
-#      - name: Download all workflow run artifacts
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: cdk-coverage-report
-#      - name: folder structure
-#        run: |
-#          cd ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
-#          ls -LR
-#          # sed -i 's/\/home\/runner\/work\/<your-repo-name>\/<your-repo-name>\//\/github\/workspace\//g' lcov.info
-#          #
-#          cd ${{ github.workspace }}
+      - name: Download cdk coverage report
+          uses: actions/download-artifact@v3
+          with:
+            name: cdk-coverage-report
+            path: ${{ github.workspace }}/templates/console/source/coverage
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
