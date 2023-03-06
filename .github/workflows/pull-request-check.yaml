@@ -221,6 +221,12 @@ jobs:
           cd ${{ github.workspace }}/templates/console/source
           npm install --legacy-peer-deps
           npm run test
+      - name: archive coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: cdk-coverage-report
+          path: |
+            templates/console/source/coverage/**/*
 
   python-unit-test:
     runs-on: ubuntu-latest
@@ -264,6 +270,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: python-coverage-report
+#      - name: Download all workflow run artifacts
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: cdk-coverage-report
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
