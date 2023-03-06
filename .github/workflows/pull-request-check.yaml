@@ -275,17 +275,15 @@ jobs:
 #        uses: actions/download-artifact@v3
 #        with:
 #          name: cdk-coverage-report
-#      - name: folder structure
-#        run: |
-#          cd python-coverage
-#          ls -LR
+      - name: folder structure
+        run: |
+          cd ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
+          ls -LR
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          projectBaseDir: ${{ github.workspace }}
 
   codeguru:
     needs: opensource-license-review
