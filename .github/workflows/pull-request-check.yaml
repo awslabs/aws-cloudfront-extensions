@@ -279,6 +279,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
           ls -LR
+          # sed -i 's/\/home\/runner\/work\/<your-repo-name>\/<your-repo-name>\//\/github\/workspace\//g' lcov.info
+          # sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' sonar-cloud-reporter.xml
+          cd ${{ github.workspace }}
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
