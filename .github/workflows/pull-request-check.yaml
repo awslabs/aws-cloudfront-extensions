@@ -275,10 +275,10 @@ jobs:
 #        uses: actions/download-artifact@v3
 #        with:
 #          name: cdk-coverage-report
-      - name: folder structure
-        run: |
-          cd python-coverage
-          ls -LR
+#      - name: folder structure
+#        run: |
+#          cd python-coverage
+#          ls -LR
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
