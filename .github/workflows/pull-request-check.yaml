@@ -270,10 +270,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: python-coverage-report
+          path: python-output/code-coverage.html
 #      - name: Download all workflow run artifacts
 #        uses: actions/download-artifact@v3
 #        with:
 #          name: cdk-coverage-report
+      - name: folder structure
+        run: |
+          ls
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
