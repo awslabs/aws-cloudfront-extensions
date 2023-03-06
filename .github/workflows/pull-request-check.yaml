@@ -26,7 +26,7 @@ jobs:
         run: |
           git-secrets --register-aws
           git-secrets --scan
-  
+
   opensource-license-review:
     needs: git-secrets
     runs-on: ubuntu-latest
@@ -220,7 +220,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/templates/console/source
           npm install --legacy-peer-deps
-          npm run test      
+          npm run test
 
   python-unit-test:
     runs-on: ubuntu-latest
@@ -243,9 +243,32 @@ jobs:
           pip install poetry          
           poetry install          
           export PYTHONPATH=../ssl_for_saas
-          echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV          
-          poetry run pytest --cov --cov-config=.coveragerc test
+          echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV
+          poetry run pytest --cov --cov-config=.coveragerc -cov-report=term-missing --cov-report="xml:./ssl-for-saas.coverage.xml" test
+      - name: archive coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-coverage-report
+          path: |
+            templates/console/source/lambda/ssl_for_saas/*.coverage.xml
 
+  sonarqube:
+    needs: python-unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: python-coverage-report
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   codeguru:
     needs: opensource-license-review
