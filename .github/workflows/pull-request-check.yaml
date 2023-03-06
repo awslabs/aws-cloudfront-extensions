@@ -284,6 +284,8 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: ${{ github.workspace }}
 
   codeguru:
     needs: opensource-license-review
