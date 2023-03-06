@@ -270,7 +270,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: python-coverage-report
-          path: python-coverage
+          path: ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
 #      - name: Download all workflow run artifacts
 #        uses: actions/download-artifact@v3
 #        with:
