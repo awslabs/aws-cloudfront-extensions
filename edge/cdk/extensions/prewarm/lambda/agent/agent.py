@@ -107,6 +107,15 @@ def get_messages_from_queue(client, queue_url):
     return []
 
 
+def get_node_pre_set(node_list):
+    rlt_set = set()
+    if len(node_list) == 0:
+        return rlt_set
+    for i in node_list:
+        rlt_set.add(i[0:3])
+    return rlt_set
+
+
 def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
     sqs = boto3.client('sqs', region_name=aws_region)
     dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
@@ -115,7 +124,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
     # Read from queue in loop to check whether the queue has visible message
     queue_messages = get_messages_from_queue(sqs, queue_url)
 
-    while(len(queue_messages) > 0):
+    while len(queue_messages) > 0:
         for message in queue_messages:
             event_body = json.loads(message['Body'])
             receipt = message['ReceiptHandle']
@@ -136,7 +145,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
             invalidation_result = True
 
             # invalidate CloudFront cache
-            if inv_id != None:
+            if inv_id is not None:
                 if inv_id == 'CreateInvalidationError':
                     invalidation_result = False
                 else:
@@ -160,10 +169,18 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency):
                         else:
                             failure_list.append(future.result()['pop'])
 
+                success_pre_map = get_node_pre_set(success_list)
+                failure_pre_map = get_node_pre_set(failure_list)
+
                 if len(success_list) == len(pop_list):
                     url_status = 'SUCCESS'
                 else:
-                    url_status = 'FAIL'
+                    # 遍历失败列表 如果所有失败列表前缀在成功列表中都有 标识成功 否则失败
+                    url_status = 'SUCCESS'
+                    for i in failure_pre_map:
+                        if i not in success_pre_map:
+                            url_status = 'FAIL'
+                            break
             else:
                 # Fail to create invalidation or check invalidation status
                 url_status = 'FAIL'

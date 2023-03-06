@@ -56,6 +56,7 @@ rec_map = {
     'vietnam': SOUTHEAST_ASIA_REC,
     'south_korea': SOUTH_KOREA_REC
 }
+ALL = 'all'
 
 aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
@@ -135,12 +136,12 @@ def lambda_handler(event, context):
     # new added parameter
     region_type = event_body['region_type']
     if type(pop_region) == str:
-        if pop_region != 'all':
+        if pop_region != ALL:
             return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
-        elif region_type == 'region':
-            pop_region = pop_map["all"]
+        elif region_type == 'region' or region_type == 'pop':
+            pop_region = pop_map[ALL]
         elif region_type == 'country':
-            pop_region = rec_map["all"]
+            pop_region = rec_map[ALL]
     elif len(pop_region) == 0:
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
@@ -148,12 +149,12 @@ def lambda_handler(event, context):
         if region_type == 'region':
             pop_region_opt = []
             for i in pop_region:
-                pop_region_opt.append(pop_map[i.lower()])
+                pop_region_opt.extend(pop_map[i.lower()])
             pop_region = pop_region_opt
         elif region_type == 'country':
             pop_rec_opt = []
             for i in pop_region:
-                pop_rec_opt.append(rec_map[i.lower()])
+                pop_rec_opt.extend(rec_map[i.lower()])
             pop_region = pop_rec_opt
 
     # modified as above
