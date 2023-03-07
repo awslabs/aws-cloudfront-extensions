@@ -286,6 +286,7 @@ jobs:
           cd ${{ github.workspace }}/templates/console/deployment
           ./run-lambda-ut.sh
       - name: Sed coverage report files
+        if: always()
         run: |
           cd ${{ github.workspace }}/templates/console/source/all-coverages
           sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' *.coverage.xml

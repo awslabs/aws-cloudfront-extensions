@@ -25,7 +25,7 @@ function process_requirements() {
          if [[ "$1" == requirements*txt ]]; then
            printf "${GREEN} found requirements file:${NC} ${PWD}/$1 \n"
            if [ -s $1 ]; then
-             pip install -r "$1" -i https://pypi.tuna.tsinghua.edu.cn/simple
+             pip install -r "$1"
            fi
            echo
          fi
