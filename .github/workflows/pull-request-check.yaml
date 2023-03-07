@@ -222,7 +222,6 @@ jobs:
           npm install --legacy-peer-deps
           npm run test
           cd coverage
-#          sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' lcov.info
           sed -i 's/source\/lib\//\/github\/workspace\/source\/lib\//g' lcov.info
       - name: archive coverage report
         uses: actions/upload-artifact@v3
