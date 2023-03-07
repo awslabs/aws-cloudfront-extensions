@@ -225,6 +225,7 @@ jobs:
           sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' lcov.info
       - name: archive coverage report
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: cdk-coverage-report
           path: |
@@ -264,6 +265,7 @@ jobs:
   sonarqube:
     needs: [python-unit-test, cdk-unit-test]
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - uses: actions/checkout@v3
         with:
