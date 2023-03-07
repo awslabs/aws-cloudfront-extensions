@@ -56,7 +56,7 @@ function process_test() {
     fi
   fi
 }
-#process_requirements "lambda/"
+process_requirements "lambda/"
 process_test "lambda/"
 #echo "${PWD}"
 #which pip
