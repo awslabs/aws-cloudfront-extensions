@@ -296,7 +296,7 @@ jobs:
         with:
           name: config-coverage-report
           path: |
-            templates/console/source/lambda/ssl_for_saas/*.coverage.xml
+            templates/console/source/all-coverages/*.coverage.xml
 
   sonarqube:
     needs: [ssl-lambda-unit-test, cdk-unit-test, config-deployer-unit-test]
