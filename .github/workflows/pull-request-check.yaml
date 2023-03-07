@@ -235,7 +235,7 @@ jobs:
           path: |
             templates/console/source/coverage/lcov.info
 
-  python-unit-test:
+  ssl-lambda-unit-test:
     runs-on: ubuntu-latest
     needs: opensource-license-review
     env:
@@ -261,13 +261,44 @@ jobs:
           sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' ssl-for-saas.coverage.xml
       - name: archive coverage report
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: python-coverage-report
           path: |
             templates/console/source/lambda/ssl_for_saas/*.coverage.xml
 
+  config-deployer-unit-test:
+    runs-on: ubuntu-latest
+    needs: opensource-license-review
+    env:
+      CI: "false"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Run Saas Lambda Python Test
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          cd ${{ github.workspace }}/templates/console/deployment
+          ./run-lambda-ut.sh
+      - name: Sed coverage report files
+        run: |
+          cd ${{ github.workspace }}/templates/console/source/all-coverages
+          sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' *.coverage.xml
+      - name: archive coverage report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: config-coverage-report
+          path: |
+            templates/console/source/lambda/ssl_for_saas/*.coverage.xml
+
   sonarqube:
-    needs: [python-unit-test, cdk-unit-test]
+    needs: [python-unit-test, cdk-unit-test, config-deployer-unit-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -285,6 +316,11 @@ jobs:
         with:
           name: cdk-coverage-report
           path: ${{ github.workspace }}/templates/console/source/coverage
+      - name: Download config and deployer coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: config-coverage-report
+          path: ${{ github.workspace }}/templates/console/source/all-coverages
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
