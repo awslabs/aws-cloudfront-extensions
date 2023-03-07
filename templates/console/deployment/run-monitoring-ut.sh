@@ -61,10 +61,6 @@ function process_test() {
     fi
   fi
 }
-#process_requirements "lambda/"
-process_test "lambda/monitoring"
-#echo "${PWD}"
-#which pip
-#for d in */ ; do
-#  echo $d
-#done
+
+process_requirements "lambda/monitoring"
+process_test "monitoring"
