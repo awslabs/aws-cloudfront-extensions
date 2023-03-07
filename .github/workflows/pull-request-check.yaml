@@ -355,10 +355,10 @@ jobs:
           name: config-coverage-report
           path: ${{ github.workspace }}/templates/console/source/all-coverages
       - name: Download monitoring coverage report
-          uses: actions/download-artifact@v3
-          with:
-            name: config-coverage-report
-            path: ${{ github.workspace }}/templates/console/source/monitoring-coverages
+        uses: actions/download-artifact@v3
+        with:
+          name: config-coverage-report
+          path: ${{ github.workspace }}/templates/console/source/monitoring-coverages
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
