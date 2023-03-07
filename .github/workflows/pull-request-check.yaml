@@ -315,11 +315,11 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: |
           cd ${{ github.workspace }}/templates/console/deployment
-          ./run-monitoring-ut.sh
+          ./run-unit-tests.sh
       - name: Sed coverage report files
         if: always()
         run: |
-          cd ${{ github.workspace }}/templates/console/source/monitoring-coverages
+          cd ${{ github.workspace }}/templates/console/deployment/monitoring-coverages
           sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' *.coverage.xml
       - name: archive coverage report
         uses: actions/upload-artifact@v3
@@ -327,7 +327,7 @@ jobs:
         with:
           name: monitoring-coverage-report
           path: |
-            templates/console/source/monitoring-coverages/*.coverage.xml
+            templates/console/deployment/monitoring-coverages/*.coverage.xml
 
   sonarqube:
 #    , cdk-unit-test
@@ -357,7 +357,7 @@ jobs:
       - name: Download monitoring coverage report
         uses: actions/download-artifact@v3
         with:
-          name: config-coverage-report
+          name: monitoring-coverage-report
           path: ${{ github.workspace }}/templates/console/source/monitoring-coverages
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
