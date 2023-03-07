@@ -81,12 +81,11 @@ def test_start_invalidation(monkeypatch):
     pop_region = ['ATL56-C1', 'DFW55-C3']
     current_time = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     from scheduler import start_invalidation
-    conn = boto3.client('lambda')
-    monkeypatch.setenv('LAMBDA_ARN', 'LAMBDA_ARN')
+    # conn = boto3.client('lambda')
+    # monkeypatch.setenv('LAMBDA_ARN', 'LAMBDA_ARN')
     # monkeypatch.setattr(scheduler, "lambda_client", conn)
-    monkeypatch, setattr(conn, "invoke", mock_invoke)
+    # monkeypatch, setattr(conn, "invoke", mock_invoke)
     response = start_invalidation(url_list, cf_domain, pop_region, req_id, current_time)
-    # invoke lambda :no need to test!
     assert response is None
 
 
