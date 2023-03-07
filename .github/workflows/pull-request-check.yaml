@@ -40,103 +40,103 @@ jobs:
           # Use comma-separated names to pass list arguments: LGPL-2.0,
           deny-licenses: BSD-2-Clause
 
-#  build:
-#    needs: opensource-license-review
-#    runs-on: ubuntu-latest
-#    env:
-#      CI: "false"
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          ref: ${{ github.event.pull_request.head.ref }}
-#          repository: ${{ github.event.pull_request.head.repo.full_name }}
-#      - name: Use Node.js 18.x
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: '18.x'
-#      - name: Set up Python 3.8
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.8'
-#      - name: Pre Build
-#        run: |
-#          npm install -g aws-cdk
-#          cdk --version
-#          BSS_IMAGE_ASSET_REPOSITORY_NAME=$(echo "${{ vars.SOLUTION_NAME }}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-#          echo "BSS_IMAGE_ASSET_REPOSITORY_NAME=${BSS_IMAGE_ASSET_REPOSITORY_NAME}" >> $GITHUB_ENV
-#          BUILD_VERSION=v2.0.0_${{ github.run_number }}
-#          echo "BUILD_VERSION=${BUILD_VERSION}" >> $GITHUB_ENV
-#          if [ $(git tag -l "$BUILD_VERSION") ]; then
-#            git tag -d ${BUILD_VERSION}
-#          fi
-#          echo "CN_ASSETS=cn/" >> $GITHUB_ENV
-#          echo "GLOBAL_ASSETS=custom-domain/" >> $GITHUB_ENV
-#      - name: build
-#        run: |
-#          chmod +x ./templates/console/deployment/build-s3-dist.sh
-#          ${{ github.workspace }}/templates/console/deployment/build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION ${{ vars.ECR }} ${{ vars.ECR_CN }} ${{ vars.AWS_ASSET_ACCOUNT_ID }} ${{ vars.REGIONS }} ${{ vars.AWS_ASSET_PUBLISH_ROLE }}
-#          mkdir -p ${{ github.workspace }}/templates/console/deployment/open-source/ && touch ./templates/console/deployment/open-source/.empty
-#          # cd edges/cdk/deployment
-#          # ./build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION
-#          # cp -r ${{ github.workspace }}/edges/cdk/deployment/global-s3-assets/* $${{ github.workspace }}/templates/console/deployment/global-s3-assets/custom-domain/
-#          ls -LR ${{ github.workspace }}/templates/console/deployment/
-#
-#      - name: post_build
-#        run: |
-#          # aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec_2.yml || true
-#          set -euxo pipefail
-#          __dir="${{ github.workspace }}/templates/console/deployment"
-#          function join_by { local IFS="$1"; shift; echo "$*"; }
-#          export ECR_REPOS=$(join_by , `cat "${__dir}/ecr-repos"`)
-#          echo "ECR_REPOS=${ECR_REPOS}" >> $GITHUB_ENV
-#          export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
-#          echo "CN_ECR_REPOS=${CN_ECR_REPOS}" >> $GITHUB_ENV
-#          git config --global user.email "cloudfront-extns-helper@example.com"
-#          git config --global user.name "cloudfront-extns-helper"
-#          git tag -a $BUILD_VERSION -m "${{ github.run_number }} ${{ github.job_workflow_sha }}"
-#      - name: archive production artifacts
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: build-artifacts
-#          path: |
-#              .git/**/*
-#              deployment/**/*
-#              docs/**/*
-#              templates/console/deployment/**/*
-#              buildspec_2.yml
-#              deploy_vtag.yml
-#              CHANGELOG.md
-#              .cfnnagignore
-#              .cfnnag_global_suppress_list
-#              .cfnnag_*
+  build:
+    needs: opensource-license-review
+    runs-on: ubuntu-latest
+    env:
+      CI: "false"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Pre Build
+        run: |
+          npm install -g aws-cdk
+          cdk --version
+          BSS_IMAGE_ASSET_REPOSITORY_NAME=$(echo "${{ vars.SOLUTION_NAME }}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+          echo "BSS_IMAGE_ASSET_REPOSITORY_NAME=${BSS_IMAGE_ASSET_REPOSITORY_NAME}" >> $GITHUB_ENV
+          BUILD_VERSION=v2.0.0_${{ github.run_number }}
+          echo "BUILD_VERSION=${BUILD_VERSION}" >> $GITHUB_ENV
+          if [ $(git tag -l "$BUILD_VERSION") ]; then
+            git tag -d ${BUILD_VERSION}
+          fi
+          echo "CN_ASSETS=cn/" >> $GITHUB_ENV
+          echo "GLOBAL_ASSETS=custom-domain/" >> $GITHUB_ENV
+      - name: build
+        run: |
+          chmod +x ./templates/console/deployment/build-s3-dist.sh
+          ${{ github.workspace }}/templates/console/deployment/build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION ${{ vars.ECR }} ${{ vars.ECR_CN }} ${{ vars.AWS_ASSET_ACCOUNT_ID }} ${{ vars.REGIONS }} ${{ vars.AWS_ASSET_PUBLISH_ROLE }}
+          mkdir -p ${{ github.workspace }}/templates/console/deployment/open-source/ && touch ./templates/console/deployment/open-source/.empty
+          # cd edges/cdk/deployment
+          # ./build-s3-dist.sh ${{ vars.DIST_OUTPUT_BUCKET }} ${{ vars.SOLUTION_NAME }} $BUILD_VERSION
+          # cp -r ${{ github.workspace }}/edges/cdk/deployment/global-s3-assets/* $${{ github.workspace }}/templates/console/deployment/global-s3-assets/custom-domain/
+          ls -LR ${{ github.workspace }}/templates/console/deployment/
 
-#  cfn-nag-scan:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    env:
-#      CI: "false"
-#    steps:
-#      - name: Download all workflow run artifacts
-#        uses: actions/download-artifact@v3
-#      - name: Setup Ruby 2.6
-#        uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
-#        with:
-#          ruby-version: 2.6
-#      - name: cfn_nag
-#        run: |
-#          # install Ruby
-#          # sudo apt-get install ruby-full
-#          # ls -R
-#          gem install cfn-nag
-#          cfn_nag -v
-#          echo "CloudFormation template scanning utility installation complete `date`"
-#          echo "Starting CloudFormation template scanning `date` in `pwd`"
-#          cd build-artifacts/
-#          export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
-#          if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-#          set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
-#          # cfn_nag_scan --input-path .
-#          # echo "Completed CloudFormation template scanning `date`"
+      - name: post_build
+        run: |
+          # aws s3 cp s3://solutions-build-assets/changelog-spec.yml buildspec_2.yml || true
+          set -euxo pipefail
+          __dir="${{ github.workspace }}/templates/console/deployment"
+          function join_by { local IFS="$1"; shift; echo "$*"; }
+          export ECR_REPOS=$(join_by , `cat "${__dir}/ecr-repos"`)
+          echo "ECR_REPOS=${ECR_REPOS}" >> $GITHUB_ENV
+          export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
+          echo "CN_ECR_REPOS=${CN_ECR_REPOS}" >> $GITHUB_ENV
+          git config --global user.email "cloudfront-extns-helper@example.com"
+          git config --global user.name "cloudfront-extns-helper"
+          git tag -a $BUILD_VERSION -m "${{ github.run_number }} ${{ github.job_workflow_sha }}"
+      - name: archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+              .git/**/*
+              deployment/**/*
+              docs/**/*
+              templates/console/deployment/**/*
+              buildspec_2.yml
+              deploy_vtag.yml
+              CHANGELOG.md
+              .cfnnagignore
+              .cfnnag_global_suppress_list
+              .cfnnag_*
+
+  cfn-nag-scan:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      CI: "false"
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+      - name: Setup Ruby 2.6
+        uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
+        with:
+          ruby-version: 2.6
+      - name: cfn_nag
+        run: |
+          # install Ruby
+          # sudo apt-get install ruby-full
+          # ls -R
+          gem install cfn-nag
+          cfn_nag -v
+          echo "CloudFormation template scanning utility installation complete `date`"
+          echo "Starting CloudFormation template scanning `date` in `pwd`"
+          cd build-artifacts/
+          export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
+          if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
+          set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
+          # cfn_nag_scan --input-path .
+          # echo "Completed CloudFormation template scanning `date`"
 
 #  sematic_validate:
 #    name: Validate PR title
@@ -299,8 +299,7 @@ jobs:
             templates/console/source/all-coverages/*.coverage.xml
 
   sonarqube:
-#    cdk-unit-test,
-    needs: [ssl-lambda-unit-test,  config-deployer-unit-test]
+    needs: [ssl-lambda-unit-test, cdk-unit-test, config-deployer-unit-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -313,11 +312,11 @@ jobs:
         with:
           name: python-coverage-report
           path: ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
-#      - name: Download cdk coverage report
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: cdk-coverage-report
-#          path: ${{ github.workspace }}/templates/console/source/coverage
+      - name: Download cdk coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: cdk-coverage-report
+          path: ${{ github.workspace }}/templates/console/source/coverage
       - name: Download config and deployer coverage report
         uses: actions/download-artifact@v3
         with:
