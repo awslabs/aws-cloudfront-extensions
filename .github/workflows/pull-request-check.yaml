@@ -315,11 +315,11 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: |
           cd ${{ github.workspace }}/templates/console/deployment
-          ./run-unit-tests.sh
+          ./run-monitoring-ut.sh
       - name: Sed coverage report files
         if: always()
         run: |
-          cd ${{ github.workspace }}/templates/console/deployment/monitoring-coverages
+          cd ${{ github.workspace }}/templates/console/source/monitoring-coverages
           sed -i 's/\/home\/runner\/work\/aws-cloudfront-extensions\/aws-cloudfront-extensions\//\/github\/workspace\//g' *.coverage.xml
       - name: archive coverage report
         uses: actions/upload-artifact@v3
@@ -327,10 +327,11 @@ jobs:
         with:
           name: monitoring-coverage-report
           path: |
-            templates/console/deployment/monitoring-coverages/*.coverage.xml
+            templates/console/source/monitoring-coverages/*.coverage.xml
 
   sonarqube:
-    needs: [ssl-lambda-unit-test, config-deployer-unit-test, monitoring-unit-test, cdk-unit-test]
+#    , cdk-unit-test
+    needs: [ssl-lambda-unit-test, config-deployer-unit-test, monitoring-unit-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -343,11 +344,11 @@ jobs:
         with:
           name: python-coverage-report
           path: ${{ github.workspace }}/templates/console/source/lambda/ssl_for_saas/
-      - name: Download cdk coverage report
-        uses: actions/download-artifact@v3
-        with:
-          name: cdk-coverage-report
-          path: ${{ github.workspace }}/templates/console/source/coverage
+#      - name: Download cdk coverage report
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: cdk-coverage-report
+#          path: ${{ github.workspace }}/templates/console/source/coverage
       - name: Download config and deployer coverage report
         uses: actions/download-artifact@v3
         with:
