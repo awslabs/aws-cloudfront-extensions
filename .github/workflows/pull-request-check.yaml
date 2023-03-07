@@ -222,6 +222,7 @@ jobs:
           npm install --legacy-peer-deps
           npm run test
       - name: Sed lcov report
+        if: always()
         run: |
           cd ${{ github.workspace }}/templates/console/source/coverage
           sed -i 's/source\/lib\//\/github\/workspace\/templates\/console\/source\/lib\//g' lcov.info
