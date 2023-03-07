@@ -298,7 +298,7 @@ jobs:
             templates/console/source/lambda/ssl_for_saas/*.coverage.xml
 
   sonarqube:
-    needs: [python-unit-test, cdk-unit-test, config-deployer-unit-test]
+    needs: [ssl-lambda-unit-test, cdk-unit-test, config-deployer-unit-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
