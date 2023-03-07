@@ -14,21 +14,36 @@
 ```
 
 - Request body parameters
-
+    
     - url_list: The list of urls for prewarm.
     - cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
-    - region: The region for prewarm. You can specify 3 types of value.
-
-      * all: prewarm in all regions
-      * pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list
-      * region code: pre-warm in a specific region, the available regions are:
-        * apac: Asia-Pacific
-        * au: Australia
-        * ca: Canada
-        * sa: South Africa
-        * eu: Europe
-        * jp: Japan
-        * us: United States
+    - region_type: The region type for prewarm. You can specify 3 types of value. The region field should change according to this field.
+      * pop：pre-warm in PoP，the value of region field is a list of PoP
+      * country：pre-warm in country，the value of region field is a list of country
+      * region：pre-warm in region，the value of region field is a list of region
+    - region: The region for prewarm. This field should change according to the region_type field.
+      * region_type = "pop": accept a PoP list, pre-warm in the PoP location in the list，eg:["ATL56-C1", "DFW55-C3"]
+      * region_type = "region": accept "all" or a region list, pre-warm in all regions or a specific region，eg:"all"|["apac", "au"], the available regions are：
+        * apac： Asia-Pacific
+        * au： Australia
+        * ca： Canada
+        * sa： South Africa
+        * eu： Europe
+        * jp： Japan
+        * us： United States
+      * region_type = "country": accept "all" or a country list: pre-warm in all countries or a specific country，eg:"all"|["india", "new_zealand"], the available countries are：
+        * india： India
+        * japan： Japan
+        * new_zealand： New Zealand
+        * australia：Australia
+        * malaysia： Malaysia
+        * china： China
+        * indonesia：Indonesia
+        * philippines：Philippines
+        * singapore：Singapore
+        * thailand： Thailand
+        * vietnam：Vietnam
+        * south_korea： South Korea
 
 - Response
 

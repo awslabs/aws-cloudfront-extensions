@@ -47,6 +47,7 @@ rec_map = {
     'india': INDIA_REC,
     'japan': JAPAN_REC,
     'new_zealand': OCEANIA_REC,
+    'australia': OCEANIA_REC,
     'malaysia': SOUTHEAST_ASIA_REC,
     'china': SOUTHEAST_ASIA_REC,
     'indonesia': SOUTHEAST_ASIA_REC,
