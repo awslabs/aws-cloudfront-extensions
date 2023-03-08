@@ -1,7 +1,9 @@
 name: "pull request merge/push check"
 
 on:
-  push
+  push:
+    branches:
+      - 'main'
 permissions:
   contents: write
   id-token: write # required to use OIDC authentication
