@@ -67,7 +67,9 @@ jobs:
           cd ${{ github.workspace }}/portal
           npm install --legacy-peer-deps 
           npm run build
-          cd ${{ github.workspace }}/templates/console/
+          cd ${{ github.workspace }}/templates/console/deployment
+          ./pre-build.sh
+          cd ${{ github.workspace }}/templates/console/source
           npm install --legacy-peer-deps
           cdk synth
           ls -LR ${{ github.workspace }}/templates/console/deployment/
