@@ -13,6 +13,8 @@ DB_NAME = os.environ['GLUE_DATABASE_NAME']
 DDB_TABLE_NAME = os.environ['DDB_TABLE_NAME']
 GLUE_TABLE_NAME = os.environ['GLUE_TABLE_NAME']
 USE_START_TIME = os.environ['USE_START_TIME']
+M_INTERVAL = int(os.environ['INTERVAL'])
+IS_REALTIME = eval(os.environ["IS_REALTIME"])
 Interval_Minutes = 24 * 60
 
 log = logging.getLogger()
@@ -21,7 +23,6 @@ log.setLevel('INFO')
 
 def lambda_handler(event, context):
     log.info('[lambda_handler] Start')
-    log.info('[lambda_handler] Event ' + json.dumps(event))
 
     response = {
         "isBase64Encoded": "false",
@@ -31,19 +32,18 @@ def lambda_handler(event, context):
     }
     event_time = event["time"]
     event_datetime = datetime.strptime(
-        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=5)
+        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=30)
     start_datetime = event_datetime - timedelta(minutes=Interval_Minutes)
 
     start_time = start_datetime.strftime("%Y-%m-%d 00:00:00")
     end_time = start_datetime.strftime("%Y-%m-%d 23:59:59")
-
     metric = "topNUrlRequests"
 
     try:
         gen_data = gen_detailed_by_interval(metric, start_time, end_time,
                                             athena_client, DB_NAME,
                                             GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT,
-                                            interval_minutes=Interval_Minutes, use_start=USE_START_TIME)
+                                            Interval_Minutes, IS_REALTIME, use_start=USE_START_TIME)
         for queryItem in gen_data['Detail']:
             log.info(json.dumps(queryItem))
             log.info(queryItem['QueryId'])

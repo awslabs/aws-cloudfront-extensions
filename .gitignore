@@ -227,3 +227,5 @@ $RECYCLE.BIN/
 
 **/.viperlightignore
 **/.viperlightrc
+
+**.coverage.xml

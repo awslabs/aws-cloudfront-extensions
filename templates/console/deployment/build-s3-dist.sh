@@ -147,9 +147,10 @@ export BSS_IMAGE_ASSET_TAG_PREFIX="${BUILD_VERSION}-"
 # # run npm run synth # -- --output=$staging_dist_dir
 # run npx cdk synth -c TargetPartition=aws-cn --json --output ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS} -q 2>/dev/null
 
-export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_ASSET_ACCOUNT_ID}
-export BSS_FILE_ASSET_REGION_SET="$REGIONS"
+export BSS_IMAGE_ASSET_ACCOUNT_ID=$6
+export BSS_FILE_ASSET_REGION_SET="$7"
 export BSS_IMAGE_ASSET_REGION_SET=${BSS_FILE_ASSET_REGION_SET}
+export AWS_ASSET_PUBLISH_ROLE=$8
 
 if [ ! -z "$AWS_ASSET_PUBLISH_ROLE" ]; then
 run export BSS_FILE_ASSET_PUBLISHING_ROLE_ARN="$AWS_ASSET_PUBLISH_ROLE"
