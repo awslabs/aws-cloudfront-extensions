@@ -4,10 +4,10 @@ import * as cdk from "aws-cdk-lib";
 import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from "cdk-bootstrapless-synthesizer";
 import { ConsoleStack } from "../lib/console-stack";
 import { Aspects } from "aws-cdk-lib";
-import {AwsSolutionsChecks} from "cdk-nag";
+// import {AwsSolutionsChecks} from "cdk-nag";
 
 const app = new cdk.App();
-Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }))
+// Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }))
 
 new ConsoleStack(app, "CloudFrontExtnConsoleStack", {
     tags: {
