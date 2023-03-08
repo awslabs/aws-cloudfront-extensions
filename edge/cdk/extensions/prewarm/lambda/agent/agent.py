@@ -9,6 +9,8 @@ from urllib import parse
 import boto3
 import requests
 import shortuuid
+import pydig
+from urllib.parse import urlparse
 from botocore.exceptions import WaiterError
 
 URL_SUFFIX = '.cloudfront.net'
@@ -57,7 +59,8 @@ def cf_invalidation_status(cf_client, dist_id, inv_id):
 
 def download_file(url, cf_domain):
     local_filename = shortuuid.uuid() + url.split('/')[-1]
-    with requests.get(url, headers={'Accept-Encoding': 'gzip, deflate, br', 'Host': cf_domain}, stream=True, timeout=5) as r:
+    with requests.get(url, headers={'Accept-Encoding': 'gzip, deflate, br', 'Host': cf_domain}, stream=True,
+                      timeout=5) as r:
         r.raise_for_status()
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
@@ -67,19 +70,56 @@ def download_file(url, cf_domain):
     return local_filename
 
 
-def download_file_with_curl(url):
+def download_file_with_curl(url, cf_domain, original_url):
     # download the prewarm file to /dev/null to increase prewarm speed
+    print(
+        f'Entering download_file_with_curl function with url: {url}, with cf_domain:{cf_domain}, with original_url:{original_url}')
+
+    # First get the ip address of the pop server
+    popList = []
+    popList = pydig.query(cf_domain, 'A')
+    print(popList)
+    popAddress = popList[0]
+
+    # Get the original url domain name
+    parsed_url = urlparse(original_url)
+    original_domain = parsed_url.netloc
+    print(original_domain)  # 'www.example.com'```
+
     local_filename = '/dev/null'
-    subprocess.run(["curl", "-k", "-o", local_filename, url])
+
+    command = [
+        "curl",
+        "-D",
+        "-",
+        "-H",
+        f"Host:{original_domain}",
+        "--resolve",
+        f"{original_domain}:443:{popAddress}",
+        "-H",
+        "Accept-Encoding: gzip, deflate, br",
+        "-o",
+        local_filename,
+        original_url,
+    ]
+
+    print(command)
+    try:
+        result = subprocess.run(command)
+    except Exception as e:
+        raise Exception(f'Failed to download file with curl command:{command}, exception: {e}')
+
     return local_filename
 
 
-def pre_warm(url, pop, cf_domain, protocol):
+def pre_warm(url, pop, cf_domain, protocol, original_url):
     try:
+        print(
+            f'Entering pre_warm function with url: {url}, with pop:{pop}, with protocol:{protocol}, with original_url:{original_url}')
         if protocol == 'http':
             local_file_name = download_file('http://' + url, cf_domain)
         else:
-            local_file_name = download_file_with_curl('https://' + url)
+            local_file_name = download_file_with_curl('https://' + url, cf_domain, original_url)
 
         if os.path.exists(local_file_name):
             print(
@@ -175,7 +215,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                             target_url = gen_pop_url(
                                 parsed_url, pop, cf_domain_prefix)
                             futures.append(executor.submit(
-                                pre_warm, target_url, pop, cf_domain, protocol))
+                                pre_warm, target_url, pop, cf_domain, protocol, url))
 
                         for future in concurrent.futures.as_completed(futures):
                             print(future.result())
