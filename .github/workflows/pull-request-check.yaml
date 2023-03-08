@@ -170,6 +170,10 @@ jobs:
       image: returntocorp/semgrep
     # Skip any PR created by dependabot to avoid permission issues:
     if: (github.actor != 'dependabot[bot]')
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     steps:
       # Fetch project source with GitHub Actions Checkout.
       - uses: actions/checkout@v3
