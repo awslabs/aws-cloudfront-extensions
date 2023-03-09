@@ -95,7 +95,7 @@ Script content:
                   "https://www.example.com/index.html",
                   "https://www.example.com/images/demo.png"
             ],
-            "region_type":"pop",
+            "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
             "region": ["ATL56-C1", "DFW55-C3"]
       }

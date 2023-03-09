@@ -55,13 +55,13 @@ Method: POST
 Parameters
 url_list: The list of urls for prewarm.
 cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
-region_type: The region type for prewarm. You can specify 3 types of value. The region field should change according to this field.
+target_type: The region type for prewarm. You can specify 3 types of value. The region field should change according to this field.
     * pop：pre-warm in PoP，the value of region field is a list of PoP
     * country：pre-warm in country，the value of region field is a list of country
     * region：pre-warm in region，the value of region field is a list of region
-region: The region for prewarm. This field should change according to the region_type field.
-    * region_type = "pop": accept a PoP list, pre-warm in the PoP location in the list，eg:["ATL56-C1", "DFW55-C3"]
-    * region_type = "region": accept "all" or a region list, pre-warm in all regions or a specific region，eg:"all"|["apac", "au"], the available regions are：
+region: The region for prewarm. This field should change according to the target_type field.
+    * target_type = "pop": accept a PoP list, pre-warm in the PoP location in the list，eg:["ATL56-C1", "DFW55-C3"]
+    * target_type = "region": accept "all" or a region list, pre-warm in all regions or a specific region，eg:"all"|["apac", "au"], the available regions are：
       * apac： Asia-Pacific
       * au： Australia
       * ca： Canada
@@ -70,7 +70,7 @@ region: The region for prewarm. This field should change according to the region
       * jp： Japan
       * us： United States
       * cn： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
-    * region_type = "country": accept "all" or a country list: pre-warm in all countries or a specific country，eg:"all"|["india", "new_zealand"], the available countries are：
+    * target_type = "country": accept "all" or a country list: pre-warm in all countries or a specific country，eg:"all"|["india", "new_zealand"], the available countries are：
       * india： India
       * japan： Japan
       * new_zealand： New Zealand
@@ -94,7 +94,7 @@ CloudFront domain is d1234567890r.cloudfront.net，CName is www.example.com.
         "https://www.example.com/index.html",
         "https://www.example.com/images/demo.png"
     ],
-    "region_type":"pop"｜"region"｜"country",
+    "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
     "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
 }

@@ -144,26 +144,26 @@ def lambda_handler(event, context):
     current_time = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
     # new added parameter
-    region_type = event_body['region_type']
+    target_type = event_body['target_type']
     if type(pop_region) == str:
         # pop_region can only accept one value of String type,and it is "all"
         if pop_region != ALL:
             return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
-        # if the pop_region is "all",we should change the pop_region values named "all" to real pop list by region_type
-        elif region_type == 'region' or region_type == 'pop':
+        # if the pop_region is "all",we should change the pop_region values named "all" to real pop list by target_type
+        elif target_type == 'region' or target_type == 'pop':
             pop_region = pop_map[ALL]
-        elif region_type == 'country':
+        elif target_type == 'country':
             pop_region = rec_map[ALL]
     elif len(pop_region) == 0:
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
     else:
-        if region_type == 'region':
+        if target_type == 'region':
             pop_region_opt = []
             for i in pop_region:
                 pop_region_opt.extend(pop_map[i.lower()])
             pop_region = pop_region_opt
-        elif region_type == 'country':
+        elif target_type == 'country':
             pop_rec_opt = []
             for i in pop_region:
                 pop_rec_opt.extend(rec_map[i.lower()])

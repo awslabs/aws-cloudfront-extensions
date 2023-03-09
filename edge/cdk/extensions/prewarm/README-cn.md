@@ -53,13 +53,13 @@
 请求参数
 url_list: 需要预热的url
 cf_domain: CloudFront域名，以cloudfront.net结尾，如果未设置，它将根据url列表中的CNAME查找cf_domain
-region_type 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同
+target_type 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同
     * pop：根据节点预热，region的值是想预热的pop列表
     * country：根据国家预热，region的值是想预热的国家列表
     * region：根据区域预热，region的值是想预热的区域列表
-region： 预热区域。依据不同的region_type,选择不同的值
-    * region_type = "pop"时，此字段传pop id列表: 在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]
-    * region_type = "region"时，此字段传"all"或者区域代码列表: 在特定区域进行预热，"all"代表预热全部区域列表，例如"all"|["apac", "au"]，可用区域为：
+region： 预热区域。依据不同的target_type,选择不同的值
+    * target_type = "pop"时，此字段传pop id列表: 在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]
+    * target_type = "region"时，此字段传"all"或者区域代码列表: 在特定区域进行预热，"all"代表预热全部区域列表，例如"all"|["apac", "au"]，可用区域为：
       * apac： Asia-Pacific
       * au： Australia
       * ca： Canada
@@ -68,7 +68,7 @@ region： 预热区域。依据不同的region_type,选择不同的值
       * jp： Japan
       * us： United States
       * cn： China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)
-    * region_type = "country"时，此字段传"all"或者国家代码列表: 在特定国家进行预热，"all"代表预热全部国家列表，例如"all"|["india", "new_zealand"]，可用国家为：
+    * target_type = "country"时，此字段传"all"或者国家代码列表: 在特定国家进行预热，"all"代表预热全部国家列表，例如"all"|["india", "new_zealand"]，可用国家为：
       * india： India
       * japan： Japan
       * new_zealand： New Zealand
@@ -91,7 +91,7 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
         "https://www.example.com/index.html",
         "https://www.example.com/images/demo.png"
     ],
-    "region_type":"pop"｜"region"｜"country",
+    "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
     "region": ["ATL56-C1", "DFW55-C3"]|"all"|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all pop node
 }

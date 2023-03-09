@@ -97,7 +97,7 @@ def test_lambda_handler(monkeypatch):
     event = {
         'body': '{\"region\":\"all\",'
                 '\"cf_domain\":\"dxias1ysind2y.cloudfront.net\",'
-                '\"region_type\":\"region\",'
+                '\"target_type\":\"region\",'
                 '\"url_list\":[\"http://dxias1ysind2y.cloudfront.net/js/bootstrap.bundle.min.js\"]}'
     }
     req_id = '12345678'
