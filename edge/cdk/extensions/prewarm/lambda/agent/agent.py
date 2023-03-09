@@ -95,7 +95,8 @@ def pre_warm(url, pop, cf_domain, protocol):
 
             return {
                 'pop': pop,
-                'statusCode': -1
+                'statusCode': -1,
+                'errorMsg': f'Failed: PoP => {pop}, Url => {url}, Download interrupted'
             }
     except Exception as e:
         print(f'Failed: PoP => {pop}, Url => {url} with exception => {e}')
@@ -103,7 +104,8 @@ def pre_warm(url, pop, cf_domain, protocol):
 
         return {
             'pop': pop,
-            'statusCode': -1
+            'statusCode': -1,
+            'errorMsg': f'Failed: PoP => {pop}, Url => {url} with exception => {e}'
         }
 
 
@@ -150,6 +152,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                 inv_id = event_body['invId']
                 success_list = []
                 failure_list = []
+                error_msg = []
 
                 ddb_response = table.get_item(
                     Key={
@@ -192,7 +195,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                                 success_list.append(future.result()['pop'])
                             else:
                                 failure_list.append(future.result()['pop'])
-
+                                error_msg.append(future.result()['errorMsg'])
                     success_pre_map = get_node_pre_set(success_list)
                     failure_pre_map = get_node_pre_set(failure_list)
 
@@ -221,7 +224,8 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                     "success": success_list,
                     "failure": failure_list,
                     "reqId": req_id,
-                    "url": url
+                    "url": url,
+                    "errorMsg": error_msg
                 }
                 print(table_item)
 
