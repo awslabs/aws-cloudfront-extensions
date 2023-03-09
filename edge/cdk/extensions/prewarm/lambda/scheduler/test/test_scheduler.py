@@ -80,13 +80,15 @@ def test_start_invalidation(monkeypatch):
     cf_domain = 'dxias1ysind2y.cloudfront.net'
     pop_region = ['ATL56-C1', 'DFW55-C3']
     current_time = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+    import scheduler
     from scheduler import start_invalidation
-    # conn = boto3.client('lambda')
-    # monkeypatch.setenv('LAMBDA_ARN', 'LAMBDA_ARN')
-    # monkeypatch.setattr(scheduler, "lambda_client", conn)
-    # monkeypatch, setattr(conn, "invoke", mock_invoke)
+    conn = boto3.client('lambda')
+    monkeypatch.setenv('LAMBDA_ARN', 'LAMBDA_ARN')
+    monkeypatch.setattr(scheduler, "lambda_client", conn)
+    monkeypatch, setattr(conn, "invoke", mock_invoke)
     response = start_invalidation(url_list, cf_domain, pop_region, req_id, current_time)
-    assert response is None
+    print(response)
+    assert response is not None
 
 
 @mock_lambda
@@ -136,13 +138,20 @@ def test_lambda_handler(monkeypatch):
             'WriteCapacityUnits': 10
         },
     )
+    import scheduler
     from scheduler import lambda_handler
-    # conn = boto3.client('lambda')
-    # monkeypatch.setenv('LAMBDA_ARN', 'LAMBDA_ARN')
-    # monkeypatch.setattr(scheduler, "lambda_client", conn)
-    # monkeypatch, setattr(conn, "invoke", mock_invoke)
+    conn = boto3.client('lambda')
+    monkeypatch.setenv('LAMBDA_ARN', 'LAMBDA_ARN')
+    monkeypatch.setattr(scheduler, "lambda_client", conn)
+    monkeypatch, setattr(conn, "invoke", mock_invoke)
     responses = lambda_handler(event, context)
+    print(responses)
     ddb_table = dynamodb.Table('Table_name')
     rlt = ddb_table.query(
         KeyConditionExpression=Key('reqId').eq(req_id))
-    assert len(rlt['Items']) == 1
+    assert responses['statusCode'] == 200 and len(rlt['Items']) == 1
+
+
+def mock_invoke(*args, **kwargs):
+    print("test invoke success")
+    return {}
