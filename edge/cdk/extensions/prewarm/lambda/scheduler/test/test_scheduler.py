@@ -11,7 +11,6 @@ from moto import mock_lambda
 def test_write_in_ddb(monkeypatch):
     monkeypatch.setenv('AWS_REGION', 'us-east-1', prepend=False)
     monkeypatch.setenv('DDB_TABLE_NAME', 'Table_name', prepend=False)
-    monkeypatch.setenv('cache_invalidator', 'Table_name', prepend=False)
     monkeypatch.setenv('INVALIDATOR_ARN', 'CacheInvalidator', prepend=False)
     aws_region = os.environ['AWS_REGION']
     dynamodb = boto3.resource('dynamodb', region_name=aws_region)
@@ -59,7 +58,6 @@ def test_write_in_ddb(monkeypatch):
 def test_compose_error_response(monkeypatch):
     monkeypatch.setenv('AWS_REGION', 'us-east-1', prepend=False)
     monkeypatch.setenv('DDB_TABLE_NAME', 'Table_name', prepend=False)
-    monkeypatch.setenv('cache_invalidator', 'Table_name', prepend=False)
     monkeypatch.setenv('INVALIDATOR_ARN', 'CacheInvalidator', prepend=False)
     from scheduler import compose_error_response
     response = compose_error_response('test')
@@ -71,7 +69,6 @@ def test_compose_error_response(monkeypatch):
 def test_start_invalidation(monkeypatch):
     monkeypatch.setenv('AWS_REGION', 'us-east-1', prepend=False)
     monkeypatch.setenv('DDB_TABLE_NAME', 'Table_name', prepend=False)
-    monkeypatch.setenv('cache_invalidator', 'Table_name', prepend=False)
     monkeypatch.setenv('INVALIDATOR_ARN', 'CacheInvalidator', prepend=False)
     # url_list, cf_domain, pop_region,
     # req_id, current_time
@@ -96,7 +93,6 @@ def test_start_invalidation(monkeypatch):
 def test_lambda_handler(monkeypatch):
     monkeypatch.setenv('AWS_REGION', 'us-east-1', prepend=False)
     monkeypatch.setenv('DDB_TABLE_NAME', 'Table_name', prepend=False)
-    monkeypatch.setenv('cache_invalidator', 'Table_name', prepend=False)
     monkeypatch.setenv('INVALIDATOR_ARN', 'CacheInvalidator', prepend=False)
     event = {
         'body': '{\"region\":\"all\",'

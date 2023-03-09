@@ -38,7 +38,7 @@
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China(Currently, only Hong Kong is supported，Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
+        * china： China(Currently, Hong Kong is supported，Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore

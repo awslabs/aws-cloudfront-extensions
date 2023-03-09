@@ -39,7 +39,7 @@
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China(注：目前只支持香港区域，大陆区域预热需要在中国区部署此解决方案)
+        * china： China(注：目前支持香港区域，大陆区域预热需要在中国区部署此解决方案)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore
