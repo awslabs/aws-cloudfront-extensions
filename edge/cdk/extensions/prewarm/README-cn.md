@@ -67,13 +67,14 @@ region： 预热区域。依据不同的region_type,选择不同的值
       * eu： Europe
       * jp： Japan
       * us： United States
+      * cn： China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)
     * region_type = "country"时，此字段传"all"或者国家代码列表: 在特定国家进行预热，"all"代表预热全部国家列表，例如"all"|["india", "new_zealand"]，可用国家为：
       * india： India
       * japan： Japan
       * new_zealand： New Zealand
       * australia：Australia
       * malaysia： Malaysia
-      * china： China
+      * china： China(目前只支持香港区域，大陆区域预热需要在中国区部署此解决方案)
       * indonesia：Indonesia
       * philippines：Philippines
       * singapore：Singapore
@@ -92,7 +93,7 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
     ],
     "region_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": ["ATL56-C1", "DFW55-C3"]|"all"|["apac","au","ca","sa","eu","jp","us"]|["china","india"] // "all" to prewarm all pop node
+    "region": ["ATL56-C1", "DFW55-C3"]|"all"|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all pop node
 }
 ```
 

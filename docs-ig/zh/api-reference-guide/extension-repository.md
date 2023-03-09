@@ -32,13 +32,14 @@
         * eu： Europe
         * jp： Japan
         * us： United States
+        * cn: China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)
       * region_type = "country"时，此字段传"all"或者国家代码列表: 在特定国家进行预热，"all"代表预热全部国家列表，例如"all"|["india", "new_zealand"]，可用国家为：
         * india： India
         * japan： Japan
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China
+        * china： China(注：目前只支持香港区域，大陆区域预热需要在中国区部署此解决方案)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore

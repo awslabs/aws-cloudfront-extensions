@@ -69,13 +69,14 @@ region: The region for prewarm. This field should change according to the region
       * eu： Europe
       * jp： Japan
       * us： United States
+      * cn： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
     * region_type = "country": accept "all" or a country list: pre-warm in all countries or a specific country，eg:"all"|["india", "new_zealand"], the available countries are：
       * india： India
       * japan： Japan
       * new_zealand： New Zealand
       * australia：Australia
       * malaysia： Malaysia
-      * china： China
+      * china： China(Currently, only Hong Kong is supported，Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
       * indonesia：Indonesia
       * philippines：Philippines
       * singapore：Singapore
@@ -95,7 +96,7 @@ CloudFront domain is d1234567890r.cloudfront.net，CName is www.example.com.
     ],
     "region_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india"] // "all" to prewarm all established pop node
+    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
 }
 ```
 

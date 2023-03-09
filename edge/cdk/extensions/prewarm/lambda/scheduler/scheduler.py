@@ -146,8 +146,10 @@ def lambda_handler(event, context):
     # new added parameter
     region_type = event_body['region_type']
     if type(pop_region) == str:
+        # pop_region can only accept one value of String type,and it is "all"
         if pop_region != ALL:
             return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
+        # if the pop_region is "all",we should change the pop_region values named "all" to real pop list by region_type
         elif region_type == 'region' or region_type == 'pop':
             pop_region = pop_map[ALL]
         elif region_type == 'country':
@@ -166,16 +168,6 @@ def lambda_handler(event, context):
             for i in pop_region:
                 pop_rec_opt.extend(rec_map[i.lower()])
             pop_region = pop_rec_opt
-
-    # modified as above
-    # if type(pop_region) == str:
-    #     if pop_region.lower() not in pop_map.keys():
-    #         return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
-    #     pop_region = pop_map[pop_region.lower()]
-    # elif len(pop_region) == 0:
-    #     return compose_error_response(
-    #         'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
-
     write_in_ddb(req_id, url_list, pop_region, current_time, protocol)
     inv_resp = start_invalidation(url_list, cf_domain, pop_region,
                                   req_id, current_time)

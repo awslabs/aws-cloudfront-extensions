@@ -18,12 +18,12 @@
     - url_list: The list of urls for prewarm.
     - cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
     - region_type: The region type for prewarm. You can specify 3 types of value. The region field should change according to this field.
-      * pop：pre-warm in PoP，the value of region field is a list of PoP
-      * country：pre-warm in country，the value of region field is a list of country
-      * region：pre-warm in region，the value of region field is a list of region
+      * pop：prewarm by PoP(Points of Presence)，the value of region field is a list of PoP(Points of Presence)
+      * country：prewarm by country，the value of region field is a list of country
+      * region：prewarm by region，the value of region field is a list of region
     - region: The region for prewarm. This field should change according to the region_type field.
-      * region_type = "pop": accept a PoP list, pre-warm in the PoP location in the list，eg:["ATL56-C1", "DFW55-C3"]
-      * region_type = "region": accept "all" or a region list, pre-warm in all regions or a specific region，eg:"all"|["apac", "au"], the available regions are：
+      * region_type = "pop": accept a PoP(Points of Presence) list, prewarm in the PoP(Points of Presence) location in the list，for example:["ATL56-C1", "DFW55-C3"]
+      * region_type = "region": accept "all" or a region list, prewarm in all regions or a specific region，for example:"all"|["apac", "au"], the supported values are：
         * apac： Asia-Pacific
         * au： Australia
         * ca： Canada
@@ -31,13 +31,14 @@
         * eu： Europe
         * jp： Japan
         * us： United States
-      * region_type = "country": accept "all" or a country list: pre-warm in all countries or a specific country，eg:"all"|["india", "new_zealand"], the available countries are：
+        * cn:  China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
+      * region_type = "country": accept "all" or a country list: prewarm in all countries or a specific country，for example:"all"|["india", "new_zealand"], the supported values are：
         * india： India
         * japan： Japan
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China
+        * china： China(Currently, only Hong Kong is supported，Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore
