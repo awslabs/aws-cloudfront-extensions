@@ -80,12 +80,6 @@ def compose_error_response(message):
     }
 
 
-def replace_url(parsed_url, cf_domain):
-    parsed_url = parsed_url._replace(netloc=cf_domain)
-
-    return parsed_url
-
-
 def dist_match(distribution, url_netloc, is_cf_domain):
     result = {'dist_id': '', 'cf_domain': ''}
     dist_domain_name = distribution['DomainName']
@@ -175,6 +169,7 @@ def find_dist_id(cf_domain, domain_key):
 
 def lambda_handler(event, context):
     url_list = event['url_list']
+    url_list = list(set(url_list))
     HAS_CF_DOMAIN_PARA = False
     if event['cf_domain'] is not None:
         cf_domain = event['cf_domain']

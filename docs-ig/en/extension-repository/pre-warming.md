@@ -78,7 +78,7 @@ Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distr
     ![Prewarm Trigger](../images/prewarm_trigger_new.png)
 
 4. The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.
-5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.
+5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
     ![Prewarm Status](../images/prewarm_status.png)
 
 

@@ -5,11 +5,13 @@ import subprocess
 import sys
 import time
 from urllib import parse
+import uuid
 
 import boto3
 import requests
 import shortuuid
 from botocore.exceptions import WaiterError
+from botocore.exceptions import ClientError
 
 URL_SUFFIX = '.cloudfront.net'
 cf_client = boto3.client('cloudfront')
@@ -140,6 +142,8 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
         queue_messages = get_messages_from_queue(sqs, queue_url)
         if len(queue_messages) > 0:
             print(str(len(queue_messages)) + ' message found')
+            table_items = []
+            entries = []
             for message in queue_messages:
                 event_body = json.loads(message['Body'])
                 receipt = message['ReceiptHandle']
@@ -213,10 +217,15 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                     url_status = 'FAIL'
 
                 # Delete the message from queue after it is handled
-                sqs.delete_message(
-                    QueueUrl=queue_url,
-                    ReceiptHandle=receipt
-                )
+                # sqs.delete_message(
+                #     QueueUrl=queue_url,
+                #     ReceiptHandle=receipt
+                # )
+                entry = {
+                    'Id': str(uuid.uuid4().int)[-22:],
+                    'ReceiptHandle': receipt
+                }
+                entries.append(entry)
 
                 table_item = {
                     "createTime": create_time,
@@ -228,10 +237,21 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                     "errorMsg": error_msg
                 }
                 print(table_item)
-
-                ddb_resp = table.put_item(Item=table_item)
-                print(ddb_resp)
-
+                # ddb_resp = table.put_item(Item=table_item)
+                # print(ddb_resp)
+                table_items.append(table_item)
+            try:
+                with table.batch_writer() as writer:
+                    for table_item in table_items:
+                        writer.put_item(Item=table_item)
+                sqs.delete_message_batch(
+                    QueueUrl=queue_url,
+                    Entries=entries
+                )
+            except ClientError as err:
+                print(
+                    "Couldn't load data into table %s. Here's why: %s: %s", table.name,
+                    err.response['Error']['Code'], err.response['Error']['Message'])
         print('No message found, wait ' + str(SLEEP_TIME) + ' seconds')
         time.sleep(SLEEP_TIME)
 
