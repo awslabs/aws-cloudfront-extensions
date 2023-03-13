@@ -21,7 +21,7 @@ US_NODE = ['IAD89-P1', 'IAD89-P2', 'SFO5-P2',
 CN_NODE = ['PVG52-E1', 'SZX51-E1', 'BJS9-E1', 'ZHY50-E1']
 
 ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
-               EU_NODE + JP_NODE + SA_NODE + US_NODE))
+               EU_NODE + JP_NODE + SA_NODE + US_NODE + CN_NODE))
 pop_map = {
     'all': ALL_POP,
     'apac': APAC_NODE,
@@ -30,8 +30,34 @@ pop_map = {
     'eu': EU_NODE,
     'jp': JP_NODE,
     'sa': SA_NODE,
-    'us': US_NODE
+    'us': US_NODE,
+    'cn': CN_NODE
 }
+# REC: regional edge cache
+INDIA_REC = ['BOM78-P1', 'BOM78-P4']
+JAPAN_REC = ['NRT57-P2', 'NRT57-P3']
+OCEANIA_REC = ['SYD1-C1', 'SYD62-P2']
+SOUTHEAST_ASIA_REC = ['SIN2-P1', 'SIN2-P2']
+SOUTH_KOREA_REC = ['ICN57-P1', 'ICN57-P2']
+
+ALL_REC = list(set(INDIA_REC + JAPAN_REC + OCEANIA_REC +
+               SOUTHEAST_ASIA_REC + SOUTH_KOREA_REC))
+rec_map = {
+    'all': ALL_REC,
+    'india': INDIA_REC,
+    'japan': JAPAN_REC,
+    'new_zealand': OCEANIA_REC,
+    'australia': OCEANIA_REC,
+    'malaysia': SOUTHEAST_ASIA_REC,
+    'china': SOUTHEAST_ASIA_REC,
+    'indonesia': SOUTHEAST_ASIA_REC,
+    'philippines': SOUTHEAST_ASIA_REC,
+    'singapore': SOUTHEAST_ASIA_REC,
+    'thailand': SOUTHEAST_ASIA_REC,
+    'vietnam': SOUTHEAST_ASIA_REC,
+    'south_korea': SOUTH_KOREA_REC
+}
+ALL = 'all'
 
 aws_region = os.environ['AWS_REGION']
 sqs = boto3.client('sqs', region_name=aws_region)
@@ -49,7 +75,8 @@ def write_in_ddb(req_id, url_list, pop, create_time, protocol):
         "pop": pop,
         "urlList": url_list,
         "reqId": req_id,
-        "create_time": create_time,
+        # edit it to keep the same column name with agent and same style with other columns
+        "createTime": create_time,
         "url": 'metadata',
         'protocol': protocol
     }
@@ -116,14 +143,31 @@ def lambda_handler(event, context):
     pop_region = event_body['region']
     current_time = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
+    # new added parameter
+    target_type = event_body['target_type']
     if type(pop_region) == str:
-        if pop_region.lower() not in pop_map.keys():
+        # pop_region can only accept one value of String type,and it is "all"
+        if pop_region != ALL:
             return compose_error_response('Invalid region, please specify a valid region or PoP list or all')
-        pop_region = pop_map[pop_region.lower()]
+        # if the pop_region is "all",we should change the pop_region values named "all" to real pop list by target_type
+        elif target_type == 'region' or target_type == 'pop':
+            pop_region = pop_map[ALL]
+        elif target_type == 'country':
+            pop_region = rec_map[ALL]
     elif len(pop_region) == 0:
         return compose_error_response(
             'Please specify at least 1 PoP node in region or use all to prewarm in all PoP nodes')
-
+    else:
+        if target_type == 'region':
+            pop_region_opt = []
+            for i in pop_region:
+                pop_region_opt.extend(pop_map[i.lower()])
+            pop_region = pop_region_opt
+        elif target_type == 'country':
+            pop_rec_opt = []
+            for i in pop_region:
+                pop_rec_opt.extend(rec_map[i.lower()])
+            pop_region = pop_rec_opt
     write_in_ddb(req_id, url_list, pop_region, current_time, protocol)
     inv_resp = start_invalidation(url_list, cf_domain, pop_region,
                                   req_id, current_time)

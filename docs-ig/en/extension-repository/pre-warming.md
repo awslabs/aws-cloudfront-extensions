@@ -75,10 +75,10 @@ Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distr
 3. Send pre-warm request (refer to [API references](../api-reference-guide/extension-repository.md#pre-warming) for more details), and add a key value pair in the header: key is **x-api-key**, value is your API key.
 
     ![Prewarm API Key](../images/prewarm_apikey.png)
-    ![Prewarm Trigger](../images/prewarm_trigger.png)
+    ![Prewarm Trigger](../images/prewarm_trigger_new.png)
 
 4. The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.
-5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.
+5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
     ![Prewarm Status](../images/prewarm_status.png)
 
 
@@ -95,6 +95,7 @@ Script content:
                   "https://www.example.com/index.html",
                   "https://www.example.com/images/demo.png"
             ],
+            "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
             "region": ["ATL56-C1", "DFW55-C3"]
       }
