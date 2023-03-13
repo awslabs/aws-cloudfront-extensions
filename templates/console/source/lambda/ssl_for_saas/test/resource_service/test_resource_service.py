@@ -4,7 +4,7 @@ import os
 from moto import mock_resourcegroupstaggingapi
 
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 
 
 class TestResourceService:

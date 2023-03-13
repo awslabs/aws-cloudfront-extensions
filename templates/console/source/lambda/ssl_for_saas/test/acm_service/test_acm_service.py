@@ -12,7 +12,7 @@ from layer.common.types_ import Cname, SourceCfInfo
 from layer.job_service.types_ import JobInfo
 from test.test_utils import create_acm_metadata_table
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext2')
 os.environ.setdefault(ACM_METADATA_TABLE, 'metadata_table')
 os.environ.setdefault(JOB_INFO_TABLE_NAME, 'job_info_table')
 test_domain = 'test.com'
@@ -58,7 +58,7 @@ class TestAcmUtils:
         client = AcmUtilsService()
         cert_arn = _get_a_mock_cert(client)
         assert cert_arn is not None
-        ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
+        ddb = boto3.client("dynamodb")
         create_acm_metadata_table(ddb, client.acm_metadata_table)
         test_task_token = "token"
         monkeypatch.setattr(client.stepf_client, 'set_task', lambda *args, **kwargs: {})

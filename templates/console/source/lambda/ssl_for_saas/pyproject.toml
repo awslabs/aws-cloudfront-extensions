@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["csdc <csdc@amazon.com>"]
 readme = "README.md"
-packages = [{include = "../../ssl_for_saas"}]
+packages = [{include = "../ssl_for_saas"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"

@@ -3,7 +3,7 @@ import os
 
 from moto import mock_sns
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 
 
 class TestSnsUtilService:
