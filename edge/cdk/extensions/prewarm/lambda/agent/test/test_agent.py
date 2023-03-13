@@ -69,9 +69,11 @@ def test_download_file_with_curl(mock_get):
     # Create a temporary file for the downloaded content
     local_filename = os.path.join('/dev/', 'null')
     url = 'https://www.example.com/testfile'
+    cf_domain = 'example.cloudfront.net'
+    original_url  =  'https://www.example.com/testfile'
 
     # Call the download_file_with_curl function
-    result = download_file_with_curl(url)
+    result = download_file_with_curl(url, cf_domain, original_url)
 
     # Check that the file was downloaded and saved to the expected location
     assert result == local_filename
@@ -84,13 +86,14 @@ def test_pre_warm(mock_download_file):
     url = 'www.example.com/file.txt'
     pop = 'us-west-1'
     cf_domain = 'example.com'
+    original_url = 'www.example.com/file.txt'
     protocol = 'http'
 
     # Set up the mock response from download_file()
     mock_download_file.return_value = 'temp_file_name'
 
     # Call the function and check the output
-    result = pre_warm(url, pop, cf_domain, protocol)
+    result = pre_warm(url, pop, cf_domain, protocol, original_url)
     assert result['pop'] == pop
     assert result['statusCode'] == -1
 

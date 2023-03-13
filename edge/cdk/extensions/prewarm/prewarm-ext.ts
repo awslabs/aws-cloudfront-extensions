@@ -159,6 +159,22 @@ export class PrewarmStack extends cdk.Stack {
       ]
     });
 
+    const ec2_cloudwatch_policy = new iam.Policy(
+        this,
+        "EC2CloudWatchPolicy",{
+        statements: [
+            new iam.PolicyStatement( {
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"]
+        })
+        ]
+  });
+
+
     const asgRole = new iam.Role(this, 'PrewarmASGRole', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
     });
@@ -170,6 +186,7 @@ export class PrewarmStack extends cdk.Stack {
     asgRole.attachInlinePolicy(ddbPolicy);
     asgRole.attachInlinePolicy(sqsPolicy);
     asgRole.attachInlinePolicy(cfPolicy);
+    asgRole.attachInlinePolicy(ec2_cloudwatch_policy);
 
     const metric = new cloudwatch.MathExpression({
       expression: "visible + hidden",
