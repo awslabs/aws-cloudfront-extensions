@@ -1396,9 +1396,12 @@
         ],
         &quot;target_type&quot;:&quot;pop&quot;,
         &quot;cf_domain&quot;: &quot;d1234567890r.cloudfront.net&quot;,
-        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;]
+        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;],
+        &quot;protocol&quot;: &quot;http|https&quot;
   }
 </code></pre></div>
+<p><strong>Note:</strong>
+    parameter "protocol" is optional, if not specified the default protocol is http.</p>
 <p><strong>prewarm.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
   curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
