@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 from urllib import parse
+import uuid
 
 import boto3
 import requests
@@ -12,6 +13,7 @@ import shortuuid
 import pydig
 from urllib.parse import urlparse
 from botocore.exceptions import WaiterError
+from botocore.exceptions import ClientError
 
 URL_SUFFIX = '.cloudfront.net'
 cf_client = boto3.client('cloudfront')
@@ -135,7 +137,8 @@ def pre_warm(url, pop, cf_domain, protocol, original_url):
 
             return {
                 'pop': pop,
-                'statusCode': -1
+                'statusCode': -1,
+                'errorMsg': f'Failed: PoP => {pop}, Url => {url}, Download interrupted'
             }
     except Exception as e:
         print(f'Failed: PoP => {pop}, Url => {url} with exception => {e}')
@@ -143,7 +146,8 @@ def pre_warm(url, pop, cf_domain, protocol, original_url):
 
         return {
             'pop': pop,
-            'statusCode': -1
+            'statusCode': -1,
+            'errorMsg': f'Failed: PoP => {pop}, Url => {url} with exception => {e}'
         }
 
 
@@ -159,6 +163,15 @@ def get_messages_from_queue(client, queue_url):
     return []
 
 
+def get_node_pre_set(node_list):
+    rlt_set = set()
+    if node_list is not list or len(node_list) == 0:
+        return rlt_set
+    for i in node_list:
+        rlt_set.add(i[0:3])
+    return rlt_set
+
+
 def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, cf_client):
     sqs = boto3.client('sqs', region_name=aws_region)
     dynamodb_client = boto3.resource('dynamodb', region_name=aws_region)
@@ -169,6 +182,8 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
         queue_messages = get_messages_from_queue(sqs, queue_url)
         if len(queue_messages) > 0:
             print(str(len(queue_messages)) + ' message found')
+            table_items = []
+            entries = []
             for message in queue_messages:
                 event_body = json.loads(message['Body'])
                 receipt = message['ReceiptHandle']
@@ -181,6 +196,7 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                 inv_id = event_body['invId']
                 success_list = []
                 failure_list = []
+                error_msg = []
 
                 ddb_response = table.get_item(
                     Key={
@@ -223,20 +239,33 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                                 success_list.append(future.result()['pop'])
                             else:
                                 failure_list.append(future.result()['pop'])
+                                error_msg.append(future.result()['errorMsg'])
+                    success_pre_map = get_node_pre_set(success_list)
+                    failure_pre_map = get_node_pre_set(failure_list)
 
                     if len(success_list) == len(pop_list):
                         url_status = 'SUCCESS'
                     else:
-                        url_status = 'FAIL'
+                        # 遍历失败列表 如果所有失败列表前缀在成功列表中都有 标识成功 否则失败
+                        url_status = 'SUCCESS'
+                        for i in failure_pre_map:
+                            if i not in success_pre_map:
+                                url_status = 'FAIL'
+                                break
                 else:
                     print('Fail to create invalidation or check invalidation status')
                     url_status = 'FAIL'
 
                 # Delete the message from queue after it is handled
-                sqs.delete_message(
-                    QueueUrl=queue_url,
-                    ReceiptHandle=receipt
-                )
+                # sqs.delete_message(
+                #     QueueUrl=queue_url,
+                #     ReceiptHandle=receipt
+                # )
+                entry = {
+                    'Id': str(uuid.uuid4().int)[-22:],
+                    'ReceiptHandle': receipt
+                }
+                entries.append(entry)
 
                 table_item = {
                     "createTime": create_time,
@@ -244,13 +273,25 @@ def prewarm_handler(queue_url, ddb_table_name, aws_region, thread_concurrency, c
                     "success": success_list,
                     "failure": failure_list,
                     "reqId": req_id,
-                    "url": url
+                    "url": url,
+                    "errorMsg": error_msg
                 }
                 print(table_item)
-
-                ddb_resp = table.put_item(Item=table_item)
-                print(ddb_resp)
-
+                # ddb_resp = table.put_item(Item=table_item)
+                # print(ddb_resp)
+                table_items.append(table_item)
+            try:
+                with table.batch_writer() as writer:
+                    for table_item in table_items:
+                        writer.put_item(Item=table_item)
+                sqs.delete_message_batch(
+                    QueueUrl=queue_url,
+                    Entries=entries
+                )
+            except ClientError as err:
+                print(
+                    "Couldn't load data into table %s. Here's why: %s: %s", table.name,
+                    err.response['Error']['Code'], err.response['Error']['Message'])
         print('No message found, wait ' + str(SLEEP_TIME) + ' seconds')
         time.sleep(SLEEP_TIME)
 
