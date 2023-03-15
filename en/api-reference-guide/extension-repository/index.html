@@ -1124,36 +1124,21 @@
 <ul>
 <li>url_list: The list of urls for prewarm.</li>
 <li>cf_domain: CloudFront domain name which ends with <a href="http://cloudfront.net/">cloudfront.net</a>. If not set, it will find cf_domain according to CNAME in the url list.</li>
-<li>target_type: The region type for prewarm. You can specify 3 types of value. The region field should change according to this field.</li>
-<li>pop：prewarm by PoP(Points of Presence)，the value of region field is a list of PoP(Points of Presence)</li>
-<li>country：prewarm by country，the value of region field is a list of country</li>
-<li>region：prewarm by region，the value of region field is a list of region</li>
-<li>region: The region for prewarm. This field should change according to the target_type field.</li>
-<li>target_type = "pop": accept a PoP(Points of Presence) list, prewarm in the PoP(Points of Presence) location in the list，for example:["ATL56-C1", "DFW55-C3"]</li>
-<li>target_type = "region": accept "all" or a region list, prewarm in all regions or a specific region，for example:"all"|["apac", "au"], the supported values are：<ul>
-<li>apac： Asia-Pacific</li>
-<li>au： Australia</li>
-<li>ca： Canada</li>
-<li>sa： South Africa</li>
-<li>eu： Europe</li>
-<li>jp： Japan</li>
-<li>us： United States</li>
-<li>cn:  China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)</li>
-</ul>
+<li>
+<p>region: The region for prewarm. You can specify 3 types of value.</p>
 </li>
-<li>target_type = "country": accept "all" or a country list: prewarm in all countries or a specific country，for example:"all"|["india", "new_zealand"], the supported values are：<ul>
-<li>india： India</li>
-<li>japan： Japan</li>
-<li>new_zealand： New Zealand</li>
-<li>australia：Australia</li>
-<li>malaysia： Malaysia</li>
-<li>china： China(Currently, Hong Kong is supported，Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)</li>
-<li>indonesia：Indonesia</li>
-<li>philippines：Philippines</li>
-<li>singapore：Singapore</li>
-<li>thailand： Thailand</li>
-<li>vietnam：Vietnam</li>
-<li>south_korea： South Korea</li>
+<li>
+<p>all: prewarm in all regions</p>
+</li>
+<li>pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list</li>
+<li>region code: pre-warm in a specific region, the available regions are:<ul>
+<li>apac: Asia-Pacific</li>
+<li>au: Australia</li>
+<li>ca: Canada</li>
+<li>sa: South Africa</li>
+<li>eu: Europe</li>
+<li>jp: Japan</li>
+<li>us: United States</li>
 </ul>
 </li>
 </ul>

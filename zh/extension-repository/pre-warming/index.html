@@ -1367,12 +1367,12 @@
 <li>按照预热API格式发送预热请求（更多信息请见<a href="../../api-reference-guide/extension-repository/#pre-warming">API参考指南</a>），并在header中新建键值对：key为<strong>x-api-key</strong>，value为API key。</li>
 </ul>
 <p><img alt="Prewarm API Key" src="../../images/prewarm_apikey.png" />
-<img alt="Prewarm Trigger" src="../../images/prewarm_trigger_new.png" /></p>
+<img alt="Prewarm Trigger" src="../../images/prewarm_trigger.png" /></p>
 </li>
 <li>
 <p>预热API会返回requestID，至此您成功触发了预热，下面可以通过PrewarmStatus API获取预热状态。</p>
 </li>
-<li>按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。(请注意检查是否请求header中默认带有Accept-Encoding，并且值为"gzip, deflate, br"，如果没有注意添加下)
+<li>按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。
     <img alt="Prewarm Status" src="../../images/prewarm_status.png" /></li>
 </ol>
 <h3 id="curl">通过Curl触发预热</h3>
@@ -1384,7 +1384,6 @@
               &quot;https://www.example.com/index.html&quot;,
               &quot;https://www.example.com/images/demo.png&quot;
         ],
-        &quot;target_type&quot;:&quot;pop&quot;,
         &quot;cf_domain&quot;: &quot;d1234567890r.cloudfront.net&quot;,
         &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;]
   }

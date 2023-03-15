@@ -1116,10 +1116,9 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="s2">&quot;https://{host}/index.html&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="s2">&quot;https://{host}/images/demo.png&quot;</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;target_type&quot;</span><span class="p">:</span><span class="s2">&quot;pop&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;cf_domain&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d3hvi5wvyqg3lv.cloudfront.net&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, if not set cf_domain, it will find cf_domain according to CName in the url list</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ATL56-C1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DFW55-C3&quot;</span><span class="p">]</span><span class="err">|</span><span class="s2">&quot;all&quot;</span><span class="err">|</span><span class="s2">&quot;apac&quot;</span><span class="err">|</span><span class="s2">&quot;au&quot;</span><span class="err">|</span><span class="s2">&quot;ca&quot;</span><span class="err">|</span><span class="s2">&quot;sa&quot;</span><span class="err">|</span><span class="s2">&quot;eu&quot;</span><span class="err">|</span><span class="s2">&quot;jp&quot;</span><span class="err">|</span><span class="s2">&quot;us&quot;</span><span class="w"> </span><span class="c1">// &quot;all&quot; to prewarm all pop node</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;cf_domain&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d3hvi5wvyqg3lv.cloudfront.net&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, if not set cf_domain, it will find cf_domain according to CName in the url list</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ATL56-C1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DFW55-C3&quot;</span><span class="p">]</span><span class="err">|</span><span class="s2">&quot;all&quot;</span><span class="err">|</span><span class="s2">&quot;apac&quot;</span><span class="err">|</span><span class="s2">&quot;au&quot;</span><span class="err">|</span><span class="s2">&quot;ca&quot;</span><span class="err">|</span><span class="s2">&quot;sa&quot;</span><span class="err">|</span><span class="s2">&quot;eu&quot;</span><span class="err">|</span><span class="s2">&quot;jp&quot;</span><span class="err">|</span><span class="s2">&quot;us&quot;</span><span class="w"> </span><span class="c1">// &quot;all&quot; to prewarm all pop node</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li>
@@ -1127,13 +1126,14 @@
 <ul>
 <li>url_list： 预热的url列表</li>
 <li>cf_domain： 以<a href="http://cloudfront.net/">cloudfront.net</a>结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain</li>
-<li>target_type 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同</li>
-<li>pop：根据节点预热，region的值是想预热的pop列表</li>
-<li>country：根据国家预热，region的值是想预热的国家列表</li>
-<li>region：根据区域预热，region的值是想预热的区域列表</li>
-<li>region： 预热区域。依据不同的target_type,选择不同的值</li>
-<li>target_type = "pop"时，此字段传pop id列表: 在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]</li>
-<li>target_type = "region"时，此字段传"all"或者区域代码列表: 在特定区域进行预热，"all"代表预热全部区域列表，例如"all"|["apac", "au"]，可用区域为：<ul>
+<li>
+<p>region： 预热区域。您可以指定3种类型的值</p>
+</li>
+<li>
+<p>all： 在所有区域进行预热</p>
+</li>
+<li>pop id列表，例如["ATL56-C1", "DFW55-C3"]: 在列表中指定的边缘节点进行预热</li>
+<li>区域代码: 在特定区域进行预热，可用区域为：<ul>
 <li>apac： Asia-Pacific</li>
 <li>au： Australia</li>
 <li>ca： Canada</li>
@@ -1141,22 +1141,6 @@
 <li>eu： Europe</li>
 <li>jp： Japan</li>
 <li>us： United States</li>
-<li>cn: China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)</li>
-</ul>
-</li>
-<li>target_type = "country"时，此字段传"all"或者国家代码列表: 在特定国家进行预热，"all"代表预热全部国家列表，例如"all"|["india", "new_zealand"]，可用国家为：<ul>
-<li>india： India</li>
-<li>japan： Japan</li>
-<li>new_zealand： New Zealand</li>
-<li>australia：Australia</li>
-<li>malaysia： Malaysia</li>
-<li>china： China(注：目前支持香港区域，大陆区域预热需要在中国区部署此解决方案)</li>
-<li>indonesia：Indonesia</li>
-<li>philippines：Philippines</li>
-<li>singapore：Singapore</li>
-<li>thailand： Thailand</li>
-<li>vietnam：Vietnam</li>
-<li>south_korea： South Korea</li>
 </ul>
 </li>
 </ul>

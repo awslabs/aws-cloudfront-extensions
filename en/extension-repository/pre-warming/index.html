@@ -1377,12 +1377,12 @@
 <li>Send pre-warm request (refer to <a href="../../api-reference-guide/extension-repository/#pre-warming">API references</a> for more details), and add a key value pair in the header: key is <strong>x-api-key</strong>, value is your API key.</li>
 </ul>
 <p><img alt="Prewarm API Key" src="../../images/prewarm_apikey.png" />
-<img alt="Prewarm Trigger" src="../../images/prewarm_trigger_new.png" /></p>
+<img alt="Prewarm Trigger" src="../../images/prewarm_trigger.png" /></p>
 </li>
 <li>
 <p>The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.</p>
 </li>
-<li>Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
+<li>Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.
     <img alt="Prewarm Status" src="../../images/prewarm_status.png" /></li>
 </ol>
 <h3 id="pre-warm-by-curl">Pre-warm by Curl</h3>
@@ -1394,14 +1394,10 @@
               &quot;https://www.example.com/index.html&quot;,
               &quot;https://www.example.com/images/demo.png&quot;
         ],
-        &quot;target_type&quot;:&quot;pop&quot;,
         &quot;cf_domain&quot;: &quot;d1234567890r.cloudfront.net&quot;,
-        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;],
-        &quot;protocol&quot;: &quot;http|https&quot;
+        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;]
   }
 </code></pre></div>
-<p><strong>Note:</strong>
-    parameter "protocol" is optional, if not specified the default protocol is http.</p>
 <p><strong>prewarm.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
   curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
