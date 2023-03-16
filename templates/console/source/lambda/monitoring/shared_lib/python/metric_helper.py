@@ -479,7 +479,7 @@ def construct_query_string(
         query_string = query_string + ' AND timestamp < ' + str(
             format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
-        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by "cs-host", "cnt" desc'
+        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
     elif metric == 'topNUrlSize':
         query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() ' \
                        f'over (order by sc_size desc) rank ' \
@@ -489,7 +489,7 @@ def construct_query_string(
         query_string = query_string + ' AND timestamp < ' + str(
             format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
-        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by "cs-host", "sc_size" desc'
+        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
     elif metric == "latencyRatio":
         query_string = (
             f'SELECT cast((sum(case when "time-taken" >= {latency_limit} then 1 else 0 end) * 100.0 / count(*)) '
