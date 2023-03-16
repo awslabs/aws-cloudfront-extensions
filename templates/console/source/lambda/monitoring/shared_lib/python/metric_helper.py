@@ -472,7 +472,7 @@ def construct_query_string(
         )
     elif metric == 'topNUrlRequests':
         query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", cnt, row_number() ' \
-                       f'over (partition by "cs-host", "cs-uri-stem" order by cnt desc) rank ' \
+                       f'over (order by cnt desc) rank ' \
                        f'from (select "cs-host", "cs-uri-stem", count(1) as cnt from ' \
                        f'"{db_name}"."{table_name}" where '
         query_string = assemble_query(start_time, end_time, query_string, is_realtime)
