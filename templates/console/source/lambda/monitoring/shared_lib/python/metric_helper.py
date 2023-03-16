@@ -482,7 +482,7 @@ def construct_query_string(
         ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by "cs-host", "cnt" desc'
     elif metric == 'topNUrlSize':
         query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() ' \
-                       f'over (partition by "cs-host", "cs-uri-stem" order by sc_size desc) rank ' \
+                       f'over (order by sc_size desc) rank ' \
                        f'from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from ' \
                        f'"{db_name}"."{table_name}" where '
         query_string = assemble_query(start_time, end_time, query_string, is_realtime)
