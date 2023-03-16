@@ -76,10 +76,10 @@ CloudFormation模板提供以下组件和工作流：
 3. 按照预热API格式发送预热请求（更多信息请见[API参考指南](../api-reference-guide/extension-repository.md#pre-warming)），并在header中新建键值对：key为**x-api-key**，value为API key。
 
     ![Prewarm API Key](../images/prewarm_apikey.png)
-    ![Prewarm Trigger](../images/prewarm_trigger.png)
+    ![Prewarm Trigger](../images/prewarm_trigger_new.png)
 
 4. 预热API会返回requestID，至此您成功触发了预热，下面可以通过PrewarmStatus API获取预热状态。
-5. 按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。
+5. 按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。(请注意检查是否请求header中默认带有Accept-Encoding，并且值为"gzip, deflate, br"，如果没有注意添加下)
     ![Prewarm Status](../images/prewarm_status.png)
 
 
@@ -96,6 +96,7 @@ CloudFormation模板提供以下组件和工作流：
                   "https://www.example.com/index.html",
                   "https://www.example.com/images/demo.png"
             ],
+            "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
             "region": ["ATL56-C1", "DFW55-C3"]
       }

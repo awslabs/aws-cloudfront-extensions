@@ -8,8 +8,9 @@
         "https://{host}/index.html",
         "https://{host}/images/demo.png"
     ],
+    "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", // Optional, if not set cf_domain, it will find cf_domain according to CName in the url list
-    "region": ["ATL56-C1", "DFW55-C3"]|"all"|"apac"|"au"|"ca"|"sa"|"eu"|"jp"|"us" // "all" to prewarm all pop node
+    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
 }
 ```
 
@@ -17,11 +18,13 @@
 
     - url_list： 预热的url列表
     - cf_domain： 以[cloudfront.net](http://cloudfront.net/)结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain
-    - region： 预热区域。您可以指定3种类型的值
-
-      * all： 在所有区域进行预热
-      * pop id列表，例如["ATL56-C1", "DFW55-C3"]: 在列表中指定的边缘节点进行预热
-      * 区域代码: 在特定区域进行预热，可用区域为：
+    - target_type 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同
+      * pop：根据节点预热，region的值是想预热的pop列表
+      * country：根据国家预热，region的值是想预热的国家列表
+      * region：根据区域预热，region的值是想预热的区域列表
+    - region： 预热区域。依据不同的target_type,选择不同的值
+      * target_type = "pop"时，此字段传pop id列表: 在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]
+      * target_type = "region"时，此字段传"all"或者区域代码列表: 在特定区域进行预热，"all"代表预热全部区域列表(需配合开启CloudFront源护盾使用，具体操作详见：https://aws.amazon.com/cn/blogs/china/configure-amazon-cloudfront-to-accelerate-the-whole-site/)，例如"all"|["apac", "au"]，可用区域为：
         * apac： Asia-Pacific
         * au： Australia
         * ca： Canada
@@ -29,6 +32,20 @@
         * eu： Europe
         * jp： Japan
         * us： United States
+        * cn: China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)
+      * target_type = "country"时，此字段传"all"或者国家代码列表: 在特定国家进行预热，"all"代表预热全部国家列表(需配合开启CloudFront源护盾使用，具体操作详见：https://aws.amazon.com/cn/blogs/china/configure-amazon-cloudfront-to-accelerate-the-whole-site/)，例如"all"|["india", "new_zealand"]，可用国家为：
+        * india： India
+        * japan： Japan
+        * new_zealand： New Zealand
+        * australia：Australia
+        * malaysia： Malaysia
+        * china： China(注：目前支持香港区域，大陆区域预热需要在中国区部署此解决方案)
+        * indonesia：Indonesia
+        * philippines：Philippines
+        * singapore：Singapore
+        * thailand： Thailand
+        * vietnam：Vietnam
+        * south_korea： South Korea
 
 - 响应
 
