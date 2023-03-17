@@ -168,7 +168,7 @@ def get_messages_from_queue(client, queue_url):
 
 def get_node_pre_set(node_list):
     rlt_set = set()
-    if node_list is not list or len(node_list) == 0:
+    if len(node_list) == 0:
         return rlt_set
     for i in node_list:
         rlt_set.add(i[0:3])
