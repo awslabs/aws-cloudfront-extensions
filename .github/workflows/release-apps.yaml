@@ -1,0 +1,61 @@
+name: "release apps"
+
+on:
+  # TODO change to pull request 
+  push:
+    branches:
+    - main
+    paths:
+    - 'edge/publish-apps.json'   
+
+jobs:
+  set-tag:
+    runs-on: ubuntu-latest 
+    outputs:
+      tag_value: ${{ steps.read_tag.outputs.tag_value }}    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2  
+    - name: read input tag
+      id: read_tag
+      run: |
+        echo "::set-output name=tag_value::`./scripts/read-input-tag.sh`"
+    - name: check tag existing 
+      uses: mukunku/tag-exists-action@v1.0.0
+      id: checkTag
+      with: 
+        tag: ${{steps.read_tag.outputs.tag_value}}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: create tag
+      if: ${{ steps.checkTag.outputs.exists != 'true' }}
+      run: ./scripts/create-tag.sh
+
+  publish-apps:
+    needs: set-tag
+    runs-on: ubuntu-latest 
+    steps:
+    - name: checkout specific tag version
+      uses: actions/checkout@v2
+      with:
+        ref: ${{needs.set-tag.outputs.tag_value}} 
+    - name: install jq
+      run: sudo apt-get install jq       
+    - name: Install Node
+      uses: actions/setup-node@v1
+      with: 
+        node-version: '16'  
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'        
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAR }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAR }}
+        aws-region: us-east-1
+    - name: SAM Package 
+      run: ./scripts/sam-package.sh
+    - name: SAM Publish 
+      run: ./scripts/sam-publish.sh
+

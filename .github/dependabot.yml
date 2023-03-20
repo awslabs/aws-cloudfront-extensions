@@ -1,0 +1,98 @@
+updates:
+- directory: edge/nodejs/normalize-query-string/normalize-query-string
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/cache-control-with-regex-path/cache-control-with-regex-path
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/multiple-origin-IP-retry/multiple-origin-IP-retry
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/modify-response-status-code/modify-response-status-code
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/resize-picture/resize-picture
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/add-security-headers/add-security-headers
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/anti-hotlinking/anti-hotlinking
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/authentication-with-cognito/authentication-with-cognito
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/http302-from-origin/http302-from-origin
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/custom-response-with-replaced-url/custom-response-with-replaced-url
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/authentication-with-aliyun-cdn-typeA/authentication-with-aliyun-cdn-typeA
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/serving-based-on-device/serving-based-on-device
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/modify-response-header/modify-response-header
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/access-origin-by-weight-rate/access-origin-by-weight-rate
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/cross-origin-resource-sharing/cross-origin-resource-sharing
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/rewrite-url/rewrite-url
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/bot-detection/bot-detection
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- directory: edge/nodejs/simple-lambda-edge/simple-lambda-edge
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/modify-host-origin-request-header/modify-host-origin-request-header
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/prewarm/prewarm
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/serverless-load-balancer/serverless-load-balancer
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/rt_log_transformer/rt_log_transformer
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- directory: edge/nodejs/geo-traffic-blocker/geo-traffic-blocker
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+version: 2
