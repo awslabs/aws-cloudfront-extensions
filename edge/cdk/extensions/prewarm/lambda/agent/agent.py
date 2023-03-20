@@ -82,7 +82,8 @@ def download_file_with_curl(url, cf_domain, original_url):
 
     # First get the ip address of the pop server
     popList = []
-    popList = pydig.query(cf_domain, 'A')
+    pop_domain = urlparse(url).netloc
+    popList = pydig.query(pop_domain, 'A')
     print(popList)
     popAddress = popList[0]
 
