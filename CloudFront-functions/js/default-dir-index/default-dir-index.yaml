@@ -1,0 +1,33 @@
+Description: (SO8134) default-dir-index is a CloudFront Function which appends index.html to the end of URLs that don't include a filename or extension
+  
+Resources:
+  AddIndexFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: default-dir-index
+      AutoPublish: true
+      FunctionConfig:
+        Comment: default-dir-index
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            var uri = request.uri;
+
+            // Check whether the URI is missing a file name.
+            if (uri.endsWith('/')) {
+                request.uri += 'index.html';
+            }
+            // Check whether the URI is missing a file extension.
+            else if (!uri.includes('.')) {
+                request.uri += '/index.html';
+            }
+
+            return request;
+        }
+
+
+Outputs:
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8134"

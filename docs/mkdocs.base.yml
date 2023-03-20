@@ -1,0 +1,26 @@
+site_name: CloudFront Extensions
+site_url: https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/
+repo_url: https://github.com/awslabs/aws-cloudfront-extensions
+theme:
+  name: material
+  features:
+    - tabs
+    - search.suggest
+    - search.highlight
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+plugins:
+  - search
+extra:
+  alternate:
+    - name: English
+      link: /aws-cloudfront-extensions/en/
+      lang: en
+    - name: 中文
+      link: /aws-cloudfront-extensions/zh/
+      lang: zh

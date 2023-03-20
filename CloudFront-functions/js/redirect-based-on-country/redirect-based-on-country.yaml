@@ -1,0 +1,40 @@
+Description: (SO8145) redirect-based-on-country is a CloudFront Function which redirects a user to a country-specific version of a site based on the country of the user
+
+Resources:
+  RedirectFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: redirect-based-on-country
+      AutoPublish: true
+      FunctionConfig:
+        Comment: redirect-based-on-country
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            var headers = request.headers;
+            var host = request.headers.host.value;
+            var country = 'DE' // Choose a country code
+            var newurl = `https://${host}/de/index.html` // Change the redirect URL to your choice
+
+            if (headers['cloudfront-viewer-country']) {
+                var countryCode = headers['cloudfront-viewer-country'].value;
+                if (countryCode === country) {
+                    var response = {
+                        statusCode: 302,
+                        statusDescription: 'Found',
+                        headers:
+                            { "location": { "value": newurl } }
+                        }
+
+                    return response;
+                }
+            }
+            return request;
+        }
+
+
+Outputs:
+  SolutionId:
+    Description: "Solution id"
+    Value: "SO8145"
