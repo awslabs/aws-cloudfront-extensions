@@ -147,9 +147,10 @@ export BSS_IMAGE_ASSET_TAG_PREFIX="${BUILD_VERSION}-"
 # # run npm run synth # -- --output=$staging_dist_dir
 # run npx cdk synth -c TargetPartition=aws-cn --json --output ${GLOBAL_S3_ASSETS_PATH}/${CN_ASSETS} -q 2>/dev/null
 
-export BSS_IMAGE_ASSET_ACCOUNT_ID=${AWS_ASSET_ACCOUNT_ID}
-export BSS_FILE_ASSET_REGION_SET="$REGIONS"
+export BSS_IMAGE_ASSET_ACCOUNT_ID=$6
+export BSS_FILE_ASSET_REGION_SET="$7"
 export BSS_IMAGE_ASSET_REGION_SET=${BSS_FILE_ASSET_REGION_SET}
+export AWS_ASSET_PUBLISH_ROLE=$8
 
 if [ ! -z "$AWS_ASSET_PUBLISH_ROLE" ]; then
 run export BSS_FILE_ASSET_PUBLISHING_ROLE_ARN="$AWS_ASSET_PUBLISH_ROLE"
@@ -165,6 +166,12 @@ run npx cdk synth -c EnableDashboardCustomDomain=true --json --output ${GLOBAL_S
 #mkdir -p ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]}
 #export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[1]}"
 #run npx cdk synth --json --output ${GLOBAL_S3_ASSETS_PATH}/${prefixes[1]} -q 2>/dev/null
+export ECR_REPO=$4
+if [ ! -z "$ECR_REPO" ]; then
+run echo "$ECR_REPO">>"${__dir}/ecr-repos"
+fi
 
-run echo '763104351884.dkr.ecr.us-east-1.amazonaws.com'>>"${__dir}/ecr-repos"
-run echo '727897471807.dkr.ecr.cn-northwest-1.amazonaws.com.cn'>>"${__dir}/cn-ecr-repos"
+export ECR_CN_REPO=$5
+if [ ! -z "$ECR_CN_REPO" ]; then
+run echo "$ECR_CN_REPO">>"${__dir}/cn-ecr-repos"
+fi

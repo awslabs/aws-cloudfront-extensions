@@ -1,8 +1,0 @@
-{
-  "edge": {
-    "publish_app_path": [
-      "python/rt_log_transformer"
-    ],
-    "tag": "v1.1.0"
-  }
-}
