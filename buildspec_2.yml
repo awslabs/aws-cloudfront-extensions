@@ -55,7 +55,7 @@ artifacts:
   files:
     - .git/**/*
     - deployment/**/*
-    - docs/**/*
+    - docs-ig/**/*
     - templates/console/deployment/**/*
     - buildspec_2.yml
     - deploy_vtag.yml
