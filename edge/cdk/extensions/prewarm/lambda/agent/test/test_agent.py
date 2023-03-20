@@ -116,6 +116,16 @@ def test_get_message_from_queue(monkeypatch):
     sqs_client.send_message(QueueUrl=queue_url, MessageBody=message_body)
     assert len(get_messages_from_queue(sqs_client, queue_url)) > 0
 
+def test_get_node_pre_set(monkeypatch):
+    node_list_success = ["DFW56-P2", "DUB56-P1", "DUB2-C1", "NRT51-P2"]
+    node_list_fail = ["DFW56-P2", "DUB56-P1", "DUB2-C1", "NRT51-P2"]
+    # import get_node_pre_set from agent
+    responses1 = get_node_pre_set(node_list_success)
+    print(responses1)
+    responses2 = get_node_pre_set(node_list_fail)
+    print(responses2)
+    assert responses2 == responses1
+
 
 @mock_sqs
 @mock_dynamodb

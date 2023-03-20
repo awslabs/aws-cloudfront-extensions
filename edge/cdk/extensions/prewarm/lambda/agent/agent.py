@@ -22,7 +22,10 @@ RETRY_COUNT = 604800
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
-    return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + '?' + parsed_url.query + parsed_url.fragment
+    if 0 == len(parsed_url.query):
+        return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query + parsed_url.fragment
+    else:
+        return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + '?' + parsed_url.query + parsed_url.fragment
 
 
 def replace_url(parsed_url, cf_domain):
@@ -165,7 +168,7 @@ def get_messages_from_queue(client, queue_url):
 
 def get_node_pre_set(node_list):
     rlt_set = set()
-    if node_list is not list or len(node_list) == 0:
+    if len(node_list) == 0:
         return rlt_set
     for i in node_list:
         rlt_set.add(i[0:3])

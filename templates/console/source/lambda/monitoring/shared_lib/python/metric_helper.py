@@ -472,24 +472,24 @@ def construct_query_string(
         )
     elif metric == 'topNUrlRequests':
         query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", cnt, row_number() ' \
-                       f'over (partition by "cs-host", "cs-uri-stem" order by cnt desc) rank ' \
+                       f'over (order by cnt desc) rank ' \
                        f'from (select "cs-host", "cs-uri-stem", count(1) as cnt from ' \
                        f'"{db_name}"."{table_name}" where '
         query_string = assemble_query(start_time, end_time, query_string, is_realtime)
         query_string = query_string + ' AND timestamp < ' + str(
             format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
-        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by "cs-host", "cnt" desc'
+        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
     elif metric == 'topNUrlSize':
         query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() ' \
-                       f'over (partition by "cs-host", "cs-uri-stem" order by sc_size desc) rank ' \
+                       f'over (order by sc_size desc) rank ' \
                        f'from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from ' \
                        f'"{db_name}"."{table_name}" where '
         query_string = assemble_query(start_time, end_time, query_string, is_realtime)
         query_string = query_string + ' AND timestamp < ' + str(
             format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
             format_date_time(start_time)
-        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by "cs-host", "sc_size" desc'
+        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
     elif metric == "latencyRatio":
         query_string = (
             f'SELECT cast((sum(case when "time-taken" >= {latency_limit} then 1 else 0 end) * 100.0 / count(*)) '
