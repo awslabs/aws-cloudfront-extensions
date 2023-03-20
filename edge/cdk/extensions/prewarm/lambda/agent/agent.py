@@ -22,7 +22,7 @@ RETRY_COUNT = 604800
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
-    return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query + parsed_url.fragment
+    return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + '?' + parsed_url.query + parsed_url.fragment
 
 
 def replace_url(parsed_url, cf_domain):
