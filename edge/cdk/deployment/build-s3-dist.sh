@@ -109,6 +109,7 @@ npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/true-client-ip/true-client-ip.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/redirect-by-country/redirect-by-country.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/resize-image.ts" --output ${CDK_OUT_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/redirect-by-device/redirect-by-device.ts" --output ${CDK_OUT_PATH}
 
 ls ${GLOBAL_S3_ASSETS_PATH}
 ls ${GLOBAL_S3_ASSETS_PATH}/${prefixes[0]}
