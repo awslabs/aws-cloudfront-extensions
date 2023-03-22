@@ -255,7 +255,7 @@ export class PrewarmStack extends cdk.Stack {
 
     const agentScaleOut = new as.StepScalingAction(this, 'PrewarmScaleOut', {
       autoScalingGroup: prewarmAsg,
-      adjustmentType: as.AdjustmentType.EXACT_CAPACITY,
+      adjustmentType: as.AdjustmentType.CHANGE_IN_CAPACITY,
     });
     agentScaleOut.addAdjustment({
       adjustment: 0,
