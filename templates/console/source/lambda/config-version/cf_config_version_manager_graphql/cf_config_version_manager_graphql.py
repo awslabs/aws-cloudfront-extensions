@@ -459,8 +459,8 @@ def manager_version_config_cf_list():
             tmp_dist['snapshotCount'] = 0
         else:
             tmp_dist['snapshotCount'] = len(record_list) - 1
-
-    return result
+    sorted_list = sorted(result, key=lambda x: (x['aliases']['Items'] is None, x['aliases']['Items'], x['domainName']))
+    return sorted_list
 
 
 @app.resolver(type_name="Query", field_name="getDistributionCname")
