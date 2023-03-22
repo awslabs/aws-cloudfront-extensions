@@ -74,7 +74,7 @@ region： 预热区域。依据不同的target_type,选择不同的值
       * new_zealand： New Zealand
       * australia：Australia
       * malaysia： Malaysia
-      * china： China(目前支持香港区域，大陆区域预热需要在中国区部署此解决方案)
+      * china： China(大陆区域预热需要在中国区部署此解决方案)
       * indonesia：Indonesia
       * philippines：Philippines
       * singapore：Singapore
