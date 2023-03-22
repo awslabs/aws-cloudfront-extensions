@@ -188,7 +188,20 @@ const Deploy: React.FC = () => {
         if (resData.data.queryByName.cfnParameter) {
           tmpDataParamList = JSON.parse(resData.data.queryByName.cfnParameter);
           tmpDataParamList.forEach((element: ParamsType) => {
-            element.value = "";
+            // set default value while extension is prewarm
+            if (deployExtensionObj.name === "prewarm") {
+              if (element.key === "ShowSuccessUrls") {
+                element.value = "false";
+              } else if (element.key === "InstanceType") {
+                element.value = "c5a.large";
+              } else if (element.key === "ThreadNumber") {
+                element.value = "4";
+              } else {
+                element.value = "";
+              }
+            } else {
+              element.value = "";
+            }
           });
         }
         setdeployExtensionObj((prev) => {
