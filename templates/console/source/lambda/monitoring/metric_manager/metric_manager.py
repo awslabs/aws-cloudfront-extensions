@@ -244,6 +244,7 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                     ) + int(top_item["Count"])
 
         sum_top_value = sorted(sum_top_value.items(), key=lambda x: x[1], reverse=True)
+        sum_top_value = sum_top_value[:10]
         top_detailed_data = [
             {"Path": k, "Count": v} for k, v in sum_top_value
         ]
@@ -262,6 +263,7 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                     ) + int(top_item["Size"])
 
         sum_top_value = sorted(sum_top_value.items(), key=lambda x: x[1], reverse=True)
+        sum_top_value = sum_top_value[:10]
         top_detailed_data = [
             {"Path": k, "Size": v} for k, v in sum_top_value
         ]

@@ -22,10 +22,10 @@ RETRY_COUNT = 604800
 
 
 def gen_pop_url(parsed_url, pop, cf_domain_prefix):
-    if parsed_url.query is not None and 0 != len(parsed_url.query):
-        return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + '?' + parsed_url.query + parsed_url.fragment
-    else:
+    if 0 == len(parsed_url.query):
         return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + parsed_url.query + parsed_url.fragment
+    else:
+        return cf_domain_prefix + '.' + pop + '.cloudfront.net' + parsed_url.path + '?' + parsed_url.query + parsed_url.fragment
 
 
 def replace_url(parsed_url, cf_domain):
@@ -82,7 +82,8 @@ def download_file_with_curl(url, cf_domain, original_url):
 
     # First get the ip address of the pop server
     popList = []
-    popList = pydig.query(cf_domain, 'A')
+    pop_domain = urlparse(url).netloc
+    popList = pydig.query(pop_domain, 'A')
     print(popList)
     popAddress = popList[0]
 
@@ -168,7 +169,7 @@ def get_messages_from_queue(client, queue_url):
 
 def get_node_pre_set(node_list):
     rlt_set = set()
-    if node_list is not list or len(node_list) == 0:
+    if len(node_list) == 0:
         return rlt_set
     for i in node_list:
         rlt_set.add(i[0:3])
