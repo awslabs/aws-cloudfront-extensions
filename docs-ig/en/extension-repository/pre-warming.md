@@ -70,7 +70,7 @@ Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distr
 
     - **PrewarmAPIkey**: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.
     - **PrewarmApiEndpoint**: Pre-warm API's URL is followd by the prewarm keyword. Eg. if PrewarmApiEndpoint is **https://123456789.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm API will be **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
-    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status**
+    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://test.execute-api.us-east-1.amazonaws.com/prod/status**
 2. Open a tool that can send HTTP requests, such as Postman.
 3. Send pre-warm request (refer to [API references](../api-reference-guide/extension-repository.md#pre-warming) for more details), and add a key value pair in the header: key is **x-api-key**, value is your API key.
 
