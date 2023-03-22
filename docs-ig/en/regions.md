@@ -1,7 +1,7 @@
 
 ## Regional deployment
 
-As of August 2022, this solution is supported in the following AWS Regions: 
+As of March 2023, this solution is supported in the following AWS Regions: 
 
 | Region Name | Region ID |
 |----------|--------|
