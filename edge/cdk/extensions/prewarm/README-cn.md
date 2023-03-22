@@ -54,9 +54,9 @@
 url_list: 需要预热的url
 cf_domain: CloudFront域名，以cloudfront.net结尾，如果未设置，它将根据url列表中的CNAME查找cf_domain
 target_type 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同
-    * pop：根据节点预热，region的值是想预热的pop列表
-    * country：根据国家预热，region的值是想预热的国家列表
-    * region：根据区域预热，region的值是想预热的区域列表
+    * pop：根据节点预热
+    * country：根据国家预热
+    * region：根据区域预热
 region： 预热区域。依据不同的target_type,选择不同的值
     * target_type = "pop"时，此字段传pop id列表: 在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]
     * target_type = "region"时，此字段传"all"或者区域代码列表: 在特定区域进行预热，"all"代表预热全部区域列表，例如"all"|["apac", "au"]，可用区域为：
@@ -74,7 +74,7 @@ region： 预热区域。依据不同的target_type,选择不同的值
       * new_zealand： New Zealand
       * australia：Australia
       * malaysia： Malaysia
-      * china： China(目前支持香港区域，大陆区域预热需要在中国区部署此解决方案)
+      * china： China(大陆区域预热需要在中国区部署此解决方案)
       * indonesia：Indonesia
       * philippines：Philippines
       * singapore：Singapore
