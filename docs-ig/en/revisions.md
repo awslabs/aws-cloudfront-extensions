@@ -5,4 +5,5 @@
 | December 2021 | Released version 1.2.0  <br>1. Added 10 Lambda@Edge functions and 2 CloudFront functions |
 | February 2022 | Released version 1.3.0 <br>1. Added a CloudFront real-time log monitoring API which provides performance metrics |
 | August 2022 | Released version 2.0.0 <br>1. Added a user-friendly web console |
+| March 2023  | Released version 2.1.0 <br>1. Optimized the prewarm extension library|
 
