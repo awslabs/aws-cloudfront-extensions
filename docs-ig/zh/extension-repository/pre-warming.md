@@ -103,7 +103,7 @@ CloudFormation模板提供以下组件和工作流：
       }
 
 **Note:**
-    parameter "protocol" is optional, if not specified the default protocol is http.
+    字段 "protocol" 是可选字段，如果不指定，默认是http.
 
 **prewarm.sh**
 

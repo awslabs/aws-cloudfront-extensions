@@ -2,7 +2,7 @@
 Pre-warming is also known as Pre-caching or Pre-fetching. It speeds up content delivery by warming the CloudFront cache. This is very useful when delivering large files. Pre-warming helps offload origin’s traffic, as the same requests will hit the CloudFront cache, origin server receives less requests and consequently it's less likely that the origin server will fall over or become slow. 
 
 ### How does it work?
-The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployed, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.
+The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployment, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.
 
 ![prewarm](../../images/prewarm-arch.png)
 
@@ -61,11 +61,11 @@ To see details for the stack resources, choose the **Outputs** tab.
 
 ## How to use Pre-warming
 
-Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior before pre-warming.
+Before pre-warming, you need to set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior.
 
 ### Pre-warm by Postman
 
-1. After deployment, open the **Outputs** tab of CloudFormation stack, and you can see the following information:
+1. After deployment, choose the **Outputs** tab of CloudFormation stack, and you can see the following information:
     ![Prewarm Output](../../images/prewarm_output.png)
 
     - **PrewarmAPIkey**: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.

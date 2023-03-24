@@ -3,7 +3,7 @@ You are responsible for the cost of the AWS services used while running this sol
 
 ##  CloudFront configuration snapshot
  
-As of August 2022, if the configuration of CloudFront distributions are changed 30 times and create 10 snapshots, the estimated cost of using this solution is $0.63 per month in the US East (N. Virginia) Region (excludes free tier).
+As of March 2023, if the configuration of CloudFront distributions are changed 30 times and create 10 snapshots, the estimated cost of using this solution is $0.63 per month in the US East (N. Virginia) Region (excludes free tier).
 
 |  Service  | Dimensions | Cost/Month | 
 |  ----  | ----  | ----  |  
@@ -16,7 +16,7 @@ As of August 2022, if the configuration of CloudFront distributions are changed 
 
 ##  SSL certificates
  
-As of August 2022, if user create 2000 ACM certificates and 2000 CloudFront distribution per month, the estimated cost of using this solution is $26.68 per month in the US East (N. Virginia) Region (excludes free tier).
+As of March 2023, if user create 2000 ACM certificates and 2000 CloudFront distribution per month, the estimated cost of using this solution is $26.68 per month in the US East (N. Virginia) Region (excludes free tier).
 
 | Service            | Dimensions                                                    | Cost/Month | 
 |--------------------|---------------------------------------------------------------|------------|  
@@ -31,7 +31,7 @@ As of August 2022, if user create 2000 ACM certificates and 2000 CloudFront dist
 
 ##  Non-real time monitoring with CloudFront standard logs
  
-As of August 2022, to monitor 10 metrics for one CloudFront distribution which has 60 records (2KB) every second, the estimated cost of using this solution is $22.40 per month in the US East (N. Virginia) Region (excludes free tier).
+As of March 2023, to monitor 10 metrics for one CloudFront distribution which has 60 records (2KB) every second, the estimated cost of using this solution is $22.40 per month in the US East (N. Virginia) Region (excludes free tier).
 
 |  Service  | Dimensions | Cost/Month | 
 |  ----  | ----  | ----  |  
@@ -45,7 +45,7 @@ As of August 2022, to monitor 10 metrics for one CloudFront distribution which h
 
 ## Real time monitoring with CloudFront real-time logs
  
- As of August 2022, to monitor 10 metrics for one CloudFront distribution which has 60 records (2KB) every second, the estimated cost of using this solution is $88.56 per month in the US East (N. Virginia) Region (excludes free tier).
+ As of March 2023, to monitor 10 metrics for one CloudFront distribution which has 60 records (2KB) every second, the estimated cost of using this solution is $88.56 per month in the US East (N. Virginia) Region (excludes free tier).
 
 
 |  Service  | Dimensions | Cost/Month | 
@@ -65,7 +65,7 @@ As of August 2022, to monitor 10 metrics for one CloudFront distribution which h
 
 ### Example 1: Pre-warm 500 resources daily, the size of each resource is 500MB
 
-As of August 2022, the estimated cost of using this solution is $171.27 per month in the US East (N. Virginia) Region (excludes free tier).
+As of March 2023, the estimated cost of using this solution is $171.27 per month in the US East (N. Virginia) Region (excludes free tier).
 
 |  Service  | Dimensions | Cost/Month | 
 |  ----  | ----  | ----  |  
@@ -79,7 +79,7 @@ As of August 2022, the estimated cost of using this solution is $171.27 per mont
 
 ### Example 2: Pre-warm 200 resources in one month, the size of each resource is 1GB
 
-As of August 2022, the estimated cost of using this solution is $11.78 per month in the US East (N. Virginia) Region (excludes free tier).
+As of March 2023, the estimated cost of using this solution is $11.78 per month in the US East (N. Virginia) Region (excludes free tier).
 
 |  Service  | Dimensions | Cost/Month | 
 |  ----  | ----  | ----  |  

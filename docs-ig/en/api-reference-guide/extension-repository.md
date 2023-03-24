@@ -13,12 +13,12 @@
 
 - Including:
   - target_type: You can specify 3 types of value.
-      * pop：pre-warm in PoP
-      * country：pre-warm in country
-      * region：pre-warm in region
+      * pop：pre-warm by PoP (Points of Presence)
+      * country：pre-warm by country
+      * region：pre-warm by region
   - region: This field should change according to the target_type field.
-      * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,eg:["ATL56-C1", "DFW55-C3"]
-      * target_type = "region": this field  accept "all" or a region list, pre-warm in all regions or a specific region,eg:"all" or ["apac", "au"], the available regions are：
+      * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,for example:["ATL56-C1", "DFW55-C3"]
+      * target_type = "region": this field  accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a region list, pre-warm in all regions or a specific region,for example:"all" or ["apac", "au"], the supported values are：
         * apac： Asia-Pacific
         * au： Australia
         * ca： Canada
@@ -26,14 +26,14 @@
         * eu： Europe
         * jp： Japan
         * us： United States
-        * cn： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
-      * target_type = "country": this field accept "all" or a country list: pre-warm in all countries or a specific country,eg:"all"|["india", "new_zealand"], the available countries are：
+        * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
+      * target_type = "country": this field accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a country list: pre-warm in all countries or a specific country,for example:"all"|["india", "new_zealand"], the supported values are：
         * india： India
         * japan： Japan
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
+        * china： China (Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore
@@ -60,7 +60,7 @@
 
 | **Name** | **Type** | **Description**                                                                 |
 |----------|-----------|---------------------------------------------------------------------------------|
-|requestID    |*String*   | The request id, you can use it in PrewarmStatus API to get the pre-warm status. |
+|requestID    |*String*   | The request id, which you can use it in PrewarmStatus API to get the pre-warm status. |
 
 - Response example
 
