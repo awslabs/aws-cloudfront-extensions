@@ -53,6 +53,7 @@
 请求参数
 url_list: 需要预热的url
 cf_domain: CloudFront域名，以cloudfront.net结尾，如果未设置，它将根据url列表中的CNAME查找cf_domain
+protocol: 可选字段，可传 "http" 或者 "https"，如不指定，默认是 "http"
 target_type 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同
     * pop：根据节点预热
     * country：根据国家预热
@@ -93,7 +94,8 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
     ],
     "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": ["ATL56-C1", "DFW55-C3"]|"all"|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all pop node
+    "region": ["ATL56-C1", "DFW55-C3"]|"all"|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all pop node
+    "protocol": "http|https"
 }
 ```
 

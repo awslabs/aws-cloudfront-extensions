@@ -10,7 +10,8 @@
     ],
     "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", // Optional, if not set cf_domain, it will find cf_domain according to CName in the url list
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
+    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
+    "protocol": "http|https"
 }
 ```
 
@@ -18,6 +19,7 @@
 
     - url_list： 预热的url列表
     - cf_domain： 以[cloudfront.net](http://cloudfront.net/)结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain
+    - protocol: 可选字段，可传 "http" 或者 "https"，如不指定，默认是 "http"
     - target_type 预热区域目标类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同
       * pop：根据节点预热
       * country：根据国家预热

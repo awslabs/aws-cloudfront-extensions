@@ -10,7 +10,8 @@
     ],
     "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", // Optional, if not set cf_domain, it will find cf_domain according to CName in the url list
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
+    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
+    "protocol": "http|https"
 }
 ```
 
@@ -18,6 +19,7 @@
     
     - url_list: The list of urls for prewarm.
     - cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
+    - protocol: Optional, accept "http" or "https", if not specified the default protocol is http.
     - target_type: The target type for prewarm. You can specify 3 types of value. The region field should change according to this field.
       * pop：prewarm by PoP(Points of Presence)
       * country：prewarm by country

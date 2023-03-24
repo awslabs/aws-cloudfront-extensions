@@ -55,6 +55,7 @@ Method: POST
 Parameters
 url_list: The list of urls for prewarm.
 cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
+protocol: Optional, accept "http" or "https", if not specified the default protocol is http.
 target_type: The target type for prewarm. You can specify 3 types of value. The region field should change according to this field.
     * pop：pre-warm in PoP
     * country：pre-warm in country
@@ -96,7 +97,8 @@ CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
     ],
     "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
+    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
+    "protocol": "http|https"
 }
 ```
 
