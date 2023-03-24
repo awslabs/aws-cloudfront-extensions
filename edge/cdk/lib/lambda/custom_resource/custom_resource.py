@@ -11,26 +11,8 @@ CF_BEHAVIOR = os.environ['CF_BEHAVIOR']
 CF_STAGE = os.environ['CF_STAGE']
 cloudfront_client = boto3.client('cloudfront')
 ORIGIN_HEADER = {
-    'Custom::TrueClientIp': {
-        'name': 'true-client-ip',
-        'items': [
-            'true-client-ip'
-        ]
-    },
-    'Custom::RedirectByCountry': {
-        'name': 'cloudfront-viewer-country',
-        'items': [
-            'cloudfront-viewer-country'
-        ]
-    },
-    'Custom::RedirectByDevice': {
-        'name': 'device-viewer',
-        'items': [
-            'CloudFront-Is-IOS-Viewer',
-            'CloudFront-Is-Android-Viewer',
-            'CloudFront-Is-Desktop-Viewer'
-        ]
-    }
+    'Custom::TrueClientIp': 'true-client-ip',
+    'Custom::RedirectByCountry': 'cloudfront-viewer-country'
 }
 
 log = logging.getLogger()
@@ -40,13 +22,15 @@ log.setLevel('INFO')
 def update_origin_req_policy(new_header):
     response = cloudfront_client.create_origin_request_policy(
         OriginRequestPolicyConfig={
-            'Comment': 'Forward ' + new_header['name'] + ' header',
-            'Name': new_header['name'] + str(int(datetime.datetime.utcnow().timestamp())),
+            'Comment': 'Forward ' + new_header + ' header',
+            'Name': new_header + str(int(datetime.datetime.utcnow().timestamp())),
             'HeadersConfig': {
                 'HeaderBehavior': 'whitelist',
                 'Headers': {
-                    'Quantity': len(new_header['items']),
-                    'Items': new_header['items']
+                    'Quantity': 1,
+                    'Items': [
+                        new_header
+                    ]
                 }
             },
             'CookiesConfig': {
@@ -129,7 +113,7 @@ def update_cf_config(dist_id, stage, behavior, func_arn, res_type):
             cf_config['DefaultCacheBehavior'], para, stage, func_arn)
 
         if 'OriginRequestPolicyId' not in cf_config['DefaultCacheBehavior'] and 'ForwardedValues' not in cf_config['DefaultCacheBehavior']:
-            if res_type == 'Custom::TrueClientIp' or res_type == 'Custom::RedirectByCountry' or res_type == 'Custom::RedirectByDevice':
+            if res_type == 'Custom::TrueClientIp' or res_type == 'Custom::RedirectByCountry':
                 # Add this header to origin request header if no origin request header existed
                 # The user needs to add the header manually if the distribution has an origin request header
                 if len(origin_request_policy_id) == 0:
@@ -143,7 +127,7 @@ def update_cf_config(dist_id, stage, behavior, func_arn, res_type):
                     cf_config['CacheBehaviors']['Items'][i], para, stage, func_arn)
 
                 if 'OriginRequestPolicyId' not in cf_config['CacheBehaviors']['Items'][i] and 'ForwardedValues' not in cf_config['CacheBehaviors']['Items'][i]:
-                    if res_type == 'Custom::TrueClientIp' or res_type == 'Custom::RedirectByCountry' or res_type == 'Custom::RedirectByDevice':
+                    if res_type == 'Custom::TrueClientIp' or res_type == 'Custom::RedirectByCountry':
                         if len(origin_request_policy_id) == 0:
                             origin_request_policy_id = update_origin_req_policy(
                                 ORIGIN_HEADER[res_type])
@@ -161,8 +145,7 @@ def lambda_handler(event, context):
         'RequestType' in event) else ""
 
     if event['ResourceType'] == 'Custom::TrueClientIp' or \
-        event['ResourceType'] == 'Custom::RedirectByCountry' or \
-            event['ResourceType'] == 'Custom::RedirectByDevice':
+            event['ResourceType'] == 'Custom::RedirectByCountry':
         if 'CREATE' in request_type or 'UPDATE' in request_type:
             behavior_list = CF_BEHAVIOR.replace(
                 '[', '').replace(']', '').split(',')

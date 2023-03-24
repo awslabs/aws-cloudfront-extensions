@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { EndpointType, LambdaRestApi, RequestValidator, LogGroupLogDestination, AccessLogFormat } from 'aws-cdk-lib/aws-apigateway';
+import { EndpointType, LambdaRestApi, RequestValidator } from 'aws-cdk-lib/aws-apigateway';
 import * as as from 'aws-cdk-lib/aws-autoscaling';
 import { BlockDeviceVolume } from 'aws-cdk-lib/aws-autoscaling';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
@@ -29,9 +29,9 @@ export class PrewarmStack extends cdk.Stack {
     });
 
     const instanceType = new CfnParameter(this, 'InstanceType', {
-      description: 'EC2 spot instance type to send pre-warm requests, eg. c5a.large',
+      description: 'EC2 spot instance type to send pre-warm requests',
       type: 'String',
-      default: 'c5a.large',
+      default: 'c6a.large',
     });
 
     const threadNumber = new CfnParameter(this, 'ThreadNumber', {
@@ -159,6 +159,22 @@ export class PrewarmStack extends cdk.Stack {
       ]
     });
 
+    const ec2_cloudwatch_policy = new iam.Policy(
+        this,
+        "EC2CloudWatchPolicy",{
+        statements: [
+            new iam.PolicyStatement( {
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"]
+        })
+        ]
+  });
+
+
     const asgRole = new iam.Role(this, 'PrewarmASGRole', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
     });
@@ -170,6 +186,7 @@ export class PrewarmStack extends cdk.Stack {
     asgRole.attachInlinePolicy(ddbPolicy);
     asgRole.attachInlinePolicy(sqsPolicy);
     asgRole.attachInlinePolicy(cfPolicy);
+    asgRole.attachInlinePolicy(ec2_cloudwatch_policy);
 
     const metric = new cloudwatch.MathExpression({
       expression: "visible + hidden",
@@ -238,7 +255,7 @@ export class PrewarmStack extends cdk.Stack {
 
     const agentScaleOut = new as.StepScalingAction(this, 'PrewarmScaleOut', {
       autoScalingGroup: prewarmAsg,
-      adjustmentType: as.AdjustmentType.EXACT_CAPACITY,
+      adjustmentType: as.AdjustmentType.CHANGE_IN_CAPACITY,
     });
     agentScaleOut.addAdjustment({
       adjustment: 0,
@@ -319,7 +336,6 @@ export class PrewarmStack extends cdk.Stack {
       }
     });
 
-    const logGroup = new logs.LogGroup(this, "PrewarmStatusApi_ApiGatewayAccessLogs");
     // Restful API to get prewarm status from Dynamodb table
     const statusApi = new LambdaRestApi(this, 'PrewarmStatusApi', {
       handler: statusFetcherLambda,
@@ -327,10 +343,6 @@ export class PrewarmStack extends cdk.Stack {
       proxy: false,
       endpointConfiguration: {
         types: [EndpointType.EDGE]
-      },
-      deployOptions: {
-        accessLogDestination: new LogGroupLogDestination(logGroup),
-        accessLogFormat: AccessLogFormat.clf(),
       }
     });
 

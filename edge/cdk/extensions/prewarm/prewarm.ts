@@ -13,5 +13,5 @@ new PrewarmStack(app, 'PrewarmStack', {
 app.synth();
 
 function bssSynth() {
-    return process.env.USE_BSS ? new BootstraplessStackSynthesizer(): undefined;
+    return process.env.USE_BSS ? new BootstraplessStackSynthesizer() : undefined;
 }

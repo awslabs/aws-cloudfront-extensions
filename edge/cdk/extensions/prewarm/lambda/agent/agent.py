@@ -88,9 +88,9 @@ def download_file_with_curl(url, cf_domain, original_url):
     try:
         popAddress = popList[0]
     except Exception as e:
-        raise Exception(f'Failed to find the popAddress ipaddress with pop_domain: {pop_domain}')
+        raise Exception(f'Failed to find the popAddress ipaddress with pop_domain: {pop_domain}') 
 
-# Get the original url domain name
+    # Get the original url domain name
     parsed_url = urlparse(original_url)
     original_domain = parsed_url.netloc
     print(original_domain)  # 'www.example.com'```
