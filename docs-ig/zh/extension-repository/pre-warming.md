@@ -98,9 +98,12 @@ CloudFormation模板提供以下组件和工作流：
             ],
             "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
-            "region": ["ATL56-C1", "DFW55-C3"]
+            "region": ["ATL56-C1", "DFW55-C3"],
+            "protocol": "http|https"
       }
 
+**Note:**
+    字段 "protocol" 是可选字段，如果不指定，默认是http.
 
 **prewarm.sh**
 

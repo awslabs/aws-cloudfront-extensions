@@ -51,41 +51,51 @@ To see details for the stack resources, choose the *Outputs* tab.
 ### Prewarm
 
 #### Request
-Method: POST
-Parameters
-url_list: The list of urls for prewarm.
-cf_domain: CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.
-target_type: The target type for prewarm. You can specify 3 types of value. The region field should change according to this field.
-    * pop：pre-warm in PoP
-    * country：pre-warm in country
-    * region：pre-warm in region
-region: The region for prewarm. This field should change according to the target_type field.
-    * target_type = "pop": accept a PoP list, pre-warm in the PoP location in the list,eg:["ATL56-C1", "DFW55-C3"]
-    * target_type = "region": accept "all" or a region list, pre-warm in all regions or a specific region,eg:"all"|["apac", "au"], the available regions are：
-      * apac： Asia-Pacific
-      * au： Australia
-      * ca： Canada
-      * sa： South Africa
-      * eu： Europe
-      * jp： Japan
-      * us： United States
-      * cn： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
-    * target_type = "country": accept "all" or a country list: pre-warm in all countries or a specific country,eg:"all"|["india", "new_zealand"], the available countries are：
-      * india： India
-      * japan： Japan
-      * new_zealand： New Zealand
-      * australia：Australia
-      * malaysia： Malaysia
-      * china： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
-      * indonesia：Indonesia
-      * philippines：Philippines
-      * singapore：Singapore
-      * thailand： Thailand
-      * vietnam：Vietnam
-      * south_korea： South Korea
+
+- HTTP request method: `POST`
+
+- Request body parameters
+
+| **Name**    | **Type**                         | **Required** | **Description**                                                                                                                                       |
+|-------------|----------------------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| url_list    | *List*                           | yes          | The list of urls for prewarm.                                                                                                                         |
+| cf_domain   | *String*                         | yes          | CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list. |
+| protocol    | *String*                         | false        | Accept "http" or "https", if not specified the default protocol is http.                                                                              |
+| target_type | *String*                         | yes          | The target type for prewarm. You can specify 3 types of value. The region field should change according to this field, please details below.          |
+| region      | *List or String* | yes          | The region for prewarm. This field should change according to the target_type field, please details below.                                            |
+
+- Including:
+  - target_type: You can specify 3 types of value.
+      * pop：pre-warm in PoP
+      * country：pre-warm in country
+      * region：pre-warm in region
+  - region: This field should change according to the target_type field.
+      * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,eg:["ATL56-C1", "DFW55-C3"]
+      * target_type = "region": this field  accept "all" or a region list, pre-warm in all regions or a specific region,eg:"all" or ["apac", "au"], the available regions are：
+        * apac： Asia-Pacific
+        * au： Australia
+        * ca： Canada
+        * sa： South Africa
+        * eu： Europe
+        * jp： Japan
+        * us： United States
+        * cn： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
+      * target_type = "country": this field accept "all" or a country list: pre-warm in all countries or a specific country,eg:"all"|["india", "new_zealand"], the available countries are：
+        * india： India
+        * japan： Japan
+        * new_zealand： New Zealand
+        * australia：Australia
+        * malaysia： Malaysia
+        * china： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
+        * indonesia：Indonesia
+        * philippines：Philippines
+        * singapore：Singapore
+        * thailand： Thailand
+        * vietnam：Vietnam
+        * south_korea： South Korea
 
 
-For example:
+- For example:
 CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
 
 ```
@@ -96,16 +106,20 @@ CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
     ],
     "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"] // "all" to prewarm all established pop node
+    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
+    "protocol": "http|https"
 }
 ```
 
 #### Response
 
-Parameters
-requestID: the request id, you can use it in PrewarmStatus API to get the pre-warm status.
+- Response parameters
 
-For example:
+| **Name** | **Type** | **Description**                                                                 |
+|----------|-----------|---------------------------------------------------------------------------------|
+|requestID    |*String*   | The request id, you can use it in PrewarmStatus API to get the pre-warm status. |
+
+- For example:
 
 ```
 {
@@ -116,10 +130,15 @@ For example:
 ### PrewarmStatus
 
 #### Request
-Method: GET
-Parameters
-requestID: the request id generated after a pre-warm is scheduled, it is in the query string.
+- HTTP request method: `GET`
 
+- Request parameters
+
+| **Name** | **Type** | **Description**                                                                    |
+|----------|-----------|------------------------------------------------------------------------------------|
+|requestID    |*String*   | The request id generated after a pre-warm is scheduled, it is in the query string. |
+
+- For example:
 ```
 {
   "requestID": "4f780687-9774-48cd-bd7d-db836abf45af"
@@ -127,12 +146,17 @@ requestID: the request id generated after a pre-warm is scheduled, it is in the 
 ```
 
 #### Response
-status: the overall pre-warm status
-total: total url count to pre-warm
-completed: the count of urls which are pre-warmed
-inProgress: the count of urls which are being pre-warmed
-failedUrl: the list of urls which are failed to pre-warm
+- Response parameters
 
+| **Name** | **Type**  | **Description**              |
+|----------|-----------|------------------------------|
+|status    | *String*  | The overall pre-warm status. |
+|total    | *Number*  | Total url count to pre-warm. |
+|completed    | *Number* | The count of urls which are pre-warmed. |
+|inProgress    | *Number* | The count of urls which are being pre-warmed. |
+|failedUrl    | *List*    | The list of urls which are failed to pre-warm. |
+
+- For example:
 ```
 {
     "status": "COMPLETED" | "IN_PROGRESS" | "TIMEOUT" | "FAILED",
