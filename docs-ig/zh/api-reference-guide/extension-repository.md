@@ -5,10 +5,10 @@
 
 | **名称**      | **类型**   | **是否必传** | **描述**                                                           |
 |-------------|----------|----------|------------------------------------------------------------------|
-| url_list    | *列表*     | 是        | 需要预热的url列表                                                         |
+| url_list    | *列表*     | 是        | 需要预热的url列表                                                       |
 | cf_domain   | *字符串*    | 是        | 以[cloudfront.net](http://cloudfront.net/)结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain |
 | protocol    | *字符串*    | 否        | 可选字段，可传 "http" 或者 "https"，如不指定，默认是 "http"                        |
-| target_type | *字符串*    | 是        | 预热区域目标类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同，详情如下                   |
+| target_type | *字符串*    | 是        | 预热目标类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同，详情如下                   |
 | region      | *列表或字符串* | 是        | 预热区域。依据不同的target_type,选择不同的值，详情如下                                |
 
 - 其中
@@ -48,10 +48,10 @@
         "https://{host}/index.html",
         "https://{host}/images/demo.png"
     ],
-    "target_type":"pop"｜"region"｜"country",
-    "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", // Optional, if not set cf_domain, it will find cf_domain according to CName in the url list
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
-    "protocol": "http|https"
+    "target_type":"country",
+    "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", 
+    "region": ["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"],
+    "protocol": "http"
 }
 ```
 ### 响应
@@ -90,18 +90,18 @@
 ### 响应
 - 响应参数
 
-| **名称**     | **类型** | **描述**                             |
-|------------|--------|------------------------------------|
-| status     | *字符串*  | 预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中 |
-| total      | *数字*   | 预热url的总数                           |
-| completed  | *数字*   | 预热完成的url的数量                        |
-| inProgress | *数字*   | 正在预热中的url的数量                       |
-| failedUrl  | *列表*   | 失败url列表                            |
+| **名称**     | **类型** | **描述**                                                     |
+|------------|--------|------------------------------------------------------------|
+| status     | *字符串*  | 预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中，TIMEOUT表示超时，FAILED表示失败 |
+| total      | *数字*   | 预热url的总数                                                   |
+| completed  | *数字*   | 预热完成的url的数量                                                |
+| inProgress | *数字*   | 正在预热中的url的数量                                               |
+| failedUrl  | *列表*   | 失败url列表                                                    |
 
 - 响应示例
 ``` json
 {
-    "status": "COMPLETED" | "IN_PROGRESS" | "TIMEOUT" | "FAILED",
+    "status": "COMPLETED",
     "total": 20,
     "completed": 17,
     "inProgress": 3,

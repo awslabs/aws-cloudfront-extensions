@@ -34,8 +34,8 @@ Use the following steps to deploy this solution on Amazon Web Services.
 
 ### Deployment steps
 
-1. Sign in to the Amazon Web Services Management Console and select the button to launch the CloudFormation template. You can also [download the template](https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json) as a starting point for your own implementation.
-    * [Deploy](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=Prewarm&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json)
+1. Log in to the AWS Management Console and deploy the AWS CloudFormation stack using the follow link:
+[Launch the stack in Global Regions] (https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=Prewarm&templateURL=https://aws-cloudfront-extensions-cff.s3.amazonaws.com/asset/prewarm/latest/PrewarmStack.template.json)
 2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different Amazon Web Services Region, use the Region selector in the console navigation bar.
 3. Choose *Next*.
 4. On the *Configure stack options* page, you can specify tags (key-value pairs) for resources in your stack and set additional options, and then choose *Next*.
@@ -70,8 +70,8 @@ To see details for the stack resources, choose the *Outputs* tab.
       * country：pre-warm in country
       * region：pre-warm in region
   - region: This field should change according to the target_type field.
-      * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,eg:["ATL56-C1", "DFW55-C3"]
-      * target_type = "region": this field  accept "all" or a region list, pre-warm in all regions or a specific region,eg:"all" or ["apac", "au"], the available regions are：
+      * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,for example:["ATL56-C1", "DFW55-C3"]
+      * target_type = "region": this field  accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a region list, pre-warm in all regions or a specific region,for example:"all" or ["apac", "au"], the supported values are：
         * apac： Asia-Pacific
         * au： Australia
         * ca： Canada
@@ -79,14 +79,14 @@ To see details for the stack resources, choose the *Outputs* tab.
         * eu： Europe
         * jp： Japan
         * us： United States
-        * cn： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
-      * target_type = "country": this field accept "all" or a country list: pre-warm in all countries or a specific country,eg:"all"|["india", "new_zealand"], the available countries are：
+        * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region, otherwise it will always fail.)
+      * target_type = "country": this field accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a country list: pre-warm in all countries or a specific country,for example:"all"|["india", "new_zealand"], the supported values are：
         * india： India
         * japan： Japan
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China(Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
+        * china： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore
@@ -106,8 +106,8 @@ CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
     ],
     "target_type":"pop"｜"region"｜"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
-    "protocol": "http|https"
+    "region": ["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"],
+    "protocol": "http"
 }
 ```
 
@@ -150,7 +150,7 @@ CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
 
 | **Name** | **Type**  | **Description**              |
 |----------|-----------|------------------------------|
-|status    | *String*  | The overall pre-warm status. |
+|status    | *String*  | The overall pre-warm status. COMPLETED, IN_PROGRESS, TIMEOUT or FAILED|
 |total    | *Number*  | Total url count to pre-warm. |
 |completed    | *Number* | The count of urls which are pre-warmed. |
 |inProgress    | *Number* | The count of urls which are being pre-warmed. |
@@ -159,7 +159,7 @@ CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
 - For example:
 ```
 {
-    "status": "COMPLETED" | "IN_PROGRESS" | "TIMEOUT" | "FAILED",
+    "status": "COMPLETED"",
     "total": 20,
     "completed": 17,
     "inProgress": 3,
