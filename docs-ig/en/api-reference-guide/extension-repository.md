@@ -18,7 +18,7 @@
       * region：pre-warm by region
   - region: This field should change according to the target_type field.
       * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,for example:["ATL56-C1", "DFW55-C3"]
-      * target_type = "region": this field  accept "all" or a region list, pre-warm in all regions(best to use after opening Origin Shield,link for details：https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield)  or a specific region,for example:"all" or ["apac", "au"], the supported values are：
+      * target_type = "region": this field  accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a region list, pre-warm in all regions or a specific region,for example:"all" or ["apac", "au"], the supported values are：
         * apac： Asia-Pacific
         * au： Australia
         * ca： Canada
@@ -26,14 +26,14 @@
         * eu： Europe
         * jp： Japan
         * us： United States
-        * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions, otherwise it will always fail.)
-      * target_type = "country": this field accept "all" or a country list: pre-warm in all countries or a specific country,for example:"all"|["india", "new_zealand"], the supported values are：
+        * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region, otherwise it will always fail.)
+      * target_type = "country": this field accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a country list: pre-warm in all countries or a specific country,for example:"all"|["india", "new_zealand"], the supported values are：
         * india： India
         * japan： Japan
         * new_zealand： New Zealand
         * australia：Australia
         * malaysia： Malaysia
-        * china： China (Chinese mainland prewarm can only be used by deploying this solution in Chinese mainland regions)
+        * china： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region)
         * indonesia：Indonesia
         * philippines：Philippines
         * singapore：Singapore
@@ -49,10 +49,10 @@
         "https://{host}/index.html",
         "https://{host}/images/demo.png"
     ],
-    "target_type":"pop"｜"region"｜"country",
-    "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", // Optional, if not set cf_domain, it will find cf_domain according to CName in the url list
-    "region": "all"|["ATL56-C1", "DFW55-C3"]|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all established pop node
-    "protocol": "http|https"
+    "target_type":"country",
+    "cf_domain": "d3hvi5wvyqg3lv.cloudfront.net", 
+    "region": ["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"],
+    "protocol": "http"
 }
 ```
 ### Response
@@ -91,20 +91,20 @@
 ### Response
 - Response parameters
 
-| **Name** | **Type**  | **Description**              |
-|----------|-----------|------------------------------|
-|status    | *String*  | The overall pre-warm status. |
-|total    | *Number*  | Total url count to pre-warm. |
-|completed    | *Number* | The count of urls which are pre-warmed. |
-|inProgress    | *Number* | The count of urls which are being pre-warmed. |
-|failedUrl    | *List*    | The list of urls which are failed to pre-warm. |
+| **Name** | **Type**  | **Description**                                                        |
+|----------|-----------|------------------------------------------------------------------------|
+|status    | *String*  | The overall pre-warm status. COMPLETED, IN_PROGRESS, TIMEOUT or FAILED |
+|total    | *Number*  | Total url count to pre-warm.                                           |
+|completed    | *Number* | The count of urls which are pre-warmed.                                |
+|inProgress    | *Number* | The count of urls which are being pre-warmed.                          |
+|failedUrl    | *List*    | The list of urls which are failed to pre-warm.                         |
 
 
 - Response example
 
 ``` json
 {
-    "status": "COMPLETED" | "IN_PROGRESS" | "TIMEOUT" | "FAILED",
+    "status": "COMPLETED",
     "total": 20,
     "completed": 17,
     "inProgress": 3,

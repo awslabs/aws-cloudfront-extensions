@@ -58,7 +58,7 @@
 | url_list    | *列表*     | 是        | 需要预热的url                                                         |
 | cf_domain   | *字符串*    | 是        | CloudFront域名，以cloudfront.net结尾，如果未设置，它将根据url列表中的CNAME查找cf_domain |
 | protocol    | *字符串*    | 否        | 可选字段，可传 "http" 或者 "https"，如不指定，默认是 "http"                        |
-| target_type | *字符串*    | 是        | 预热区域类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同，详情如下                   |
+| target_type | *字符串*    | 是        | 预热目标类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同，详情如下                   |
 | region      | *列表或字符串* | 是        | 预热区域。依据不同的target_type,选择不同的值，详情如下                                |
 
 - 其中
@@ -100,10 +100,10 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
         "https://www.example.com/index.html",
         "https://www.example.com/images/demo.png"
     ],
-    "target_type":"pop"｜"region"｜"country",
+    "target_type":"country",
     "cf_domain": "d1234567890r.cloudfront.net",
-    "region": ["ATL56-C1", "DFW55-C3"]|"all"|["apac","au","ca","sa","eu","jp","us"]|["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"], // "all" to prewarm all pop node
-    "protocol": "http|https"
+    "region": ["china","india","japan","new_zealand","australia","malaysia","indonesia","philippines","singapore","thailand","vietnam","south_korea"],
+    "protocol": "http"
 }
 ```
 ### 响应
@@ -151,7 +151,7 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
 
 ```
 {
-    "status": "COMPLETED" | "IN_PROGRESS" | "TIMEOUT" | "FAILED",
+    "status": "COMPLETED",
     "total": 20,
     "completed": 17,
     "inProgress": 3,
