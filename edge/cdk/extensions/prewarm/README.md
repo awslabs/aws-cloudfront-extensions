@@ -60,13 +60,13 @@ To see details for the stack resources, choose the *Outputs* tab.
 |-------------|----------------------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | url_list    | *List*                           | yes          | The list of urls for prewarm.                                                                                                                                                                                                                                                                   |
 | cf_domain   | *String*                         | yes          | CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.                                                                                                                                         |
-| protocol    | *String*                         | false        | Accept "http" or "https", if not specified the default protocol is http.                                                                                                                                                                                                                        |
+| protocol    | *String*                         | no            | Accept "http" or "https", if not specified the default protocol is http.                                                                                                                                                                                                                        |
 | target_type | *String*                         | yes          | The target type for prewarm. You can specify 3 types of value. The region field should be set base on this field. The supported values are : "pop", "country", "region". <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region |
 | region      | *List or String* | yes          | The region for prewarm. Please see details below.                                                                                                                                                                                                                                               |
 
 - region: This field should be set based on the target_type field.
     * when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example:["ATL56-C1", "DFW55-C3"]
-    * when target_type is "region": this field should be set "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or region list.It means pre-warm in all regions or specific regions, for example:"all" or ["apac", "au"], the supported values are：
+    * when target_type is "region": this field can be set as "all" or a list of regions. Possible values in the list are as below:
       * apac： Asia-Pacific
       * au： Australia
       * ca： Canada
@@ -74,21 +74,27 @@ To see details for the stack resources, choose the *Outputs* tab.
       * eu： Europe
       * jp： Japan
       * us： United States
-      * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region, otherwise it will always fail.)
-    * when target_type is "country": this field should be set "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or country list.It means pre-warm in all countries or specific countries, for example:"all"|["india", "new_zealand"], the supported values are：
+      * cn： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
+      
+Notice:
+When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
+-
+    * when target_type is "country": this field can be set as "all" or a list of countries. Possible values in the list are as below:
       * india： India
       * japan： Japan
       * new_zealand： New Zealand
       * australia：Australia
       * malaysia： Malaysia
-      * china： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region)
+      * china： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
       * indonesia：Indonesia
       * philippines：Philippines
       * singapore：Singapore
       * thailand： Thailand
       * vietnam：Vietnam
       * south_korea： South Korea
-
+      
+Notice:
+When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
 
 - For example:
 CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
@@ -143,22 +149,27 @@ CloudFront domain is d1234567890r.cloudfront.net,CName is www.example.com.
 #### Response
 - Response parameters
 
-| **Name** | **Type**  | **Description**              |
-|----------|-----------|------------------------------|
-|status    | *String*  | The overall pre-warm status. COMPLETED, IN_PROGRESS, TIMEOUT or FAILED|
-|total    | *Number*  | Total url count to pre-warm. |
-|completed    | *Number* | The count of urls which are pre-warmed. |
-|inProgress    | *Number* | The count of urls which are being pre-warmed. |
-|failedUrl    | *List*    | The list of urls which are failed to pre-warm. |
+| **Name** | **Type**  | **Description**                                                                                                                                                                                                 |
+|----------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|status    | *String*  | The overall pre-warm status. COMPLETED, IN_PROGRESS, TIMEOUT or FAILED                                                                                                                                          |
+|total    | *Number*  | The count of urls to pre-warm.                                                                                                                                                                                  |
+|completed    | *Number* | The count of urls which are pre-warmed.                                                                                                                                                                         |
+|inProgress    | *Number* | The count of urls which are being pre-warmed.                                                                                                                                                                   |
+|failedUrl    | *List*    | The list of urls which are failed to be pre-warmed.                                                                                                                                                             |
+|inProgressUrl    | *List*    | The list of urls which are in progress to be pre-warmed.                                                                                                                                                        |
+|successUrl    | *List*    | The list of urls which are succesful to be pre-warmed. This field can will be shown only if the ShowSuccessUrls is set to be true. You can set the ShowSuccessUrls by updating Prewarm CloudFormation template. |
+
 
 - For example:
 ```
 {
-    "status": "COMPLETED"",
-    "total": 20,
-    "completed": 17,
-    "inProgress": 3,
-    "failedUrl": ["https://www.example.com/images/demo.png"]
+    "status": "COMPLETED",
+    "total": 2,
+    "completed": 2,
+    "inProgress": 0,
+    "failedUrl": ["https://www.example.com/images/demo.png"],
+    "inProgressUrl": [],
+    "successUrl": ["https://www.example.com/images/xx.png"]
 }
 ```
 

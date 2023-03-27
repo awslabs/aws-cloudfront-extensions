@@ -72,6 +72,13 @@
       * jp： Japan
       * us： United States
       * cn： China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)
+      
+Notice:
+
+    当选择为 "all"时， 建议同步配合开启 Origin Shield使用。 
+详情请见： [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
+
+-
     * 当 target_type 为 "country"时，此字段传"all"(配合开启Origin Shield效果更好，详情见[链接](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield))或者国家代码列表，表示在特定国家进行预热，"all"代表预热全部国家列表，例如"all"或者["india", "new_zealand"]，可用国家为：
       * india： India
       * japan： Japan
@@ -134,23 +141,27 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
 ### 响应
 - 响应参数
 
-| **名称**     | **类型** | **描述**                             |
-|------------|--------|------------------------------------|
-| status     | *字符串*  | 预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中，TIMEOUT表示超时，FAILED表示失败 |
-| total      | *数字*   | 预热url的总数                           |
-| completed  | *数字*   | 预热完成的url的数量                        |
-| inProgress | *数字*   | 正在预热中的url的数量                       |
-| failedUrl  | *列表*   | 失败url列表                            |
+| **名称**     | **类型** | **描述**                                                                                            |
+|------------|--------|---------------------------------------------------------------------------------------------------|
+| status     | *字符串*  | 预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中，TIMEOUT表示超时，FAILED表示失败                                        |
+| total      | *数字*   | 预热url的总数                                                                                          |
+| completed  | *数字*   | 预热完成的url的数量                                                                                       |
+| inProgress | *数字*   | 正在预热中的url的数量                                                                                      |
+| failedUrl  | *列表*   | 失败url列表                                                                                           |
+|inProgressUrl | *列表*     | 进行中url列表                                                                                          |
+|successUrl    | *列表*    | 成功url列表，此字段只有在ShowSuccessUrls被设置为true的时候返回，ShowSuccessUrls字段可以通过Prewarm CloudFormation template设置 |
 
 - 响应示例
 
 ```
 {
     "status": "COMPLETED",
-    "total": 20,
-    "completed": 17,
-    "inProgress": 3,
-    "failedUrl": ["https://www.example.com/images/demo.png"]
+    "total": 2,
+    "completed": 2,
+    "inProgress": 0,
+    "failedUrl": ["https://www.example.com/images/demo.png"],
+    "inProgressUrl": [],
+    "successUrl": ["https://www.example.com/images/xx.png"]
 }
 ```
 

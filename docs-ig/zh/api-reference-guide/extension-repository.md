@@ -92,16 +92,18 @@
 | completed  | *数字*   | 预热完成的url的数量                                                |
 | inProgress | *数字*   | 正在预热中的url的数量                                               |
 | failedUrl  | *列表*   | 失败url列表                                                    |
+|inProgressUrl | *列表*     | 进行中url列表                                                   |
+|successUrl    | *列表*    | 成功url列表，此字段只有在ShowSuccessUrls被设置为true的时候返回，ShowSuccessUrls字段可以通过Prewarm CloudFormation template设置                                                  |
 
 - 响应示例
 ``` json
 {
     "status": "COMPLETED",
-    "total": 20,
-    "completed": 17,
-    "inProgress": 3,
-    "failedUrl": ["https://www.example.com/images/demo.png"]
-    "inProgressUrl": ["https://www.example.com/images/demo1.png"]
+    "total": 2,
+    "completed": 2,
+    "inProgress": 0,
+    "failedUrl": ["https://www.example.com/images/demo.png"],
+    "inProgressUrl": [],
     "successUrl": ["https://www.example.com/images/xx.png"]
 }
 ```
