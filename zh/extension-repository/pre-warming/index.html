@@ -19,7 +19,7 @@
         <link rel="next" href="../resize-image/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.c4a75a56.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.240905d7.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1362,17 +1362,17 @@
 <ul>
 <li><strong>PrewarmAPIkey</strong>: API密钥arn。您可在API Gateway控制台的API密钥界面中找到此API key，点击显示按钮，获取密钥。请求预热API时需要使用此密钥进行鉴权，作为x-api-key的值。</li>
 <li><strong>PrewarmApiEndpoint</strong>: 预热API的URL即为在此后面加上prewarm关键字。例如：若PrewarmApiEndpoint是<strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/</strong>，则预热API为 <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong></li>
-<li><strong>PrewarmStatusApiEndpoint</strong>: 获取预热状态API的URL即为在此后面加上status关键字。例如：若PrewarmStatusApiEndpoint是<strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>，则获取预热状态API为 <strong>https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
+<li><strong>PrewarmStatusApiEndpoint</strong>: 获取预热状态API的URL即为在此后面加上status关键字。例如：若PrewarmStatusApiEndpoint是<strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>，则获取预热状态API为 <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
 <li>打开可以发送HTTP请求的工具，例如Postman。</li>
 <li>按照预热API格式发送预热请求（更多信息请见<a href="../../api-reference-guide/extension-repository/#pre-warming">API参考指南</a>），并在header中新建键值对：key为<strong>x-api-key</strong>，value为API key。</li>
 </ul>
 <p><img alt="Prewarm API Key" src="../../images/prewarm_apikey.png" />
-<img alt="Prewarm Trigger" src="../../images/prewarm_trigger.png" /></p>
+<img alt="Prewarm Trigger" src="../../images/prewarm_trigger_new.png" /></p>
 </li>
 <li>
 <p>预热API会返回requestID，至此您成功触发了预热，下面可以通过PrewarmStatus API获取预热状态。</p>
 </li>
-<li>按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。
+<li>按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。(请注意检查是否请求header中默认带有Accept-Encoding，并且值为"gzip, deflate, br"，如果没有注意添加下)
     <img alt="Prewarm Status" src="../../images/prewarm_status.png" /></li>
 </ol>
 <h3 id="curl">通过Curl触发预热</h3>
@@ -1384,10 +1384,14 @@
               &quot;https://www.example.com/index.html&quot;,
               &quot;https://www.example.com/images/demo.png&quot;
         ],
+        &quot;target_type&quot;:&quot;pop&quot;,
         &quot;cf_domain&quot;: &quot;d1234567890r.cloudfront.net&quot;,
-        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;]
+        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;],
+        &quot;protocol&quot;: &quot;http&quot;
   }
 </code></pre></div>
+<p><strong>Note:</strong>
+    字段 "protocol" 是可选字段，如果不指定，默认是http.</p>
 <p><strong>prewarm.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
   curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
@@ -1460,7 +1464,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.efa0ade1.min.js"></script>
+      <script src="../../assets/javascripts/bundle.19047be9.min.js"></script>
       
     
   </body>

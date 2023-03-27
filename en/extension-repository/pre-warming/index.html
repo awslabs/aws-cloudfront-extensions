@@ -17,7 +17,7 @@
         <link rel="next" href="../resize-image/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.c4a75a56.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.240905d7.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1295,7 +1295,7 @@
 <h2 id="what-is-pre-warming">What is Pre-warming?</h2>
 <p>Pre-warming is also known as Pre-caching or Pre-fetching. It speeds up content delivery by warming the CloudFront cache. This is very useful when delivering large files. Pre-warming helps offload origin’s traffic, as the same requests will hit the CloudFront cache, origin server receives less requests and consequently it's less likely that the origin server will fall over or become slow. </p>
 <h3 id="how-does-it-work">How does it work?</h3>
-<p>The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployed, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.</p>
+<p>The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployment, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.</p>
 <p><img alt="prewarm" src="../../images/prewarm-arch.png" /></p>
 <p>The CloudFormation template provides the following components and workflows:</p>
 <ol>
@@ -1363,26 +1363,26 @@
 <p>You can view the status of the stack in the CloudFormation Console in the Status column. You should receive a CREATE_COMPLETE status in approximately 10 minutes.</p>
 <p>To see details for the stack resources, choose the <strong>Outputs</strong> tab. </p>
 <h2 id="how-to-use-pre-warming">How to use Pre-warming</h2>
-<p>Please set Viewer protocol policy as <strong>HTTP and HTTPS</strong> in your CloudFront distribution's cache behavior before pre-warming.</p>
+<p>Before pre-warming, you need to set Viewer protocol policy as <strong>HTTP and HTTPS</strong> in your CloudFront distribution's cache behavior.</p>
 <h3 id="pre-warm-by-postman">Pre-warm by Postman</h3>
 <ol>
 <li>
-<p>After deployment, open the <strong>Outputs</strong> tab of CloudFormation stack, and you can see the following information:
+<p>After deployment, choose the <strong>Outputs</strong> tab of CloudFormation stack, and you can see the following information:
     <img alt="Prewarm Output" src="../../images/prewarm_output.png" /></p>
 <ul>
 <li><strong>PrewarmAPIkey</strong>: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.</li>
 <li><strong>PrewarmApiEndpoint</strong>: Pre-warm API's URL is followd by the prewarm keyword. Eg. if PrewarmApiEndpoint is <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm API will be <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong></li>
-<li><strong>PrewarmStatusApiEndpoint</strong>: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm status API will be <strong>https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
+<li><strong>PrewarmStatusApiEndpoint</strong>: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm status API will be <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
 <li>Open a tool that can send HTTP requests, such as Postman.</li>
 <li>Send pre-warm request (refer to <a href="../../api-reference-guide/extension-repository/#pre-warming">API references</a> for more details), and add a key value pair in the header: key is <strong>x-api-key</strong>, value is your API key.</li>
 </ul>
 <p><img alt="Prewarm API Key" src="../../images/prewarm_apikey.png" />
-<img alt="Prewarm Trigger" src="../../images/prewarm_trigger.png" /></p>
+<img alt="Prewarm Trigger" src="../../images/prewarm_trigger_new.png" /></p>
 </li>
 <li>
 <p>The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.</p>
 </li>
-<li>Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.
+<li>Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
     <img alt="Prewarm Status" src="../../images/prewarm_status.png" /></li>
 </ol>
 <h3 id="pre-warm-by-curl">Pre-warm by Curl</h3>
@@ -1394,10 +1394,14 @@
               &quot;https://www.example.com/index.html&quot;,
               &quot;https://www.example.com/images/demo.png&quot;
         ],
+        &quot;target_type&quot;:&quot;pop&quot;,
         &quot;cf_domain&quot;: &quot;d1234567890r.cloudfront.net&quot;,
-        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;]
+        &quot;region&quot;: [&quot;ATL56-C1&quot;, &quot;DFW55-C3&quot;],
+        &quot;protocol&quot;: &quot;http&quot;
   }
 </code></pre></div>
+<p><strong>Note:</strong>
+    parameter "protocol" is optional, if not specified the default protocol is http.</p>
 <p><strong>prewarm.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
   curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
@@ -1470,7 +1474,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.efa0ade1.min.js"></script>
+      <script src="../../assets/javascripts/bundle.19047be9.min.js"></script>
       
     
   </body>

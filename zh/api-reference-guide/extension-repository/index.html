@@ -19,7 +19,7 @@
         <link rel="next" href="../distribution-management/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.c4a75a56.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.240905d7.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -920,12 +920,52 @@
     Pre-warming
   </a>
   
+    <nav class="md-nav" aria-label="Pre-warming">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    请求
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    响应
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
   <a href="#prewarmstatus" class="md-nav__link">
     PrewarmStatus
   </a>
+  
+    <nav class="md-nav" aria-label="PrewarmStatus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    请求
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    响应
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1077,12 +1117,52 @@
     Pre-warming
   </a>
   
+    <nav class="md-nav" aria-label="Pre-warming">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    请求
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    响应
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
   <a href="#prewarmstatus" class="md-nav__link">
     PrewarmStatus
   </a>
+  
+    <nav class="md-nav" aria-label="PrewarmStatus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    请求
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    响应
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1107,33 +1187,59 @@
   <h1>扩展存储库</h1>
 
 <h2 id="pre-warming">Pre-warming</h2>
+<h3 id="_1">请求</h3>
 <ul>
 <li>HTTP方法: <code>POST</code></li>
-<li>请求</li>
+<li>请求参数</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;url_list&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="s2">&quot;https://{host}/index.html&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="s2">&quot;https://{host}/images/demo.png&quot;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;cf_domain&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d3hvi5wvyqg3lv.cloudfront.net&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, if not set cf_domain, it will find cf_domain according to CName in the url list</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ATL56-C1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DFW55-C3&quot;</span><span class="p">]</span><span class="err">|</span><span class="s2">&quot;all&quot;</span><span class="err">|</span><span class="s2">&quot;apac&quot;</span><span class="err">|</span><span class="s2">&quot;au&quot;</span><span class="err">|</span><span class="s2">&quot;ca&quot;</span><span class="err">|</span><span class="s2">&quot;sa&quot;</span><span class="err">|</span><span class="s2">&quot;eu&quot;</span><span class="err">|</span><span class="s2">&quot;jp&quot;</span><span class="err">|</span><span class="s2">&quot;us&quot;</span><span class="w"> </span><span class="c1">// &quot;all&quot; to prewarm all pop node</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
-</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>类型</strong></th>
+<th><strong>是否必传</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>url_list</td>
+<td><em>列表</em></td>
+<td>是</td>
+<td>需要预热的url列表</td>
+</tr>
+<tr>
+<td>cf_domain</td>
+<td><em>字符串</em></td>
+<td>是</td>
+<td>以<a href="http://cloudfront.net/">cloudfront.net</a>结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain</td>
+</tr>
+<tr>
+<td>protocol</td>
+<td><em>字符串</em></td>
+<td>否</td>
+<td>可选字段，可传 "http" 或者 "https"，如不指定，默认是 "http"</td>
+</tr>
+<tr>
+<td>target_type</td>
+<td><em>字符串</em></td>
+<td>是</td>
+<td>预热目标类型。您可以指定3种类型的值，region字段依据此字段类型的不同而值不同，可传值包括："pop"，"country"，"region"。<br>"pop"：根据节点预热<br>"country"：根据国家预热<br>"region"：根据区域预热</td>
+</tr>
+<tr>
+<td>region</td>
+<td><em>列表或字符串</em></td>
+<td>是</td>
+<td>预热区域。详情如下:</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li>
-<p>请求参数</p>
+<p>region： 依据不同的target_type,需设置不同的值</p>
 <ul>
-<li>url_list： 预热的url列表</li>
-<li>cf_domain： 以<a href="http://cloudfront.net/">cloudfront.net</a>结尾的CloudFront域名。如果未设置，它将根据url列表中的CNAME查找cf_domain</li>
-<li>
-<p>region： 预热区域。您可以指定3种类型的值</p>
-</li>
-<li>
-<p>all： 在所有区域进行预热</p>
-</li>
-<li>pop id列表，例如["ATL56-C1", "DFW55-C3"]: 在列表中指定的边缘节点进行预热</li>
-<li>区域代码: 在特定区域进行预热，可用区域为：<ul>
+<li>当 target_type 为 "pop"时，此字段传pop id列表，表示在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]</li>
+<li>当 target_type 为 "region"时，此字段传"all"(配合开启Origin Shield效果更好，详情见<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">链接</a>)或者区域代码列表，表示在特定区域进行预热，"all"代表预热全部区域列表，例如"all"或者["apac", "au"]，可用区域为：</li>
 <li>apac： Asia-Pacific</li>
 <li>au： Australia</li>
 <li>ca： Canada</li>
@@ -1141,56 +1247,158 @@
 <li>eu： Europe</li>
 <li>jp： Japan</li>
 <li>us： United States</li>
-</ul>
-</li>
+<li>cn： China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)</li>
+<li>当 target_type 为 "country"时，此字段传"all"(配合开启Origin Shield效果更好，详情见<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">链接</a>)或者国家代码列表，表示在特定国家进行预热，"all"代表预热全部国家列表，例如"all"或者["india", "new_zealand"]，可用国家为：</li>
+<li>india： India</li>
+<li>japan： Japan</li>
+<li>new_zealand： New Zealand</li>
+<li>australia：Australia</li>
+<li>malaysia： Malaysia</li>
+<li>china： China(大陆区域预热需要在中国区部署此解决方案)</li>
+<li>indonesia：Indonesia</li>
+<li>philippines：Philippines</li>
+<li>singapore：Singapore</li>
+<li>thailand： Thailand</li>
+<li>vietnam：Vietnam</li>
+<li>south_korea： South Korea</li>
 </ul>
 </li>
 <li>
-<p>响应</p>
+<p>请求示例
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;url_list&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="s2">&quot;https://{host}/index.html&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="s2">&quot;https://{host}/images/demo.png&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;target_type&quot;</span><span class="p">:</span><span class="s2">&quot;country&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;cf_domain&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d3hvi5wvyqg3lv.cloudfront.net&quot;</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;china&quot;</span><span class="p">,</span><span class="s2">&quot;india&quot;</span><span class="p">,</span><span class="s2">&quot;japan&quot;</span><span class="p">,</span><span class="s2">&quot;new_zealand&quot;</span><span class="p">,</span><span class="s2">&quot;australia&quot;</span><span class="p">,</span><span class="s2">&quot;malaysia&quot;</span><span class="p">,</span><span class="s2">&quot;indonesia&quot;</span><span class="p">,</span><span class="s2">&quot;philippines&quot;</span><span class="p">,</span><span class="s2">&quot;singapore&quot;</span><span class="p">,</span><span class="s2">&quot;thailand&quot;</span><span class="p">,</span><span class="s2">&quot;vietnam&quot;</span><span class="p">,</span><span class="s2">&quot;south_korea&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">&quot;protocol&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+</code></pre></div></p>
 </li>
+</ul>
+<h3 id="_2">响应</h3>
+<ul>
+<li>响应参数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>类型</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestID</td>
+<td><em>字符串</em></td>
+<td>预热请求id，您可通过调用PrewarmStatus API获取预热请求的最新状态</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>响应示例</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;requestID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4f780687-9774-48cd-bd7d-db836abf45af&quot;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
 </code></pre></div>
-<ul>
-<li>响应参数</li>
-</ul>
-<p><code>requestID</code>: The request ID, which you can use in PrewarmStatus API to get the prewarm status.</p>
 <h2 id="prewarmstatus">PrewarmStatus</h2>
+<h3 id="_3">请求</h3>
 <ul>
 <li>HTTP方法: <code>GET</code></li>
-<li>请求</li>
+<li>请求参数</li>
 </ul>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>类型</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestID</td>
+<td><em>字符串</em></td>
+<td>预热请求id，标识预热请求的id，需要在query string中指定</td>
+</tr>
+<tr>
+<td>- 请求示例</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;requestID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4f780687-9774-48cd-bd7d-db836abf45af&quot;</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
 </code></pre></div>
+<h3 id="_4">响应</h3>
 <ul>
-<li>请求参数</li>
+<li>响应参数</li>
 </ul>
-<p><code>requestID</code>: a unique ID for each request.</p>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>类型</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>status</td>
+<td><em>字符串</em></td>
+<td>预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中，TIMEOUT表示超时，FAILED表示失败</td>
+</tr>
+<tr>
+<td>total</td>
+<td><em>数字</em></td>
+<td>预热url的总数</td>
+</tr>
+<tr>
+<td>completed</td>
+<td><em>数字</em></td>
+<td>预热完成的url的数量</td>
+</tr>
+<tr>
+<td>inProgress</td>
+<td><em>数字</em></td>
+<td>正在预热中的url的数量</td>
+</tr>
+<tr>
+<td>failedUrl</td>
+<td><em>列表</em></td>
+<td>失败url列表</td>
+</tr>
+<tr>
+<td>inProgressUrl</td>
+<td><em>列表</em></td>
+<td>进行中url列表</td>
+</tr>
+<tr>
+<td>successUrl</td>
+<td><em>列表</em></td>
+<td>成功url列表，此字段只有在ShowSuccessUrls被设置为true的时候返回，ShowSuccessUrls字段可以通过Prewarm CloudFormation template设置</td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>响应</li>
-</ul>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;COMPLETED&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;IN_PROGRESS&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;TIMEOUT&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;FAILED&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;inProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&quot;failedUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/demo.png&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;inProgressUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/demo1.png&quot;</span><span class="p">]</span>
+<li>响应示例
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;COMPLETED&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;inProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&quot;failedUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/demo.png&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;inProgressUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">&quot;successUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/xx.png&quot;</span><span class="p">]</span>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
-</code></pre></div>
-- 响应参数</p>
-<p><code>status</code>：整体预热状态</p>
-<p><code>total</code>： 预热的URL总数</p>
-<p><code>completed</code>：已预热的URL的计数</p>
-<p><code>inProgress</code>：正在预热的URL的计数</p>
-<p><code>failedUrl</code>： 未能预热的URL列表</p>
-<p><code>inProgressUrl</code>：正在预热的URL列表</p>
-<p><code>successUrl</code>：已成功预热的URL列表</p>
+</code></pre></div></li>
+</ul>
 
 
 
@@ -1231,7 +1439,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.efa0ade1.min.js"></script>
+      <script src="../../assets/javascripts/bundle.19047be9.min.js"></script>
       
     
   </body>

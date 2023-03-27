@@ -17,7 +17,7 @@
         <link rel="next" href="../distribution-management/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.c4a75a56.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.240905d7.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -918,12 +918,52 @@
     Pre-warming
   </a>
   
+    <nav class="md-nav" aria-label="Pre-warming">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request" class="md-nav__link">
+    Request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response" class="md-nav__link">
+    Response
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
   <a href="#prewarmstatus" class="md-nav__link">
     PrewarmStatus
   </a>
+  
+    <nav class="md-nav" aria-label="PrewarmStatus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_1" class="md-nav__link">
+    Request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_1" class="md-nav__link">
+    Response
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1075,12 +1115,52 @@
     Pre-warming
   </a>
   
+    <nav class="md-nav" aria-label="Pre-warming">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request" class="md-nav__link">
+    Request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response" class="md-nav__link">
+    Response
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
   <a href="#prewarmstatus" class="md-nav__link">
     PrewarmStatus
   </a>
+  
+    <nav class="md-nav" aria-label="PrewarmStatus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_1" class="md-nav__link">
+    Request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_1" class="md-nav__link">
+    Response
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1105,92 +1185,223 @@
   <h1>Extensions repository</h1>
 
 <h2 id="pre-warming">Pre-warming</h2>
+<h3 id="request">Request</h3>
 <ul>
-<li>HTTP request method: <code>POST</code></li>
-<li>Request</li>
+<li>
+<p>HTTP request method: <code>POST</code></p>
+</li>
+<li>
+<p>Request body parameters</p>
+</li>
 </ul>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Required</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>url_list</td>
+<td><em>List</em></td>
+<td>yes</td>
+<td>The list of urls for prewarm.</td>
+</tr>
+<tr>
+<td>cf_domain</td>
+<td><em>String</em></td>
+<td>yes</td>
+<td>CloudFront domain name which ends with <a href="http://cloudfront.net/">cloudfront.net</a>. If not set, it will find cf_domain according to CNAME in the url list.</td>
+</tr>
+<tr>
+<td>protocol</td>
+<td><em>String</em></td>
+<td>no</td>
+<td>Accept "http" or "https", if not specified the default protocol is http.</td>
+</tr>
+<tr>
+<td>target_type</td>
+<td><em>String</em></td>
+<td>yes</td>
+<td>The target type for prewarm. You can specify 3 types of value. The region field should be set base on this field. The supported values are : "pop", "country", "region". <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region</td>
+</tr>
+<tr>
+<td>region</td>
+<td><em>List or String</em></td>
+<td>yes</td>
+<td>The region for prewarm. Please see details below.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>region: This field should be set based on the target_type field.<ul>
+<li>when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example:["ATL56-C1", "DFW55-C3"]</li>
+<li>when target_type is "region": this field can be set as "all" or a list of regions. Possible values in the list are as below:</li>
+<li>apac： Asia-Pacific</li>
+<li>au： Australia</li>
+<li>ca： Canada</li>
+<li>sa： South Africa</li>
+<li>eu： Europe</li>
+<li>jp： Japan</li>
+<li>us： United States</li>
+<li>cn： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))</li>
+</ul>
+</li>
+</ul>
+<p>Notice:
+When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">link</a>.
+-
+    * when target_type is "country": this field can be set as "all" or a list of countries. Possible values in the list are as below:
+      * india： India
+      * japan： Japan
+      * new_zealand： New Zealand
+      * australia：Australia
+      * malaysia： Malaysia
+      * china： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
+      * indonesia：Indonesia
+      * philippines：Philippines
+      * singapore：Singapore
+      * thailand： Thailand
+      * vietnam：Vietnam
+      * south_korea： South Korea</p>
+<p>Notice:
+When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">link</a>.</p>
+<ul>
+<li>Request example:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;url_list&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="s2">&quot;https://{host}/index.html&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="s2">&quot;https://{host}/images/demo.png&quot;</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;cf_domain&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d3hvi5wvyqg3lv.cloudfront.net&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, if not set cf_domain, it will find cf_domain according to CName in the url list</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ATL56-C1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DFW55-C3&quot;</span><span class="p">]</span><span class="err">|</span><span class="s2">&quot;all&quot;</span><span class="err">|</span><span class="s2">&quot;apac&quot;</span><span class="err">|</span><span class="s2">&quot;au&quot;</span><span class="err">|</span><span class="s2">&quot;ca&quot;</span><span class="err">|</span><span class="s2">&quot;sa&quot;</span><span class="err">|</span><span class="s2">&quot;eu&quot;</span><span class="err">|</span><span class="s2">&quot;jp&quot;</span><span class="err">|</span><span class="s2">&quot;us&quot;</span><span class="w"> </span><span class="c1">// &quot;all&quot; to prewarm all pop node</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
-</code></pre></div>
-<ul>
-<li>
-<p>Request body parameters</p>
-<ul>
-<li>url_list: The list of urls for prewarm.</li>
-<li>cf_domain: CloudFront domain name which ends with <a href="http://cloudfront.net/">cloudfront.net</a>. If not set, it will find cf_domain according to CNAME in the url list.</li>
-<li>
-<p>region: The region for prewarm. You can specify 3 types of value.</p>
-</li>
-<li>
-<p>all: prewarm in all regions</p>
-</li>
-<li>pop id list such as ["ATL56-C1", "DFW55-C3"]: prewarm in the PoP location in the list</li>
-<li>region code: pre-warm in a specific region, the available regions are:<ul>
-<li>apac: Asia-Pacific</li>
-<li>au: Australia</li>
-<li>ca: Canada</li>
-<li>sa: South Africa</li>
-<li>eu: Europe</li>
-<li>jp: Japan</li>
-<li>us: United States</li>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;target_type&quot;</span><span class="p">:</span><span class="s2">&quot;country&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;cf_domain&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d3hvi5wvyqg3lv.cloudfront.net&quot;</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;china&quot;</span><span class="p">,</span><span class="s2">&quot;india&quot;</span><span class="p">,</span><span class="s2">&quot;japan&quot;</span><span class="p">,</span><span class="s2">&quot;new_zealand&quot;</span><span class="p">,</span><span class="s2">&quot;australia&quot;</span><span class="p">,</span><span class="s2">&quot;malaysia&quot;</span><span class="p">,</span><span class="s2">&quot;indonesia&quot;</span><span class="p">,</span><span class="s2">&quot;philippines&quot;</span><span class="p">,</span><span class="s2">&quot;singapore&quot;</span><span class="p">,</span><span class="s2">&quot;thailand&quot;</span><span class="p">,</span><span class="s2">&quot;vietnam&quot;</span><span class="p">,</span><span class="s2">&quot;south_korea&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">&quot;protocol&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+</code></pre></div></li>
 </ul>
-</li>
+<h3 id="response">Response</h3>
+<ul>
+<li>Response parameters</li>
 </ul>
-</li>
-<li>
-<p>Response</p>
-</li>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestID</td>
+<td><em>String</em></td>
+<td>The request id, which you can use it in PrewarmStatus API to get the pre-warm status.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Response example</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;requestID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4f780687-9774-48cd-bd7d-db836abf45af&quot;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
 </code></pre></div>
-<ul>
-<li>Response parameters</li>
-</ul>
-<p><code>requestID</code>: The request ID, which you can use in PrewarmStatus API to get the prewarm status.</p>
 <h2 id="prewarmstatus">PrewarmStatus</h2>
+<h3 id="request_1">Request</h3>
 <ul>
 <li>HTTP request method: <code>GET</code></li>
-<li>Request</li>
+<li>Request parameters</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestID</td>
+<td><em>String</em></td>
+<td>The request id generated after a pre-warm is scheduled, it is in the query string.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Request example</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;requestID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4f780687-9774-48cd-bd7d-db836abf45af&quot;</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
 </code></pre></div>
-<ul>
-<li>Request body parameters</li>
-</ul>
-<p><code>requestID</code>: a unique ID for each request.</p>
-<ul>
-<li>Response</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;COMPLETED&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;IN_PROGRESS&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;TIMEOUT&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;FAILED&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;inProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&quot;failedUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/demo.png&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;inProgressUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/demo1.png&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">&quot;successUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/xx.png&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
-</code></pre></div>
+<h3 id="response_1">Response</h3>
 <ul>
 <li>Response parameters</li>
 </ul>
-<p><code>status</code>: the overall prewarm status</p>
-<p><code>total</code>: total url count to pre-warm</p>
-<p><code>completed</code>: the count of urls which are prewarmed</p>
-<p><code>inProgress</code>: the count of urls which are being prewarmed</p>
-<p><code>failedUrl</code>: the list of urls which are failed to prewarm</p>
-<p><code>inProgressUrl</code>: the list of urls which are being prewarmed</p>
-<p><code>successUrl</code>: the list of urls which are successfully prewarmed</p>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>status</td>
+<td><em>String</em></td>
+<td>The overall pre-warm status. COMPLETED, IN_PROGRESS, TIMEOUT or FAILED</td>
+</tr>
+<tr>
+<td>total</td>
+<td><em>Number</em></td>
+<td>The count of urls to pre-warm.</td>
+</tr>
+<tr>
+<td>completed</td>
+<td><em>Number</em></td>
+<td>The count of urls which are pre-warmed.</td>
+</tr>
+<tr>
+<td>inProgress</td>
+<td><em>Number</em></td>
+<td>The count of urls which are being pre-warmed.</td>
+</tr>
+<tr>
+<td>failedUrl</td>
+<td><em>List</em></td>
+<td>The list of urls which are failed to be pre-warmed.</td>
+</tr>
+<tr>
+<td>inProgressUrl</td>
+<td><em>List</em></td>
+<td>The list of urls which are in progress to be pre-warmed.</td>
+</tr>
+<tr>
+<td>successUrl</td>
+<td><em>List</em></td>
+<td>The list of urls which are succesful to be pre-warmed. This field can will be shown only if the ShowSuccessUrls is set to be true. You can set the ShowSuccessUrls by updating Prewarm CloudFormation template.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Response example</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;COMPLETED&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;inProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&quot;failedUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/demo.png&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;inProgressUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">&quot;successUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://www.example.com/images/xx.png&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+</code></pre></div>
 
 
 
@@ -1231,7 +1442,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.efa0ade1.min.js"></script>
+      <script src="../../assets/javascripts/bundle.19047be9.min.js"></script>
       
     
   </body>
