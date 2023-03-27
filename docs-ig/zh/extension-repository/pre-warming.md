@@ -102,7 +102,7 @@ CloudFormation模板提供以下组件和工作流：
             "protocol": "http"
       }
 
-**Note:**
+!!! Note "注意"
     字段 "protocol" 是可选字段，如果不指定，默认是http.
 
 **prewarm.sh**
@@ -122,7 +122,7 @@ CloudFormation模板提供以下组件和工作流：
       {"requestID": "e1efca9a-8d92-4058-a1e9-002fd423f6e5"}
 
 
-### 获取预热状态
+#### 获取预热状态
 
 脚本内容
 
