@@ -136,7 +136,7 @@ CloudFront的域名为 d1234567890r.cloudfront.net，它的CName是 www.example.
 
 | **名称**     | **类型** | **描述**                             |
 |------------|--------|------------------------------------|
-| status     | *字符串*  | 预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中 |
+| status     | *字符串*  | 预热状态，COMPLETED表示完成，IN_PROGRESS表示进行中，TIMEOUT表示超时，FAILED表示失败 |
 | total      | *数字*   | 预热url的总数                           |
 | completed  | *数字*   | 预热完成的url的数量                        |
 | inProgress | *数字*   | 正在预热中的url的数量                       |
