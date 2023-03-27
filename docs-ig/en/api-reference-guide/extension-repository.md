@@ -1,4 +1,4 @@
-## Pre-warming 
+## Prewarm 
 ### Request
 - HTTP request method: `POST`
 
@@ -8,41 +8,41 @@
 |-------------|----------------------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | url_list    | *List*                           | yes         | The list of urls for prewarm.                                                                                                                                                                                                                                                                   |
 | cf_domain   | *String*                         | yes         | CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.                                                                                                                                         |
-| protocol    | *String*                         | no          | Accept "http" or "https", if not specified the default protocol is http.                                                                                                                                                                                                                        |
-| target_type | *String*                         | yes         | The target type for prewarm. You can specify 3 types of value. The region field should be set base on this field. The supported values are : "pop", "country", "region". <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region |
+| protocol    | *String*                         | no          | It can be "http" or "https". If not specified, the default protocol is http.                                                                                                                                                                                                                        |
+| target_type | *String*                         | yes         | The target type for prewarm. The `region` field should be set base on this field. You can specify 3 types of values. <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region |
 | region      | *List or String* | yes         | The region for prewarm. Please see details below.                                                                                                                                                                                                                                               |
 
 - region: This field should be set based on the target_type field.
-    * when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example:["ATL56-C1", "DFW55-C3"]
+    * when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example,["ATL56-C1", "DFW55-C3"]
     * when target_type is "region": this field can be set as "all" or a list of regions. Possible values in the list are as below:
-      * apac： Asia-Pacific
-      * au： Australia
-      * ca： Canada
-      * sa： South Africa
-      * eu： Europe
-      * jp： Japan
-      * us： United States
-      * cn： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
+        * apac： Asia-Pacific
+        * au： Australia
+        * ca： Canada
+        * sa： South Africa
+        * eu： Europe
+        * jp： Japan
+        * us： United States
+        * cn： China (Make sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
       
-Notice:
-When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
--
-    * when target_type is "country": this field can be set as "all" or a list of countries. Possible values in the list are as below:
-      * india： India
-      * japan： Japan
-      * new_zealand： New Zealand
-      * australia：Australia
-      * malaysia： Malaysia
-      * china： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
-      * indonesia：Indonesia
-      * philippines：Philippines
-      * singapore：Singapore
-      * thailand： Thailand
-      * vietnam：Vietnam
-      * south_korea： South Korea
+    !!! Note "Note"
+        When you choose "all", it is highly suggested to activate the Origin Shield. See more details in this [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
+
+      * when target_type is "country": this field can be set as "all" or a list of countries. Possible values in the list are as below:
+          * india： India
+          * japan： Japan
+          * new_zealand： New Zealand
+          * australia：Australia
+          * malaysia： Malaysia
+          * china： China (Make sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
+          * indonesia：Indonesia
+          * philippines：Philippines
+          * singapore：Singapore
+          * thailand： Thailand
+          * vietnam：Vietnam
+          * south_korea： South Korea
       
-Notice:
-When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
+!!! Note "Note"
+    When you choose "all", it is highly suggested to activate Origin Shield. See more details in this [link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield).
 
 - Request example:
 ``` json
@@ -99,9 +99,9 @@ When you choose "all", it is highly suggested to turn on Origin Shield. See more
 |total    | *Number*  | The count of urls to pre-warm.                                                                                                                                                                                  |
 |completed    | *Number* | The count of urls which are pre-warmed.                                                                                                                                                                         |
 |inProgress    | *Number* | The count of urls which are being pre-warmed.                                                                                                                                                                   |
-|failedUrl    | *List*    | The list of urls which are failed to be pre-warmed.                                                                                                                                                             |
-|inProgressUrl    | *List*    | The list of urls which are in progress to be pre-warmed.                                                                                                                                                        |
-|successUrl    | *List*    | The list of urls which are succesful to be pre-warmed. This field can will be shown only if the ShowSuccessUrls is set to be true. You can set the ShowSuccessUrls by updating Prewarm CloudFormation template. |
+|failedUrl    | *List*    | The list of urls which fail to be pre-warmed.                                                                                                                                                             |
+|inProgressUrl    | *List*    | The list of urls which are being pre-warmed.                                                                                                                                                        |
+|successUrl    | *List*    | The list of urls which are pre-warmed successfully. This field can will be shown only if the ShowSuccessUrls is set to be true. You can set the ShowSuccessUrls by updating Prewarm CloudFormation template. |
 
 - Response example
 

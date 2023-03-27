@@ -68,9 +68,9 @@ Before pre-warming, you need to set Viewer protocol policy as **HTTP and HTTPS**
 1. After deployment, choose the **Outputs** tab of CloudFormation stack, and you can see the following information:
     ![Prewarm Output](../../images/prewarm_output.png)
 
-    - **PrewarmAPIkey**: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.
-    - **PrewarmApiEndpoint**: Pre-warm API's URL is followd by the prewarm keyword. Eg. if PrewarmApiEndpoint is **https://123456789.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm API will be **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
-    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://test.execute-api.us-east-1.amazonaws.com/prod/status**
+    - **PrewarmAPIkey**: API key arn. You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.
+    - **PrewarmApiEndpoint**: Pre-warm API's URL is followed by the prewarm keyword. For example, if PrewarmApiEndpoint is **https://123456789.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm API will be **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
+    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. For example, if PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://test.execute-api.us-east-1.amazonaws.com/prod/status**
 2. Open a tool that can send HTTP requests, such as Postman.
 3. Send pre-warm request (refer to [API references](../api-reference-guide/extension-repository.md#pre-warming) for more details), and add a key value pair in the header: key is **x-api-key**, value is your API key.
 
@@ -78,15 +78,14 @@ Before pre-warming, you need to set Viewer protocol policy as **HTTP and HTTPS**
     ![Prewarm Trigger](../images/prewarm_trigger_new.png)
 
 4. The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.
-5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
+5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(You need to check if there is a default header "Accept-Encoding", with the value "gzip, deflate, br". If there isn't, please add it.)
     ![Prewarm Status](../images/prewarm_status.png)
 
 
 ### Pre-warm by Curl
 
-#### Pre-warm
-
-Script content:
+#### How to activate pre-warm
+The following are script examples for your reference.
 
 **prewarmlist.json**
 
@@ -101,8 +100,8 @@ Script content:
             "protocol": "http"
       }
 
-**Note:**
-    parameter "protocol" is optional, if not specified the default protocol is http.
+!!! note "Note"
+    The parameter "protocol" is optional. If not specified, the default protocol is http.
 
 **prewarm.sh**
 
@@ -121,9 +120,9 @@ Example of the script output:
       {"requestID": "e1efca9a-8d92-4058-a1e9-002fd423f6e5"}
 
 
-### Prewarm status 
+#### How to obtain pre-warm status 
 
-Script content:
+The following are script examples for your reference.
 
 **prewarmstatus.sh**
 
@@ -147,9 +146,9 @@ Example of the script output:
       }
 
 
-## Troubleshooting
+## How to check the logs
 
-The pre-warm solution will automatically start the EC2 Spot instance and execute the script on EC2 to pre-warm resources. The location of the pre-warm script is /etc/agent/agent.py, these EC2 instances will be deleted automatically after the pre-warming is completed. You can login to the EC2 instance and view the specific execution log in /var/log/user-data.log for debugging.
+The pre-warm will automatically start the EC2 Spot instance and execute the script on EC2 to pre-warm resources. You can check the pre-warm script /etc/agent/agent.py. These EC2 instances will be deleted automatically after the pre-warming is completed. You can also  in to the EC2 instance and view the specific execution log in /var/log/user-data.log for debugging.
 
 
 
