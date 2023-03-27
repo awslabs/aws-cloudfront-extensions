@@ -2,7 +2,7 @@
 Pre-warming is also known as Pre-caching or Pre-fetching. It speeds up content delivery by warming the CloudFront cache. This is very useful when delivering large files. Pre-warming helps offload origin’s traffic, as the same requests will hit the CloudFront cache, origin server receives less requests and consequently it's less likely that the origin server will fall over or become slow. 
 
 ### How does it work?
-The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployed, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.
+The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployment, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.
 
 ![prewarm](../../images/prewarm-arch.png)
 
@@ -61,24 +61,24 @@ To see details for the stack resources, choose the **Outputs** tab.
 
 ## How to use Pre-warming
 
-Please set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior before pre-warming.
+Before pre-warming, you need to set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior.
 
 ### Pre-warm by Postman
 
-1. After deployment, open the **Outputs** tab of CloudFormation stack, and you can see the following information:
+1. After deployment, choose the **Outputs** tab of CloudFormation stack, and you can see the following information:
     ![Prewarm Output](../../images/prewarm_output.png)
 
     - **PrewarmAPIkey**: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.
     - **PrewarmApiEndpoint**: Pre-warm API's URL is followd by the prewarm keyword. Eg. if PrewarmApiEndpoint is **https://123456789.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm API will be **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
-    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status**
+    - **PrewarmStatusApiEndpoint**: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then pre-warm status API will be **https://test.execute-api.us-east-1.amazonaws.com/prod/status**
 2. Open a tool that can send HTTP requests, such as Postman.
 3. Send pre-warm request (refer to [API references](../api-reference-guide/extension-repository.md#pre-warming) for more details), and add a key value pair in the header: key is **x-api-key**, value is your API key.
 
     ![Prewarm API Key](../images/prewarm_apikey.png)
-    ![Prewarm Trigger](../images/prewarm_trigger.png)
+    ![Prewarm Trigger](../images/prewarm_trigger_new.png)
 
 4. The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.
-5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.
+5. Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
     ![Prewarm Status](../images/prewarm_status.png)
 
 
@@ -95,10 +95,14 @@ Script content:
                   "https://www.example.com/index.html",
                   "https://www.example.com/images/demo.png"
             ],
+            "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
-            "region": ["ATL56-C1", "DFW55-C3"]
+            "region": ["ATL56-C1", "DFW55-C3"],
+            "protocol": "http"
       }
 
+**Note:**
+    parameter "protocol" is optional, if not specified the default protocol is http.
 
 **prewarm.sh**
 

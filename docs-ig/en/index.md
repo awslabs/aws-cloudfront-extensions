@@ -1,4 +1,4 @@
-CloudFront Extensions is an out-of-box solution for advanced Amazon CloudFront users to manage dozens of CloudFront distributions regularly. The solution provides a set of management and automation functions and helps customers to improve the overall operational efficiency when using Amazon Edge products.
+CloudFront Extensions is an out-of-the-box solution for advanced Amazon CloudFront users to manage dozens of CloudFront distributions regularly. The solution provides a set of management and automation functions and helps customers to improve the overall operational efficiency when using Amazon Edge products.
 
 The solution has the following major features:
 

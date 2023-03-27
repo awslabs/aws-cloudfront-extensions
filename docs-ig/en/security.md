@@ -1,4 +1,4 @@
-When you build systems on AWS infrastructure, security responsibilities are shared between you and Amazon Web Services. This [shared model](https://aws.amazon.com/compliance/shared-responsibility-model/) reduces your operational burden because Amazon Web Services operates, manages, and controls the components including the host operating system, the virtualization layer, and the physical security of the facilities in which the services operate. For more information about Amazon Web Services security, visit [AWS Cloud Security](http://aws.amazon.com/security/).
+When you build systems on AWS infrastructure, security responsibilities are shared between you and Amazon Web Services. This [shared responsibility model](https://aws.amazon.com/compliance/shared-responsibility-model/) reduces your operational burden because Amazon Web Services operates, manages, and controls the components including the host operating system, the virtualization layer, and the physical security of the facilities in which the services operate. For more information about Amazon Web Services security, visit [AWS Cloud Security](http://aws.amazon.com/security/).
 
 ### IAM roles
 

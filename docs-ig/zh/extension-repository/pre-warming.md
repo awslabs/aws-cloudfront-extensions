@@ -71,15 +71,15 @@ CloudFormation模板提供以下组件和工作流：
 
     - **PrewarmAPIkey**: API密钥arn。您可在API Gateway控制台的API密钥界面中找到此API key，点击显示按钮，获取密钥。请求预热API时需要使用此密钥进行鉴权，作为x-api-key的值。
     - **PrewarmApiEndpoint**: 预热API的URL即为在此后面加上prewarm关键字。例如：若PrewarmApiEndpoint是**https://123456789.execute-api.us-east-1.amazonaws.com/prod/**，则预热API为 **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
-    - **PrewarmStatusApiEndpoint**: 获取预热状态API的URL即为在此后面加上status关键字。例如：若PrewarmStatusApiEndpoint是**https://test.execute-api.us-east-1.amazonaws.com/prod/**，则获取预热状态API为 **https://urs06q9rid.execute-api.us-east-1.amazonaws.com/prod/status**
+    - **PrewarmStatusApiEndpoint**: 获取预热状态API的URL即为在此后面加上status关键字。例如：若PrewarmStatusApiEndpoint是**https://test.execute-api.us-east-1.amazonaws.com/prod/**，则获取预热状态API为 **https://test.execute-api.us-east-1.amazonaws.com/prod/status**
 2. 打开可以发送HTTP请求的工具，例如Postman。
 3. 按照预热API格式发送预热请求（更多信息请见[API参考指南](../api-reference-guide/extension-repository.md#pre-warming)），并在header中新建键值对：key为**x-api-key**，value为API key。
 
     ![Prewarm API Key](../images/prewarm_apikey.png)
-    ![Prewarm Trigger](../images/prewarm_trigger.png)
+    ![Prewarm Trigger](../images/prewarm_trigger_new.png)
 
 4. 预热API会返回requestID，至此您成功触发了预热，下面可以通过PrewarmStatus API获取预热状态。
-5. 按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。
+5. 按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。(请注意检查是否请求header中默认带有Accept-Encoding，并且值为"gzip, deflate, br"，如果没有注意添加下)
     ![Prewarm Status](../images/prewarm_status.png)
 
 
@@ -96,10 +96,14 @@ CloudFormation模板提供以下组件和工作流：
                   "https://www.example.com/index.html",
                   "https://www.example.com/images/demo.png"
             ],
+            "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
-            "region": ["ATL56-C1", "DFW55-C3"]
+            "region": ["ATL56-C1", "DFW55-C3"],
+            "protocol": "http"
       }
 
+**Note:**
+    字段 "protocol" 是可选字段，如果不指定，默认是http.
 
 **prewarm.sh**
 
