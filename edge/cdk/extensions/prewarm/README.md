@@ -56,43 +56,38 @@ To see details for the stack resources, choose the *Outputs* tab.
 
 - Request body parameters
 
-| **Name**    | **Type**                         | **Required** | **Description**                                                                                                                                       |
-|-------------|----------------------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| url_list    | *List*                           | yes          | The list of urls for prewarm.                                                                                                                         |
-| cf_domain   | *String*                         | yes          | CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list. |
-| protocol    | *String*                         | false        | Accept "http" or "https", if not specified the default protocol is http.                                                                              |
-| target_type | *String*                         | yes          | The target type for prewarm. You can specify 3 types of value. The region field should change according to this field, please details below.          |
-| region      | *List or String* | yes          | The region for prewarm. This field should change according to the target_type field, please details below.                                            |
+| **Name**    | **Type**                         | **Required** | **Description**                                                                                                                                                                                                                                                                                 |
+|-------------|----------------------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| url_list    | *List*                           | yes          | The list of urls for prewarm.                                                                                                                                                                                                                                                                   |
+| cf_domain   | *String*                         | yes          | CloudFront domain name which ends with [cloudfront.net](http://cloudfront.net/). If not set, it will find cf_domain according to CNAME in the url list.                                                                                                                                         |
+| protocol    | *String*                         | false        | Accept "http" or "https", if not specified the default protocol is http.                                                                                                                                                                                                                        |
+| target_type | *String*                         | yes          | The target type for prewarm. You can specify 3 types of value. The region field should be set base on this field. The supported values are : "pop", "country", "region". <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region |
+| region      | *List or String* | yes          | The region for prewarm. Please see details below.                                                                                                                                                                                                                                               |
 
-- Including:
-  - target_type: You can specify 3 types of value.
-      * pop：pre-warm in PoP
-      * country：pre-warm in country
-      * region：pre-warm in region
-  - region: This field should change according to the target_type field.
-      * target_type = "pop": this field accept a PoP list, pre-warm in the PoP location in the list,for example:["ATL56-C1", "DFW55-C3"]
-      * target_type = "region": this field  accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a region list, pre-warm in all regions or a specific region,for example:"all" or ["apac", "au"], the supported values are：
-        * apac： Asia-Pacific
-        * au： Australia
-        * ca： Canada
-        * sa： South Africa
-        * eu： Europe
-        * jp： Japan
-        * us： United States
-        * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region, otherwise it will always fail.)
-      * target_type = "country": this field accept "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or a country list: pre-warm in all countries or a specific country,for example:"all"|["india", "new_zealand"], the supported values are：
-        * india： India
-        * japan： Japan
-        * new_zealand： New Zealand
-        * australia：Australia
-        * malaysia： Malaysia
-        * china： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region)
-        * indonesia：Indonesia
-        * philippines：Philippines
-        * singapore：Singapore
-        * thailand： Thailand
-        * vietnam：Vietnam
-        * south_korea： South Korea
+- region: This field should be set based on the target_type field.
+    * when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example:["ATL56-C1", "DFW55-C3"]
+    * when target_type is "region": this field should be set "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or region list.It means pre-warm in all regions or specific regions, for example:"all" or ["apac", "au"], the supported values are：
+      * apac： Asia-Pacific
+      * au： Australia
+      * ca： Canada
+      * sa： South Africa
+      * eu： Europe
+      * jp： Japan
+      * us： United States
+      * cn： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region, otherwise it will always fail.)
+    * when target_type is "country": this field should be set "all"(best to use after opening Origin Shield,[link](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield) for details) or country list.It means pre-warm in all countries or specific countries, for example:"all"|["india", "new_zealand"], the supported values are：
+      * india： India
+      * japan： Japan
+      * new_zealand： New Zealand
+      * australia：Australia
+      * malaysia： Malaysia
+      * china： China (Chinese mainland prewarm can only be used by deploying this solution in Beijing or Ningxia region)
+      * indonesia：Indonesia
+      * philippines：Philippines
+      * singapore：Singapore
+      * thailand： Thailand
+      * vietnam：Vietnam
+      * south_korea： South Korea
 
 
 - For example:
