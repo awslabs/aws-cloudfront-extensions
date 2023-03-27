@@ -98,7 +98,7 @@ Script content:
             "target_type":"pop",
             "cf_domain": "d1234567890r.cloudfront.net",
             "region": ["ATL56-C1", "DFW55-C3"],
-            "protocol": "http|https"
+            "protocol": "http"
       }
 
 **Note:**
