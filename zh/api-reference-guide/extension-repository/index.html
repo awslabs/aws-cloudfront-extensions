@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pre-warming" class="md-skip">
+        <a href="#prewarm" class="md-skip">
           跳转至
         </a>
       
@@ -916,11 +916,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pre-warming" class="md-nav__link">
-    Pre-warming
+  <a href="#prewarm" class="md-nav__link">
+    Prewarm
   </a>
   
-    <nav class="md-nav" aria-label="Pre-warming">
+    <nav class="md-nav" aria-label="Prewarm">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1113,11 +1113,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pre-warming" class="md-nav__link">
-    Pre-warming
+  <a href="#prewarm" class="md-nav__link">
+    Prewarm
   </a>
   
-    <nav class="md-nav" aria-label="Pre-warming">
+    <nav class="md-nav" aria-label="Prewarm">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1186,7 +1186,7 @@
 
   <h1>扩展存储库</h1>
 
-<h2 id="pre-warming">Pre-warming</h2>
+<h2 id="prewarm">Prewarm</h2>
 <h3 id="_1">请求</h3>
 <ul>
 <li>HTTP方法: <code>POST</code></li>
@@ -1236,10 +1236,10 @@
 </table>
 <ul>
 <li>
-<p>region： 依据不同的target_type,需设置不同的值</p>
+<p>region： 依据不同的target_type，需设置不同的值</p>
 <ul>
 <li>当 target_type 为 "pop"时，此字段传pop id列表，表示在列表中指定的边缘节点进行预热，例如["ATL56-C1", "DFW55-C3"]</li>
-<li>当 target_type 为 "region"时，此字段传"all"(配合开启Origin Shield效果更好，详情见<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">链接</a>)或者区域代码列表，表示在特定区域进行预热，"all"代表预热全部区域列表，例如"all"或者["apac", "au"]，可用区域为：</li>
+<li>当 target_type 为 "region"时，此字段传"all"(配合开启Origin Shield效果更好，详情见<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">链接</a>)或者区域代码列表，表示在特定区域进行预热，"all"代表预热全部区域列表，例如"all"或者["apac", "au"]，可用区域为：<ul>
 <li>apac： Asia-Pacific</li>
 <li>au： Australia</li>
 <li>ca： Canada</li>
@@ -1247,20 +1247,24 @@
 <li>eu： Europe</li>
 <li>jp： Japan</li>
 <li>us： United States</li>
-<li>cn： China(注：在中国区预热之前需要在中国大陆区域部署此解决方案，否则在中国区预热会失败)</li>
-<li>当 target_type 为 "country"时，此字段传"all"(配合开启Origin Shield效果更好，详情见<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">链接</a>)或者国家代码列表，表示在特定国家进行预热，"all"代表预热全部国家列表，例如"all"或者["india", "new_zealand"]，可用国家为：</li>
+<li>cn： China(确保您已在中国北京或宁夏区域部署了预热方案)</li>
+</ul>
+</li>
+<li>当 target_type 为 "country"时，此字段传"all"(配合开启Origin Shield效果更好，详情见<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">链接</a>)或者国家代码列表，表示在特定国家进行预热，"all"代表预热全部国家列表，例如"all"或者["india", "new_zealand"]，可用国家为：<ul>
 <li>india： India</li>
 <li>japan： Japan</li>
 <li>new_zealand： New Zealand</li>
 <li>australia：Australia</li>
 <li>malaysia： Malaysia</li>
-<li>china： China(大陆区域预热需要在中国区部署此解决方案)</li>
+<li>china： China(确保您已在中国北京或宁夏区域部署了预热方案)</li>
 <li>indonesia：Indonesia</li>
 <li>philippines：Philippines</li>
 <li>singapore：Singapore</li>
 <li>thailand： Thailand</li>
 <li>vietnam：Vietnam</li>
 <li>south_korea： South Korea</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
@@ -1372,17 +1376,17 @@
 <tr>
 <td>failedUrl</td>
 <td><em>列表</em></td>
-<td>失败url列表</td>
+<td>预热失败的url列表</td>
 </tr>
 <tr>
 <td>inProgressUrl</td>
 <td><em>列表</em></td>
-<td>进行中url列表</td>
+<td>预热进行中的url列表</td>
 </tr>
 <tr>
 <td>successUrl</td>
 <td><em>列表</em></td>
-<td>成功url列表，此字段只有在ShowSuccessUrls被设置为true的时候返回，ShowSuccessUrls字段可以通过Prewarm CloudFormation template设置</td>
+<td>预热成功的url列表，此字段只有在ShowSuccessUrls被设置为true的时候返回，ShowSuccessUrls字段可以通过更新Prewarm CloudFormation template设置</td>
 </tr>
 </tbody>
 </table>

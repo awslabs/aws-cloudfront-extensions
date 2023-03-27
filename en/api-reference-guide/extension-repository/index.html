@@ -69,7 +69,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pre-warming" class="md-skip">
+        <a href="#prewarm" class="md-skip">
           Skip to content
         </a>
       
@@ -914,11 +914,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pre-warming" class="md-nav__link">
-    Pre-warming
+  <a href="#prewarm" class="md-nav__link">
+    Prewarm
   </a>
   
-    <nav class="md-nav" aria-label="Pre-warming">
+    <nav class="md-nav" aria-label="Prewarm">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1111,11 +1111,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pre-warming" class="md-nav__link">
-    Pre-warming
+  <a href="#prewarm" class="md-nav__link">
+    Prewarm
   </a>
   
-    <nav class="md-nav" aria-label="Pre-warming">
+    <nav class="md-nav" aria-label="Prewarm">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1184,7 +1184,7 @@
 
   <h1>Extensions repository</h1>
 
-<h2 id="pre-warming">Pre-warming</h2>
+<h2 id="prewarm">Prewarm</h2>
 <h3 id="request">Request</h3>
 <ul>
 <li>
@@ -1220,13 +1220,13 @@
 <td>protocol</td>
 <td><em>String</em></td>
 <td>no</td>
-<td>Accept "http" or "https", if not specified the default protocol is http.</td>
+<td>It can be "http" or "https". If not specified, the default protocol is http.</td>
 </tr>
 <tr>
 <td>target_type</td>
 <td><em>String</em></td>
 <td>yes</td>
-<td>The target type for prewarm. You can specify 3 types of value. The region field should be set base on this field. The supported values are : "pop", "country", "region". <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region</td>
+<td>The target type for prewarm. The <code>region</code> field should be set base on this field. You can specify 3 types of values. <br> "pop": pre-warm by PoP (Points of Presence) <br> "country": pre-warm by country <br> "region": pre-warm by region</td>
 </tr>
 <tr>
 <td>region</td>
@@ -1237,9 +1237,11 @@
 </tbody>
 </table>
 <ul>
-<li>region: This field should be set based on the target_type field.<ul>
-<li>when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example:["ATL56-C1", "DFW55-C3"]</li>
-<li>when target_type is "region": this field can be set as "all" or a list of regions. Possible values in the list are as below:</li>
+<li>
+<p>region: This field should be set based on the target_type field.</p>
+<ul>
+<li>when target_type is "pop": this field should be set a PoP list. It means pre-warm in specific PoP locations, for example,["ATL56-C1", "DFW55-C3"]</li>
+<li>when target_type is "region": this field can be set as "all" or a list of regions. Possible values in the list are as below:<ul>
 <li>apac： Asia-Pacific</li>
 <li>au： Australia</li>
 <li>ca： Canada</li>
@@ -1247,28 +1249,37 @@
 <li>eu： Europe</li>
 <li>jp： Japan</li>
 <li>us： United States</li>
-<li>cn： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))</li>
+<li>cn： China (Make sure you deploy this solution in AWS China Regions (Beijing or Ningxia))</li>
 </ul>
 </li>
 </ul>
-<p>Notice:
-When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">link</a>.
--
-    * when target_type is "country": this field can be set as "all" or a list of countries. Possible values in the list are as below:
-      * india： India
-      * japan： Japan
-      * new_zealand： New Zealand
-      * australia：Australia
-      * malaysia： Malaysia
-      * china： China (Making sure you deploy this solution in AWS China Regions (Beijing or Ningxia))
-      * indonesia：Indonesia
-      * philippines：Philippines
-      * singapore：Singapore
-      * thailand： Thailand
-      * vietnam：Vietnam
-      * south_korea： South Korea</p>
-<p>Notice:
-When you choose "all", it is highly suggested to turn on Origin Shield. See more details in this <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">link</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When you choose "all", it is highly suggested to activate the Origin Shield. See more details in this <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">link</a>.</p>
+</div>
+<ul>
+<li>when target_type is "country": this field can be set as "all" or a list of countries. Possible values in the list are as below:<ul>
+<li>india： India</li>
+<li>japan： Japan</li>
+<li>new_zealand： New Zealand</li>
+<li>australia：Australia</li>
+<li>malaysia： Malaysia</li>
+<li>china： China (Make sure you deploy this solution in AWS China Regions (Beijing or Ningxia))</li>
+<li>indonesia：Indonesia</li>
+<li>philippines：Philippines</li>
+<li>singapore：Singapore</li>
+<li>thailand： Thailand</li>
+<li>vietnam：Vietnam</li>
+<li>south_korea： South Korea</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When you choose "all", it is highly suggested to activate Origin Shield. See more details in this <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html#enable-origin-shield">link</a>.</p>
+</div>
 <ul>
 <li>Request example:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
@@ -1375,17 +1386,17 @@ When you choose "all", it is highly suggested to turn on Origin Shield. See more
 <tr>
 <td>failedUrl</td>
 <td><em>List</em></td>
-<td>The list of urls which are failed to be pre-warmed.</td>
+<td>The list of urls which fail to be pre-warmed.</td>
 </tr>
 <tr>
 <td>inProgressUrl</td>
 <td><em>List</em></td>
-<td>The list of urls which are in progress to be pre-warmed.</td>
+<td>The list of urls which are being pre-warmed.</td>
 </tr>
 <tr>
 <td>successUrl</td>
 <td><em>List</em></td>
-<td>The list of urls which are succesful to be pre-warmed. This field can will be shown only if the ShowSuccessUrls is set to be true. You can set the ShowSuccessUrls by updating Prewarm CloudFormation template.</td>
+<td>The list of urls which are pre-warmed successfully. This field can will be shown only if the ShowSuccessUrls is set to be true. You can set the ShowSuccessUrls by updating Prewarm CloudFormation template.</td>
 </tr>
 </tbody>
 </table>

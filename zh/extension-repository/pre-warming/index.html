@@ -874,15 +874,15 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
   <a href="#_7" class="md-nav__link">
     获取预热状态
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1238,15 +1238,15 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
   <a href="#_7" class="md-nav__link">
     获取预热状态
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1390,8 +1390,10 @@
         &quot;protocol&quot;: &quot;http&quot;
   }
 </code></pre></div>
-<p><strong>Note:</strong>
-    字段 "protocol" 是可选字段，如果不指定，默认是http.</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>字段 "protocol" 是可选字段，如果不指定，默认是http.</p>
+</div>
 <p><strong>prewarm.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
   curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
@@ -1402,7 +1404,7 @@
 <p>执行结果示例</p>
 <div class="highlight"><pre><span></span><code>  {&quot;requestID&quot;: &quot;e1efca9a-8d92-4058-a1e9-002fd423f6e5&quot;}
 </code></pre></div>
-<h3 id="_7">获取预热状态</h3>
+<h4 id="_7">获取预热状态</h4>
 <p>脚本内容</p>
 <p><strong>prewarmstatus.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  #!/bin/bash

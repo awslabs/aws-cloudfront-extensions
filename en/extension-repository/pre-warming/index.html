@@ -872,21 +872,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pre-warm" class="md-nav__link">
-    Pre-warm
+  <a href="#how-to-activate-pre-warm" class="md-nav__link">
+    How to activate pre-warm
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-obtain-pre-warm-status" class="md-nav__link">
+    How to obtain pre-warm status
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#prewarm-status" class="md-nav__link">
-    Prewarm status
-  </a>
   
 </li>
         
@@ -896,8 +896,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    Troubleshooting
+  <a href="#how-to-check-the-logs" class="md-nav__link">
+    How to check the logs
   </a>
   
 </li>
@@ -1242,21 +1242,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pre-warm" class="md-nav__link">
-    Pre-warm
+  <a href="#how-to-activate-pre-warm" class="md-nav__link">
+    How to activate pre-warm
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-obtain-pre-warm-status" class="md-nav__link">
+    How to obtain pre-warm status
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#prewarm-status" class="md-nav__link">
-    Prewarm status
-  </a>
   
 </li>
         
@@ -1266,8 +1266,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    Troubleshooting
+  <a href="#how-to-check-the-logs" class="md-nav__link">
+    How to check the logs
   </a>
   
 </li>
@@ -1370,9 +1370,9 @@
 <p>After deployment, choose the <strong>Outputs</strong> tab of CloudFormation stack, and you can see the following information:
     <img alt="Prewarm Output" src="../../images/prewarm_output.png" /></p>
 <ul>
-<li><strong>PrewarmAPIkey</strong>: API key arn。You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.</li>
-<li><strong>PrewarmApiEndpoint</strong>: Pre-warm API's URL is followd by the prewarm keyword. Eg. if PrewarmApiEndpoint is <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm API will be <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong></li>
-<li><strong>PrewarmStatusApiEndpoint</strong>: Pre-warm status API's URL is followed by the status keyword. Eg. If PrewarmStatusApiEndpoint is <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm status API will be <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
+<li><strong>PrewarmAPIkey</strong>: API key arn. You can find the API key in API Gateway console. This key is used for authentication when requesting to pre-warm API, as the value of x-api-key.</li>
+<li><strong>PrewarmApiEndpoint</strong>: Pre-warm API's URL is followed by the prewarm keyword. For example, if PrewarmApiEndpoint is <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm API will be <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong></li>
+<li><strong>PrewarmStatusApiEndpoint</strong>: Pre-warm status API's URL is followed by the status keyword. For example, if PrewarmStatusApiEndpoint is <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>, then pre-warm status API will be <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/status</strong></li>
 <li>Open a tool that can send HTTP requests, such as Postman.</li>
 <li>Send pre-warm request (refer to <a href="../../api-reference-guide/extension-repository/#pre-warming">API references</a> for more details), and add a key value pair in the header: key is <strong>x-api-key</strong>, value is your API key.</li>
 </ul>
@@ -1382,12 +1382,12 @@
 <li>
 <p>The pre-warming API will return a requestID. Now you have successfully triggered the pre-warming, you can obtain the pre-warm status by PrewarmStatus API.</p>
 </li>
-<li>Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(Please check if there is a value named "Accept-Encoding" in default headers，and its value is "gzip, deflate, br"，if there isn't ，please add it.)
+<li>Send pre-warm status request, add the requestId in the URL querystring, and add x-api-key in the header. The pre-warm status can be seen in the response.(You need to check if there is a default header "Accept-Encoding", with the value "gzip, deflate, br". If there isn't, please add it.)
     <img alt="Prewarm Status" src="../../images/prewarm_status.png" /></li>
 </ol>
 <h3 id="pre-warm-by-curl">Pre-warm by Curl</h3>
-<h4 id="pre-warm">Pre-warm</h4>
-<p>Script content:</p>
+<h4 id="how-to-activate-pre-warm">How to activate pre-warm</h4>
+<p>The following are script examples for your reference.</p>
 <p><strong>prewarmlist.json</strong></p>
 <div class="highlight"><pre><span></span><code>  {
         &quot;url_list&quot;: [
@@ -1400,8 +1400,10 @@
         &quot;protocol&quot;: &quot;http&quot;
   }
 </code></pre></div>
-<p><strong>Note:</strong>
-    parameter "protocol" is optional, if not specified the default protocol is http.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The parameter "protocol" is optional. If not specified, the default protocol is http.</p>
+</div>
 <p><strong>prewarm.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
   curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
@@ -1412,8 +1414,8 @@
 <p>Example of the script output:</p>
 <div class="highlight"><pre><span></span><code>  {&quot;requestID&quot;: &quot;e1efca9a-8d92-4058-a1e9-002fd423f6e5&quot;}
 </code></pre></div>
-<h3 id="prewarm-status">Prewarm status</h3>
-<p>Script content:</p>
+<h4 id="how-to-obtain-pre-warm-status">How to obtain pre-warm status</h4>
+<p>The following are script examples for your reference.</p>
 <p><strong>prewarmstatus.sh</strong></p>
 <div class="highlight"><pre><span></span><code>  #!/bin/bash
   statusurl=&quot;https://3e23456789h.execute-api.us-east-1.amazonaws.com/prod/status?requestID=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
@@ -1432,8 +1434,8 @@
         &quot;inProgressUrl&quot;: []
   }
 </code></pre></div>
-<h2 id="troubleshooting">Troubleshooting</h2>
-<p>The pre-warm solution will automatically start the EC2 Spot instance and execute the script on EC2 to pre-warm resources. The location of the pre-warm script is /etc/agent/agent.py, these EC2 instances will be deleted automatically after the pre-warming is completed. You can login to the EC2 instance and view the specific execution log in /var/log/user-data.log for debugging.</p>
+<h2 id="how-to-check-the-logs">How to check the logs</h2>
+<p>The pre-warm will automatically start the EC2 Spot instance and execute the script on EC2 to pre-warm resources. You can check the pre-warm script /etc/agent/agent.py. These EC2 instances will be deleted automatically after the pre-warming is completed. You can also  in to the EC2 instance and view the specific execution log in /var/log/user-data.log for debugging.</p>
 
 
 
