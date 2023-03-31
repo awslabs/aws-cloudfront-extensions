@@ -73,7 +73,11 @@ export const MonitorTable: React.FC<MonitorTableProps> = (
                       {dataKey ? element[dataKey] : element.key}
                     </div>
                   </td>
-                  <td>{dataValue ? element[dataValue] : element.value}</td>
+                  <td>
+                    <div className="table-value">
+                      {dataValue ? element[dataValue] : element.value}
+                    </div>
+                  </td>
                 </tr>
               );
             })

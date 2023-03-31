@@ -636,6 +636,12 @@
     // border-bottom: 1px solid #eaeded;
     .key {
       color: #0073bb;
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+    .table-value {
+      word-wrap: break-word;
+      word-break: break-all;
     }
   }
   th.select,
