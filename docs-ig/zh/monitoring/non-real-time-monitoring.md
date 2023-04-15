@@ -2,7 +2,7 @@
 
 ![non-real-time-monitoring](../../images/non-real-time-monitoring.png)
 
-
+git commit -m
 1. 启用CloudFront标准日志。您需要指定一个S3存储桶来存储CloudFront标准日志。
 2. 删除CloudFront标准日志不需要的字段以及将日志在S3存储桶中进行分区。CloudFront标准日志包含30多个字段，获取CloudFront指标所需的字段不到10个。AWS Lambda函数将读取S3存储桶中的日志，并删除不需要的字段以减小日志文件的大小。它可以提高Athena查询速度并节省成本。AWS Lambda函数会把日志移动到文件夹中进行分区，例如year=2022/month=07/day=10/hour=09/。
 3. 通过Athena查询S3中的标准日志。这里通过数据分区让Athena加速数据查询，Amazon EventBridge将每天创建第二天的所有分区，并删除前一天的分区。Lambda函数MetricCollector每5分钟执行一次，用于分析标准日志和收集监控指标。
