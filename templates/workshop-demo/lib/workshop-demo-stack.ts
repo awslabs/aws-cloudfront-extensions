@@ -17,6 +17,7 @@ export class WorkshopDemoStack extends cdk.Stack {
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'error.html',
       publicReadAccess: false,
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
 
       // The default removal policy is RETAIN, which means that cdk destroy will not attempt to delete
       // the new bucket, and it will remain in your account until manually deleted. By setting the policy to
