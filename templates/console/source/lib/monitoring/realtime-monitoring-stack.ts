@@ -20,7 +20,7 @@ import { CfnDeliveryStream } from "aws-cdk-lib/aws-kinesisfirehose";
 import * as kms from "aws-cdk-lib/aws-kms";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import {Bucket, BucketEncryption, ObjectOwnership} from "aws-cdk-lib/aws-s3";
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { Construct } from 'constructs';
@@ -42,6 +42,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
+      objectOwnership: ObjectOwnership.OBJECT_WRITER
     });
 
     const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
@@ -49,6 +50,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       serverAccessLogsBucket: accessLogBucket,
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
       lifecycleRules: [
         {
           enabled: true,
