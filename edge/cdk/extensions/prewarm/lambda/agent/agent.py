@@ -154,7 +154,7 @@ def pre_warm(url, pop, cf_domain, protocol, original_url):
         return {
             'pop': pop,
             'statusCode': -1,
-            'errorMsg': f'Failed: PoP => {pop}, Url => {url} with exception => {e}'
+            'errorMsg': f'Failed: PoP  => {pop}, Url => {url} with exception => {e}'
         }
 
 
