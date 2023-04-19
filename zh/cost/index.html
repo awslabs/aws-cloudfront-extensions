@@ -316,33 +316,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    预热
-  </a>
-  
-    <nav class="md-nav" aria-label="预热">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-500500mb" class="md-nav__link">
-    示例1: 每天预热500个资源，每个资源大小为500MB
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-2001gb" class="md-nav__link">
-    示例2: 每月预热200个资源，每个资源大小为1GB
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1111,33 +1084,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    预热
-  </a>
-  
-    <nav class="md-nav" aria-label="预热">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-500500mb" class="md-nav__link">
-    示例1: 每天预热500个资源，每个资源大小为500MB
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-2001gb" class="md-nav__link">
-    示例2: 每月预热200个资源，每个资源大小为1GB
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1343,103 +1289,6 @@
 <td>总计</td>
 <td></td>
 <td>$88.56</td>
-</tr>
-</tbody>
-</table>
-<h2 id="_3">预热</h2>
-<h3 id="1-500500mb">示例1: 每天预热500个资源，每个资源大小为500MB</h3>
-<p>截至2023年3月，在美国东部（弗吉尼亚北部）区域（us-east-1），成本约为每月$171.27。</p>
-<table>
-<thead>
-<tr>
-<th>服务</th>
-<th>用量</th>
-<th>费用/每月</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Amazon EC2</td>
-<td>启动50 EC2 spot实例 (c6g.large)，每天运行2小时预热500个URI<br>150GB EBS</td>
-<td>$165.97</td>
-</tr>
-<tr>
-<td>Amazon Lambda</td>
-<td>45K次请求<br>256MB内存<br>ARM64</td>
-<td>$3.67</td>
-</tr>
-<tr>
-<td>Amazon API Gateway</td>
-<td>30K次请求<br>REST API</td>
-<td>$0.03</td>
-</tr>
-<tr>
-<td>Amazon Simple Queue Service</td>
-<td>标准队列<br>2GB DTO</td>
-<td>$0.18</td>
-</tr>
-<tr>
-<td>Amazon DynamoDB</td>
-<td>2GB数据存储<br>15K次写操作<br>15K次读操作</td>
-<td>$0.52</td>
-</tr>
-<tr>
-<td>Amazon CloudWatch</td>
-<td>1个指标和警报</td>
-<td>$0.90</td>
-</tr>
-<tr>
-<td>总计</td>
-<td></td>
-<td>$171.27</td>
-</tr>
-</tbody>
-</table>
-<h3 id="2-2001gb">示例2: 每月预热200个资源，每个资源大小为1GB</h3>
-<p>截至2023年3月，在美国东部（弗吉尼亚北部）区域（us-east-1），成本约为每月$11.78。</p>
-<table>
-<thead>
-<tr>
-<th>服务</th>
-<th>用量</th>
-<th>费用/每月</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Amazon EC2</td>
-<td>m5dn.xlarge Spot实例<br>150GB EBS</td>
-<td>$10.59</td>
-</tr>
-<tr>
-<td>Amazon Lambda</td>
-<td>28次请求<br>256MB memory<br>ARM64</td>
-<td>$0.01</td>
-</tr>
-<tr>
-<td>Amazon API Gateway</td>
-<td>24次请求<br>REST API</td>
-<td>$0.0001</td>
-</tr>
-<tr>
-<td>Amazon Simple Queue Service</td>
-<td>标准队列<br>1GB DTO</td>
-<td>$0.02</td>
-</tr>
-<tr>
-<td>Amazon DynamoDB</td>
-<td>1GB数据存储<br>2K次写操作<br>200次读操作</td>
-<td>$0.25</td>
-</tr>
-<tr>
-<td>Amazon CloudWatch</td>
-<td>1个指标和警报</td>
-<td>$0.90</td>
-</tr>
-<tr>
-<td>总计</td>
-<td></td>
-<td>$11.78</td>
 </tr>
 </tbody>
 </table>
