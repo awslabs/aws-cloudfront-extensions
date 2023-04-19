@@ -1,5 +1,0 @@
-requests
-boto3>=1.24.56
-shortuuid>=1.0.0
-pydig>=0.4.0
-urllib3==1.26.6
