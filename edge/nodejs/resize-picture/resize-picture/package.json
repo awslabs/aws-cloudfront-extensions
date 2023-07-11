@@ -9,7 +9,7 @@
   "dependencies": {
     "aws-sdk": "^2.889.0",
     "axios": "^1.0.0",
-    "sharp": "^0.31.0"
+    "sharp": "^0.32.2"
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
