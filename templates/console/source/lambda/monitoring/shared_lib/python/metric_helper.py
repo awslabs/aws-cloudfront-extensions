@@ -27,7 +27,7 @@ def insert_value_with_list(domain_country_dict, domain, country, item_row):
         item_query_value = {}
         item_query_value[country] = [item_row]
         domain_country_dict[domain] = item_query_value
-    
+
     return domain_country_dict
 
 
@@ -37,64 +37,124 @@ def insert_value(domain_country_dict, domain, country, item_query_value):
             domain_country_dict[domain][country] = item_query_value
     else:
         domain_country_dict[domain] = {country: item_query_value}
-    
+
     return domain_country_dict
 
 
-def collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, table, is_realtime, latency_limit=1, use_start='false'):
+def collect_metric_data(
+    metric,
+    start_time,
+    end_time,
+    athena_client,
+    DB_NAME,
+    GLUE_TABLE_NAME,
+    ATHENA_QUERY_OUTPUT,
+    M_INTERVAL,
+    table,
+    is_realtime,
+    latency_limit=1,
+    use_start="false",
+):
     try:
         gen_data = {}
-        gen_data = gen_detailed_by_interval(metric, start_time, end_time,
-                                            athena_client, DB_NAME,
-                                            GLUE_TABLE_NAME, ATHENA_QUERY_OUTPUT, M_INTERVAL, is_realtime, latency_limit, use_start)
-        
-        for query_item in gen_data['Detail']:
+        gen_data = gen_detailed_by_interval(
+            metric,
+            start_time,
+            end_time,
+            athena_client,
+            DB_NAME,
+            GLUE_TABLE_NAME,
+            ATHENA_QUERY_OUTPUT,
+            M_INTERVAL,
+            is_realtime,
+            latency_limit,
+            use_start,
+        )
+
+        for query_item in gen_data["Detail"]:
             item_query_result = get_athena_query_result(
-                athena_client, query_item['QueryId'])
-            
+                athena_client, query_item["QueryId"]
+            )
+
             domain_country_dict = {}
             result_rows = item_query_result["ResultSet"]["Rows"]
-            if metric == 'bandwidth' or metric == 'bandwidthOrigin' or metric == 'downstreamTraffic':
+            if (
+                metric == "bandwidth"
+                or metric == "bandwidthOrigin"
+                or metric == "downstreamTraffic"
+            ):
                 for i in range(1, len(result_rows)):
-                    if item_query_result['ResultSet']['Rows'][i]['Data'][0].get('VarCharValue') != None:
-                        item_query_value = result_rows[i]['Data'][0]['VarCharValue']
-                        domain = result_rows[i]['Data'][1]['VarCharValue']
-                        country = result_rows[i]['Data'][2]['VarCharValue']
-                        domain_country_dict = insert_value(domain_country_dict, domain, country, item_query_value)
-            elif metric == 'request' or metric == 'requestOrigin':
+                    if (
+                        item_query_result["ResultSet"]["Rows"][i]["Data"][0].get(
+                            "VarCharValue"
+                        )
+                        != None
+                    ):
+                        item_query_value = result_rows[i]["Data"][0]["VarCharValue"]
+                        domain = result_rows[i]["Data"][1]["VarCharValue"]
+                        country = result_rows[i]["Data"][2]["VarCharValue"]
+                        domain_country_dict = insert_value(
+                            domain_country_dict, domain, country, item_query_value
+                        )
+            elif metric == "request" or metric == "requestOrigin":
                 for i in range(1, len(result_rows)):
-                    if item_query_result['ResultSet']['Rows'][i]['Data'][0].get('VarCharValue') != None:
+                    if (
+                        item_query_result["ResultSet"]["Rows"][i]["Data"][0].get(
+                            "VarCharValue"
+                        )
+                        != None
+                    ):
                         request_row = {}
-                        request_row["Count"] = result_rows[i]['Data'][0]['VarCharValue']
-                        request_row["Latency"] = result_rows[i]['Data'][1]['VarCharValue']
-                        domain = result_rows[i]['Data'][2]['VarCharValue']
-                        country = result_rows[i]['Data'][3]['VarCharValue']
-                        domain_country_dict = insert_value_with_list(domain_country_dict, domain, country, request_row)
-            elif metric == 'edgeType':
+                        request_row["Count"] = result_rows[i]["Data"][0]["VarCharValue"]
+                        request_row["Latency"] = result_rows[i]["Data"][1][
+                            "VarCharValue"
+                        ]
+                        domain = result_rows[i]["Data"][2]["VarCharValue"]
+                        country = result_rows[i]["Data"][3]["VarCharValue"]
+                        domain_country_dict = insert_value_with_list(
+                            domain_country_dict, domain, country, request_row
+                        )
+            elif metric == "edgeType":
                 for i in range(1, len(result_rows)):
-                    if result_rows[i]['Data'][0].get('VarCharValue') != None:
+                    if result_rows[i]["Data"][0].get("VarCharValue") != None:
                         edge_type_row = {}
                         # Edge type row example: {"Count": "11", "Latency": "0.010", "EdgeType": "Hit"}
-                        edge_type_row["EdgeType"] = result_rows[i]["Data"][0]["VarCharValue"]
-                        edge_type_row["Count"] = result_rows[i]["Data"][1]["VarCharValue"]
-                        edge_type_row["Latency"] = result_rows[i]["Data"][2]["VarCharValue"]
+                        edge_type_row["EdgeType"] = result_rows[i]["Data"][0][
+                            "VarCharValue"
+                        ]
+                        edge_type_row["Count"] = result_rows[i]["Data"][1][
+                            "VarCharValue"
+                        ]
+                        edge_type_row["Latency"] = result_rows[i]["Data"][2][
+                            "VarCharValue"
+                        ]
                         domain = result_rows[i]["Data"][3]["VarCharValue"]
                         country = result_rows[i]["Data"][4]["VarCharValue"]
-                        domain_country_dict = insert_value_with_list(domain_country_dict, domain, country, edge_type_row)
-            elif metric == 'statusCode' or metric == 'statusCodeOrigin':
+                        domain_country_dict = insert_value_with_list(
+                            domain_country_dict, domain, country, edge_type_row
+                        )
+            elif metric == "statusCode" or metric == "statusCodeOrigin":
                 for i in range(1, len(result_rows)):
                     if result_rows[i]["Data"][0].get("VarCharValue") != None:
                         status_code_row = {}
                         # Status code row example: {"Count": "11", "Latency": "0.010", "StatusCode": "200"}
-                        status_code_row["StatusCode"] = result_rows[i]["Data"][0]["VarCharValue"]
-                        status_code_row["Count"] = result_rows[i]["Data"][1]["VarCharValue"]
-                        status_code_row["Latency"] = result_rows[i]["Data"][2]["VarCharValue"]
+                        status_code_row["StatusCode"] = result_rows[i]["Data"][0][
+                            "VarCharValue"
+                        ]
+                        status_code_row["Count"] = result_rows[i]["Data"][1][
+                            "VarCharValue"
+                        ]
+                        status_code_row["Latency"] = result_rows[i]["Data"][2][
+                            "VarCharValue"
+                        ]
                         domain = result_rows[i]["Data"][3]["VarCharValue"]
                         country = result_rows[i]["Data"][4]["VarCharValue"]
-                        domain_country_dict = insert_value_with_list(domain_country_dict, domain, country, status_code_row)
-            elif metric == 'latencyRatio':
+                        domain_country_dict = insert_value_with_list(
+                            domain_country_dict, domain, country, status_code_row
+                        )
+            elif metric == "latencyRatio":
                 for i in range(1, len(result_rows)):
-                    if result_rows[i]['Data'][0].get('VarCharValue') != None:
+                    if result_rows[i]["Data"][0].get("VarCharValue") != None:
                         lr_row = {}
                         # {
                         #     "metricId": "latencyRatio-d12345.cloudfront.net",
@@ -112,29 +172,35 @@ def collect_metric_data(metric, start_time, end_time, athena_client, DB_NAME, GL
                         # }
                         lr_row["Latency"] = result_rows[i]["Data"][0]["VarCharValue"]
                         lr_row["Count"] = result_rows[i]["Data"][1]["VarCharValue"]
+                        lr_row["Latency_600"] = result_rows[i]["Data"][4]["VarCharValue"]
+                        lr_row["Latency_300"] = result_rows[i]["Data"][5]["VarCharValue"]
                         domain = result_rows[i]["Data"][2]["VarCharValue"]
                         country = result_rows[i]["Data"][3]["VarCharValue"]
-                        domain_country_dict = insert_value_with_list(domain_country_dict, domain, country, lr_row)
+                        domain_country_dict = insert_value_with_list(
+                            domain_country_dict, domain, country, lr_row
+                        )
             elif metric == "chr" or metric == "chrBandWidth":
                 for i in range(1, len(result_rows)):
-                    if result_rows[i]['Data'][0].get('VarCharValue') != None:
+                    if result_rows[i]["Data"][0].get("VarCharValue") != None:
                         chr_row = {}
                         chr_row["Metric"] = result_rows[i]["Data"][0]["VarCharValue"]
                         if float(chr_row["Metric"]) > 100:
-                            chr_row["Metric"] = '100.00'
+                            chr_row["Metric"] = "100.00"
                         chr_row["Count"] = result_rows[i]["Data"][1]["VarCharValue"]
                         domain = result_rows[i]["Data"][2]["VarCharValue"]
                         country = result_rows[i]["Data"][3]["VarCharValue"]
-                        domain_country_dict = insert_value_with_list(domain_country_dict, domain, country, chr_row)
-            #TODO: top url request and top url bandwidth
+                        domain_country_dict = insert_value_with_list(
+                            domain_country_dict, domain, country, chr_row
+                        )
+            # TODO: top url request and top url bandwidth
             if len(domain_country_dict) != 0:
                 log.info(metric)
                 log.info(domain_country_dict)
                 for domain in domain_country_dict.keys():
                     table_item = {
-                        'metricId': metric + '-' + domain,
-                        'timestamp': int(query_item['Time']),
-                        'metricData': domain_country_dict[domain],
+                        "metricId": metric + "-" + domain,
+                        "timestamp": int(query_item["Time"]),
+                        "metricData": domain_country_dict[domain],
                     }
                     ddb_response = table.put_item(Item=table_item)
                     log.info(json.dumps(table_item))
@@ -200,28 +266,33 @@ def get_athena_query_result(athena_client, query_execution_id):
             break
 
         if query_execution_status == "FAILED":
-            if 'DIVISION_BY_ZERO' in query_status['QueryExecution']['Status'][
-                    'StateChangeReason']:
+            if (
+                "DIVISION_BY_ZERO"
+                in query_status["QueryExecution"]["Status"]["StateChangeReason"]
+            ):
                 # DIVISION_BY_ZERO is caused by the denominator is zero, set CHR to 0
-                log.info("[get_athena_query_result] REASON: DIVISION_BY_ZERO, STATUS: " +
-                         query_execution_status + ", retry: " + str(i))
+                log.info(
+                    "[get_athena_query_result] REASON: DIVISION_BY_ZERO, STATUS: "
+                    + query_execution_status
+                    + ", retry: "
+                    + str(i)
+                )
                 failed_result = {
                     "ResultSet": {
-                        "Rows": [{
-                            "Data": [{
-                                "VarCharValue": "CHR"
-                            }]
-                        }, {
-                            "Data": [{
-                                "VarCharValue": "0"
-                            }]
-                        }]
+                        "Rows": [
+                            {"Data": [{"VarCharValue": "CHR"}]},
+                            {"Data": [{"VarCharValue": "0"}]},
+                        ]
                     }
                 }
                 return failed_result
             else:
-                raise Exception("[get_athena_query_result] STATUS:" +
-                                query_execution_status + ", retry: " + str(i))
+                raise Exception(
+                    "[get_athena_query_result] STATUS:"
+                    + query_execution_status
+                    + ", retry: "
+                    + str(i)
+                )
         else:
             log.info(
                 "[get_athena_query_result] STATUS:"
@@ -280,10 +351,15 @@ def assemble_query(start_time, end_time, query_string, is_realtime):
                                 + str(end_min)
                             )
                 else:
-                    if (start_hour == end_hour):
-                        query_string += ' AND hour = ' + str(start_hour)
+                    if start_hour == end_hour:
+                        query_string += " AND hour = " + str(start_hour)
                     else:
-                        query_string += ' AND hour BETWEEN ' + str(start_hour) + ' AND ' + str(end_hour)
+                        query_string += (
+                            " AND hour BETWEEN "
+                            + str(start_hour)
+                            + " AND "
+                            + str(end_hour)
+                        )
 
     return query_string
 
@@ -298,12 +374,19 @@ def schedule_athena_query(
     query_output,
     m_interval,
     is_realtime,
-    latency_limit
+    latency_limit,
 ):
     log.info("[schedule_athena_query] Start")
 
     query_string = construct_query_string(
-        db_name, start_time, end_time, metric, table_name, m_interval, is_realtime, latency_limit
+        db_name,
+        start_time,
+        end_time,
+        metric,
+        table_name,
+        m_interval,
+        is_realtime,
+        latency_limit,
     )
 
     log.info("[schedule_athena_query] Query string: " + query_string)
@@ -323,7 +406,14 @@ def schedule_athena_query(
 
 
 def construct_query_string(
-    db_name, start_time, end_time, metric, table_name, m_interval, is_realtime, latency_limit
+    db_name,
+    start_time,
+    end_time,
+    metric,
+    table_name,
+    m_interval,
+    is_realtime,
+    latency_limit,
 ):
     # Dynamically build query string using partition
     if metric == "request" or metric == "requestLatency":
@@ -470,39 +560,104 @@ def construct_query_string(
             + str(format_date_time(start_time))
             + ' AND "x-edge-response-result-type" <> \'LimitExceeded\' AND "x-edge-response-result-type" <> \'CapacityExceeded\' group by "cs-host", "c-country";'
         )
-    elif metric == 'topNUrlRequests':
-        query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", cnt, row_number() ' \
-                       f'over (order by cnt desc) rank ' \
-                       f'from (select "cs-host", "cs-uri-stem", count(1) as cnt from ' \
-                       f'"{db_name}"."{table_name}" where '
-        query_string = assemble_query(start_time, end_time, query_string, is_realtime)
-        query_string = query_string + ' AND timestamp < ' + str(
-            format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
-            format_date_time(start_time)
-        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
-    elif metric == 'topNUrlSize':
-        query_string = f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() ' \
-                       f'over (order by sc_size desc) rank ' \
-                       f'from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from ' \
-                       f'"{db_name}"."{table_name}" where '
-        query_string = assemble_query(start_time, end_time, query_string, is_realtime)
-        query_string = query_string + ' AND timestamp < ' + str(
-            format_date_time(end_time) + 1) + ' AND timestamp >= ' + str(
-            format_date_time(start_time)
-        ) + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
-    elif metric == "latencyRatio":
+    elif metric == "topNUrlRequests":
         query_string = (
-            f'SELECT cast((sum(case when "time-taken" >= {latency_limit} then 1 else 0 end) * 100.0 / count(*)) '
-            f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country" FROM "{db_name}"."{table_name}" WHERE '
+            f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", cnt, row_number() '
+            f"over (order by cnt desc) rank "
+            f'from (select "cs-host", "cs-uri-stem", count(1) as cnt from '
+            f'"{db_name}"."{table_name}" where '
         )
         query_string = assemble_query(start_time, end_time, query_string, is_realtime)
-        query_string += (
-            " AND timestamp <= "
-            + str(format_date_time(end_time))
-            + " AND timestamp > "
+        query_string = (
+            query_string
+            + " AND timestamp < "
+            + str(format_date_time(end_time) + 1)
+            + " AND timestamp >= "
             + str(format_date_time(start_time))
-            + ' group by "cs-host", "c-country";'
+            + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
         )
+    elif metric == "topNUrlSize":
+        query_string = (
+            f'SELECT b.* from (SELECT "cs-host", "cs-uri-stem", sc_size, row_number() '
+            f"over (order by sc_size desc) rank "
+            f'from (select "cs-host", "cs-uri-stem", sum("sc-bytes") as sc_size from '
+            f'"{db_name}"."{table_name}" where '
+        )
+        query_string = assemble_query(start_time, end_time, query_string, is_realtime)
+        query_string = (
+            query_string
+            + " AND timestamp < "
+            + str(format_date_time(end_time) + 1)
+            + " AND timestamp >= "
+            + str(format_date_time(start_time))
+            + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
+        )
+    elif metric == "latencyRatio":
+        for i in range(0, 3):
+            query_string = ""
+            if i == 0:
+                query_string_first = (
+                    f'SELECT cast((sum(case when "time-taken" >= 1 then 1 else 0 end) * 100.0 / count(*)) '
+                    f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country", "t1" as ratioRange FROM "{db_name}"."{table_name}" WHERE '
+                )
+                query_string_first = assemble_query(
+                    start_time, end_time, query_string_first, is_realtime
+                )
+                query_string_first = (
+                    "("
+                    + query_string_first
+                    + " AND timestamp <= "
+                    + str(format_date_time(end_time))
+                    + " AND timestamp > "
+                    + str(format_date_time(start_time))
+                    + ' AND "time-taken" >=0.3 and "time-taken" <0.6'
+                    + ' group by "cs-host", "c-country") union '
+                )
+                query_string = query_string + query_string_first
+            if i == 1:
+                query_string_second = (
+                    f'SELECT cast((sum(case when "time-taken" >=0.6 and "time-taken" <1 then 1 else 0 end) * 100.0 / count(*)) '
+                    f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country", "t2" as ratioRange FROM "{db_name}"."{table_name}" WHERE '
+                )
+                query_string_second = assemble_query(
+                    start_time, end_time, query_string_second, is_realtime
+                )
+                query_string_second = (
+                    "("
+                    + query_string_second
+                    + " AND timestamp <= "
+                    + str(format_date_time(end_time))
+                    + " AND timestamp > "
+                    + str(format_date_time(start_time))
+                    + ' AND "time-taken" >=0.6 and "time-taken" <1'
+                    + ' group by "cs-host", "c-country") union '
+                )
+                query_string = query_string + query_string_second
+            if i == 2:
+                query_string_third = (
+                    f'SELECT cast((sum(case when  "time-taken" >=0.3 and "time-taken" <0.6 then 1 else 0 end) * 100.0 / count(*)) '
+                    f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country", "t3" as ratioRange FROM "{db_name}"."{table_name}" WHERE '
+                )
+                query_string_third = assemble_query(
+                    start_time, end_time, query_string_third, is_realtime
+                )
+                query_string_third = (
+                    "("
+                    + query_string_third
+                    + " AND timestamp <= "
+                    + str(format_date_time(end_time))
+                    + " AND timestamp > "
+                    + str(format_date_time(start_time))
+                    + ' AND "time-taken" >=1'
+                    + ' group by "cs-host", "c-country") '
+                )
+                query_string = query_string + query_string_third
+                query_string = (
+                    'SELECT MAX(CASE WHEN ratioRange = "t1" THEN ratio ELSE 0 END) AS "ratio_1000", sumTs, "cs-host", "c-country", MAX(CASE WHEN ratioRange = "t2" THEN ratio ELSE 0 END) AS "ratio_600",  MAX(CASE WHEN ratioRange = "t3" THEN ratio ELSE 0 END) AS "ratio_300" from ('
+                    + query_string
+                    + ') group by "cs-host", "c-country",sumTs;'
+                )
+
     elif metric == "edgeType" or metric == "edgeTypeLatency":
         # edgeTypeLatency: average time-taken for requests group by x-edge-response-result-type
         query_string = (
@@ -539,7 +694,7 @@ def gen_detailed_by_interval(
     m_interval,
     is_realtime,
     latency_limit=1,
-    use_start="false"
+    use_start="false",
 ):
     """Generate detailed data according to start time, end time and interval"""
     interval_list = []
@@ -566,7 +721,7 @@ def gen_detailed_by_interval(
                 query_output,
                 m_interval,
                 is_realtime,
-                latency_limit
+                latency_limit,
             )
             interval_item["QueryId"] = athena_query_result["QueryExecutionId"]
             interval_list.append(interval_item)
@@ -582,7 +737,7 @@ def gen_detailed_by_interval(
             query_output,
             m_interval,
             is_realtime,
-            latency_limit
+            latency_limit,
         )
         interval_item["QueryId"] = athena_query_result_5m["QueryExecutionId"]
         interval_list.append(interval_item)

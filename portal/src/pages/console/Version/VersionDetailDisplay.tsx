@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ReactDiffViewer from "react-diff-viewer";
+import ReactDiffViewer from "react-diff-viewer-continued";
 import Breadcrumb from "components/Breadcrumb";
 import HeaderPanel from "components/HeaderPanel";
 import Select from "components/Select";

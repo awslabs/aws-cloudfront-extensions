@@ -54,6 +54,7 @@ export type SelectItem = {
   value: string;
   optTitle?: string;
   description?: string;
+  logSamplingRate?: number;
 };
 
 interface SelectProps {

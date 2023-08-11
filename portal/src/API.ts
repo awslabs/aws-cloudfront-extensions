@@ -347,6 +347,8 @@ export type ListDistributionQuery = {
     enabled?: string | null;
     versionCount?: string | null;
     snapshotCount?: string | null;
+    realLogArn?: string | null;
+    logSamplingRate?: number | null;
     aliases: {
       __typename: "AliasInfo";
       Quantity: number;
@@ -505,7 +507,7 @@ export type NotificationsQuery = {
 
 export type ListCertificationsQuery = {
   // list certifications for
-  listCertifications?:  Array< {
+  listCertifications?: Array<{
     __typename: "certification_info";
     CertificateArn: string;
     DomainName: string;
