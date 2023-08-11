@@ -70,7 +70,7 @@ def lambda_handler(firehose_records_input, context):
         payload = "".join(map(chr, payload_bytes))
 
         payload_list = payload.strip().split('\t')
-        cs_host = payload_list[7].strip()
+        cs_host = payload_list[4].strip()
         c_ip = payload_list[1].strip()
         version = validate_ip_version(c_ip)
         if version == "invalid":
