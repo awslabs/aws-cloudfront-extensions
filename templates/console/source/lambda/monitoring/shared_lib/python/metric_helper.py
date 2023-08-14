@@ -172,8 +172,12 @@ def collect_metric_data(
                         # }
                         lr_row["Latency"] = result_rows[i]["Data"][0]["VarCharValue"]
                         lr_row["Count"] = result_rows[i]["Data"][1]["VarCharValue"]
-                        lr_row["Latency_600"] = result_rows[i]["Data"][4]["VarCharValue"]
-                        lr_row["Latency_300"] = result_rows[i]["Data"][5]["VarCharValue"]
+                        lr_row["Latency_600"] = result_rows[i]["Data"][4][
+                            "VarCharValue"
+                        ]
+                        lr_row["Latency_300"] = result_rows[i]["Data"][5][
+                            "VarCharValue"
+                        ]
                         domain = result_rows[i]["Data"][2]["VarCharValue"]
                         country = result_rows[i]["Data"][3]["VarCharValue"]
                         domain_country_dict = insert_value_with_list(
@@ -593,12 +597,12 @@ def construct_query_string(
             + ' group by "cs-host", "cs-uri-stem") a) b where b.rank<=10 order by rank'
         )
     elif metric == "latencyRatio":
+        query_string = ""
         for i in range(0, 3):
-            query_string = ""
             if i == 0:
                 query_string_first = (
                     f'SELECT cast((sum(case when "time-taken" >= 1 then 1 else 0 end) * 100.0 / count(*)) '
-                    f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country", "t1" as ratioRange FROM "{db_name}"."{table_name}" WHERE '
+                    f'as decimal(38,2)) as ratio, count(timestamp) as sumTs, "cs-host", "c-country", \'t1\' as ratioRange FROM "{db_name}"."{table_name}" WHERE '
                 )
                 query_string_first = assemble_query(
                     start_time, end_time, query_string_first, is_realtime
@@ -610,14 +614,13 @@ def construct_query_string(
                     + str(format_date_time(end_time))
                     + " AND timestamp > "
                     + str(format_date_time(start_time))
-                    + ' AND "time-taken" >=0.3 and "time-taken" <0.6'
                     + ' group by "cs-host", "c-country") union '
                 )
                 query_string = query_string + query_string_first
             if i == 1:
                 query_string_second = (
                     f'SELECT cast((sum(case when "time-taken" >=0.6 and "time-taken" <1 then 1 else 0 end) * 100.0 / count(*)) '
-                    f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country", "t2" as ratioRange FROM "{db_name}"."{table_name}" WHERE '
+                    f'as decimal(38,2)) as ratio, count(timestamp) as sumTs, "cs-host", "c-country", \'t2\' as ratioRange FROM "{db_name}"."{table_name}" WHERE '
                 )
                 query_string_second = assemble_query(
                     start_time, end_time, query_string_second, is_realtime
@@ -629,14 +632,13 @@ def construct_query_string(
                     + str(format_date_time(end_time))
                     + " AND timestamp > "
                     + str(format_date_time(start_time))
-                    + ' AND "time-taken" >=0.6 and "time-taken" <1'
                     + ' group by "cs-host", "c-country") union '
                 )
                 query_string = query_string + query_string_second
             if i == 2:
                 query_string_third = (
                     f'SELECT cast((sum(case when  "time-taken" >=0.3 and "time-taken" <0.6 then 1 else 0 end) * 100.0 / count(*)) '
-                    f'as decimal(38,2)) as ratio, count(timestamp), "cs-host", "c-country", "t3" as ratioRange FROM "{db_name}"."{table_name}" WHERE '
+                    f'as decimal(38,2)) as ratio, count(timestamp) as sumTs, "cs-host", "c-country", \'t3\' as ratioRange FROM "{db_name}"."{table_name}" WHERE '
                 )
                 query_string_third = assemble_query(
                     start_time, end_time, query_string_third, is_realtime
@@ -648,14 +650,13 @@ def construct_query_string(
                     + str(format_date_time(end_time))
                     + " AND timestamp > "
                     + str(format_date_time(start_time))
-                    + ' AND "time-taken" >=1'
                     + ' group by "cs-host", "c-country") '
                 )
                 query_string = query_string + query_string_third
                 query_string = (
-                    'SELECT MAX(CASE WHEN ratioRange = "t1" THEN ratio ELSE 0 END) AS "ratio_1000", sumTs, "cs-host", "c-country", MAX(CASE WHEN ratioRange = "t2" THEN ratio ELSE 0 END) AS "ratio_600",  MAX(CASE WHEN ratioRange = "t3" THEN ratio ELSE 0 END) AS "ratio_300" from ('
+                    "SELECT MAX(CASE WHEN ratioRange = 't1' THEN ratio ELSE 0 END) AS ratio_1000, sum(sumTs) as tsTotal, \"cs-host\", \"c-country\", MAX(CASE WHEN ratioRange = 't2' THEN ratio ELSE 0 END) AS ratio_600,  MAX(CASE WHEN ratioRange = 't3' THEN ratio ELSE 0 END) AS ratio_300 from ("
                     + query_string
-                    + ') group by "cs-host", "c-country",sumTs;'
+                    + ') group by "cs-host", "c-country";'
                 )
 
     elif metric == "edgeType" or metric == "edgeTypeLatency":
