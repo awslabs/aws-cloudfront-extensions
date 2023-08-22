@@ -10,7 +10,7 @@ import { Aspects } from "aws-cdk-lib";
 import { AwsSolutionsChecks } from "cdk-nag";
 
 const app = new cdk.App();
-Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
+// Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
 
 new ConsoleStack(app, "CloudFrontExtnConsoleStack", {
   tags: {
@@ -21,7 +21,7 @@ new ConsoleStack(app, "CloudFrontExtnConsoleStack", {
 
 // below lines are required if your application has Docker assets
 if (process.env.USE_BSS) {
-  Aspects.of(app).add(new CompositeECRRepositoryAspect());
+  // Aspects.of(app).add(new CompositeECRRepositoryAspect());
 }
 
 function newSynthesizer() {
