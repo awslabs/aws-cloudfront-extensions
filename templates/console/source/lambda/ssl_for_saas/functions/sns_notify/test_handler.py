@@ -13,8 +13,8 @@ os.environ.setdefault('GRAPHQL_API_URL', 'https://gtjgvw6jk5fxvklgk7yge7kzqq.app
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
                       'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-1JYPAMATXT90U')
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
-os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
+                      'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
+os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
 
 
 @pytest.mark.skip(reason="dev only")
@@ -68,7 +68,7 @@ class Test(TestCase):
                                 "statusCode": 200,
                                 "body": {
                                     "distributionId": "E2S108W0OK8TGR",
-                                    "distributionArn": "arn:aws:cloudfront::648149843064:distribution/E2S108W0OK8TGR",
+                                    "distributionArn": "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/E2S108W0OK8TGR",
                                     "distributionDomainName": "d1xsutn96i86o3.cloudfront.net",
                                     "aliases": {
                                         "Quantity": 0
@@ -97,12 +97,12 @@ class Test(TestCase):
                                 "statusCode": 200,
                                 "body": {
                                     "distributionId": "E2S108W0OK8TGR",
-                                    "distributionArn": "arn:aws:cloudfront::648149843064:distribution/E2S108W0OK8TGR",
+                                    "distributionArn": "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/E2S108W0OK8TGR",
                                     "distributionDomainName": "d1xsutn96i86o3.cloudfront.net",
                                     "aliases": {
                                         "Quantity": 0
                                     },
-                                    "certificateArn": "arn:aws:acm:us-east-1:648149843064:certificate/7ca79b75-60dd-4700-b4b2-48f6b3c6d0f6",
+                                    "certificateArn": "arn:aws:acm:us-east-1:${ACCOUNT_ID}:certificate/7ca79b75-60dd-4700-b4b2-48f6b3c6d0f6",
                                 }
                             }
                         },
@@ -111,9 +111,9 @@ class Test(TestCase):
                             "Payload": {
                                 "statusCode": 200,
                                 "body": {
-                                    "certificateArn": "arn:aws:acm:us-east-1:648149843064:certificate/7ca79b75-60dd-4700-b4b2-48f6b3c6d0f6",
+                                    "certificateArn": "arn:aws:acm:us-east-1:${ACCOUNT_ID}:certificate/7ca79b75-60dd-4700-b4b2-48f6b3c6d0f6",
                                     "distributionId": "E2S108W0OK8TGR",
-                                    "distributionArn": "arn:aws:cloudfront::648149843064:distribution/E2S108W0OK8TGR",
+                                    "distributionArn": "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/E2S108W0OK8TGR",
                                     "distributionDomainName": "d1xsutn96i86o3.cloudfront.net",
                                     "aliases": {
                                         "Quantity": 1,

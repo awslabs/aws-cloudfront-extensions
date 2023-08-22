@@ -24,7 +24,7 @@ import {
   LogGroupLogDestination,
   RequestValidator,
 } from "aws-cdk-lib/aws-apigateway";
-import {Bucket, BucketEncryption, ObjectOwnership} from "aws-cdk-lib/aws-s3";
+import { Bucket, BucketEncryption, ObjectOwnership } from "aws-cdk-lib/aws-s3";
 import { Rule } from "aws-cdk-lib/aws-events";
 import targets = require("aws-cdk-lib/aws-events-targets");
 import { Trail } from "aws-cdk-lib/aws-cloudtrail";
@@ -79,7 +79,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
       serverAccessLogsPrefix: "accessLogBucketAccessLog" + "-",
-      objectOwnership: ObjectOwnership.OBJECT_WRITER
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
     });
 
     const cloudfront_config_version_s3_bucket = new Bucket(
@@ -91,7 +91,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         serverAccessLogsPrefix: "dataBucketAccessLog" + "-" + "config-version",
         removalPolicy: RemovalPolicy.DESTROY,
         autoDeleteObjects: true,
-        objectOwnership: ObjectOwnership.OBJECT_WRITER
+        objectOwnership: ObjectOwnership.OBJECT_WRITER,
       }
     );
 
@@ -190,10 +190,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
 
     const lambda_rw_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: [
-          "lambda:GetFunction",
-          "lambda:EnableReplication"
-      ],
+      actions: ["lambda:GetFunction", "lambda:EnableReplication"],
     });
 
     const cloudfront_create_update_policy = new iam.PolicyStatement({
@@ -206,27 +203,24 @@ export class CloudFrontConfigVersionConstruct extends Construct {
         "cloudfront:UpdateDistribution",
         "cloudfront:ListTagsForResource",
         "cloudfront:ListDistributions",
+        "cloudfront:ListRealtimeLogConfigs",
       ],
     });
 
     const eventBridge_create_policy = new iam.PolicyStatement({
       resources: ["*"],
-      actions: [
-          "events:ListRules",
-          "events:PutRule",
-          "events:PutTargets"
-      ],
+      actions: ["events:ListRules", "events:PutRule", "events:PutTargets"],
     });
 
     const iam_create_policy = new iam.PolicyStatement({
       resources: ["*"],
       actions: [
-          "iam:CreateRole",
-          "iam:GetRole",
-          "iam:PassRole",
-          "iam:CreatePolicy",
-          "iam:AttachRolePolicy"
-          ]
+        "iam:CreateRole",
+        "iam:GetRole",
+        "iam:PassRole",
+        "iam:CreatePolicy",
+        "iam:AttachRolePolicy",
+      ],
     });
 
     lambdaRole.addToPolicy(ddb_rw_policy);

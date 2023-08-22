@@ -47,7 +47,7 @@ class TestAcmUtilsClient(TestCase):
 
     def test_fetch_dcv_value(self):
         client = AcmUtilsService()
-        resp = client.fetch_dcv_value('arn:aws:acm:us-east-1:991301791329:certificate/2058456d-cf27-4409-aff9-eefefd1e87c3')
+        resp = client.fetch_dcv_value('arn:aws:acm:us-east-1:${account_id}:certificate/2058456d-cf27-4409-aff9-eefefd1e87c3')
         print(resp)
         print(resp['CertificateArn'])
         self.assertEqual(1, 1, 'pass')

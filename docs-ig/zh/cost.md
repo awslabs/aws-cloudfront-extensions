@@ -57,34 +57,3 @@
 | Amazon Cognito | 30 MAU | $1.5 |
 | Amazon DynamoDB | 1GB数据存储<br>每分钟2次写操作<br>每两分钟1次读操作 | $0.72 |
 | 总计 |  | $88.56 |
-
-
-## 预热
-
-### 示例1: 每天预热500个资源，每个资源大小为500MB
-
-截至2023年3月，在美国东部（弗吉尼亚北部）区域（us-east-1），成本约为每月$171.27。
-
-|  服务  | 用量 | 费用/每月 | 
-|  ----  | ----  | ----  |  
-| Amazon EC2 | 启动50 EC2 spot实例 (c6g.large)，每天运行2小时预热500个URI<br>150GB EBS | $165.97 |
-| Amazon Lambda | 45K次请求<br>256MB内存<br>ARM64 | $3.67 |
-| Amazon API Gateway | 30K次请求<br>REST API | $0.03 |
-| Amazon Simple Queue Service | 标准队列<br>2GB DTO | $0.18 |
-| Amazon DynamoDB | 2GB数据存储<br>15K次写操作<br>15K次读操作 | $0.52 |
-| Amazon CloudWatch | 1个指标和警报 | $0.90 |
-| 总计 |  | $171.27 |
-
-### 示例2: 每月预热200个资源，每个资源大小为1GB
-
-截至2023年3月，在美国东部（弗吉尼亚北部）区域（us-east-1），成本约为每月$11.78。
-
-|  服务  | 用量 | 费用/每月 | 
-|  ----  | ----  | ----  |  
-| Amazon EC2 | m5dn.xlarge Spot实例<br>150GB EBS | $10.59 |
-| Amazon Lambda | 28次请求<br>256MB memory<br>ARM64 | $0.01 |
-| Amazon API Gateway | 24次请求<br>REST API | $0.0001 |
-| Amazon Simple Queue Service | 标准队列<br>1GB DTO | $0.02 |
-| Amazon DynamoDB | 1GB数据存储<br>2K次写操作<br>200次读操作 | $0.25 |
-| Amazon CloudWatch | 1个指标和警报 | $0.90 |
-| 总计 |  | $11.78 |

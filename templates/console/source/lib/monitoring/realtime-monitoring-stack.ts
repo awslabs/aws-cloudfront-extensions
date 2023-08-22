@@ -20,7 +20,7 @@ import { CfnDeliveryStream } from "aws-cdk-lib/aws-kinesisfirehose";
 import * as kms from "aws-cdk-lib/aws-kms";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import {Bucket, BucketEncryption, ObjectOwnership} from "aws-cdk-lib/aws-s3";
+import { Bucket, BucketEncryption, ObjectOwnership } from "aws-cdk-lib/aws-s3";
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { Construct } from 'constructs';
@@ -42,7 +42,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
     const accessLogBucket = new Bucket(this, 'BucketAccessLog', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
-      objectOwnership: ObjectOwnership.OBJECT_WRITER
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
     });
 
     const cloudfront_monitoring_s3_bucket = new Bucket(this, 'CloudfrontMonitoringS3Bucket', {
@@ -952,7 +952,7 @@ export class RealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'app.lambda_handler',
       memorySize: 2048,
       role: lambdaRole,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../lambda-edges/python/rt_log_transformer/rt_log_transformer')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../../edge/python/rt_log_transformer/rt_log_transformer')),
       timeout: cdk.Duration.minutes(2)
     });
 

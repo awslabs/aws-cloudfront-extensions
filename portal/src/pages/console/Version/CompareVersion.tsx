@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import deepEqual from "deep-equal";
-import ReactDiffViewer from "react-diff-viewer";
+import ReactDiffViewer from "react-diff-viewer-continued";
 import PauseCircleFilledIcon from "@material-ui/icons/PauseCircleFilled";
 import SwapHorizontalCircleIcon from "@material-ui/icons/SwapHorizontalCircle";
 import Breadcrumb from "components/Breadcrumb";

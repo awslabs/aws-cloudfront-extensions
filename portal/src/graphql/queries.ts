@@ -90,9 +90,12 @@ export const listDistribution = /* GraphQL */ `
         Quantity
         Items
       }
+      realLogArn
+      logSamplingRate
     }
   }
 `;
+
 export const getDistributionCname = /* GraphQL */ `
   query GetDistributionCname($distribution_id: String) {
     getDistributionCname(distribution_id: $distribution_id)

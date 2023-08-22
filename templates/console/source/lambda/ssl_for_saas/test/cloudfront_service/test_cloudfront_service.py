@@ -12,14 +12,14 @@ from layer.common.constants_ import ACM_METADATA_TABLE, CONFIG_VERSION_TABLE
 from layer.common.types_ import Cname, SourceCfInfo
 from test.test_utils import create_config_version_table, sample_cloudfront_config
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 os.environ.setdefault(CONFIG_VERSION_TABLE,
                       CONFIG_VERSION_TABLE)
 os.environ.setdefault('GRAPHQL_API_KEY', 'grapql_key')
 os.environ.setdefault('GRAPHQL_API_URL', 'gf_api')
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
-os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:648149843064:CloudFront_Distribution_Notification')
+                      'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
+os.environ.setdefault('SNS_TOPIC', 'arn:aws:sns:us-east-1:${ACCOUNT_ID}:CloudFront_Distribution_Notification')
 
 
 class TestCloudfrontService:
@@ -42,7 +42,7 @@ class TestCloudfrontService:
     def test_validate_source_cloudfront_dist(self, monkeypatch):
         from layer.cloudfront_service.client import CloudFrontUtilsService
         client = CloudFrontUtilsService()
-        ddb = boto3.resource(service_name="dynamodb", region_name="us-east-1")
+        ddb = boto3.client("dynamodb")
         create_config_version_table(ddb, client.config_version_table)
         distr_id = 'ED1GHHCCBZVHL'
         client.ddb_client.put_items(table=client.config_version_table, entries={

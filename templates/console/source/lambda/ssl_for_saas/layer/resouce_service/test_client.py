@@ -12,7 +12,7 @@ os.environ.setdefault(ACM_METADATA_TABLE,
 os.environ.setdefault(JOB_INFO_TABLE_NAME,
                       'CloudFrontExtnConsoleStack-StepFunctionRpTsConstructsslforsaasjobinfotable199EF239-20EOT6Z1TZGV')
 os.environ.setdefault('STEP_FUNCTION_ARN',
-                      'arn:aws:states:us-east-1:648149843064:stateMachine:SSL-for-SaaS-StateMachine')
+                      'arn:aws:states:us-east-1:${ACCOUNT_ID}:stateMachine:SSL-for-SaaS-StateMachine')
 
 
 @pytest.mark.skip(reason="dev only")

@@ -25,7 +25,7 @@ def handler(event: Any, context: Any) -> Response:
         # get the total certificate with status "Issued"
         certificates = acm_client.list_certificates_by_status(statuses=['ISSUED'])
         result = acm_client.get_results(job_id, certificates)
-        if len(request_ssl_num) == len(result):
+        if request_ssl_num == len(result):
             # the validation process has completed and update the job info table of certValidationStageStatus to SUCCESS
             job_info_client.update_job_fields_by_dict(job_id, {
                 'certValidationStageStatus': 'SUCCESS',

@@ -2,7 +2,7 @@ import os
 
 from layer.common.constants_ import ACM_METADATA_TABLE, CONFIG_VERSION_TABLE, JOB_INFO_TABLE_NAME
 
-os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
+# os.environ.setdefault('AWS_PROFILE', 'cloudfront_ext')
 os.environ.setdefault(ACM_METADATA_TABLE,
                       'acm_metadata')
 os.environ.setdefault(CONFIG_VERSION_TABLE,
@@ -40,7 +40,7 @@ class TestCloudFrontBind:
                             "statusCode": 200,
                             "body": {
                                 "distributionId": "E3U0EWVS0978CR",
-                                "distributionArn": "arn:aws:cloudfront::648149843064:distribution/E3U0EWVS0978CR",
+                                "distributionArn": "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/E3U0EWVS0978CR",
                                 "distributionDomainName": "d2tmq1ppzhlmip.cloudfront.net",
                                 "aliases": {
                                     "Quantity": 0
