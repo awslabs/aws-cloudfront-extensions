@@ -30,6 +30,7 @@ interface DistributionType {
   snapshotCount: string;
   status: string;
   versionCount: string;
+  logSamplingRate?: number;
 }
 
 const CloudFrontMetrics: React.FC = () => {
@@ -53,12 +54,7 @@ const CloudFrontMetrics: React.FC = () => {
   const [loadingCountry, setLoadingCountry] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  // const [startDate, setStartDate] = useState(
-  //   encodeURI(moment().utc().add(-12, "hours").format("YYYY-MM-DD HH:mm:ss"))
-  // );
-  // const [endDate, setEndDate] = useState(
-  //   encodeURI(moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss"))
-  // );
+  const [currentLogSamplingRate, setCurrentLogSamplingRate] = useState(0);
   const [countryList, setCountryList] = useState<KeyValueType[]>([]);
   const [curCountryCode, setcurCountryCode] = useState("All");
   const [isRefresh, setIsRefresh] = useState(0);
@@ -69,23 +65,22 @@ const CloudFrontMetrics: React.FC = () => {
     try {
       setLoadingCloudFront(true);
       const resData = await appSyncRequestQuery(listDistribution);
-      console.info("resData:", resData);
       if (resData.data.listDistribution) {
         const tmpCloudFrontList: SelectItem[] = [];
         resData.data.listDistribution.forEach((element: DistributionType) => {
-          // let tmpDomain = element.domainName;
           if (element?.aliases?.Items?.length > 0) {
             element?.aliases?.Items.forEach((domain: string) => {
               tmpCloudFrontList.push({
                 name: `${domain}`,
-                // name: `${element.domainName} | ${domain}`,
                 value: domain,
+                logSamplingRate: element.logSamplingRate,
               });
             });
           } else {
             tmpCloudFrontList.push({
               name: element.domainName,
               value: element.domainName,
+              logSamplingRate: element.logSamplingRate,
             });
           }
         });
@@ -101,7 +96,6 @@ const CloudFrontMetrics: React.FC = () => {
   const buildDataFromCountryString = (countryStr: string): KeyValueType => {
     if (countryStr && countryStr.length > 3) {
       countryStr = countryStr.substring(1, countryStr.length - 1);
-      console.info("countryStr:", countryStr);
       const paramArr = countryStr.split(",");
       return {
         key: paramArr[0].split("=")?.[1],
@@ -162,6 +156,17 @@ const CloudFrontMetrics: React.FC = () => {
     setActiveTab(0);
   }, []);
 
+  useEffect(() => {
+    const currectCF = cloudFrontList.find(
+      (i) => i.name === currentCloudFront || i.value === currentCloudFront
+    );
+    if (currectCF) {
+      setCurrentLogSamplingRate(currectCF.logSamplingRate || 0);
+    } else {
+      setCurrentLogSamplingRate(0);
+    }
+  }, [currentCloudFront]);
+
   return (
     <div>
       <Breadcrumb list={BreadCrunbList} />
@@ -195,9 +200,17 @@ const CloudFrontMetrics: React.FC = () => {
                     onChange={(e) => {
                       setcurCountryCode("All");
                       setCurrentCloudFront(e.target.value);
+                      setCurrentLogSamplingRate(e.target.logSamplingRate);
                     }}
                   />
                 </FormItem>
+                <label>
+                  Distribution sampling rate:{" "}
+                  {currentLogSamplingRate > 0
+                    ? currentLogSamplingRate + "%"
+                    : "-"}
+                </label>
+
                 <FormItem
                   optionTitle="Date and time range (*UTC)"
                   optionDesc=""
@@ -374,7 +387,7 @@ const CloudFrontMetrics: React.FC = () => {
                             curCountry={curCountryCode}
                             rangeType={curTimeRangeType}
                             domainName={currentCloudFront}
-                            graphTitle="Requests latency (> 1 sec) rate"
+                            graphTitle="Requests latency (300-1000+ms) rate"
                             yAxisUnit="Percentage (%)"
                             metricType={MetricType.latencyRatio}
                             startTime={startDate}
