@@ -25,6 +25,7 @@ describe("NonRealtimeMonitoringStack", () => {
 
     const appStack = new Stack(app, "MonitoringStack", {});
     const testBucket = new aws_s3.Bucket(appStack, "testBucket", {
+      objectOwnership: ObjectOwnership.OBJECT_WRITER
     });
     const stack = new monitoringStack.RealtimeMonitoringStack(
       appStack,

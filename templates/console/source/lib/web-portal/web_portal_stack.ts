@@ -94,6 +94,7 @@ export class PortalConstruct extends Construct {
                 enforceSSL: true,
                 removalPolicy: RemovalPolicy.RETAIN,
                 autoDeleteObjects: false,
+                objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
             },
             cloudFrontDistributionProps: {
                 priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
@@ -111,6 +112,12 @@ export class PortalConstruct extends Construct {
                 defaultBehavior: getDefaultBehaviour(),
             },
             insertHttpSecurityHeaders: false,
+            loggingBucketProps: {
+                objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+            },
+            cloudFrontLoggingBucketProps: {
+                objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+            },
         });
 
         this.portalBucket = portal.s3Bucket as s3.Bucket;

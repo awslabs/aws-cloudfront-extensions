@@ -62,13 +62,14 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
         Limit=limit,
     )
     tmp_response = response
-    while 'LastEvaluatedKey' in tmp_response:
+    while "LastEvaluatedKey" in tmp_response:
         tmp_response = table.query(
-            KeyConditionExpression=Key("metricId").eq(real_metric + "-" + domain) & Key("timestamp").between(int(start_time), int(end_time)),
+            KeyConditionExpression=Key("metricId").eq(real_metric + "-" + domain)
+            & Key("timestamp").between(int(start_time), int(end_time)),
             Limit=limit,
-            ExclusiveStartKey=tmp_response['LastEvaluatedKey']
+            ExclusiveStartKey=tmp_response["LastEvaluatedKey"],
         )
-        response['Items'] += tmp_response['Items']
+        response["Items"] += tmp_response["Items"]
 
     if country == COUNTRY_ALL:
         for query_item in response["Items"]:
@@ -171,12 +172,29 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
                 elif metric == "latencyRatio":
                     latency_value = 0
                     latency_count = 0
+                    latency_600_value = 0
+                    latency_300_value = 0
                     for country_item in query_item["metricData"]:
                         for sc in query_item["metricData"][country_item]:
+                            log.info(sc)
                             latency_count += int(sc["Count"])
                             latency_value += int(sc["Count"]) * float(sc["Latency"])
+                            if "Latency_600" in sc:
+                                latency_600_value += int(sc["Count"]) * float(
+                                    sc["Latency_600"]
+                                )
+                            if "Latency_300" in sc:
+                                latency_300_value += int(sc["Count"]) * float(
+                                    sc["Latency_300"]
+                                )
                     detailed_data_item["Value"] = Decimal(
                         latency_value / latency_count
+                    ).quantize(Decimal("0.00"))
+                    detailed_data_item["Value_600"] = Decimal(
+                        latency_600_value / latency_count
+                    ).quantize(Decimal("0.00"))
+                    detailed_data_item["Value_300"] = Decimal(
+                        latency_300_value / latency_count
                     ).quantize(Decimal("0.00"))
                 elif metric == "chr" or metric == "chrBandWidth":
                     chr_metric = 0
@@ -233,7 +251,7 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
     if metric == "topNUrlRequests":
         sum_top_value = {}
         top_detailed_data = []
-        
+
         for top_row in detailed_data:
             for top_item in top_row["Value"]:
                 if top_item["Path"] not in sum_top_value:
@@ -245,14 +263,12 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
 
         sum_top_value = sorted(sum_top_value.items(), key=lambda x: x[1], reverse=True)
         sum_top_value = sum_top_value[:10]
-        top_detailed_data = [
-            {"Path": k, "Count": v} for k, v in sum_top_value
-        ]
+        top_detailed_data = [{"Path": k, "Count": v} for k, v in sum_top_value]
         detailed_data = [{"Value": top_detailed_data}]
     elif metric == "topNUrlSize":
         sum_top_value = {}
         top_detailed_data = []
-        
+
         for top_row in detailed_data:
             for top_item in top_row["Value"]:
                 if top_item["Path"] not in sum_top_value:
@@ -264,9 +280,7 @@ def query_metric_ddb(start_time, end_time, metric, domain, country):
 
         sum_top_value = sorted(sum_top_value.items(), key=lambda x: x[1], reverse=True)
         sum_top_value = sum_top_value[:10]
-        top_detailed_data = [
-            {"Path": k, "Size": v} for k, v in sum_top_value
-        ]
+        top_detailed_data = [{"Path": k, "Size": v} for k, v in sum_top_value]
         detailed_data = [{"Value": top_detailed_data}]
 
     return detailed_data
@@ -303,14 +317,26 @@ def get_metric_data(start_time, end_time, metric, domain, country):
                 "[get_metric_data] Start to get query result from ddb table - "
                 + metric_item
             )
-            if metric_item == 'topNUrlRequests' or metric_item == 'topNUrlSize':
-                temp_start_time = datetime.fromtimestamp(start_time).replace(hour=0, minute=0, second=0)
-                temp_end_time = datetime.fromtimestamp(end_time).replace(hour=0, minute=0, second=0)
+            if metric_item == "topNUrlRequests" or metric_item == "topNUrlSize":
+                temp_start_time = datetime.fromtimestamp(start_time).replace(
+                    hour=0, minute=0, second=0
+                )
+                temp_end_time = datetime.fromtimestamp(end_time).replace(
+                    hour=0, minute=0, second=0
+                )
                 if temp_start_time == temp_end_time:
                     temp_end_time = temp_end_time + timedelta(days=1)
-                detailed_data = query_metric_ddb(temp_start_time.timestamp(), temp_end_time.timestamp(), metric_item, domain, country)
+                detailed_data = query_metric_ddb(
+                    temp_start_time.timestamp(),
+                    temp_end_time.timestamp(),
+                    metric_item,
+                    domain,
+                    country,
+                )
             else:
-                detailed_data = query_metric_ddb(start_time, end_time, metric_item, domain, country)
+                detailed_data = query_metric_ddb(
+                    start_time, end_time, metric_item, domain, country
+                )
             cdn_data_item["Metric"] = metric_item
             cdn_data_item["DetailData"] = detailed_data
             cdn_data.append(cdn_data_item)

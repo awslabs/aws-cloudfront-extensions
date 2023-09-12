@@ -433,6 +433,9 @@ def manager_version_config_cf_list():
         tmp_dist['domainName'] = dist['DomainName']
         tmp_dist['status'] = dist['Status']
         tmp_dist['enabled'] = dist['Enabled']
+        realLogArn = dist['DefaultCacheBehavior']
+        if('RealtimeLogConfigArn' in realLogArn):
+            tmp_dist['realLogArn'] = realLogArn['RealtimeLogConfigArn']
 
         if 'Aliases' in dist:
             tmp_aliases = {}

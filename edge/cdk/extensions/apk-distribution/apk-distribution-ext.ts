@@ -47,7 +47,9 @@ export class ApkDistributionStack extends cdk.Stack {
         });
 
         // Create S3 Bucket to store distribution package
-        const tmpBucket = new s3.Bucket(this, 'TmpBucket');
+        const tmpBucket = new s3.Bucket(this, 'TmpBucket',{
+            objectOwnership: ObjectOwnership.OBJECT_WRITER
+        });
 
         // Lambda layer
         const layer = new lambda.LayerVersion(this, 'APKDistributionLayer',{

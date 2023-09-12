@@ -244,6 +244,24 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
     return tmpSeries;
   };
 
+  const buildLatencyRatioMultiLineData = (seriesData: any[]) => {
+    const tmpSeriesData = [
+      {
+        name: "300-600ms rate",
+        data: seriesData.map((item: any) => item.Value_300),
+      },
+      {
+        name: "600-1000ms rate",
+        data: seriesData.map((item: any) => item.Value_600),
+      },
+      {
+        name: "1000ms+ rate",
+        data: seriesData.map((item: any) => item.Value),
+      },
+    ];
+    return tmpSeriesData;
+  };
+
   const buildStatusCodeChartData = (
     seriesData: any[],
     keyName: string,
@@ -426,6 +444,9 @@ const MonitorCharts: React.FC<MonitorChartsProps> = (
       //x-edge-response-result-type average latency
       if (metricType === MetricType.edgeTypeLatency) {
         tmpSeries = buildMultiLineData(tmpSeriesData, "EdgeType", "Latency");
+      }
+      if (metricType === MetricType.latencyRatio) {
+        tmpSeries = buildLatencyRatioMultiLineData(data.DetailData);
       }
 
       if (tmpSeries && tmpSeries.length > 0) {

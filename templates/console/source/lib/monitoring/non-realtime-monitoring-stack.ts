@@ -17,7 +17,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { CompositePrincipal, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import { Bucket, BucketEncryption, ObjectOwnership } from "aws-cdk-lib/aws-s3";
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { Construct } from 'constructs';
@@ -52,6 +52,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.RETAIN,
       serverAccessLogsPrefix: 'accessLogBucketAccessLog',
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
     });
 
     const cfLogBucket = new Bucket(this, 'CloudFrontLogBucket', {
@@ -60,6 +61,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       autoDeleteObjects: true,
       serverAccessLogsBucket: accessLogBucket,
       serverAccessLogsPrefix: 'dataBucketAccessLog',
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
       lifecycleRules: [
         {
           enabled: true,

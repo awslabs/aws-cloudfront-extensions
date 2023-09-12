@@ -4,4 +4,5 @@
 # This is always a good practice as your lambda packaged code will be much lighter, and it will be invoked quicker
 
 requests>=2.23.0
+urllib3<2
 

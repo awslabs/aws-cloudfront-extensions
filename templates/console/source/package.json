@@ -29,7 +29,7 @@
     "@types/node": "^14.17.33",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
-    "aws-cdk-lib": "2.36.0",
+    "aws-cdk-lib": "^2.36.0",
     "constructs": "10.0.110",
     "eslint": "^7.32.0",
     "eslint-import-resolver-node": "^0.3.4",
@@ -51,7 +51,6 @@
     "@aws-cdk/aws-lambda-python-alpha": "^2.50.0-alpha.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "2.9.0",
     "@aws-solutions-constructs/aws-s3-lambda": "2.9.0",
-    "aws-cdk-lib": "2.36.0",
     "cdk-bootstrapless-synthesizer": "2.2.2",
     "cdk-nag": "^2.22.23",
     "constructs": "10.0.110"
