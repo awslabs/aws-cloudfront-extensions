@@ -38,10 +38,10 @@
     "@aws-cdk/aws-glue-alpha": "2.24.0-alpha.0",
     "@aws-solutions-constructs/aws-s3-lambda": "^2.8.0",
     "@types/uuid": "^8.3.4",
-    "aws-cdk-lib": "2.80.0",
+    "aws-cdk-lib": "^2.102.0",
     "cdk-assets": "^2.24.0",
     "cdk-bootstrapless-synthesizer": "2.2.2",
-    "constructs": "10.0.36",
+    "constructs": "^10.3.0",
     "source-map-support": "^0.5.16"
   }
 }

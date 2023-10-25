@@ -301,7 +301,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         const fn_ssl_api_handler = new PythonFunction(scope, 'fn_ssl_api_handler', <PythonFunctionProps>{
             entry: `${this.src}/ssl_api_handler`,
             architecture: Architecture.X86_64,
-            runtime: Runtime.PYTHON_3_9,
+            runtime: Runtime.PYTHON_3_10,
             index: 'handler.py',
             handler: 'handler',
             timeout: Duration.seconds(900),
@@ -324,7 +324,7 @@ export class StepFunctionRpTsConstruct extends Construct {
         const fn_appsync_function = new PythonFunction(scope, 'appsync_func', <PythonFunctionProps>{
             entry: `${this.src}/appsync_func`,
             architecture: Architecture.X86_64,
-            runtime: Runtime.PYTHON_3_9,
+            runtime: Runtime.PYTHON_3_10,
             index: 'handler.py',
             handler: 'handler',
             timeout: Duration.seconds(900),
@@ -350,7 +350,7 @@ export class StepFunctionRpTsConstruct extends Construct {
     private createCommonLayers(): CommonLambdaLayers {
         return {
             openSSlLayer: new LayerVersion(this, 'openssl-layer', <LayerVersionProps>{
-                compatibleRuntimes: [Runtime.PYTHON_3_9],
+                compatibleRuntimes: [Runtime.PYTHON_3_10],
                 code: Code.fromAsset(`${this.baseFolder}/openssl-layer/layer.zip`)
             }),
             sharedPythonLibLayer:  new PythonLayerVersion(this, 'cloudfront-ssl-shared-layer', {
@@ -358,7 +358,7 @@ export class StepFunctionRpTsConstruct extends Construct {
                 bundling: {
                     outputPathSuffix: '/python',
                 },
-                compatibleRuntimes: [Runtime.PYTHON_3_9],
+                compatibleRuntimes: [Runtime.PYTHON_3_10],
             })
         }
     }
@@ -459,7 +459,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             <PythonFunctionProps>{
                 entry: `${this.src}/acm_cron`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -811,7 +811,7 @@ export class StepFunctionRpTsConstruct extends Construct {
                 <PythonFunctionProps>{
                     entry: `${this.src}/acm_import_cb`,
                     architecture: Architecture.X86_64,
-                    runtime: Runtime.PYTHON_3_9,
+                    runtime: Runtime.PYTHON_3_10,
                     index: 'handler.py',
                     handler: 'handler',
                     timeout: Duration.seconds(900),
@@ -831,7 +831,7 @@ export class StepFunctionRpTsConstruct extends Construct {
            fn_acm_cb: new PythonFunction(scope, 'acm_callback', <PythonFunctionProps>{
                 entry: `${this.src}/acm_cb`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -850,7 +850,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_acm_cb_handler: new PythonFunction(scope, 'acm_callback_handler', <PythonFunctionProps>{
                 entry: `${this.src}/acm_cb_handler`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -872,7 +872,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_sns_failure_notify: new PythonFunction(scope, 'sns_failure_notify', <PythonFunctionProps>{
                 entry: `${this.src}/sns_failure_notify`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -890,7 +890,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_sns_notify: new PythonFunction(scope, 'sns_notify', <PythonFunctionProps>{
                 entry: `${this.src}/sns_notify`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -909,7 +909,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_failure_handling: new PythonFunction(scope, 'function_to_handle_ssl_for_sass_failure', <PythonFunctionProps>{
                 entry: `${this.src}/failure_handling`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -927,7 +927,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_job_status_update: new PythonFunction(scope, 'job_status_update', <PythonFunctionProps>{
                 entry: `${this.src}/job_status_update`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -946,7 +946,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_cloudfront_bind: new PythonFunction(scope, 'job_cloudfront_bind', <PythonFunctionProps>{
                 entry: `${this.src}/cloudfront_bind`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler: 'handler',
                 timeout: Duration.seconds(900),
@@ -968,7 +968,7 @@ export class StepFunctionRpTsConstruct extends Construct {
             fn_job_create_check_resource: new PythonFunction(scope, 'job_create_check_resource', <PythonFunctionProps>{
                 entry: `${this.src}/quota_check`,
                 architecture: Architecture.X86_64,
-                runtime: Runtime.PYTHON_3_9,
+                runtime: Runtime.PYTHON_3_10,
                 index: 'handler.py',
                 handler:'handler',
                 timeout: Duration.seconds(900),

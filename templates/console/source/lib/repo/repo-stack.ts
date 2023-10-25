@@ -121,7 +121,7 @@ export class RepoConstruct extends Construct {
 
       // Deployer lambda in extensions repository
       const extDeployerLambda = new lambda.Function(this, 'ExtDeployerLambda', {
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
         handler: 'deployer.lambda_handler',
         timeout: cdk.Duration.seconds(300),
         code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/common/lambda-assets/deployer.zip')),
@@ -198,7 +198,7 @@ export class RepoConstruct extends Construct {
     // Custom resource to sync extensions once the CloudFormation is completed
     const customResourceLambda = new lambda.Function(this, "SyncExtensions", {
       description: "This lambda function sync the latest extensions to your AWS account.",
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/common/lambda-assets/custom_resource.zip')),
       handler: "custom_resource.lambda_handler",
       role: extDeployerRole,
