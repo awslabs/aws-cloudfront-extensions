@@ -96,7 +96,7 @@ export class CountryRedirectStack extends cdk.Stack {
     // Custom resource to deploy CFF
     const crLambda = new lambda.Function(this, "CFFDeployer", {
       description: "This lambda function deploy CFF onto CloudFront distribution",
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lib/lambda/custom_resource')),
       handler: "custom_resource.lambda_handler",
       role: lambdaRole,

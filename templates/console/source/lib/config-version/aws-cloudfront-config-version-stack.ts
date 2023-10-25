@@ -252,7 +252,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "cf-config-version-export-lambda",
       {
         functionName: "cf_config_version_exporter",
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
         handler: "cf_config_version_exporter.lambda_handler",
         layers: [powertools_layer, git_layer],
         memorySize: 256,
@@ -292,7 +292,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "cf-config-version-manager-lambda",
       {
         functionName: "cf_config_version_manager",
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
         layers: [powertools_layer, git_layer],
         handler: "cf_config_version_manager.lambda_handler",
         memorySize: 256,
@@ -489,7 +489,7 @@ export class CloudFrontConfigVersionConstruct extends Construct {
       "cf-config-version-manager-lambda-graphql",
       {
         functionName: "cf_config_version_manager_graphql",
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
         layers: [powertools_layer, git_layer],
         handler: "cf_config_version_manager_graphql.lambda_handler",
         memorySize: 256,

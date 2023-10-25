@@ -128,7 +128,7 @@ export class ResizeImageStack extends cdk.Stack {
     // Custom resource to deploy Lambda@Edge 
     const crLambda = new lambda.Function(this, "LEDeployer", {
       description: "This lambda function deploy Lambda@Edge onto CloudFront distribution",
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lib/lambda/custom_resource_lambda')),
       handler: "custom_resource.lambda_handler",
       role: lambdaRole,

@@ -34,7 +34,7 @@ export class MyCustomResource extends Construct {
       ),
       handler: "custom_resource_handler.main",
       timeout: cdk.Duration.seconds(900),
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       role: iam.Role.fromRoleArn(this, "custom-resource-handler-role", roleArn),
     });
 
