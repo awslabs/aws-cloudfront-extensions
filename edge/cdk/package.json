@@ -17,7 +17,7 @@
     "destroy": "cdk destroy"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "2.24.0",
+    "aws-cdk-lib": "2.80.0",
     "constructs": "10.0.36"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
     "@aws-solutions-constructs/aws-s3-lambda": "^2.8.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk-lib": "2.24.0",
+    "aws-cdk-lib": "2.80.0",
     "constructs": "10.0.36",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
@@ -38,7 +38,7 @@
     "@aws-cdk/aws-glue-alpha": "2.24.0-alpha.0",
     "@aws-solutions-constructs/aws-s3-lambda": "^2.8.0",
     "@types/uuid": "^8.3.4",
-    "aws-cdk-lib": "2.24.0",
+    "aws-cdk-lib": "2.80.0",
     "cdk-assets": "^2.24.0",
     "cdk-bootstrapless-synthesizer": "2.2.2",
     "constructs": "10.0.36",
