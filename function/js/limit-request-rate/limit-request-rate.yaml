@@ -1,0 +1,1007 @@
+Description: (SO8155-net) - Rate limit By Lambda@Edge
+Parameters:
+  cfDistId:
+    Type: String
+    Description: CloudFront distribution id on which the Lambda@Edge is deployed
+  rateLimit:
+    Type: Number
+    Default: 30
+    Description: Total rate limited requests per minute
+  urlRateLimit:
+    Type: Number
+    Default: 10
+    Description: Url rate limited requests per minute
+  urlList:
+    Type: String
+    Default: '/foo,/bar'
+    Description: 'The URL list that needs to be protected, separated by comma: ''/foo,/bar'''
+Resources:
+  RequestRateLimitAccess40954CC4:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ip
+          AttributeType: S
+        - AttributeName: createAt
+          AttributeType: 'N'
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: ip
+          KeyType: HASH
+        - AttributeName: createAt
+          KeyType: RANGE
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  BlackIpListF5136F0B:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ip
+          AttributeType: S
+        - AttributeName: createAt
+          AttributeType: 'N'
+        - AttributeName: secondIndex
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: secondIndex-createAt-index
+          KeySchema:
+            - AttributeName: secondIndex
+              KeyType: HASH
+            - AttributeName: createAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      KeySchema:
+        - AttributeName: ip
+          KeyType: HASH
+        - AttributeName: createAt
+          KeyType: RANGE
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  lambdaexecuterole5E8B1498:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Join 
+          - ''
+          - - 'arn:'
+            - !Ref 'AWS::Partition'
+            - ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Join 
+          - ''
+          - - 'arn:'
+            - !Ref 'AWS::Partition'
+            - ':iam::aws:policy/AWSWAFFullAccess'
+  lambdaexecuteroleDefaultPolicyDA542F5E:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: 'dynamodb:*'
+            Effect: Allow
+            Resource:
+              - !GetAtt 
+                - BlackIpListF5136F0B
+                - Arn
+              - !GetAtt 
+                - RequestRateLimitAccess40954CC4
+                - Arn
+              - !Join 
+                - ''
+                - - !GetAtt 
+                    - BlackIpListF5136F0B
+                    - Arn
+                  - /index/*
+              - !Ref 'AWS::NoValue'
+        Version: 2012-10-17
+      PolicyName: lambdaexecuteroleDefaultPolicyDA542F5E
+      Roles:
+        - !Ref lambdaexecuterole5E8B1498
+  RateLimitLambdaEdgeE9F9CAEF:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        ZipFile: !Join 
+          - ''
+          - - |-
+              /// TABLE Region 
+              const TABLE_REGION =   'us-east-1'
+              /// Name of the Ip Rate table 
+              const TABLE_NAME = (process.env.TABLE_NAME == null) ? '
+            - !Ref RequestRateLimitAccess40954CC4
+            - |-
+              ' : process.env.TABLE_NAME
+              /// Name of the block Ip table 
+              const IP_TABLE_NAME = (process.env.IP_TABLE_NAME == null) ? '
+            - !Ref BlackIpListF5136F0B
+            - >-
+              ' : process.env.IP_TABLE_NAME
+
+
+              /// allowed nation
+
+              const ALLOWED_COUNTRY = (process.env.ALLOWED_COUNTRY == null) ?
+              'KH,CN,HK,MY,PH,SA,TH,VN,UA,SG,MM' : process.env.ALLOWED_COUNTRY
+
+
+              /// Windows duration, default value: 1 minutes 
+
+              const WINDOW_PERIOD_IN_SECONDS =
+              (process.env.WINDOW_PERIOD_IN_SECONDS == null) ? 1 * 60 * 1000 :
+              Number(process.env.WINDOW_PERIOD_IN_SECONDS) * 1000
+
+
+              /// GLOBAL_RATE
+
+              const GLOBAL_RATE = (process.env.GLOBAL_RATE == null) ? '
+            - !Ref rateLimit
+            - |-
+              ' : Number(process.env.GLOBAL_RATE)
+
+              /// URL_RATE
+              const URL_RATE = (process.env.URL_RATE == null) ? '
+            - !Ref urlRateLimit
+            - |-
+              ' : Number(process.env.URL_RATE)
+
+              /// URL_LIST
+              const URL_LIST = (process.env.URL_LIST == null) ? '
+            - !Ref urlList
+            - >+
+              ' : Number(process.env.URL_LIST)
+
+
+              /// Duration of black ， 4 hours
+
+              const BLOCK_PERIOD = (process.env.BLOCK_PERIOD == null) ?
+              4*60*60*1000 : process.env.BLOCK_PERIOD
+
+
+              /// dynamodb global tables enabled region
+
+              const DDB_GLOBAL_TABLE_REGIONS =
+              (process.env.DDB_GLOBAL_TABLE_REGIONS == null) ? 'us-east-1' :
+              process.env.DDB_GLOBAL_TABLE_REGIONS
+
+
+
+              /// request region
+
+              const AWS_REGION = process.env.AWS_REGION;
+
+              console.log('AWS_REGION: ' + AWS_REGION +
+              "\nprocess.env.AWS_REGION: " + process.env.AWS_REGION);
+
+              const RegionsMap =
+
+              {
+                  'us-east-2': 'us',
+                  'us-east-1': 'us',
+                  'us-west-1': 'us',
+                  'us-west-2': 'us',
+                  'af-south-1': 'africa',
+                  'ap-east-1': 'asia',
+                  'ap-south-2': 'asia',
+                  'ap-southeast-3': 'asia',
+                  'ap-southeast-4': 'asia',
+                  'ap-south-1': 'asia',
+                  'ap-northeast-3': 'asia',
+                  'ap-northeast-2': 'asia',
+                  'ap-southeast-1': 'asia',
+                  'ap-southeast-2': 'asia',
+                  'ap-northeast-1': 'asia',
+                  'ca-central-1': 'us',
+                  'eu-central-1': 'eu',
+                  'eu-west-1': 'eu',
+                  'eu-west-2': 'eu',
+                  'eu-south-1': 'eu',
+                  'eu-west-3': 'eu',
+                  'eu-south-2': 'eu',
+                  'eu-north-1': 'eu',
+                  'eu-central-2': 'eu',
+                  'il-central-1': 'me',
+                  'me-south-1': 'me',
+                  'me-central-1': 'me',
+                  'sa-east-1': 'us'
+              }
+
+
+              let regionsEnabled = {
+                  'us': false,
+                  'us-region': [],
+                  'asia': false,
+                  'asia-region': [],
+                  'eu': false,
+                  'eu-region': [],
+                  'me': false,
+                  'me-region': [],
+                  'africa': false,
+                  'africa-region': []
+              }
+
+              const https = require('https');
+
+
+              const replicatedRegions = {
+                'us-east-1': true,
+                'us-west-2': false,
+                'eu-central-1': false,
+                'ap-southeast-1': false,
+                'ap-northeast-1': false,
+                'ap-east-1': false
+              }
+
+
+              const timeElapsed = Date.now();
+
+              const today = new Date(timeElapsed);
+
+                  function rateLimit () {
+                  return {
+                    status: '429',
+                    statusDescription: 'Too Many Requests'
+                  }
+              }
+
+
+              function blackList () {
+                  return {
+                    status: '403',
+                    statusDescription: 'In blacklist'
+                  }
+              }
+
+
+              function originLambdaErr () {
+                  return {
+                    status: '501',
+                    statusDescription: 'internal error'
+                  }
+              }
+
+
+              function calcDynamoDBRegion () {
+                  let DdbRegions = DDB_GLOBAL_TABLE_REGIONS.split(',');
+                  for (let r of DdbRegions) {
+                      let geo = RegionsMap[r];
+                      regionsEnabled[geo] = true;
+                      const geoRegion = geo+'-region';
+                      let rList = regionsEnabled[geoRegion];
+                      regionsEnabled[geoRegion].push(r);
+                  }
+                  console.log(`regionsEnabled map: ${JSON.stringify(regionsEnabled)}`);
+                  if (regionsEnabled[RegionsMap[process.env.AWS_REGION]]){
+                      //random index
+                      const list = regionsEnabled[RegionsMap[process.env.AWS_REGION]+'-region']
+                      const randomIndex = Math.floor(Math.random() * list.length);
+                      console.log('onboarding region: ' + list[randomIndex]);
+                      return list[randomIndex]
+                  }else{
+                      console.log('onboarding region: us-east-1');
+                      return 'us-east-1'
+                  }
+              } 
+
+
+              const AWS = require('aws-sdk')
+
+              const ddb = new AWS.DynamoDB.DocumentClient({
+                  apiVersion: '2012-10-08',
+                  region: calcDynamoDBRegion(),
+                  //sslEnabled: false, 
+                  paramValidation: false, 
+                  convertResponseTypes: false,
+                  httpOptions: {
+                      agent: new https.Agent({
+                        keepAlive: true,
+                      }),
+                  },
+              })
+
+
+              function getIp(request){
+                  return request.clientIp;
+              }
+
+
+              function getUA(request){
+                  if(request.headers['user-agent'] != null) {
+                      return request.headers['user-agent'][0].value;
+                  }else{
+                      return "unknown";
+                  }
+              }
+
+
+              function isInWhiteList(request){
+                  return (request.headers['x-amzn-waf-customer-wlist'] != null && request.headers['x-amzn-waf-customer-wlist'][0].value == "ip_whitelist") 
+              }
+
+
+              function isMobileClient(request){
+                  return (request.headers['cloudfront-is-ios-viewer'] != null && request.headers['cloudfront-is-ios-viewer'][0].value == "true") 
+                  || (request.headers['cloudfront-is-android-viewer'] != null && request.headers['cloudfront-is-android-viewer'][0].value == "true");
+              }
+
+
+              function isIosClient(request){
+                  return (request.headers['cloudfront-is-ios-viewer'] != null && request.headers['cloudfront-is-ios-viewer'][0].value == "true");
+              }
+
+
+              function isAndroidClient(request){
+                  return (request.headers['cloudfront-is-android-viewer'] != null && request.headers['cloudfront-is-android-viewer'][0].value == "true");
+              }
+
+
+              //cloudfront-is-tablet-viewer
+
+
+              function isTabletClient(request){
+                  return (request.headers['cloudfront-is-tablet-viewer'] != null && request.headers['cloudfront-is-tablet-viewer'][0].value == "true");
+              }
+
+
+              function getCountry(request){
+                  if(request.headers['cloudfront-viewer-country'] != null) {
+                      return request.headers['cloudfront-viewer-country'][0].value;
+                  }
+                  return "unknown";
+              }
+
+
+              function isInAllowedCountry(request){
+                  if(request.headers['cloudfront-viewer-country'] != null) {
+                      let countryCode = getCountry(request);
+                      let countries = ALLOWED_COUNTRY.split(',');
+                      return countries.indexOf(countryCode) != -1;
+                  }
+                  return false;
+              }
+
+
+              function accessLogFactory(req){
+                  return {
+                      ip:getIp(req),
+                      createAt: Date.now(),
+                      ua: getUA(req),
+                      url: req.uri,
+                      from: AWS_REGION,
+                      country: getCountry(req),
+                      secIndex: today.toLocaleDateString(),
+                      ttl: Math.floor(Date.now() / 1000) + (60 * 60 * 24) // in 24 hours
+                  }
+              }
+
+
+              //DDB operation
+
+              async function createItem (tableName,accessRecord) {
+                  let params = {
+                      TableName : tableName,
+                      Item: accessRecord
+                  }
+                  return await ddb.put(params).promise();    
+              }
+
+
+              async function createIps (tableName,ip) {
+                  let params = {
+                      TableName : tableName,
+                      Item: {
+                          "ip":ip,
+                          "createAt":timeElapsed,
+                          "secondIndex":"1",
+                          "ttl": Math.floor((timeElapsed + 48*60*60*1000)/1000)
+                          }
+                  }
+                  return await ddb.put(params).promise();    
+              }
+
+
+              async function queryIps (tableName, ip, startTime) {
+                  let params = {
+                      TableName : tableName,
+                      KeyConditionExpression: "#pKey = :pKey and #createAt >= :windowTime",
+                      ExpressionAttributeNames: {
+                        "#pKey": "ip",
+                        "#createAt":"createAt"
+                      },
+                      ExpressionAttributeValues: {
+                          ":pKey": ip,
+                          ":windowTime": startTime
+                      },
+                      //Limit: pageSize,
+                      ScanIndexForward: false
+                  }
+                  
+                  return await ddb.query(params).promise();
+                  
+              }
+
+
+              async function queryItems (tableName, ip, windowTime) {
+                  let params = {
+                      TableName : tableName,
+                      KeyConditionExpression: "#pKey = :pKey and #createAt >= :windowTime",
+                      ExpressionAttributeNames: {
+                        "#pKey": "ip",
+                        "#createAt":"createAt"
+                      },
+                      ExpressionAttributeValues: {
+                          ":pKey": ip,
+                          ":windowTime": windowTime
+                      },
+                      //Limit: pageSize,
+                      ScanIndexForward: false
+                  }
+                  
+                  return await ddb.query(params).promise();
+                  
+              }
+
+
+              async function isBlocked(ip){
+                  let ips = await queryIps(IP_TABLE_NAME, ip, (timeElapsed-BLOCK_PERIOD));
+                  // console.log(JSON.stringify(ips))
+                  return (ips.Count != null && ips.Count >0)
+              }
+
+
+              function getUri(request){
+                  return request.uri;
+              }
+
+
+              // /website-images
+
+              // /data/info
+
+              const urlMatchCount = (array, url) => {
+                  return array.filter((item) => {console.log('item url'+ item.url);return (item.url.indexOf(url) != -1)}).length;
+              };
+
+
+              exports.handler =  async function (event, context, callback) {
+
+                  const request = event.Records[0].cf.request
+                  if(isInWhiteList(request)){
+                      callback(null, request);
+                      return;
+                  }
+                  if(await isBlocked(getIp(request))) {
+                      callback(null, rateLimit());
+                      return;
+                  }
+                  
+
+                  let uri = getUri(request)
+                  let ipUrlCount = {}
+                  ipUrlCount = await queryItems(TABLE_NAME, getIp(request), (Date.now() - WINDOW_PERIOD_IN_SECONDS))
+                  let urlList = URL_LIST.split(',');
+                  for(let u in urlList){
+                       console.log("url1: " +uri +' u: ' + urlList[u]);
+                      if(uri.indexOf(urlList[u]) != -1){
+                      let rate = Number(URL_RATE);
+                       if(ipUrlCount.Count == null || (ipUrlCount.Count >0 && urlMatchCount(ipUrlCount.Items, uri) >= rate)){
+                          await createIps(IP_TABLE_NAME,getIp(request));
+                          callback(null, rateLimit());
+                          return;
+                       }
+                      }
+                  }
+                  
+                  let ipCount = {}
+                  ipCount = await queryItems(TABLE_NAME, getIp(request), (Date.now() - WINDOW_PERIOD_IN_SECONDS))
+                  let LimitRate = Number(GLOBAL_RATE);
+                  console.log("LimitRate:" + LimitRate);
+                  let urlCount = 0
+                  if(ipCount.Count == null || (ipCount.Count-urlCount) >= LimitRate){
+                      await createIps(IP_TABLE_NAME,getIp(request));
+                      callback(null, rateLimit());
+                  } else {
+                      await createItem(TABLE_NAME, accessLogFactory(request))
+                      callback(null, request);
+                  }
+
+              }
+
+      Handler: index.handler
+      MemorySize: 1024
+      Role: !GetAtt 
+        - lambdaexecuterole5E8B1498
+        - Arn
+      Runtime: nodejs16.x
+      Timeout: 30
+    DependsOn:
+      - lambdaexecuteroleDefaultPolicyDA542F5E
+      - lambdaexecuterole5E8B1498
+  RateLimitLambdaEdgeCurrentVersion66B8A5A385d4966bc99f629a7ffc579a7b545e86:
+    Type: 'AWS::Lambda::Version'
+    Properties:
+      FunctionName: !Ref RateLimitLambdaEdgeE9F9CAEF
+  WafCloudFrontStackIPSet0F6BEB533:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_0
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet17501CA33:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_1
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet251C291ED:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_2
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet320E79878:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_3
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet473B8D204:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_4
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet5A8E7184F:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_5
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet66CA9EACD:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_6
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet7020B1F6C:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_7
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet83995C8DB:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_8
+      Scope: CLOUDFRONT
+  WafCloudFrontStackIPSet9E9A034AF:
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Addresses: []
+      Description: An example IP set
+      IPAddressVersion: IPV4
+      Name: BlockIPSet_9
+      Scope: CLOUDFRONT
+  WafCloudFrontStackWebACLRateLimit542511C5:
+    Type: 'AWS::WAFv2::WebACL'
+    Properties:
+      DefaultAction:
+        Allow: {}
+      Rules:
+        - Action:
+            Block: {}
+          Name: BlockIPSet_0
+          Priority: 0
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet0F6BEB533
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_1
+          Priority: 1
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet17501CA33
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_2
+          Priority: 2
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet251C291ED
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_3
+          Priority: 3
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet320E79878
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_4
+          Priority: 4
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet473B8D204
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_5
+          Priority: 5
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet5A8E7184F
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_6
+          Priority: 6
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet66CA9EACD
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_7
+          Priority: 7
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet7020B1F6C
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_8
+          Priority: 8
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet83995C8DB
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+        - Action:
+            Block: {}
+          Name: BlockIPSet_9
+          Priority: 9
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt 
+                - WafCloudFrontStackIPSet9E9A034AF
+                - Arn
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: block-ip-set-metric
+            SampledRequestsEnabled: true
+      Scope: CLOUDFRONT
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName: cloudfrontWebACLMetric
+        SampledRequestsEnabled: true
+  UpdateWafLambda113EEF1B:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-704569129831-us-east-1
+        S3Key: cab185518d7624592e208d59ed30d6c5e1576293783f0a62db9590e3c8b23c45.zip
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BlackIpListF5136F0B
+          WAFV2_IPSETS: !Join 
+            - ''
+            - - '[{"name":"BlockIPSet_0","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet0F6BEB533
+                - Id
+              - '"},{"name":"BlockIPSet_1","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet17501CA33
+                - Id
+              - '"},{"name":"BlockIPSet_2","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet251C291ED
+                - Id
+              - '"},{"name":"BlockIPSet_3","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet320E79878
+                - Id
+              - '"},{"name":"BlockIPSet_4","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet473B8D204
+                - Id
+              - '"},{"name":"BlockIPSet_5","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet5A8E7184F
+                - Id
+              - '"},{"name":"BlockIPSet_6","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet66CA9EACD
+                - Id
+              - '"},{"name":"BlockIPSet_7","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet7020B1F6C
+                - Id
+              - '"},{"name":"BlockIPSet_8","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet83995C8DB
+                - Id
+              - '"},{"name":"BlockIPSet_9","set":"'
+              - !GetAtt 
+                - WafCloudFrontStackIPSet9E9A034AF
+                - Id
+              - '"}]'
+      Handler: update-ipset.handler
+      MemorySize: 2048
+      Role: !GetAtt 
+        - lambdaexecuterole5E8B1498
+        - Arn
+      Runtime: nodejs16.x
+      Timeout: 120
+    DependsOn:
+      - lambdaexecuteroleDefaultPolicyDA542F5E
+      - lambdaexecuterole5E8B1498
+    Metadata:
+      'aws:asset:path': asset.cab185518d7624592e208d59ed30d6c5e1576293783f0a62db9590e3c8b23c45
+      'aws:asset:is-bundled': false
+      'aws:asset:property': Code
+  UpdateWafScheduleCronjob6AA498B2:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      ScheduleExpression: cron(0/1 * * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt 
+            - UpdateWafLambda113EEF1B
+            - Arn
+          Id: Target0
+  UpdateWafScheduleCronjobAllowEventRuleRateLimitCfStackUpdateWafLambda9A80D2019CA9A59E:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt 
+        - UpdateWafLambda113EEF1B
+        - Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt 
+        - UpdateWafScheduleCronjob6AA498B2
+        - Arn
+  CustomResourceDeploylambdaexecuterole76557538:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Join 
+          - ''
+          - - 'arn:'
+            - !Ref 'AWS::Partition'
+            - ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Join 
+          - ''
+          - - 'arn:'
+            - !Ref 'AWS::Partition'
+            - ':iam::aws:policy/CloudFrontFullAccess'
+        - !Join 
+          - ''
+          - - 'arn:'
+            - !Ref 'AWS::Partition'
+            - ':iam::aws:policy/AWSLambda_FullAccess'
+  CustomResourceDeployAssociaterEdgeAndWafLambda9EF66566:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-704569129831-us-east-1
+        S3Key: cab185518d7624592e208d59ed30d6c5e1576293783f0a62db9590e3c8b23c45.zip
+      Environment:
+        Variables:
+          funcName: !Ref RateLimitLambdaEdgeE9F9CAEF
+          funcVersion: !GetAtt 
+            - >-
+              RateLimitLambdaEdgeCurrentVersion66B8A5A385d4966bc99f629a7ffc579a7b545e86
+            - Version
+          distributionId: !Ref cfDistId
+          webacl: !GetAtt 
+            - WafCloudFrontStackWebACLRateLimit542511C5
+            - Arn
+      Handler: lambda-cf-associater.handler
+      MemorySize: 1024
+      Role: !GetAtt 
+        - CustomResourceDeploylambdaexecuterole76557538
+        - Arn
+      Runtime: nodejs16.x
+      Timeout: 180
+    DependsOn:
+      - CustomResourceDeploylambdaexecuterole76557538
+      - >-
+        RateLimitLambdaEdgeCurrentVersion66B8A5A385d4966bc99f629a7ffc579a7b545e86
+      - RateLimitLambdaEdgeE9F9CAEF
+      - WafCloudFrontStackIPSet0F6BEB533
+      - WafCloudFrontStackIPSet17501CA33
+      - WafCloudFrontStackIPSet251C291ED
+      - WafCloudFrontStackIPSet320E79878
+      - WafCloudFrontStackIPSet473B8D204
+      - WafCloudFrontStackIPSet5A8E7184F
+      - WafCloudFrontStackIPSet66CA9EACD
+      - WafCloudFrontStackIPSet7020B1F6C
+      - WafCloudFrontStackIPSet83995C8DB
+      - WafCloudFrontStackIPSet9E9A034AF
+      - WafCloudFrontStackWebACLRateLimit542511C5
+    Metadata:
+      'aws:asset:path': asset.cab185518d7624592e208d59ed30d6c5e1576293783f0a62db9590e3c8b23c45
+      'aws:asset:is-bundled': false
+      'aws:asset:property': Code
+  CustomResourceDeployCustomResourceRole2AF9967F:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: 2012-10-17
+  CustomResourceDeployCustomResourceRoleDefaultPolicy2A163FD8:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: 'lambda:InvokeFunction'
+            Effect: Allow
+            Resource: '*'
+        Version: 2012-10-17
+      PolicyName: CustomResourceDeployCustomResourceRoleDefaultPolicy2A163FD8
+      Roles:
+        - !Ref CustomResourceDeployCustomResourceRole2AF9967F
+  CustomResourceDeployCustomResourceLambda54D52740:
+    Type: 'Custom::AWS'
+    Properties:
+      ServiceToken: !GetAtt 
+        - AWS679f53fac002430cb0da5b7982bd22872D164C4C
+        - Arn
+      Create: !Join 
+        - ''
+        - - '{"service":"Lambda","action":"invoke","parameters":{"FunctionName":"'
+          - !Ref CustomResourceDeployAssociaterEdgeAndWafLambda9EF66566
+          - >-
+            ","Payload":"{\"phase\":\"create\"}"},"outputPaths":["Contents.0.Key"],"physicalResourceId":{"id":"create-exec-1698661788972"}}
+      Update: !Join 
+        - ''
+        - - '{"service":"Lambda","action":"invoke","parameters":{"FunctionName":"'
+          - !Ref CustomResourceDeployAssociaterEdgeAndWafLambda9EF66566
+          - >-
+            ","Payload":"{\"phase\":\"update\"}"},"physicalResourceId":{"id":"update-exec-1698661788972"}}
+      Delete: !Join 
+        - ''
+        - - '{"service":"Lambda","action":"invoke","parameters":{"FunctionName":"'
+          - !Ref CustomResourceDeployAssociaterEdgeAndWafLambda9EF66566
+          - >-
+            ","Payload":"{\"phase\":\"delete\"}"},"physicalResourceId":{"id":"delete-exec-1698661788972"}}
+      InstallLatestAwsSdk: false
+    DependsOn:
+      - CustomResourceDeployCustomResourceLambdaCustomResourcePolicy1FD6217F
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  CustomResourceDeployCustomResourceLambdaCustomResourcePolicy1FD6217F:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: 'lambda:Invoke'
+            Effect: Allow
+            Resource: '*'
+        Version: 2012-10-17
+      PolicyName: CustomResourceDeployCustomResourceLambdaCustomResourcePolicy1FD6217F
+      Roles:
+        - !Ref CustomResourceDeployCustomResourceRole2AF9967F
+  AWS679f53fac002430cb0da5b7982bd22872D164C4C:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-704569129831-us-east-1
+        S3Key: a524840909b73225567052baa4f50f81f3f2444186a5011d26e441ac674adb81.zip
+      Handler: index.handler
+      Role: !GetAtt 
+        - CustomResourceDeployCustomResourceRole2AF9967F
+        - Arn
+      Runtime: nodejs18.x
+      Timeout: 120
+    DependsOn:
+      - CustomResourceDeployCustomResourceRoleDefaultPolicy2A163FD8
+      - CustomResourceDeployCustomResourceRole2AF9967F
+    Metadata:
+      'aws:asset:path': asset.a524840909b73225567052baa4f50f81f3f2444186a5011d26e441ac674adb81
+      'aws:asset:is-bundled': false
+      'aws:asset:property': Code
+Outputs:
+  DdbTableName:
+    Value: !Ref RequestRateLimitAccess40954CC4
+  BlackIpTableName:
+    Value: !Ref BlackIpListF5136F0B
+  LambdaDeployFunc:
+    Value: !GetAtt 
+      - CustomResourceDeployAssociaterEdgeAndWafLambda9EF66566
+      - Arn
+  WebAcl:
+    Value: !GetAtt 
+      - WafCloudFrontStackWebACLRateLimit542511C5
+      - Arn
