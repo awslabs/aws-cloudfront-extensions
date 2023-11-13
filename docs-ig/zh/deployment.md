@@ -98,7 +98,6 @@ CloudFormation堆栈部署了如下模块：
 | [Customize request host](https://github.com/awslabs/aws-cloudfront-extensions/tree/main/function/js/custom-host) | [![Deploy](../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=custom-host&templateURL=https:%2F%2Faws-cloudfront-extensions-cff.s3.amazonaws.com%2Fcustom-host.yaml)                                     |
 
 
-
 #### 在SAR中部署Lambda@Edge
 
 1. 在控制台中打开[Amazon Serverless Application Repository页面](https://serverlessrepo.aws.amazon.com/applications)。
