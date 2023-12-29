@@ -17,7 +17,7 @@
     "integ-test": "mocha tests/integration/"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^5.0.0",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0"
   }
