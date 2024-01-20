@@ -19,7 +19,7 @@ jobs:
     - name: read input tag
       id: read_tag
       run: |
-        echo "::set-output name=tag_value::`./scripts/read-input-tag.sh`"
+        echo "tag_value=`./scripts/read-input-tag.sh`" >> "$GITHUB_OUTPUT"
     - name: check tag existing 
       uses: mukunku/tag-exists-action@v1.0.0
       id: checkTag
