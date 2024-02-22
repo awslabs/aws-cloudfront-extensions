@@ -502,7 +502,7 @@ def construct_query_string(
         )
     elif metric == "bandwidth":
         query_string = (
-            f'SELECT sum("sc-bytes")/(60*{m_interval})*8, "cs-host", "c-country" FROM "'
+            f'SELECT sum("sc-bytes"), "cs-host", "c-country" FROM "'
             + db_name
             + '"."'
             + table_name
@@ -518,7 +518,7 @@ def construct_query_string(
         )
     elif metric == "bandwidthOrigin":
         query_string = (
-            f'SELECT sum("sc-bytes")/(60*{m_interval})*8, "cs-host", "c-country" FROM "'
+            f'SELECT sum("sc-bytes"), "cs-host", "c-country" FROM "'
             + db_name
             + '"."'
             + table_name
