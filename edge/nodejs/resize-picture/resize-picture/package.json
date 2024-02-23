@@ -9,13 +9,13 @@
   "dependencies": {
     "aws-sdk": "^2.889.0",
     "axios": "^1.0.0",
-    "sharp": "^0.32.4"
+    "sharp": "^0.33.1"
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 60 --reporter=text mocha tests/unit/"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^5.0.0",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0"
   }

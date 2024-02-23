@@ -325,14 +325,14 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
 
     const cloudfrontSharedLayer = new lambda.LayerVersion(this, 'CFSharedLayer', {
       compatibleRuntimes: [
-        lambda.Runtime.PYTHON_3_9,
+        lambda.Runtime.PYTHON_3_10,
       ],
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/shared_lib')),
       description: 'shared lib for CloudFront monitoring',
     });
 
     const addPartition = new lambda.Function(this, 'AddPartition', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'add_partition.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -348,7 +348,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const deletePartition = new lambda.Function(this, 'DeletePartition', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'delete_partition.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -365,7 +365,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     const partitionS3 = new S3ToLambda(this, 'PartitionS3Logs', {
       lambdaFunctionProps: {
         code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/partition_s3_logs')),
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
         handler: 'partition_s3_logs.lambda_handler',
         memorySize: 256,
         role: partitionRole,
@@ -378,7 +378,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorBandwidthCdn = new lambda.Function(this, 'MetricsCollectorBandwidthCDN', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_bandwidth_cdn.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -401,7 +401,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorBandwidthOrigin = new lambda.Function(this, 'MetricsCollectorBandwidthOrigin', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_bandwidth_origin.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -424,7 +424,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorChrBandwidth = new lambda.Function(this, 'MetricsCollectorChrBandwidth', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_chr_bandwidth.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -447,7 +447,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorChrRequest = new lambda.Function(this, 'MetricsCollectorChrRequest', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_chr_request.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -470,7 +470,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorRequestCDN = new lambda.Function(this, 'MetricsCollectorRequestCDN', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_request_cdn.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -493,7 +493,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorRequestOrigin = new lambda.Function(this, 'MetricsCollectorRequestOrigin', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_request_origin.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -516,7 +516,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorStatusCodeCDN = new lambda.Function(this, 'MetricsCollectorStatusCodeCDN', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_status_code_cdn.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -539,7 +539,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorStatusCodeOrigin = new lambda.Function(this, 'MetricsCollectorStatusCodeOrigin', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_status_code_origin.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -562,7 +562,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorTopRequest = new lambda.Function(this, 'metricsCollectorTopRequest', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_top_url_request.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -585,7 +585,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorTopTraffic = new lambda.Function(this, 'metricsCollectorTopTraffic', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_top_url_traffic.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -608,7 +608,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorLatencyRatio = new lambda.Function(this, 'metricsCollectorLatencyRatio', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_latency_ratio.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
@@ -632,7 +632,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorDownstreamTraffic = new lambda.Function(this, 'metricsCollectorDownstreamTraffic', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_traffic.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
@@ -655,7 +655,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsCollectorEdgeType = new lambda.Function(this, 'metricsCollectorEdgeType', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_collector_edge_type.lambda_handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(900),
@@ -678,7 +678,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const metricsManager = new lambda.Function(this, 'MetricsManager', {
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'metric_manager.lambda_handler',
       memorySize: 2048,
       timeout: cdk.Duration.seconds(60),
@@ -701,7 +701,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     // Custom resource to add partitions once the CloudFormation is completed
     const crLambda = new lambda.Function(this, "AddPartNonRealTimeCR", {
       description: "This lambda function add partitions for glue table.",
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/custom_resource')),
       handler: "custom_resource.lambda_handler",
       role: lambdaRole,
