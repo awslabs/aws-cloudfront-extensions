@@ -509,7 +509,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_by_cloudwatch_for_tencent.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metrics_collector_by_cloudwatch')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_by_cloudwatch')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
