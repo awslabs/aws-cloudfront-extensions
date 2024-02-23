@@ -20,8 +20,8 @@ log.setLevel("INFO")
 # 单位 minute
 PERIOD = 10
 METRIC_NAME_MAPS = {'4xxerrorrate': '4xx',
-                    '404rrrorrate': '404',
-                    '5xxrrrorrate': '5xx',
+                    '404errrorrate': '404',
+                    '5xxerrrorrate': '5xx',
                     'bytesdownloaded': 'total_flux_out',
                     # 'bytesuploaded': METRIC_PROP_MAP_BU,
                     'cachehitrate': 'total_hy_request/total_flux_hy',
