@@ -13,6 +13,37 @@ log.setLevel("INFO")
 SLEEP_TIME = 1
 RETRY_COUNT = 60
 
+cloudwatch_client = boto3.client('cloudwatch')
+NAMESPACE = 'AWS/CloudFront'
+DIMENSION_NAME = 'DistributionId'
+
+HTTP_OPTION = 'http-only'
+HTTPS_OPTIONS = ['https-only', 'redirect-to-https']
+PROTOCOL_OPTIONS = ['http-only', 'https-only', 'redirect-to-https']
+
+HTTP_PROTOCOL = 'http'
+HTTPS_PROTOCOL = 'https'
+
+METRIC_PROP_MAP_4XX = {'valid_statistic': 'Average', 'unit': 'Percent'}
+METRIC_PROP_MAP_404 = {'valid_statistic': 'Average', 'unit': 'Percent'}
+METRIC_PROP_MAP_5XX = {'valid_statistic': 'Average', 'unit': 'Percent'}
+METRIC_PROP_MAP_BD = {'valid_statistic': 'Sum', 'unit': 'None'}
+# METRIC_PROP_MAP_BU = {'valid_statistic': 'Sum', 'unit': 'None'}
+METRIC_PROP_MAP_CHR = {'valid_statistic': 'Average', 'unit': 'Percent'}
+METRIC_PROP_MAP_RQ = {'valid_statistic': 'Sum', 'unit': 'None'}
+# METRIC_PROP_MAP_TER = {'valid_statistic': 'Average', 'unit': 'Percent'}
+# METRIC_PROP_MAP_OL = {'valid_statistic': 'Percentile', 'unit': 'Milliseconds'}
+METRIC_PROP_MAPS = {'4xxErrorRate': METRIC_PROP_MAP_4XX,
+                    '404ErrorRate': METRIC_PROP_MAP_404,
+                    '5xxErrorRate': METRIC_PROP_MAP_5XX,
+                    'BytesDownloaded': METRIC_PROP_MAP_BD,
+                    # 'BytesUploaded': METRIC_PROP_MAP_BU,
+                    'CacheHitRate': METRIC_PROP_MAP_CHR,
+                    'Requests': METRIC_PROP_MAP_RQ,
+                    # 'TotalErrorRate': METRIC_PROP_MAP_TER,
+                    # 'OriginLatency': METRIC_PROP_MAP_OL
+                    }
+
 
 def insert_value_with_list(domain_country_dict, domain, country, item_row):
     # Add country into domain as JSON object and add status_code_row into country as JSON array
@@ -768,3 +799,117 @@ def format_date_time(date_string):
     formatted_timestamp = datetime.timestamp(formatted_date)
     log.info("[format_date_time] " + str(formatted_timestamp))
     return formatted_timestamp
+
+
+def get_domain_distribution_mapping():
+    domain_list = get_domain_list()
+    domain_distribution_mapping = {}
+    domain_protocol_mapping = {}
+
+    paginator = cf_client.get_paginator('list_distributions')
+    distributions_iterator = paginator.paginate()
+    for distributions_page in distributions_iterator:
+        for distribution in distributions_page['DistributionList']['Items']:
+            dist_id = distribution['Id']
+            protocol = HTTP_PROTOCOL
+            default_cache_behavior = distribution.get('DefaultCacheBehavior', {})
+            if default_cache_behavior:
+                viewer_protocol_policy = default_cache_behavior.get('ViewerProtocolPolicy')
+                if viewer_protocol_policy not in PROTOCOL_OPTIONS:
+                    viewer_protocol_policy = HTTP_PROTOCOL
+                if viewer_protocol_policy in HTTPS_OPTIONS:
+                    protocol = HTTPS_PROTOCOL
+                else:
+                    protocol = HTTP_PROTOCOL
+
+            dist_aliases = distribution.get("Aliases", {}).get("Items", [])
+            for alias in [distribution['DomainName']] + dist_aliases:
+                if alias in domain_list:
+                    domain_distribution_mapping[alias] = dist_id
+                    domain_protocol_mapping[alias] = protocol
+
+    return domain_distribution_mapping, domain_protocol_mapping
+
+
+# single old
+# Statistics=['Sum'],  # 您可以选择您想要的统计指标，如 Sum, Average, Maximum, Minimum 等
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudwatch/client/get_metric_statistics.html
+def get_cloudfront_metric_statistics(distribution_id, metric_name: str, statistics: list, unit, start_time, end_time, interval):
+    response = cloudwatch_client.get_metric_statistics(
+        Namespace=NAMESPACE,
+        MetricName=metric_name,
+        Dimensions=[
+            {
+                'Name': DIMENSION_NAME,
+                'Value': distribution_id
+            },
+        ],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=interval,
+        Statistics=statistics,
+        Unit=unit
+    )
+    if not response:
+        return None
+    return response['Datapoints']
+
+
+# batch new
+# period seconds
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudwatch/client/get_metric_data.html
+def get_cloudfront_metric_data(period, start_time, end_time):
+    domain_distribution_map, domain_protocol_mapping = get_domain_distribution_mapping()
+    if not domain_distribution_map or len(domain_distribution_map) == 0:
+        log.info("No domain distribution")
+        return None
+    distributions = domain_distribution_map.values()
+    domains = domain_distribution_map.keys()
+    if not distributions or len(distributions) == 0:
+        log.info("No domain distribution values")
+        return None
+
+    metric_data_queries = []
+    for domain_name in domains:
+        dist_id = domain_distribution_map.get(domain_name)
+        protocol = domain_protocol_mapping.get(domain_name)
+        for metric_name in METRIC_PROP_MAPS.keys():
+            metric_data_query = {
+                'Id': f'{dist_id}|{domain_name}|{protocol}|{metric_name.lower()}',
+                'MetricStat': {
+                    'Metric': {
+                        'Namespace': NAMESPACE,
+                        'MetricName': metric_name,
+                        'Dimensions': [
+                            {
+                                'Name': DIMENSION_NAME,
+                                'Value': dist_id
+                            },
+                        ]
+                    },
+                    'Period': period,
+                    'Stat': METRIC_PROP_MAPS.get(metric_name).get('valid_statistic'),
+                    'Unit': METRIC_PROP_MAPS.get(metric_name).get('unit')
+                },
+                'ReturnData': True,
+            }
+            metric_data_queries.append(metric_data_query)
+
+    all_responses = []
+    next_token = None
+    while True:
+        response = cloudwatch_client.get_metric_data(
+            MetricDataQueries=metric_data_queries,
+            StartTime=start_time,
+            EndTime=end_time,
+            NextToken=next_token
+        )
+        # if response and 'MetricDataResults' in response:
+        #     all_responses.extend(response['MetricDataResults'])
+        all_responses.append(response)
+        if 'NextToken' not in response:
+            break
+        next_token = response['NextToken']
+
+    return all_responses
+
