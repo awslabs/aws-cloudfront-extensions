@@ -92,24 +92,28 @@ def reset_report_value(table_items):
         metric_ids.append(metric_id)
     ddb_items = get_recently_metrics_by_batch(metric_ids)
     cal_value = 0
+    new_table_items = []
     for item in table_items:
-        report_value = None
+        report_value = item['metricData']["reportValue"]
         for exist_item in ddb_items:
-            if exist_item["metricId"] != item['metricId']:
+            if exist_item["metricId"] != item['metricId'] or exist_item["timestamp"] != item['timestamp']:
                 continue
             if exist_item['metricData']["currentValue"] < item['metricData']["currentValue"]:
-                cal_value += item['metricData']["currentValue"] - exist_item['metricData']["currentValue"]
+                cal_value += (item['metricData']["currentValue"] - exist_item['metricData']["currentValue"])
             report_value = exist_item['metricData']["reportValue"]
         if not report_value:
-            report_value = item['metricData']["reportValue"] + cal_value
+            report_value = item['metricData']["currentValue"] + cal_value
+            log.info(f"{item['metricId']} report_value reset to {report_value} {cal_value} {item}")
             cal_value = 0
-        item['metricData'] = {"currentValue": item['metricData']["currentValue"], "reportValue": report_value}
-    return table_items
+            item['metricData'] = {"currentValue": item['metricData']["currentValue"], "reportValue": report_value}
+            new_table_items.append(item)
+    log.info(new_table_items)
+    return new_table_items
 
 
-def get_and_save_metrics(start_datetime, end_datetime):
+def get_and_save_metrics(period, start_datetime, end_datetime):
     try:
-        all_metrics = get_cloudfront_metric_data(period=M_INTERVAL * 60, start_time=start_datetime,
+        all_metrics = get_cloudfront_metric_data(period=period, start_time=start_datetime,
                                                  end_time=end_datetime)
         log.info("all_metrics response: {}".format(all_metrics))
         if not all_metrics:
@@ -134,7 +138,7 @@ def get_and_save_metrics(start_datetime, end_datetime):
                     table_item = {
                         "metricId": metric_id,
                         "timestamp": int(timestamps[i].timestamp()),
-                        "metricData": {'currentValue': value, 'reportValue': value},
+                        "metricData": {'currentValue': value, 'reportValue': None},
                     }
                     i = i + 1
                     table_items.append(table_item)
@@ -154,7 +158,7 @@ def build_report_metric_params_for_tencent(domain_name, protocol, metric_name, r
     return param_item
 
 
-def build_report_metrics_params_for_tencent(table_items):
+def build_metrics_params_for_tencent(table_items):
     try:
         report_count = 0
         report_data = []
@@ -240,10 +244,10 @@ def lambda_handler(event, context):
             event_time, "%Y-%m-%dT%H:%M")
         start_datetime = event_datetime - timedelta(minutes=PERIOD)
         end_datetime = event_datetime
-        new_table_items = get_and_save_metrics(start_datetime, end_datetime)
+        new_table_items = get_and_save_metrics(M_INTERVAL * 60, start_datetime, end_datetime)
         if new_table_items:
             try:
-                request_params = build_report_metrics_params_for_tencent(new_table_items)
+                request_params = build_metrics_params_for_tencent(new_table_items)
                 if request_params:
                     response = requests.post(POST_URL, json=request_params, headers=HEADERS)
                     log.info(response.text)
