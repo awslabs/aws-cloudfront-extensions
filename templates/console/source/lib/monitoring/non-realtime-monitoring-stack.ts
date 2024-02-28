@@ -23,6 +23,7 @@ import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "
 import { Construct } from 'constructs';
 import { randomBytes } from 'crypto';
 import * as path from 'path';
+import {Runtime} from "aws-cdk-lib/aws-lambda";
 
 export interface MonitoringProps extends cdk.NestedStackProps {
   nonRealTimeMonitoring: string,
@@ -313,12 +314,24 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         })
       ]
     });
-
+    const cloudwatchPolicy = new iam.Policy(this, 'CloudWatchPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "cloudwatch:GetMetricStatistics",
+            "cloudwatch:GetMetricData"
+          ]
+        })
+      ]
+    });
     lambdaRole.attachInlinePolicy(athenaReadAndWritePolicy);
     lambdaRole.attachInlinePolicy(lambdaReadAndWritePolicy);
     lambdaRole.attachInlinePolicy(s3ReadAndWritePolicy);
     lambdaRole.attachInlinePolicy(ddbReadAndWritePolicy);
     lambdaRole.attachInlinePolicy(cloudfrontPolicy);
+    lambdaRole.attachInlinePolicy(cloudwatchPolicy);
     partitionRole.attachInlinePolicy(lambdaReadAndWritePolicy);
     partitionRole.attachInlinePolicy(s3ReadAndWritePolicy);
     partitionRole.attachInlinePolicy(athenaReadAndWritePolicy);
@@ -491,6 +504,30 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
+
+    const metricsCollectorByCloudWatch = new lambda.Function(this, 'metricsCollectorByCloudWatch', {
+      runtime: lambda.Runtime.PYTHON_3_10,
+      handler: 'metric_collector_by_cloudwatch_for_tencent.lambda_handler',
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(900),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/common/lambda-assets/cloudwatch_api.zip')),
+      role: lambdaRole,
+      environment: {
+        DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
+        GLUE_DATABASE_NAME: glueDatabase.databaseName,
+        GLUE_TABLE_NAME: glueTableName,
+        S3_BUCKET: cfLogBucket.bucketName,
+        ACCOUNT_ID: this.account,
+        DOMAIN_LIST: props.domainList,
+        INTERVAL: props.monitoringInterval,
+        REGION_NAME: this.region,
+        USE_START_TIME: props.useStartTimeNonRealtime,
+        IS_REALTIME: 'False',
+      },
+      logRetention: logs.RetentionDays.ONE_WEEK,
+      layers: [cloudfrontSharedLayer]
+    });
+
 
     const metricsCollectorRequestOrigin = new lambda.Function(this, 'MetricsCollectorRequestOrigin', {
       runtime: lambda.Runtime.PYTHON_3_10,
@@ -773,6 +810,11 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     metricsCollectorRequestCDN.node.addDependency(glueTable);
     metricsCollectorRequestCDN.node.addDependency(cfGlueTable);
     metricsCollectorRequestCDN.node.addDependency(cfLogBucket);
+    metricsCollectorByCloudWatch.node.addDependency(cloudfrontMetricsTable);
+    metricsCollectorByCloudWatch.node.addDependency(glueDatabase);
+    metricsCollectorByCloudWatch.node.addDependency(glueTable);
+    metricsCollectorByCloudWatch.node.addDependency(cfGlueTable);
+    metricsCollectorByCloudWatch.node.addDependency(cfLogBucket);
     metricsCollectorRequestOrigin.node.addDependency(cloudfrontMetricsTable);
     metricsCollectorRequestOrigin.node.addDependency(glueDatabase);
     metricsCollectorRequestOrigin.node.addDependency(glueTable);
@@ -898,7 +940,10 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorEdgeType = new LambdaFunction(metricsCollectorEdgeType);
+    const lambdaMetricsCollectorByCloudWatch = new LambdaFunction(metricsCollectorByCloudWatch);
+
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorEdgeType);
+    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorByCloudWatch);
 
     const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),

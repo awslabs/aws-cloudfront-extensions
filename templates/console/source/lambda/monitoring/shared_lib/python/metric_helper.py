@@ -855,27 +855,25 @@ def get_cloudfront_metric_statistics(distribution_id, metric_name: str, statisti
     return response['Datapoints']
 
 
-# batch new
-# period seconds
-# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudwatch/client/get_metric_data.html
-def get_cloudfront_metric_data(period, start_time, end_time):
+def build_cloudwatch_query_params(end_time, period):
     domain_distribution_map, domain_protocol_mapping = get_domain_distribution_mapping()
+    log.info(f"domain_distribution_map :{domain_distribution_map} domain_protocol_mapping:{domain_protocol_mapping}")
     if not domain_distribution_map or len(domain_distribution_map) == 0:
         log.info("No domain distribution")
-        return None
+        # return None
     distributions = domain_distribution_map.values()
     domains = domain_distribution_map.keys()
     if not distributions or len(distributions) == 0:
         log.info("No domain distribution values")
-        return None
-
+        # return None
     metric_data_queries = []
     for domain_name in domains:
         dist_id = domain_distribution_map.get(domain_name)
         protocol = domain_protocol_mapping.get(domain_name)
         for metric_name in METRIC_PROP_MAPS.keys():
             metric_data_query = {
-                'Id': f'{dist_id}|{domain_name}|{protocol}|{metric_name.lower()}',
+                'Id': f'{str(dist_id).lower()}_{protocol}_{metric_name.lower()}',
+                'Label': f'{domain_name}',
                 'MetricStat': {
                     'Metric': {
                         'Namespace': NAMESPACE,
@@ -885,6 +883,10 @@ def get_cloudfront_metric_data(period, start_time, end_time):
                                 'Name': DIMENSION_NAME,
                                 'Value': dist_id
                             },
+                            {
+                                'Name': "Region",
+                                'Value': "Global"
+                            }
                         ]
                     },
                     'Period': period,
@@ -894,16 +896,31 @@ def get_cloudfront_metric_data(period, start_time, end_time):
                 'ReturnData': True,
             }
             metric_data_queries.append(metric_data_query)
+    log.info("Metric Queries: %s", metric_data_queries)
+    return metric_data_queries
 
+
+# batch new
+# period seconds
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudwatch/client/get_metric_data.html
+def get_cloudfront_metric_data(period, start_time, end_time):
+    metric_data_queries = build_cloudwatch_query_params(end_time, period)
     all_responses = []
     next_token = None
     while True:
-        response = cloudwatch_client.get_metric_data(
-            MetricDataQueries=metric_data_queries,
-            StartTime=start_time,
-            EndTime=end_time,
-            NextToken=next_token
-        )
+        if next_token:
+            response = cloudwatch_client.get_metric_data(
+                MetricDataQueries=metric_data_queries,
+                StartTime=start_time,
+                EndTime=end_time,
+                NextToken=next_token
+            )
+        else:
+            response = cloudwatch_client.get_metric_data(
+                MetricDataQueries=metric_data_queries,
+                StartTime=start_time,
+                EndTime=end_time
+            )
         # if response and 'MetricDataResults' in response:
         #     all_responses.extend(response['MetricDataResults'])
         all_responses.append(response)
