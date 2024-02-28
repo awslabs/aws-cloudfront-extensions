@@ -23,6 +23,7 @@ import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "
 import { Construct } from 'constructs';
 import { randomBytes } from 'crypto';
 import * as path from 'path';
+import {Runtime} from "aws-cdk-lib/aws-lambda";
 
 export interface MonitoringProps extends cdk.NestedStackProps {
   nonRealTimeMonitoring: string,
@@ -509,7 +510,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       handler: 'metric_collector_by_cloudwatch_for_tencent.lambda_handler',
       memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/metric_collector_by_cloudwatch')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/common/lambda-assets/cloudwatch_api.zip')),
       role: lambdaRole,
       environment: {
         DDB_TABLE_NAME: cloudfrontMetricsTable.tableName,
@@ -526,6 +527,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [cloudfrontSharedLayer]
     });
+
 
     const metricsCollectorRequestOrigin = new lambda.Function(this, 'MetricsCollectorRequestOrigin', {
       runtime: lambda.Runtime.PYTHON_3_10,
@@ -912,14 +914,12 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     const lambdaMetricsCollectorChrBandwidth = new LambdaFunction(metricsCollectorChrBandwidth);
     const lambdaMetricsCollectorChrRequest = new LambdaFunction(metricsCollectorChrRequest);
     const lambdaMetricsCollectorDownstreamTraffic = new LambdaFunction(metricsCollectorDownstreamTraffic);
-    const lambdaMetricsCollectorByCloudWatch = new LambdaFunction(metricsCollectorByCloudWatch);
 
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthOrigin);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorChrBandwidth);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorChrRequest);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorBandwidthCdn);
     cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorDownstreamTraffic);
-    cloudfront5MinutesRuleFirst.addTarget(lambdaMetricsCollectorByCloudWatch);
 
     const cloudfront5MinutesRuleSecond = new Rule(this, 'CFStandardLogs_5_minutes_rule_2', {
       schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
@@ -940,7 +940,10 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
     });
     const lambdaMetricsCollectorEdgeType = new LambdaFunction(metricsCollectorEdgeType);
+    const lambdaMetricsCollectorByCloudWatch = new LambdaFunction(metricsCollectorByCloudWatch);
+
     cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorEdgeType);
+    cloudfront5MinutesRuleThird.addTarget(lambdaMetricsCollectorByCloudWatch);
 
     const cloudfrontRuleAddPartition = new Rule(this, 'CloudfrontLogs_add_partition', {
       schedule: Schedule.expression("cron(0 22 * * ? *)"),

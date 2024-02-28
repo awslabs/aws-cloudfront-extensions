@@ -55,6 +55,8 @@ rm -rf $lambda_source_dir/deployer/common/
 rm -rf $lambda_source_dir/custom_resource/common/
 rm -rf $lambda_source_dir/deployer/package
 rm -rf $lambda_source_dir/custom_resource/package
+rm -rf $lambda_source_dir/cloudwatch/common
+rm -rf $lambda_source_dir/cloudwatch/package
 
 
 echo "------------------------------------------------------------------------------"
@@ -79,3 +81,11 @@ zip -q -r9 "$lambda_build_dist_dir"/custom_resource.zip .
 cd "$lambda_source_dir"/custom_resource || exit 1
 cp -r "$lambda_source_dir"/common .
 zip -g -r "$lambda_build_dist_dir"/custom_resource.zip custom_resource.py common
+
+cd "$lambda_source_dir"/monitoring/non_realtime/metric_collector_by_cloudwatch || exit 1
+pip3 install -r requirements.txt --target ./package
+cd "$lambda_source_dir"/monitoring/non_realtime/metric_collector_by_cloudwatch/package || exit 1
+zip -q -r9 "$lambda_build_dist_dir"/cloudwatch_api.zip .
+cd "$lambda_source_dir"/monitoring/non_realtime/metric_collector_by_cloudwatch || exit 1
+cp -r "$lambda_source_dir"/common/ .
+zip -g -r "$lambda_build_dist_dir"/cloudwatch_api.zip metric_collector_by_cloudwatch_for_tencent.py common
