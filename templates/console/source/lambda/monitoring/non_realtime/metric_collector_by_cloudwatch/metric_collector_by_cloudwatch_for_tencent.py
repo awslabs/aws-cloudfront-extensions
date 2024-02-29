@@ -76,6 +76,27 @@ def get_recently_metrics_by_batch(metric_ids: str):
     return response_items
 
 
+def batch_update_metric_items_to_ddb(table_items):
+    if not table_items or len(table_items) == 0:
+        log.info("batch_update_metric_items_to_ddb: No items to update")
+        return
+    log.info(f"batch_update_metric_items_to_ddb start {len(table_items)}")
+    table = dynamodb.Table(DDB_TABLE_NAME)
+    for item in table_items:
+        metric_id = item["metricId"]
+        timestamp = item["timestamp"]
+        metric_data = item["metricData"]
+        update_expression = "SET metricData = :metric_data"
+        expression_attribute_values = {":metric_data": metric_data}
+        table.update_item(
+            Key={"metricId": metric_id, "timestamp": timestamp},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values
+        )
+        log.debug(f"update_metric_items_to_ddb: {item}")
+    log.info("batch_update_metric_items_to_ddb end")
+
+
 def batch_input_metric_items_to_ddb(table_items):
     if not table_items or len(table_items) == 0:
         log.info("batch_input_metric_items_to_ddb empty")
@@ -108,25 +129,33 @@ def reset_report_value(table_items):
     log.info(f"reset_report_value start ddb_items:{ddb_items}")
     cal_value = 0
     new_table_items = []
+    update_table_items = []
     for item in table_items:
         current_value = item['metricData']["currentValue"]
         if not current_value:
             log.info(f"reset_report_value current value is 0 continue {item}")
             continue
         report_value = item['metricData']["reportValue"]
-        for exist_item in ddb_items:
-            if exist_item["metricId"] != item['metricId'] or exist_item["timestamp"] != item['timestamp']:
-                continue
-            if exist_item['metricData']["currentValue"] < item['metricData']["currentValue"]:
-                cal_value += (convert_to_decimal(item['metricData']["currentValue"]) - convert_to_decimal(exist_item['metricData']["currentValue"]))
-            report_value = exist_item['metricData']["reportValue"]
+        if ddb_items:
+            for exist_item in ddb_items:
+                if exist_item["metricId"] != item['metricId'] or exist_item["timestamp"] != item['timestamp']:
+                    continue
+                if exist_item['metricData']["currentValue"] < item['metricData']["currentValue"]:
+                    updated_item = exist_item.copy()
+                    updated_item['metricData']["currentValue"] = convert_to_decimal(item['metricData']["currentValue"])
+                    cal_value += (convert_to_decimal(item['metricData']["currentValue"]) - convert_to_decimal(exist_item['metricData']["currentValue"]))
+                    update_table_items.append(updated_item)
+                report_value = exist_item['metricData']["reportValue"]
         if not report_value:
-            report_value = item['metricData']["currentValue"] + cal_value
+            report_value = convert_to_decimal(item['metricData']["currentValue"]) + cal_value
             log.info(f"{item['metricId']} report_value reset to {report_value} {cal_value} {item}")
             cal_value = 0
             item['metricData'] = {"currentValue": convert_to_decimal(item['metricData']["currentValue"]),
                                   "reportValue": convert_to_decimal(report_value)}
             new_table_items.append(item)
+    if update_table_items:
+        log.info(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
+        batch_update_metric_items_to_ddb(update_table_items)
     log.info(f"new_table_items : {new_table_items}")
     return new_table_items
 
@@ -276,8 +305,8 @@ def lambda_handler(event, context):
                 log.info("report params: {}".format(request_params))
                 if request_params:
                     log.info(request_params)
-                    response = requests.post(POST_URL, json=request_params, headers=HEADERS)
-                    log.info(response)
+                    tencent_response = requests.post(POST_URL, json=request_params, headers=HEADERS)
+                    log.info(tencent_response.text)
             except Exception as e:
                 log.error(f"Error post lambda error: {e}")
         else:
