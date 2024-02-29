@@ -25,6 +25,12 @@ import { randomBytes } from 'crypto';
 import * as path from 'path';
 import {Runtime} from "aws-cdk-lib/aws-lambda";
 import { aws_apigateway as apigw } from 'aws-cdk-lib';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as as from 'aws-cdk-lib/aws-autoscaling';
+import * as cwa from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import { BlockDeviceVolume } from 'aws-cdk-lib/aws-autoscaling';
 
 export interface MonitoringProps extends cdk.NestedStackProps {
   nonRealTimeMonitoring: string,
@@ -889,7 +895,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       ])
     });
 
-    // Cust cost API
+    // Cost API
     const costManager = new lambda.Function(this, 'CostManager', {
       runtime: lambda.Runtime.PYTHON_3_10,
       handler: 'cost_manager.lambda_handler',
@@ -948,76 +954,244 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
       stage: costApi.deploymentStage,
     });
 
-    // const costApi = new LambdaRestApi(this, 'CloudfrontCost', {
-    //   handler: costManager,
-    //   description: "Restful api to get the cloudfront bandwidth data",
-    //   proxy: false,
-    //   endpointConfiguration: {
-    //     types: [EndpointType.EDGE]
-    //   },
-    //   defaultCorsPreflightOptions: {
-    //     allowHeaders: [
-    //       'Content-Type',
-    //       'X-Amz-Date',
-    //       'Authorization',
-    //       'X-Api-Key',
-    //     ],
-    //     allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    //     allowCredentials: true,
-    //     allowOrigins: ['*'],
-    //   },
-    //   deployOptions: {
-    //     accessLogDestination: new LogGroupLogDestination(costLogGroup),
-    //     accessLogFormat: AccessLogFormat.clf(),
-    //   }
-    // });
+    // this.costUrl = `https://${costApi.restApiId}.execute-api.${this.region}.amazonaws.com/${costApi.deploymentStage.stageName}`;
 
-    // const cost_metric_proxy = costApi.root.addResource('cost');
-    // cost_metric_proxy.addMethod('GET', undefined, {
-    //   requestParameters: {
-    //     'method.request.querystring.date': true,
-    //     'method.request.querystring.domain': false,
-    //   },
-    //   apiKeyRequired: false,
-    //   // requestValidator: new RequestValidator(this, "metricsApiValidator", {
-    //   //   validateRequestBody: false,
-    //   //   validateRequestParameters: true,
-    //   //   requestValidatorName: 'defaultValidator',
-    //   //   restApi: metricApi
-    //   // }),
-    // });
+    // Logging API
+    const dlq = new sqs.Queue(this, 'LoggingDLQ', {
+      encryption: sqs.QueueEncryption.KMS_MANAGED,
+      retentionPeriod: cdk.Duration.days(14),
+      visibilityTimeout: cdk.Duration.hours(10),
+    });
 
-    // // this.secretValue = randomBytes(16).toString('base64');
-    // // const usagePlanCost = costApi.addUsagePlan('CFMonitoringUsagePlanCost', {
-    // //   description: 'CF monitoring cost usage plan',
-    // // });
-    // // const apiKeyCost = costApi.addApiKey('CFCostApiKey', {
-    // //   value: this.secretValue,
-    // // });
-    // // usagePlanCost.addApiKey(apiKeyCost);
-    // // usagePlanCost.addApiStage({
-    // //   stage: costApi.deploymentStage,
-    // // });
-    // // this.costUrl = `https://${costApi.restApiId}.execute-api.${this.region}.amazonaws.com/${costApi.deploymentStage.stageName}`;
+    const messageQueue = new sqs.Queue(this, 'LoggingMessageQueue', {
+      encryption: sqs.QueueEncryption.KMS_MANAGED,
+      visibilityTimeout: cdk.Duration.hours(5),
+      deadLetterQueue: {
+        queue: dlq,
+        maxReceiveCount: 50,
+      },
+    });
 
-    // Logging API starts here
-    const convertS3Log = new lambda.Function(this, 'ConvertS3Log', {
+    messageQueue.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.DENY,
+        principals: [new iam.AnyPrincipal()],
+        actions: ["sqs:*"],
+        resources: ["*"],
+        conditions: {
+          Bool: { "aws:SecureTransport": "false" }
+        }
+      })
+    );
+
+    const convertS3Role = new iam.Role(this, 'LoggingRole', {
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+        new iam.ServicePrincipal('ec2.amazonaws.com'),
+      ),
+    });
+
+    const lambdaPolicy = new iam.Policy(this, 'LoggingLambdaPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:layer:*:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*`,
+            `arn:aws:lambda:*:${cdk.Aws.ACCOUNT_ID}:function:*:*`
+          ],
+          actions: [
+            "lambda:*"
+          ],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*`,
+            `arn:aws:logs:*:${cdk.Aws.ACCOUNT_ID}:log-group:*:log-stream:*`
+          ],
+          actions: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+        }),
+      ]
+    });
+
+    const sqsPolicy = new iam.Policy(this, 'LoggingSQSPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [messageQueue.queueArn],
+          actions: [
+            "sqs:DeleteMessage",
+            "sqs:GetQueueUrl",
+            "sqs:ChangeMessageVisibility",
+            "sqs:PurgeQueue",
+            "sqs:ReceiveMessage",
+            "sqs:SendMessage",
+            "sqs:GetQueueAttributes",
+            "sqs:SetQueueAttributes",
+          ],
+        })
+      ]
+    });
+
+    const cfPolicy = new iam.Policy(this, 'LoggingCFPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: [
+            "cloudfront:Get*",
+            "cloudfront:List*",
+            "cloudfront:CreateInvalidation",
+            "ec2:Start*",
+            "ec2:Stop*",
+          ]
+        })
+      ]
+    });
+
+    const ec2_cloudwatch_policy = new iam.Policy(
+        this,
+        "LoggingCWPolicy",{
+        statements: [
+            new iam.PolicyStatement( {
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+            actions: [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"]
+        })]
+    });
+
+    const asgRole = new iam.Role(this, 'LoggingASGRole', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
+    });
+
+    convertS3Role.attachInlinePolicy(lambdaPolicy);
+    convertS3Role.attachInlinePolicy(sqsPolicy);
+    convertS3Role.attachInlinePolicy(cfPolicy);
+    convertS3Role.attachInlinePolicy(s3ReadAndWritePolicy);
+    asgRole.attachInlinePolicy(sqsPolicy);
+    asgRole.attachInlinePolicy(cfPolicy);
+    asgRole.attachInlinePolicy(ec2_cloudwatch_policy);
+
+    const metric = new cloudwatch.MathExpression({
+      expression: "visible + hidden",
+      usingMetrics: {
+        visible: messageQueue.metricApproximateNumberOfMessagesVisible({ period: cdk.Duration.seconds(60) }),
+        hidden: messageQueue.metricApproximateNumberOfMessagesNotVisible({ period: cdk.Duration.seconds(60) }),
+      },
+      period: cdk.Duration.seconds(60),
+    });
+    const messageAlarm = metric.createAlarm(this, 'LoggingAlarm',
+      {
+        alarmDescription: 'Logs need to be converted in SQS',
+        evaluationPeriods: 1,
+        threshold: 0,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+        // INSUFFICIENT DATA state in CloudWatch alarm will be ignored
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      }
+    );
+
+    const vpc = new ec2.Vpc(this, 'LoggingVpc', {
+      maxAzs: 2,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'ingress',
+          subnetType: ec2.SubnetType.PUBLIC,
+        }
+      ]
+    });
+    const securityGroup = new ec2.SecurityGroup(this, 'LoggingSG', { vpc });
+    const loggingAsg = new as.AutoScalingGroup(this, 'LoggingASG',
+      {
+        instanceType: new ec2.InstanceType("c5.2xlarge"),
+        machineImage: new ec2.AmazonLinuxImage({ generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2 }),
+        vpc: vpc,
+        role: asgRole,
+        securityGroup: securityGroup,
+        allowAllOutbound: true,
+        maxCapacity: 50,
+        minCapacity: 0,
+        desiredCapacity: 0,
+        blockDevices: [{
+          deviceName: '/dev/xvda',
+          volume: BlockDeviceVolume.ebs(300)
+        }],
+        signals: as.Signals.waitForMinCapacity(),
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PUBLIC,
+        }
+      }
+    );
+    loggingAsg.applyCloudFormationInit(ec2.CloudFormationInit.fromElements(
+      ec2.InitFile.fromFileInline('/etc/logging/convert_s3_logs.py', path.join(__dirname, '../../lambda/monitoring/non_realtime/convert_s3_logs/convert_s3_logs.py')),
+      ec2.InitFile.fromFileInline('/etc/logging/requirements.txt', path.join(__dirname, '../../lambda/monitoring/non_realtime/convert_s3_logs/requirements.txt')),
+    ));
+    // Add cron command
+    loggingAsg.addUserData(
+      'exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1',
+      'pip3 install -r /etc/logging/requirements.txt',
+      `python3 /etc/logging/convert_s3_logs.py ` + messageQueue.queueUrl + ` ${cdk.Aws.REGION} ` + domainBucket.bucketName
+    );
+
+    const agentScaleOut = new as.StepScalingAction(this, 'LoggingScaleOut', {
+      autoScalingGroup: loggingAsg,
+      adjustmentType: as.AdjustmentType.CHANGE_IN_CAPACITY,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 0,
+      lowerBound: 0,
+      upperBound: 1,
+    });
+    agentScaleOut.addAdjustment({
+      adjustment: 2,
+      lowerBound: 1,
+    });
+    messageAlarm.addAlarmAction(new cwa.AutoScalingAction(agentScaleOut));
+
+    const agentScaleIn = new as.StepScalingAction(this, 'LoggingScaleIn', {
+      autoScalingGroup: loggingAsg,
+      adjustmentType: as.AdjustmentType.EXACT_CAPACITY,
+    });
+    agentScaleIn.addAdjustment({
+      adjustment: 0,
+      lowerBound: 0,
+      upperBound: 1,
+    });
+    agentScaleIn.addAdjustment({
+      adjustment: 0,
+      lowerBound: 1,
+    });
+    messageAlarm.addOkAction(new cwa.AutoScalingAction(agentScaleIn));
+
+    const logScheduler = new lambda.Function(this, 'LogScheduler', {
       runtime: lambda.Runtime.PYTHON_3_10,
-      handler: 'convert_s3_logs.lambda_handler',
-      memorySize: 1024,
+      handler: 'log_scheduler.lambda_handler',
+      memorySize: 256,
       timeout: cdk.Duration.seconds(900),
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/convert_s3_logs')),
-      role: lambdaRole,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/log_scheduler')),
+      role: convertS3Role,
       environment: {
-        S3_BUCKET: domainBucket.bucketName,
+        DOMAIN_S3_BUCKET: domainBucket.bucketName,
+        SQS_QUEUE_URL: messageQueue.queueUrl,
       },
       logRetention: logs.RetentionDays.ONE_WEEK,
-      layers: [cloudfrontSharedLayer]
     });
+
     const cloudfront1HourRule = new Rule(this, 'CFConvertLogs_1_hour_rule', {
       schedule: Schedule.expression("cron(0 * * * ? *)"),
     });
-    const convertRuleTarget = new LambdaFunction(convertS3Log);
+    const convertRuleTarget = new LambdaFunction(logScheduler);
     cloudfront1HourRule.addTarget(convertRuleTarget);
 
     new cdk.CfnOutput(this, 'S3 bucket to store CloudFront logs', { value: cfLogBucket.bucketName });
