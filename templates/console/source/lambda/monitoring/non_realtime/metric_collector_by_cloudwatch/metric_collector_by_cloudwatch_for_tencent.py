@@ -31,6 +31,9 @@ METRIC_NAME_MAPS = {'4xxerrorrate': '4xx',
 METRIC_CACHE_HIT_RATE = 'CacheHitRate'
 METRIC_REQUEST = 'Requests'
 METRIC_BYTE_DOWNLOAD = 'BytesDownloaded'
+ERROR_RATE_4XX = '4xxerrorrate'
+ERROR_RATE_404 = '404errrorrate'
+ERROR_RATE_5XX = '5xxerrrorrate'
 POST_URL = "http://zhiyan.monitor.tencent-cloud.net:8080/access_v1.http_service/HttpCurveReportRpc"
 HEADERS = {
     "Content-Type": "application/json"
@@ -228,9 +231,6 @@ def build_metrics_params_for_tencent(table_items):
             if len(key_info) != 4:
                 log.error(f"key_info data error{item}")
                 continue
-            if not item["metricData"]["reportValue"]:
-                log.error(f"key_info metricData error{item}")
-                continue
             protocol = key_info[1]
             metric_name = key_info[2]
             domain_name = key_info[3]
@@ -239,10 +239,16 @@ def build_metrics_params_for_tencent(table_items):
             cal_map_key = f'{domain_name}|{protocol}|{metric_name.lower()}|{item["timestamp"]}'
             if metric_name == METRIC_CACHE_HIT_RATE.lower():
                 cache_hit_rate_metric_map[cal_map_key] = report_value
+                log.debug(f"cache_hit_rate_metric_map:{cal_map_key} : report_value: {report_value}")
+                continue
             elif metric_name == METRIC_REQUEST.lower():
                 request_metric_map[cal_map_key] = report_value
             elif metric_name == METRIC_BYTE_DOWNLOAD.lower():
                 byte_download_metric_map[cal_map_key] = report_value
+                report_value = report_value*8/(60*1000)
+                log.debug(f"byte_download_metric_map:{cal_map_key} : report_value")
+            # elif metric_name == ERROR_RATE_4XX.lower() or metric_name == ERROR_RATE_404.lower() or metric_name == ERROR_RATE_5XX.lower():
+            #     report_value = report_value*8/(60*1000)
             report_metric_name = METRIC_NAME_MAPS.get(metric_name)
             report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                  report_metric_name, report_value,
@@ -265,6 +271,9 @@ def build_metrics_params_for_tencent(table_items):
                 byte_download_metric = byte_download_metric_map[key]
                 cache_hit_rate_metric = cache_hit_rate_metric_map[key]
                 byte_download_report_value = byte_download_metric * (Decimal('1.0') - cache_hit_rate_metric)
+                log.debug(f"byte_download_metric: {byte_download_metric}  byte_download_report_value: {byte_download_report_value} ")
+                byte_download_report_value = byte_download_report_value * 8 / (60 * 1000)
+                log.debug(f"convert to kbps byte_download_report_value:{byte_download_report_value} ")
                 key_info = key.split("|")
                 domain_name = key_info[0]
                 protocol = key_info[1]
