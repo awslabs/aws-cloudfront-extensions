@@ -148,14 +148,18 @@ if __name__ == "__main__":
     print(aws_region)
     print(bucket_name)
     sqs = boto3.client('sqs', region_name=aws_region)
-    
+
     while True:
         queue_messages = get_messages_from_queue(sqs, queue_url)
+        print("Queued message")
+        print(queue_messages)
         if len(queue_messages) > 0:
             for message in queue_messages:
                 event_body = json.loads(message['Body'])
-                s3_prefix = message['s3_prefix']
+                print(f"Handle message body: {event_body}")
+                s3_prefix = event_body['s3_prefix']
                 domain = event_body['domain']
                 log_name_prefix = event_body['log_name_prefix']
-                zip_and_upload_files(bucket_name, s3_prefix, log_name_prefix, '.', max_size=3*1024)
+                # Customize max size here
+                zip_and_upload_files(bucket_name, s3_prefix, log_name_prefix, '.')
         time.sleep(SLEEP_TIME)

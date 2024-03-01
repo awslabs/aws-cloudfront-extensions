@@ -1081,6 +1081,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     asgRole.attachInlinePolicy(sqsPolicy);
     asgRole.attachInlinePolicy(cfPolicy);
     asgRole.attachInlinePolicy(ec2_cloudwatch_policy);
+    asgRole.attachInlinePolicy(s3ReadAndWritePolicy);
 
     const metric = new cloudwatch.MathExpression({
       expression: "visible + hidden",
