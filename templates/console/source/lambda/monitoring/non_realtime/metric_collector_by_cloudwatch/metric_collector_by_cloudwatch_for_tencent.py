@@ -51,7 +51,7 @@ def get_recently_metric_items_from_ddb(metric_id: str, period: timedelta):
     }
     response = table.query(**query_params)
     items = response.get('Items', [])
-    log.info(items)
+    log.debug(items)
     return items
 
 
@@ -72,15 +72,15 @@ def get_recently_metrics_by_batch(metric_ids: str):
             ExpressionAttributeNames={'#timestamp': 'timestamp'}
         )
         response_items.extend(response.get('Items', []))
-    log.info(response_items)
+    log.debug(response_items)
     return response_items
 
 
 def batch_update_metric_items_to_ddb(table_items):
     if not table_items or len(table_items) == 0:
-        log.info("batch_update_metric_items_to_ddb: No items to update")
+        log.debug("batch_update_metric_items_to_ddb: No items to update")
         return
-    log.info(f"batch_update_metric_items_to_ddb start {len(table_items)}")
+    log.debug(f"batch_update_metric_items_to_ddb start {len(table_items)}")
     table = dynamodb.Table(DDB_TABLE_NAME)
     for item in table_items:
         metric_id = item["metricId"]
@@ -94,19 +94,19 @@ def batch_update_metric_items_to_ddb(table_items):
             ExpressionAttributeValues=expression_attribute_values
         )
         log.debug(f"update_metric_items_to_ddb: {item}")
-    log.info("batch_update_metric_items_to_ddb end")
+    log.debug("batch_update_metric_items_to_ddb end")
 
 
 def batch_input_metric_items_to_ddb(table_items):
     if not table_items or len(table_items) == 0:
-        log.info("batch_input_metric_items_to_ddb empty")
+        log.debug("batch_input_metric_items_to_ddb empty")
         return
-    log.info(f"batch_input_metric_items_to_ddb start {len(table_items)}")
+    log.debug(f"batch_input_metric_items_to_ddb start {len(table_items)}")
     table = dynamodb.Table(DDB_TABLE_NAME)
     with table.batch_writer() as batch:
         for item in table_items:
             batch.put_item(Item=item)
-    log.info("batch_input_metric_items_to_ddb end")
+    log.debug("batch_input_metric_items_to_ddb end")
 
 
 def convert_to_decimal(data):
@@ -126,14 +126,14 @@ def reset_report_value(table_items):
         metric_id = item["metricId"]
         metric_ids.append(metric_id)
     ddb_items = get_recently_metrics_by_batch(metric_ids)
-    log.info(f"reset_report_value start ddb_items:{ddb_items}")
+    log.debug(f"reset_report_value start ddb_items:{ddb_items}")
     cal_value = 0
     new_table_items = []
     update_table_items = []
     for item in table_items:
         current_value = item['metricData']["currentValue"]
         if not current_value:
-            log.info(f"reset_report_value current value is 0 continue {item}")
+            log.debug(f"reset_report_value current value is 0 continue {item}")
             continue
         report_value = item['metricData']["reportValue"]
         if ddb_items:
@@ -148,15 +148,15 @@ def reset_report_value(table_items):
                 report_value = exist_item['metricData']["reportValue"]
         if not report_value:
             report_value = convert_to_decimal(item['metricData']["currentValue"]) + cal_value
-            log.info(f"{item['metricId']} report_value reset to {report_value} {cal_value} {item}")
+            log.debug(f"{item['metricId']} report_value reset to {report_value} {cal_value} {item}")
             cal_value = 0
             item['metricData'] = {"currentValue": convert_to_decimal(item['metricData']["currentValue"]),
                                   "reportValue": convert_to_decimal(report_value)}
             new_table_items.append(item)
     if update_table_items:
-        log.info(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
+        log.debug(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
         batch_update_metric_items_to_ddb(update_table_items)
-    log.info(f"new_table_items : {new_table_items}")
+    log.debug(f"new_table_items : {new_table_items}")
     return new_table_items
 
 
@@ -175,13 +175,13 @@ def get_and_save_metrics(period, start_datetime, end_datetime):
                 continue
             for metric_data in metric['MetricDataResults']:
                 if metric_data['StatusCode'] != 'Complete':
-                    log.info("metric_data error: {}".format(metric_data['Messages']))
+                    log.error("metric_data error: {}".format(metric_data['Messages']))
                     continue
                 metric_id = f"{metric_data['Id']}_{metric_data['Label']}"
                 values = metric_data['Values']
                 timestamps = metric_data['Timestamps']
                 if not values:
-                    log.info("metric_data values error: {}".format(values))
+                    log.debug("metric_data values error: {}".format(values))
                     continue
                 i = 0
                 for value in values:
@@ -192,7 +192,7 @@ def get_and_save_metrics(period, start_datetime, end_datetime):
                     }
                     i = i + 1
                     table_items.append(table_item)
-        log.info("table_items: {}".format(table_items))
+        log.debug("table_items: {}".format(table_items))
         new_table_items = reset_report_value(table_items)
         batch_input_metric_items_to_ddb(new_table_items)
         return new_table_items
@@ -203,7 +203,7 @@ def get_and_save_metrics(period, start_datetime, end_datetime):
 
 # https://docs.qq.com/doc/DSkhFcHRIVmdaU1RC
 def build_report_metric_params_for_tencent(domain_name, protocol, metric_name, report_value, event_time):
-    log.info(f"Building report item for tencent: {domain_name}, {protocol}, {event_time} {metric_name} {report_value}")
+    log.debug(f"Building report item for tencent: {domain_name}, {protocol}, {event_time} {metric_name} {report_value}")
     tags = {"domain": domain_name, "my1_provider": "AWS", "isp": 'AWS', "business": "IEG", "bg": "TEG",
             "protocol_type": protocol}
     param_item = {"metric": metric_name, "value": report_value, "tags": tags}
@@ -211,32 +211,31 @@ def build_report_metric_params_for_tencent(domain_name, protocol, metric_name, r
 
 
 def build_metrics_params_for_tencent(table_items):
-    log.info(f"build_metrics_params_for_tencent: {table_items}")
+    log.debug(f"build_metrics_params_for_tencent: {table_items}")
     try:
-        report_count = 0
         report_data = []
         request_metric_map = {}
         byte_download_metric_map = {}
         cache_hit_rate_metric_map = {}
         for item in table_items:
             if "metricId" not in item and "timestamp" not in item or "metricData" not in item:
-                log.info(f"item data error{item}")
+                log.error(f"item data error{item}")
                 continue
             if not item["metricId"] or not item["timestamp"] or not item["metricData"] or not item["metricData"]["reportValue"]:
-                log.info(f"item data none error{item}")
+                log.error(f"item data none error{item}")
                 continue
             key_info = str(item["metricId"]).split("_")
             if len(key_info) != 4:
-                log.info(f"key_info data error{item}")
+                log.error(f"key_info data error{item}")
                 continue
             if not item["metricData"]["reportValue"]:
-                log.info(f"key_info metricData error{item}")
+                log.error(f"key_info metricData error{item}")
                 continue
             protocol = key_info[1]
             metric_name = key_info[2]
             domain_name = key_info[3]
             report_value = Decimal(item["metricData"]["reportValue"])
-            log.info(f"metric_name:{metric_name} report_value: {report_value}")
+            log.debug(f"metric_name:{metric_name} report_value: {report_value}")
             cal_map_key = f'{domain_name}|{protocol}|{metric_name.lower()}|{item["timestamp"]}'
             if metric_name == METRIC_CACHE_HIT_RATE.lower():
                 cache_hit_rate_metric_map[cal_map_key] = report_value
@@ -274,7 +273,8 @@ def build_metrics_params_for_tencent(table_items):
                                                                      "total_flux_hy", byte_download_report_value,
                                                                      event_time)
                 report_data.append(report_item)
-        log.info(f"report_data :{report_data} {str(report_data)}")
+        log.debug(f"report_data :{report_data} {str(report_data)}")
+        report_count = len(report_data)
         param = {"app_mark": "1115_4108_down_waibao_7", "env": "prod", "report_cnt": report_count,
                  "report_data": str(report_data)}
         return param
@@ -304,9 +304,9 @@ def lambda_handler(event, context):
                 request_params = build_metrics_params_for_tencent(new_table_items)
                 log.info("report params: {}".format(request_params))
                 if request_params:
-                    log.info(request_params)
+                    # log.info(request_params)
                     tencent_response = requests.post(POST_URL, json=request_params, headers=HEADERS)
-                    log.info(tencent_response.text)
+                    log.info("report response: {}".format(tencent_response.text))
             except Exception as e:
                 log.error(f"Error post lambda error: {e}")
         else:
