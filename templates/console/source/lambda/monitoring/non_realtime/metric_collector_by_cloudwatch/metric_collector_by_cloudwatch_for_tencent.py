@@ -265,7 +265,7 @@ def build_metrics_params_for_tencent(table_items):
                 cache_hit_rate_metric_key = f'{domain_name}|{protocol}|{event_time}|{METRIC_CACHE_HIT_RATE.lower()}'
                 if cache_hit_rate_metric_key in domain_metric_map and domain_metric_map[cache_hit_rate_metric_key]:
                     cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
-                    requests_report_value = request_metric * (Decimal('1.0') - cache_hit_rate_metric)
+                    requests_report_value = math.ceil((request_metric * (Decimal('100.00') - cache_hit_rate_metric)) / 100)
                     report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                          "total_hy_request", requests_report_value,
                                                                          event_time)
@@ -309,7 +309,7 @@ def build_metrics_params_for_tencent(table_items):
                 cache_hit_rate_metric_key = f'{domain_name}|{protocol}|{event_time}|{METRIC_CACHE_HIT_RATE.lower()}'
                 if cache_hit_rate_metric_key in domain_metric_map and domain_metric_map[cache_hit_rate_metric_key]:
                     cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
-                    byte_download_report_value = byte_download_metric * (Decimal('1.0') - cache_hit_rate_metric)
+                    byte_download_report_value = math.ceil((byte_download_metric * (Decimal('100.00') - cache_hit_rate_metric)) / 100)
                     log.info(f"byte_download_metric: {byte_download_metric}  byte_download_report_value: {byte_download_report_value} ")
                     byte_download_report_value = byte_download_report_value * 8 / (60 * 1000)
                     byte_download_report_value = byte_download_report_value.quantize(Decimal('0.00'),
