@@ -2,7 +2,7 @@ import requests
 import logging
 import os
 from datetime import datetime, timedelta
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 import math
 
 import boto3
@@ -215,7 +215,7 @@ def build_report_metric_params_for_tencent(domain_name, protocol, metric_name, r
 
 
 def build_metrics_params_for_tencent(table_items):
-    log.debug(f"build_metrics_params_for_tencent: {table_items}")
+    log.info(f"build_metrics_params_for_tencent: {table_items}")
     try:
         report_data = []
         domain_metric_map = {}
@@ -235,18 +235,21 @@ def build_metrics_params_for_tencent(table_items):
             metric_name = key_info[2]
             domain_name = key_info[3]
             report_value = Decimal(item["metricData"]["reportValue"])
-            log.debug(f"metric_name:{metric_name} report_value: {report_value}")
+            log.info(f"metric_name:{metric_name} report_value: {report_value}")
             cal_map_key = f'{domain_name}|{protocol}|{item["timestamp"]}|{metric_name.lower()}'
             if (metric_name == METRIC_CACHE_HIT_RATE.lower() or metric_name == ERROR_RATE_4XX.lower()
                   or metric_name == ERROR_RATE_404.lower() or metric_name == ERROR_RATE_5XX.lower()):
                 domain_metric_map[cal_map_key] = report_value
+                log.info(f"domain_metric_map todo calculate :{domain_metric_map} {report_value}")
                 continue
             elif metric_name == METRIC_REQUEST.lower():
                 domain_metric_map[cal_map_key] = report_value
+                log.info(f"domain_metric_map request :{domain_metric_map} {report_value}")
             elif metric_name == METRIC_BYTE_DOWNLOAD.lower():
                 domain_metric_map[cal_map_key] = report_value
-                report_value = report_value*8/(60*1000)
-                log.debug(f"byte_download_metric_map:{cal_map_key} : report_value")
+                report_value = report_value * 8 / (60 * 1000)
+                report_value = report_value.quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
+                log.info(f"domain_metric_map: byte download {cal_map_key} : {report_value} {domain_metric_map[cal_map_key]}")
             report_metric_name = METRIC_NAME_MAPS.get(metric_name)
             report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                  report_metric_name, report_value,
@@ -260,38 +263,42 @@ def build_metrics_params_for_tencent(table_items):
                 protocol = key_info[1]
                 event_time = key_info[2]
                 cache_hit_rate_metric_key = f'{domain_name}|{protocol}|{event_time}|{METRIC_CACHE_HIT_RATE.lower()}'
-                cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
-                requests_report_value = request_metric * (Decimal('1.0') - cache_hit_rate_metric)
-                report_item = build_report_metric_params_for_tencent(domain_name, protocol,
-                                                                     "total_hy_request", requests_report_value,
-                                                                     event_time)
-                report_data.append(report_item)
+                if cache_hit_rate_metric_key in domain_metric_map and domain_metric_map[cache_hit_rate_metric_key]:
+                    cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
+                    requests_report_value = request_metric * (Decimal('1.0') - cache_hit_rate_metric)
+                    report_item = build_report_metric_params_for_tencent(domain_name, protocol,
+                                                                         "total_hy_request", requests_report_value,
+                                                                         event_time)
+                    report_data.append(report_item)
 
                 error_4xx_metric_key = f'{domain_name}|{protocol}|{event_time}|{ERROR_RATE_4XX.lower()}'
-                error_4xx_metric = domain_metric_map[error_4xx_metric_key]
-                error_4xx_report_value = math.ceil(request_metric * error_4xx_metric)
-                error_4xx_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
-                                                                               METRIC_NAME_MAPS.get(ERROR_RATE_4XX.lower()),
-                                                                               error_4xx_report_value, event_time)
-                report_data.append(error_4xx_report_item)
+                if error_4xx_metric_key in domain_metric_map and domain_metric_map[error_4xx_metric_key]:
+                    error_4xx_metric = domain_metric_map[error_4xx_metric_key]
+                    error_4xx_report_value = math.ceil(request_metric * error_4xx_metric)
+                    error_4xx_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
+                                                                                   METRIC_NAME_MAPS.get(ERROR_RATE_4XX.lower()),
+                                                                                   error_4xx_report_value, event_time)
+                    report_data.append(error_4xx_report_item)
 
                 error_404_metric_key = f'{domain_name}|{protocol}|{event_time}|{ERROR_RATE_404.lower()}'
-                error_404_metric = domain_metric_map[error_404_metric_key]
-                error_404_report_value = math.ceil(request_metric * error_404_metric)
-                error_404_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
-                                                                               METRIC_NAME_MAPS.get(
-                                                                                   ERROR_RATE_404.lower()),
-                                                                               error_404_report_value, event_time)
-                report_data.append(error_404_report_item)
+                if error_404_metric_key in domain_metric_map and domain_metric_map[error_404_metric_key]:
+                    error_404_metric = domain_metric_map[error_404_metric_key]
+                    error_404_report_value = math.ceil(request_metric * error_404_metric)
+                    error_404_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
+                                                                                   METRIC_NAME_MAPS.get(
+                                                                                       ERROR_RATE_404.lower()),
+                                                                                   error_404_report_value, event_time)
+                    report_data.append(error_404_report_item)
 
                 error_5xx_metric_key = f'{domain_name}|{protocol}|{event_time}|{ERROR_RATE_5XX.lower()}'
-                error_5xx_metric = domain_metric_map[error_5xx_metric_key]
-                error_5xx_report_value = math.ceil(request_metric * error_5xx_metric)
-                error_5xx_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
-                                                                               METRIC_NAME_MAPS.get(
-                                                                                   ERROR_RATE_5XX.lower()),
-                                                                               error_5xx_report_value, event_time)
-                report_data.append(error_5xx_report_item)
+                if error_5xx_metric_key in domain_metric_map and domain_metric_map[error_5xx_metric_key]:
+                    error_5xx_metric = domain_metric_map[error_5xx_metric_key]
+                    error_5xx_report_value = math.ceil(request_metric * error_5xx_metric)
+                    error_5xx_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
+                                                                                   METRIC_NAME_MAPS.get(
+                                                                                       ERROR_RATE_5XX.lower()),
+                                                                                   error_5xx_report_value, event_time)
+                    report_data.append(error_5xx_report_item)
 
             if key.endswith(METRIC_BYTE_DOWNLOAD.lower()):
                 byte_download_metric = domain_metric_map[key]
@@ -300,15 +307,18 @@ def build_metrics_params_for_tencent(table_items):
                 protocol = key_info[1]
                 event_time = key_info[2]
                 cache_hit_rate_metric_key = f'{domain_name}|{protocol}|{event_time}|{METRIC_CACHE_HIT_RATE.lower()}'
-                cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
-                byte_download_report_value = byte_download_metric * (Decimal('1.0') - cache_hit_rate_metric)
-                log.debug(f"byte_download_metric: {byte_download_metric}  byte_download_report_value: {byte_download_report_value} ")
-                byte_download_report_value = byte_download_report_value * 8 / (60 * 1000)
-                log.debug(f"convert to kbps byte_download_report_value:{byte_download_report_value} ")
-                report_item = build_report_metric_params_for_tencent(domain_name, protocol,
-                                                                     "total_flux_hy", byte_download_report_value,
-                                                                     event_time)
-                report_data.append(report_item)
+                if cache_hit_rate_metric_key in domain_metric_map and domain_metric_map[cache_hit_rate_metric_key]:
+                    cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
+                    byte_download_report_value = byte_download_metric * (Decimal('1.0') - cache_hit_rate_metric)
+                    log.info(f"byte_download_metric: {byte_download_metric}  byte_download_report_value: {byte_download_report_value} ")
+                    byte_download_report_value = byte_download_report_value * 8 / (60 * 1000)
+                    byte_download_report_value = byte_download_report_value.quantize(Decimal('0.00'),
+                                                                                     rounding=ROUND_HALF_UP)
+                    log.info(f"convert to kbps byte_download_report_value:{byte_download_report_value} ")
+                    report_item = build_report_metric_params_for_tencent(domain_name, protocol,
+                                                                         "total_flux_hy", byte_download_report_value,
+                                                                         event_time)
+                    report_data.append(report_item)
         log.debug(f"report_data :{report_data} {str(report_data)}")
         report_count = len(report_data)
         param = {"app_mark": "1115_4108_down_waibao_7", "env": "prod", "report_cnt": report_count,
