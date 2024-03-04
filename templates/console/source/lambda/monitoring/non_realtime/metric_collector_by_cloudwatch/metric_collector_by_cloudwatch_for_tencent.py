@@ -177,7 +177,7 @@ def reset_and_save_report_value(table_items):
     log.debug(f"new_table_items : {new_table_items}")
     if len(cal_map.keys()) > 0:
         for key, value in cal_map.items():
-            if not value or value == 0:
+            if not value or value <= 0:
                 continue
             item = {"metricId": key, "timestamp": the_latest_timestamp + 60, "metricData": {"currentValue": value, "reportValue": value}}
             new_table_items.append(item)
