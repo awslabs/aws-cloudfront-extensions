@@ -103,7 +103,7 @@ def batch_input_metric_items_to_ddb(table_items):
     if not table_items or len(table_items) == 0:
         log.debug("batch_input_metric_items_to_ddb empty")
         return
-    log.debug(f"batch_input_metric_items_to_ddb start {len(table_items)}")
+    log.info(f"batch_input_metric_items_to_ddb start {len(table_items)}")
     table = dynamodb.Table(DDB_TABLE_NAME)
     with table.batch_writer() as batch:
         for item in table_items:
@@ -172,7 +172,7 @@ def reset_and_save_report_value(table_items):
             log.debug(f"{item['metricId']} new report_value reset to {report_value} {item}")
             new_table_items.append(item)
     if update_table_items:
-        log.debug(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
+        log.info(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
         batch_update_metric_items_to_ddb(update_table_items)
     log.debug(f"new_table_items : {new_table_items}")
     if cal_map and len(cal_map.keys()) > 0:
