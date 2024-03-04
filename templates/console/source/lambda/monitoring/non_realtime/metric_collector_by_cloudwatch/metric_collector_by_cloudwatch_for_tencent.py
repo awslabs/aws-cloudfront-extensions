@@ -146,7 +146,7 @@ def reset_and_save_report_value(table_items):
                                exist_item["metricId"] == item['metricId'] and exist_item["timestamp"] == item[
                                    'timestamp']), None)
             if exist_item and exist_item['metricData']["currentValue"] < current_value:
-                log.info(f'start to compare :{exist_item["metricId"]} {exist_item["metricData"]["currentValue"]} {current_value}')
+                log.debug(f'start to compare :{exist_item["metricId"]} {exist_item["metricData"]["currentValue"]} {current_value}')
                 updated_item = {"metricId": exist_item['metricId'], "timestamp": exist_item["timestamp"],
                                 "metricData": {}}
                 updated_item['metricData']["currentValue"] = convert_to_decimal(current_value)
