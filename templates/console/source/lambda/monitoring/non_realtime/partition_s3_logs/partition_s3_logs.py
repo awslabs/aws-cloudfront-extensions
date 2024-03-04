@@ -11,6 +11,8 @@ from sqlite3 import Timestamp
 import boto3
 
 DELETE_LOG = os.environ['DELETE_LOG']
+DOMAIN_S3_BUCKET = os.environ['DOMAIN_S3']
+SEP = '\x01'
 
 log = logging.getLogger()
 log.setLevel('INFO')
@@ -84,6 +86,7 @@ def lambda_handler(event, context):
 
             # Partioned file will not be processed again
             if '/dist%3D' not in key:
+                # 'athena_results/' not in key
                 # Get file name, which should be the last one in the string
                 filename = ""
                 number = len(key.split('/'))
@@ -98,12 +101,19 @@ def lambda_handler(event, context):
                     gzip_content = gzip.decompress(s3.get_object(Bucket=bucket, Key=key)['Body'].read()).decode()
                     rows = gzip_content.split('\n')
                     updated_content = ''
+                    updated_content_domain = ''
                     
                     for row_item in rows:
                         if row_item.startswith('#Version:'):
                             updated_content += row_item + '\n'
+                            # Can be deleted
+                            # updated_content_domain += row_item + '\n'
                         elif row_item.startswith('#Fields:'):
                             updated_content += '#Fields:\ttimestamp\tsc-bytes\tc-ip\tcs-host\tcs-uri-stem\tsc-status\tcs-bytes\ttime-taken\tx-edge-response-result-type\tx-edge-detailed-result-type\tc-country\n'
+                            # Can be deleted
+                            # title_list = ["time_local", "remote_addr", "server_ip", "host", "url", "req_args", "status", "bytes_send", "body_bytes_sent", "range", "request_time", "user_agent", "scheme", "referer", "hit", "x_log_id"]
+                            # title_temp = SEP.join(title_list)
+                            # updated_content_domain += (title_temp + '\n')
                         else:
                             fields = row_item.split('\t')
                             if len(fields) > 1:
@@ -114,11 +124,31 @@ def lambda_handler(event, context):
                                     log.info("The ip address " + c_ip + " is invalid")
                                     continue
                                 country_name = country_code_from_geo_name(geo_name_from_ip(c_ip, version))
+                                
+                                range_start = str(fields[31])
+                                range_end = str(fields[32])
+                                if range_start == "-":
+                                    range_start = ""
+                                if range_end == "-":
+                                    range_end = ""
+                                start_end_range = f"{range_start}-{range_end}"
+
+                                edge_result_type = fields[13]
+                                cache_status = 0 # Hit: 1, Miss:0
+                                if edge_result_type in ["Hit", "RefreshHit"]:
+                                    cache_status = 1
+
                                 # cs-host is refered to x-host-header
                                 updated_content += timestamp + '\t' + fields[3] + '\t' + fields[4] + '\t' + fields[15] + '\t' + fields[7] + '\t' + fields[8] + '\t' + fields[17] + '\t' + fields[18] + '\t' + fields[22] + '\t' + fields[28] + '\t' + country_name + '\n'
+                                field_list = [ timestamp, c_ip, fields[2], fields[15], fields[7], str(fields[11]), fields[8], fields[3], str(fields[30]), start_end_range, fields[18], str(fields[10]), str(fields[16]), str(fields[9]), str(cache_status), fields[14]]
+                                field_temp = SEP.join(field_list)
+                                updated_content_domain += (field_temp + '\n')
                     
                     compressed_content = gzip.compress(updated_content.encode())
+                    compressed_content_domain = gzip.compress(updated_content_domain.encode())
                     s3.put_object(Body=compressed_content, Bucket=bucket, Key=dest)
+                    # For logging API
+                    s3.put_object(Body=compressed_content_domain, Bucket=DOMAIN_S3_BUCKET, Key=dest)
     
                     log.info(
                         "\n[partition_s3_logs lambda_handler] Update file %s to destination %s" % (source_path, dest_path))
@@ -126,7 +156,7 @@ def lambda_handler(event, context):
                     if DELETE_LOG.lower() == 'true':
                         s3.delete_object(Bucket=bucket, Key=key)
                         log.info("\n[partition_s3_logs lambda_handler] Removed file %s" % source_path)
-                      
+                    
                     count = count + 1
 
         log.info(
