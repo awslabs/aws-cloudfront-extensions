@@ -175,7 +175,7 @@ def reset_and_save_report_value(table_items):
         log.debug(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
         batch_update_metric_items_to_ddb(update_table_items)
     log.debug(f"new_table_items : {new_table_items}")
-    if len(cal_map.keys()) > 0:
+    if cal_map and len(cal_map.keys()) > 0:
         for key, value in cal_map.items():
             if not value or value <= 0:
                 continue
@@ -233,6 +233,28 @@ def build_report_metric_params_for_tencent(domain_name, protocol, metric_name, r
             "protocol_type": protocol}
     param_item = {"metric": metric_name, "value": report_value, "tags": tags}
     return param_item
+
+
+def rebuild_report_data(report_data_list):
+    result = []
+    exist_key_map = {}
+    if not report_data_list:
+        return result
+    for item in report_data_list:
+        key = (item["metric"], item["tags"]["domain"], item["tags"]["protocol_type"])
+        if key not in exist_key_map:
+            exist_key_map[key] = item["value"]
+        else:
+            exist_key_map[key] += item["value"]
+    if not exist_key_map or len(exist_key_map) <= 0:
+        return result
+    for item in report_data_list:
+        key = (item["metric"], item["tags"]["domain"], item["tags"]["protocol_type"])
+        if key not in exist_key_map.keys():
+            continue
+        item["value"] = exist_key_map.pop(key)
+        result.append(item)
+    return result
 
 
 def build_metrics_params_for_tencent(table_items):
@@ -362,6 +384,8 @@ def build_metrics_params_for_tencent(table_items):
                                                                          "total_flux_hy", byte_download_report_value,
                                                                          event_time)
                     report_data.append(report_item)
+
+        report_data = rebuild_report_data(report_data)
         log.debug(f"report_data :{report_data} {str(report_data)}")
         report_count = len(report_data)
         param = {"app_mark": "1115_4108_down_waibao_7", "env": "prod", "report_cnt": report_count,
