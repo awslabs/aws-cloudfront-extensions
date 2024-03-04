@@ -41,27 +41,9 @@ HEADERS = {
 }
 
 
-def get_recently_metric_items_from_ddb(metric_id: str, period: timedelta):
+def get_recently_metrics_by_batch(metric_ids: str, end_datetime: datetime):
     table = dynamodb.Table(DDB_TABLE_NAME)
-    now = datetime.utcnow()
-    ten_minutes_ago = now - period
-    query_params = {
-        'KeyConditionExpression': '#id = :id AND #timestamp >= :start_ts',
-        'ExpressionAttributeNames': {'#id': 'metricId', '#timestamp': 'timestamp'},
-        'ExpressionAttributeValues': {
-            ':id': metric_id,
-            ':start_ts': int(ten_minutes_ago.timestamp())
-        }
-    }
-    response = table.query(**query_params)
-    items = response.get('Items', [])
-    log.debug(items)
-    return items
-
-
-def get_recently_metrics_by_batch(metric_ids: str):
-    table = dynamodb.Table(DDB_TABLE_NAME)
-    start_time = int((datetime.utcnow() - timedelta(minutes=15)).timestamp())
+    start_time = int((end_datetime - timedelta(minutes=15)).timestamp())
 
     response_items = []
     for metric_id in metric_ids:
@@ -103,7 +85,7 @@ def batch_input_metric_items_to_ddb(table_items):
     if not table_items or len(table_items) == 0:
         log.debug("batch_input_metric_items_to_ddb empty")
         return
-    log.info(f"batch_input_metric_items_to_ddb start {len(table_items)}")
+    log.info(f"batch_input_metric_items_to_ddb start {len(table_items)} {table_items}")
     table = dynamodb.Table(DDB_TABLE_NAME)
     with table.batch_writer() as batch:
         for item in table_items:
@@ -122,13 +104,13 @@ def convert_to_decimal(data):
         return data
 
 
-def reset_and_save_report_value(table_items):
+def reset_and_save_report_value(table_items, event_datetime):
     metric_ids = set()
     for item in table_items:
         metric_id = item["metricId"]
         metric_ids.add(metric_id)
-    ddb_items = get_recently_metrics_by_batch(list(metric_ids))
-    log.debug(f"reset_report_value start ddb_items:{ddb_items}")
+    ddb_items = get_recently_metrics_by_batch(list(metric_ids), event_datetime)
+    log.info(f"reset_report_value start ddb_items:{ddb_items}")
     new_table_items = []
     update_table_items = []
     cal_map = {}
@@ -142,22 +124,25 @@ def reset_and_save_report_value(table_items):
             continue
         report_value = item['metricData']["reportValue"]
         if ddb_items:
-            exist_item = next((exist_item for exist_item in ddb_items if
-                               exist_item["metricId"] == item['metricId'] and exist_item["timestamp"] == item[
-                                   'timestamp']), None)
-            if exist_item and exist_item['metricData']["currentValue"] < current_value:
-                log.debug(f'start to compare :{exist_item["metricId"]} {exist_item["metricData"]["currentValue"]} {current_value}')
-                updated_item = {"metricId": exist_item['metricId'], "timestamp": exist_item["timestamp"],
-                                "metricData": {}}
-                updated_item['metricData']["currentValue"] = convert_to_decimal(current_value)
-                updated_item['metricData']["timestamps"] = int(datetime.now().timestamp())
-                updated_item['metricData']["reportValue"] = convert_to_decimal(exist_item['metricData']["reportValue"])
-                cal_value = (convert_to_decimal(current_value) - exist_item['metricData']["currentValue"])
-                log.debug(
-                    f'compare :{convert_to_decimal(current_value)} - {exist_item["metricData"]["currentValue"]} = {cal_value}')
-                cal_map[item["metricId"]] = cal_map.get(item["metricId"], 0) + cal_value
-                log.debug(f'calculate new value {cal_value} {cal_map} {item["metricId"]} {item["timestamp"]}')
-                update_table_items.append(updated_item)
+            for exist_item in ddb_items:
+                if exist_item["metricId"] != item['metricId'] or exist_item["timestamp"] != item[
+                        'timestamp']:
+                    continue
+                if exist_item['metricData']["currentValue"] < current_value:
+                    log.debug(
+                        f'start to compare :{exist_item["metricId"]} {exist_item["metricData"]["currentValue"]} {current_value}')
+                    updated_item = {"metricId": exist_item['metricId'], "timestamp": exist_item["timestamp"],
+                                    "metricData": {}}
+                    updated_item['metricData']["currentValue"] = convert_to_decimal(current_value)
+                    updated_item['metricData']["timestamps"] = int(datetime.now().timestamp())
+                    updated_item['metricData']["reportValue"] = convert_to_decimal(
+                        exist_item['metricData']["reportValue"])
+                    cal_value = (convert_to_decimal(current_value) - exist_item['metricData']["currentValue"])
+                    log.debug(
+                        f'compare :{convert_to_decimal(current_value)} - {exist_item["metricData"]["currentValue"]} = {cal_value}')
+                    cal_map[item["metricId"]] = cal_map.get(item["metricId"], 0) + cal_value
+                    log.debug(f'calculate new value {cal_value} {cal_map} {item["metricId"]} {item["timestamp"]}')
+                    update_table_items.append(updated_item)
                 report_value = exist_item['metricData']["reportValue"]
         if not report_value:
             if item["metricId"] in cal_map and cal_map[item["metricId"]]:
@@ -179,7 +164,7 @@ def reset_and_save_report_value(table_items):
         for key, value in cal_map.items():
             if not value or value <= 0:
                 continue
-            item = {"metricId": key, "timestamp": the_latest_timestamp + 60, "metricData": {"currentValue": value, "reportValue": value}}
+            item = {"metricId": key, "timestamp": the_latest_timestamp + 60, "metricData": {"currentValue": value, "reportValue": value, "fixAdd": True}}
             log.info(f"add new report item to fix old {item}")
             new_table_items.append(item)
     batch_input_metric_items_to_ddb(new_table_items)
@@ -219,7 +204,7 @@ def get_and_save_metrics(period, start_datetime, end_datetime):
                     i = i + 1
                     table_items.append(table_item)
         log.debug("table_items: {}".format(table_items))
-        new_table_items = reset_and_save_report_value(table_items)
+        new_table_items = reset_and_save_report_value(table_items, end_datetime)
         return new_table_items
     except Exception as e:
         log.error(f"Error fetching and saving metrics: {e}")
