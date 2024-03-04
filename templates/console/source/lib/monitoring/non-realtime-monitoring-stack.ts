@@ -404,7 +404,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
         code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda/monitoring/non_realtime/partition_s3_logs')),
         runtime: lambda.Runtime.PYTHON_3_10,
         handler: 'partition_s3_logs.lambda_handler',
-        memorySize: 1024,
+        memorySize: 4096,
         role: partitionRole,
         timeout: cdk.Duration.seconds(900),
         environment: {
