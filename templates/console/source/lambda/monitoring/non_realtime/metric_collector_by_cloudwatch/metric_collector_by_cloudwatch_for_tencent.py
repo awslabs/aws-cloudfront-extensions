@@ -128,7 +128,7 @@ def reset_and_save_report_value(table_items):
         metric_id = item["metricId"]
         metric_ids.add(metric_id)
     ddb_items = get_recently_metrics_by_batch(list(metric_ids))
-    log.info(f"reset_report_value start ddb_items:{ddb_items}")
+    log.debug(f"reset_report_value start ddb_items:{ddb_items}")
     new_table_items = []
     update_table_items = []
     cal_map = {}
@@ -146,17 +146,17 @@ def reset_and_save_report_value(table_items):
                                exist_item["metricId"] == item['metricId'] and exist_item["timestamp"] == item[
                                    'timestamp']), None)
             if exist_item and exist_item['metricData']["currentValue"] < current_value:
-                log.info(f'start to compare :{exist_item["metricData"]["currentValue"]} {current_value}')
+                log.info(f'start to compare :{exist_item["metricId"]} {exist_item["metricData"]["currentValue"]} {current_value}')
                 updated_item = {"metricId": exist_item['metricId'], "timestamp": exist_item["timestamp"],
                                 "metricData": {}}
                 updated_item['metricData']["currentValue"] = convert_to_decimal(current_value)
                 updated_item['metricData']["timestamps"] = int(datetime.now().timestamp())
                 updated_item['metricData']["reportValue"] = convert_to_decimal(exist_item['metricData']["reportValue"])
                 cal_value = (convert_to_decimal(current_value) - exist_item['metricData']["currentValue"])
-                log.info(
+                log.debug(
                     f'compare :{convert_to_decimal(current_value)} - {exist_item["metricData"]["currentValue"]} = {cal_value}')
                 cal_map[item["metricId"]] = cal_map.get(item["metricId"], 0) + cal_value
-                log.info(f'calculate new value {cal_value} {cal_map} {item["metricId"]} {item["timestamp"]}')
+                log.debug(f'calculate new value {cal_value} {cal_map} {item["metricId"]} {item["timestamp"]}')
                 update_table_items.append(updated_item)
                 report_value = exist_item['metricData']["reportValue"]
         if not report_value:
@@ -169,7 +169,7 @@ def reset_and_save_report_value(table_items):
 
             item['metricData'] = {"currentValue": convert_to_decimal(current_value),
                                   "reportValue": convert_to_decimal(report_value)}
-            log.info(f"{item['metricId']} new report_value reset to {report_value} {item}")
+            log.debug(f"{item['metricId']} new report_value reset to {report_value} {item}")
             new_table_items.append(item)
     if update_table_items:
         log.debug(f"update_table_items start : {len(update_table_items)}: {update_table_items}")
@@ -180,6 +180,7 @@ def reset_and_save_report_value(table_items):
             if not value or value <= 0:
                 continue
             item = {"metricId": key, "timestamp": the_latest_timestamp + 60, "metricData": {"currentValue": value, "reportValue": value}}
+            log.info(f"add new report item to fix old {item}")
             new_table_items.append(item)
     batch_input_metric_items_to_ddb(new_table_items)
     return new_table_items
@@ -217,7 +218,7 @@ def get_and_save_metrics(period, start_datetime, end_datetime):
                     }
                     i = i + 1
                     table_items.append(table_item)
-        log.info("table_items: {}".format(table_items))
+        log.debug("table_items: {}".format(table_items))
         new_table_items = reset_and_save_report_value(table_items)
         return new_table_items
     except Exception as e:
@@ -255,26 +256,26 @@ def build_metrics_params_for_tencent(table_items):
             metric_name = key_info[2]
             domain_name = key_info[3]
             report_value = Decimal(item["metricData"]["reportValue"])
-            log.info(f"metric_name:{metric_name} report_value: {report_value}")
+            log.debug(f"metric_name:{metric_name} report_value: {report_value}")
             cal_map_key = f'{domain_name}|{protocol}|{item["timestamp"]}|{metric_name.lower()}'
             if (metric_name == METRIC_CACHE_HIT_RATE.lower() or metric_name == ERROR_RATE_4XX.lower()
                   or metric_name == ERROR_RATE_404.lower() or metric_name == ERROR_RATE_5XX.lower()):
                 domain_metric_map[cal_map_key] = report_value
-                log.info(f"domain_metric_map todo calculate :{domain_metric_map} {report_value}")
+                log.debug(f"domain_metric_map todo calculate :{domain_metric_map} {report_value}")
                 continue
             elif metric_name == METRIC_REQUEST.lower():
                 domain_metric_map[cal_map_key] = report_value
-                log.info(f"domain_metric_map request :{domain_metric_map} {report_value}")
+                log.debug(f"domain_metric_map request :{domain_metric_map} {report_value}")
                 if not report_value:
-                    log.info(f"domain_metric_map request not report")
+                    log.debug(f"domain_metric_map request not report")
                     continue
             elif metric_name == METRIC_BYTE_DOWNLOAD.lower():
                 domain_metric_map[cal_map_key] = report_value
                 report_value = convert_to_decimal(report_value * 8 / (60 * 1000))
                 report_value = report_value.quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
-                log.info(f"domain_metric_map: byte download {cal_map_key} : {report_value} {domain_metric_map[cal_map_key]}")
+                log.debug(f"domain_metric_map: byte download {cal_map_key} : {report_value} {domain_metric_map[cal_map_key]}")
                 if not report_value:
-                    log.info(f"domain_metric_map byte download not report")
+                    log.debug(f"domain_metric_map byte download not report")
                     continue
             report_metric_name = METRIC_NAME_MAPS.get(metric_name)
             report_item = build_report_metric_params_for_tencent(domain_name, protocol,
@@ -293,7 +294,7 @@ def build_metrics_params_for_tencent(table_items):
                     cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
                     requests_report_value = math.ceil((request_metric * (Decimal('100.00') - cache_hit_rate_metric)) / 100)
                     if not requests_report_value:
-                        log.info(f"requests_report_value 0 {requests_report_value} , {cache_hit_rate_metric} {request_metric}")
+                        log.debug(f"requests_report_value {requests_report_value} , {cache_hit_rate_metric} {request_metric}")
                         continue
                     report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                          "total_hy_request", requests_report_value,
@@ -305,7 +306,7 @@ def build_metrics_params_for_tencent(table_items):
                     error_4xx_metric = domain_metric_map[error_4xx_metric_key]
                     error_4xx_report_value = math.ceil(request_metric * error_4xx_metric)
                     if not error_4xx_report_value:
-                        log.info(f"error_4xx_report_value 0 {error_4xx_report_value} , {request_metric}")
+                        log.debug(f"error_4xx_report_value {error_4xx_report_value} , {request_metric}")
                         continue
                     error_4xx_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                                    METRIC_NAME_MAPS.get(
@@ -318,7 +319,7 @@ def build_metrics_params_for_tencent(table_items):
                     error_404_metric = domain_metric_map[error_404_metric_key]
                     error_404_report_value = math.ceil(request_metric * error_404_metric)
                     if not error_404_report_value:
-                        log.info(f"error_404_report_value 0 {error_404_report_value} , {request_metric}")
+                        log.debug(f"error_404_report_value {error_404_report_value} , {request_metric}")
                         continue
                     error_404_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                                    METRIC_NAME_MAPS.get(
@@ -331,7 +332,7 @@ def build_metrics_params_for_tencent(table_items):
                     error_5xx_metric = domain_metric_map[error_5xx_metric_key]
                     error_5xx_report_value = math.ceil(request_metric * error_5xx_metric)
                     if not error_5xx_report_value:
-                        log.info(f"error_5xx_report_value 0 {error_5xx_report_value} , {request_metric}")
+                        log.debug(f"error_5xx_report_value {error_5xx_report_value} , {request_metric}")
                         continue
                     error_5xx_report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                                    METRIC_NAME_MAPS.get(
@@ -349,13 +350,13 @@ def build_metrics_params_for_tencent(table_items):
                 if cache_hit_rate_metric_key in domain_metric_map and domain_metric_map[cache_hit_rate_metric_key]:
                     cache_hit_rate_metric = domain_metric_map[cache_hit_rate_metric_key]
                     byte_download_report_value = math.ceil((byte_download_metric * (Decimal('100.00') - cache_hit_rate_metric)) / 100)
-                    log.info(f"byte_download_metric: {byte_download_metric}  byte_download_report_value: {byte_download_report_value} ")
+                    log.debug(f"byte_download_metric: {byte_download_metric}  byte_download_report_value: {byte_download_report_value} ")
                     byte_download_report_value = convert_to_decimal(byte_download_report_value * 8 / (60 * 1000))
                     byte_download_report_value = byte_download_report_value.quantize(Decimal('0.00'),
                                                                                      rounding=ROUND_HALF_UP)
-                    log.info(f"convert to kbps byte_download_report_value:{byte_download_report_value} ")
+                    log.debug(f"convert to kbps byte_download_report_value:{byte_download_report_value} ")
                     if not byte_download_report_value:
-                        log.info(f"byte_download_report_value 0 {byte_download_report_value} ,{cache_hit_rate_metric} {byte_download_metric}")
+                        log.debug(f"byte_download_report_value {byte_download_report_value} ,{cache_hit_rate_metric} {byte_download_metric}")
                         continue
                     report_item = build_report_metric_params_for_tencent(domain_name, protocol,
                                                                          "total_flux_hy", byte_download_report_value,
