@@ -117,8 +117,8 @@ def lambda_handler(event, context):
                         else:
                             fields = row_item.split('\t')
                             if len(fields) > 1:
-                                timestamp = fields[0].strip().replace("-", "/") + " " + fields[1].strip()
-                                # timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
+                                timestamp_logging = fields[0].strip().replace("-", "/") + " " + fields[1].strip()
+                                timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
                                 c_ip = fields[4]
                                 version = validate_ip_version(c_ip)
                                 if version == "invalid":
@@ -141,7 +141,7 @@ def lambda_handler(event, context):
 
                                 # cs-host is refered to x-host-header
                                 updated_content += timestamp + '\t' + fields[3] + '\t' + fields[4] + '\t' + fields[15] + '\t' + fields[7] + '\t' + fields[8] + '\t' + fields[17] + '\t' + fields[18] + '\t' + fields[22] + '\t' + fields[28] + '\t' + country_name + '\n'
-                                field_list = [ timestamp, c_ip, fields[2], fields[15], fields[7], str(fields[11]), fields[8], fields[3], str(fields[30]), start_end_range, fields[18], str(fields[10]), str(fields[16]), str(fields[9]), str(cache_status), fields[14]]
+                                field_list = [ timestamp_logging, c_ip, fields[2], fields[15], fields[7], str(fields[11]), fields[8], fields[3], str(fields[30]), start_end_range, fields[18], str(fields[10]), str(fields[16]), str(fields[9]), str(cache_status), fields[14]]
                                 field_temp = SEP.join(field_list)
                                 updated_content_domain += (field_temp + '\n')
                     
