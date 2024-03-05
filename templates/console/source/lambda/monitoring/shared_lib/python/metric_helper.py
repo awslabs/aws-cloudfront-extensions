@@ -13,7 +13,7 @@ log.setLevel("INFO")
 SLEEP_TIME = 1
 RETRY_COUNT = 60
 
-cloudwatch_client = boto3.client('cloudwatch')
+cloudwatch_client = boto3.client('cloudwatch', region_name='us-east-1')
 NAMESPACE = 'AWS/CloudFront'
 DIMENSION_NAME = 'DistributionId'
 
