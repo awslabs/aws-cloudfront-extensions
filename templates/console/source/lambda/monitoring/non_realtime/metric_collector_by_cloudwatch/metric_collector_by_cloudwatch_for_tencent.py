@@ -311,7 +311,7 @@ def build_metrics_params_for_tencent(table_items):
                 error_4xx_metric_key = f'{domain_name}|{protocol}|{event_time}|{ERROR_RATE_4XX.lower()}'
                 if error_4xx_metric_key in domain_metric_map and domain_metric_map[error_4xx_metric_key]:
                     error_4xx_metric = domain_metric_map[error_4xx_metric_key]
-                    error_4xx_report_value = math.ceil(request_metric * error_4xx_metric)
+                    error_4xx_report_value = math.ceil(request_metric * error_4xx_metric / 100)
                     if not error_4xx_report_value:
                         log.debug(f"error_4xx_report_value {error_4xx_report_value} , {request_metric}")
                         continue
@@ -324,7 +324,7 @@ def build_metrics_params_for_tencent(table_items):
                 error_404_metric_key = f'{domain_name}|{protocol}|{event_time}|{ERROR_RATE_404.lower()}'
                 if error_404_metric_key in domain_metric_map and domain_metric_map[error_404_metric_key]:
                     error_404_metric = domain_metric_map[error_404_metric_key]
-                    error_404_report_value = math.ceil(request_metric * error_404_metric)
+                    error_404_report_value = math.ceil(request_metric * error_404_metric / 100)
                     if not error_404_report_value:
                         log.debug(f"error_404_report_value {error_404_report_value} , {request_metric}")
                         continue
@@ -337,7 +337,7 @@ def build_metrics_params_for_tencent(table_items):
                 error_5xx_metric_key = f'{domain_name}|{protocol}|{event_time}|{ERROR_RATE_5XX.lower()}'
                 if error_5xx_metric_key in domain_metric_map and domain_metric_map[error_5xx_metric_key]:
                     error_5xx_metric = domain_metric_map[error_5xx_metric_key]
-                    error_5xx_report_value = math.ceil(request_metric * error_5xx_metric)
+                    error_5xx_report_value = math.ceil(request_metric * error_5xx_metric / 100)
                     if not error_5xx_report_value:
                         log.debug(f"error_5xx_report_value {error_5xx_report_value} , {request_metric}")
                         continue
