@@ -635,7 +635,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
     });
 
     const cloudfront5MinutesRuleThird = new Rule(this, 'CFStandardLogs_5_minutes_rule_3', {
-      schedule: Schedule.expression("cron(0/" + props.monitoringInterval + " * * * ? *)"),
+      schedule: Schedule.expression("cron(0/1 * * * ? *)"),
     });
     const lambdaMetricsCollectorByCloudWatch = new LambdaFunction(metricsCollectorByCloudWatch);
 

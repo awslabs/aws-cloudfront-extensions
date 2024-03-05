@@ -54,6 +54,7 @@ def zip_and_upload_files(sqs, queue_url, bucket_name, prefix, receipt, log_name_
     # Get a list of all objects in the S3 bucket with the specified prefix
     objects = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
     sorted_json_list = sorted(objects.get('Contents', []), key=lambda x: x['LastModified'])
+    print("Sorted S3 object:")
     print(sorted_json_list)
 
     zip_file_number = 1
@@ -65,6 +66,7 @@ def zip_and_upload_files(sqs, queue_url, bucket_name, prefix, receipt, log_name_
             s3.download_file(bucket_name, obj['Key'], 'temp.gz')
             total_size = os.path.getsize('temp.gz')
             # If exceeds max size (default 100MB), then split it
+            print(str(obj['Key']))
             print(total_size)
             if total_size > max_size:
                 print("File exceeds max size")
@@ -109,8 +111,8 @@ def zip_and_upload_files(sqs, queue_url, bucket_name, prefix, receipt, log_name_
                     # Start a new zip file
                     zip_file_number += 1
                     
-    # Add the last file to the zip if not exceed max size
     if len(combine_content) > 0:
+        print("Add the last file to the zip if not exceed max size")
         with open(f'{log_name_prefix}_{zip_file_number}.log', 'w') as f:
             f.write(combine_content)
         zip_file = zipfile.ZipFile(f'{log_name_prefix}_{zip_file_number}.zip', 'w', zipfile.ZIP_DEFLATED)
@@ -131,6 +133,7 @@ def zip_and_upload_files(sqs, queue_url, bucket_name, prefix, receipt, log_name_
         QueueUrl=queue_url,
         ReceiptHandle=receipt
     )
+    print("Message removed from SQS")
 
 
 def get_messages_from_queue(client, queue_url):
