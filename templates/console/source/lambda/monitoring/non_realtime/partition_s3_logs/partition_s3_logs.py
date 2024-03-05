@@ -117,7 +117,8 @@ def lambda_handler(event, context):
                         else:
                             fields = row_item.split('\t')
                             if len(fields) > 1:
-                                timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
+                                timestamp = fields[0].strip().replace("-", "/") + " " + fields[1].strip()
+                                # timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
                                 c_ip = fields[4]
                                 version = validate_ip_version(c_ip)
                                 if version == "invalid":

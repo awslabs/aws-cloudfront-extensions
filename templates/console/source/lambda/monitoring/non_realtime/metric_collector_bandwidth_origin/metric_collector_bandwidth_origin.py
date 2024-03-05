@@ -31,7 +31,9 @@ def lambda_handler(event, context):
     }
     event_time = event["time"]
     event_datetime = datetime.strptime(
-        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=60)
+        event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=120)
+    # event_datetime = datetime.strptime(
+    #     event_time, "%Y-%m-%dT%H:%M:%SZ") - timedelta(minutes=60)
     start_datetime = event_datetime - timedelta(minutes=M_INTERVAL)
 
     start_time = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
