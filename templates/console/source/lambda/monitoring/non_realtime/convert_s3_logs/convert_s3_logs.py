@@ -50,7 +50,7 @@ def split_gz_file(s3, file_path, bucket_name, log_name_prefix, zip_file_number, 
     return zip_file_number
 
 
-def zip_and_upload_files(bucket_name, prefix, log_name_prefix, local_path, max_size=100 * 1024 * 1024):
+def zip_and_upload_files(sqs, queue_url, bucket_name, prefix, receipt, log_name_prefix, local_path, max_size=100 * 1024 * 1024):
     # Get a list of all objects in the S3 bucket with the specified prefix
     objects = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
     sorted_json_list = sorted(objects.get('Contents', []), key=lambda x: x['LastModified'])
@@ -126,6 +126,11 @@ def zip_and_upload_files(bucket_name, prefix, log_name_prefix, local_path, max_s
         if os.path.exists(f'{log_name_prefix}_{i}.zip'):
             os.remove(f'{log_name_prefix}_{i}.zip')
             print(f'{log_name_prefix}_{i}.zip removed')
+    
+    sqs.delete_message(
+        QueueUrl=queue_url,
+        ReceiptHandle=receipt
+    )
 
 
 def get_messages_from_queue(client, queue_url):
@@ -160,6 +165,7 @@ if __name__ == "__main__":
                 s3_prefix = event_body['s3_prefix']
                 domain = event_body['domain']
                 log_name_prefix = event_body['log_name_prefix']
+                receipt = message['ReceiptHandle']
                 # Customize max size here
-                zip_and_upload_files(bucket_name, s3_prefix, log_name_prefix, '.')
+                zip_and_upload_files(sqs, queue_url, bucket_name, s3_prefix, receipt, log_name_prefix, '.')
         time.sleep(SLEEP_TIME)
