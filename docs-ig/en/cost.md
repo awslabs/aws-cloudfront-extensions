@@ -61,4 +61,32 @@ As of March 2023, to monitor 10 metrics for one CloudFront distribution which ha
 | Total |  | $88.56 |
 
 
+## Pre-warming
 
+### Example 1: Pre-warm 500 resources daily, the size of each resource is 500MB
+
+As of March 2023, the estimated cost of using this solution is $171.27 per month in the US East (N. Virginia) Region (excludes free tier).
+
+|  Service  | Dimensions | Cost/Month | 
+|  ----  | ----  | ----  |  
+| Amazon EC2 | Launch 50 EC2 spot instance (c6g.large), run 2 hours to pre-warm 500 URI daily<br>150GB EBS | $165.97 |
+| Amazon Lambda | 45K requests<br>256MB memory<br>ARM64 | $3.67 |
+| Amazon API Gateway | 30K requests<br>REST API | $0.03 |
+| Amazon Simple Queue Service | Standard queue<br>2GB DTO | $0.18 |
+| Amazon DynamoDB | 2GB data storage<br>15K writes<br>15K reads | $0.52 |
+| Amazon CloudWatch | 1 metric and alarm | $0.90 |
+| Total |  | $171.27 |
+
+### Example 2: Pre-warm 200 resources in one month, the size of each resource is 1GB
+
+As of March 2023, the estimated cost of using this solution is $11.78 per month in the US East (N. Virginia) Region (excludes free tier).
+
+|  Service  | Dimensions | Cost/Month | 
+|  ----  | ----  | ----  |  
+| Amazon EC2 | m5dn.xlarge Spot instance<br>150GB EBS | $10.59 |
+| Amazon Lambda | 28 requests<br>256MB memory<br>ARM64 | $0.01 |
+| Amazon API Gateway | 24 requests<br>REST API | $0.0001 |
+| Amazon Simple Queue Service | Standard queue<br>1GB DTO | $0.02 |
+| Amazon DynamoDB | 1GB data storage<br>2K writes<br>200 reads | $0.25 |
+| Amazon CloudWatch | 1 metric and alarm | $0.90 |
+| Total |  | $11.78 |
