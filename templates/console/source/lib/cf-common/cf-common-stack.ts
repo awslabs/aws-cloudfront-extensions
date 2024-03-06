@@ -72,7 +72,7 @@ export class CommonConstruct extends Construct {
             `arn:aws:lambda:${cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPython:16`
         );
         this.listCountry = new lambda.Function(this, 'listCountry', {
-            runtime: lambda.Runtime.PYTHON_3_9,
+            runtime: lambda.Runtime.PYTHON_3_10,
             handler: 'country_list.lambda_handler',
             memorySize: 512,
             timeout: cdk.Duration.seconds(900),
