@@ -10,6 +10,8 @@ cdk.out
 templates/**/lib/*.js
 templates/**/bin/*.js
 templates/**/test/*.js
+**/metric_collector_by_cloudwatch/package/**
+**/metric_collector_by_cloudwatch/lambda-assets/**
 
 # Parcel build directories
 .cache
