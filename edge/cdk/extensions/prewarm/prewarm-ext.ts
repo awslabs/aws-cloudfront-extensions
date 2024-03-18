@@ -14,31 +14,23 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as kms from 'aws-cdk-lib/aws-kms';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { CfnParameter } from 'aws-cdk-lib';
+import {CfnParameter, NestedStack, StackProps} from 'aws-cdk-lib';
 
+export interface PrewarmStackProps extends StackProps {
+  ShowSuccessUrls: string;
+  instanceType: string;
+  threadNumber: string;
+}
 
-export class PrewarmStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class PrewarmStack extends NestedStack {
+  constructor(scope: Construct, id: string, props: PrewarmStackProps) {
     super(scope, id, props);
     this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop";
 
-    const ShowSuccessUrls = new CfnParameter(this, 'ShowSuccessUrls', {
-      description: 'Show success url list in Prewarm status API (true or false)',
-      type: 'String',
-      default: 'false',
-    });
+    const ShowSuccessUrls = props.ShowSuccessUrls;
+    const threadNumber = props.threadNumber;
+    const instanceType = props.instanceType;
 
-    const instanceType = new CfnParameter(this, 'InstanceType', {
-      description: 'EC2 spot instance type to send pre-warm requests',
-      type: 'String',
-      default: 'c6a.large',
-    });
-
-    const threadNumber = new CfnParameter(this, 'ThreadNumber', {
-      description: 'Thread number to run in parallel in EC2',
-      type: 'String',
-      default: '6',
-    });
 
     const prewarmStatusTable = new dynamodb.Table(this, 'PrewarmStatus', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -220,7 +212,7 @@ export class PrewarmStack extends cdk.Stack {
     const securityGroup = new ec2.SecurityGroup(this, 'PrewarmSG', { vpc });
     const prewarmAsg = new as.AutoScalingGroup(this, 'PrewarmASG',
       {
-        instanceType: new ec2.InstanceType(instanceType.valueAsString),
+        instanceType: new ec2.InstanceType(instanceType),
         machineImage: new ec2.AmazonLinuxImage({ generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2 }),
         vpc: vpc,
         role: asgRole,
@@ -247,7 +239,7 @@ export class PrewarmStack extends cdk.Stack {
     prewarmAsg.addUserData(
       'exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1',
       'pip3 install -r /etc/agent/requirements.txt',
-      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} ` + threadNumber.valueAsString
+      `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} ` + threadNumber
       
     );
     // `python3 /etc/agent/agent.py ` + messageQueue.queueUrl + ` ` + prewarmStatusTable.tableName + ` ${cdk.Aws.REGION} 10`
@@ -321,7 +313,7 @@ export class PrewarmStack extends cdk.Stack {
       memorySize: 256,
       environment: {
         DDB_TABLE_NAME: prewarmStatusTable.tableName,
-        SHOW_SUCC_URLS: ShowSuccessUrls.valueAsString,
+        SHOW_SUCC_URLS: ShowSuccessUrls,
       },
       logRetention: logs.RetentionDays.ONE_WEEK
     });
