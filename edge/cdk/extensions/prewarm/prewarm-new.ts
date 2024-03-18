@@ -14,11 +14,10 @@ import * as path from 'path';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import {GatewayVpcEndpoint, InterfaceVpcEndpoint} from "aws-cdk-lib/aws-ec2";
+import {GatewayVpcEndpoint, InterfaceVpcEndpoint, Vpc} from "aws-cdk-lib/aws-ec2";
 
 
 export interface NewPrewarmStackProps extends StackProps {
-  needInit: string;
   // 定义嵌套堆栈需要的参数
   envName: string;
   vpcId: string;
@@ -39,69 +38,13 @@ export class NewPrewarmStack extends NestedStack {
 
     const envName = props.envName;
 
-    const vpcId = props.vpcId;
-    const subnetIds = props.subnetIds.split(",");
-    const securityGroupId = props.securityGroupId
-    const key = props.key
-    const vpcEndpointId = props.vpcEndpointId
-    let publicSubnetIds: string[] = []
+    let vpcId = props.vpcId;
+    let securityGroupId = props.securityGroupId
+    let key = props.key
+    let vpcEndpointId = props.vpcEndpointId
+    let subnetIds: string = props.subnetIds;
 
     const isPrivateApi = this.node.tryGetContext('is_private');
-
-    const needInit = props.needInit;
-    if(needInit === 'true'){
-      const vpc = new ec2.Vpc(this, 'NewPrewarmVpc', {
-        maxAzs: 2,
-        subnetConfiguration: [
-          {
-            cidrMask: 24,
-            name: 'ingress',
-            subnetType: ec2.SubnetType.PUBLIC,
-          }
-        ]
-      });
-      const vpcId = vpc.vpcId
-      const securityGroup = new ec2.SecurityGroup(this, 'NewPrewarmSG', { vpc });
-      // 允许来自安全组自身的流量
-      securityGroup.addIngressRule(securityGroup, ec2.Port.allTraffic());
-      const securityGroupId = securityGroup.securityGroupId
-      publicSubnetIds = vpc.publicSubnets.map(subnet => subnet.subnetId);
-      const keyPair = new ec2.KeyPair(this, 'NewPrewarmKeyPair', {});
-      const key = keyPair.keyPairName
-
-      // 创建S3 Gateway Endpoint
-      new GatewayVpcEndpoint(this, 'S3Endpoint', {
-          vpc: vpc,
-          service: ec2.GatewayVpcEndpointAwsService.S3,
-          subnets:  [{subnetType: ec2.SubnetType.PUBLIC}],
-      });
-
-      // 创建SQS Interface VPC Endpoint
-      new InterfaceVpcEndpoint(this, 'SQSEndpoint', {
-          vpc: vpc,
-          service: ec2.InterfaceVpcEndpointAwsService.SQS,
-          privateDnsEnabled: true,
-          subnets: { subnetType: ec2.SubnetType.PUBLIC }
-      });
-
-      // 创建DynamoDB Interface VPC Endpoint
-      new GatewayVpcEndpoint(this, 'DynamoDBEndpoint', {
-          vpc: vpc,
-          service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
-          subnets:  [{ subnetType: ec2.SubnetType.PUBLIC }]
-      });
-
-      if(isPrivateApi != undefined){
-        // 如果需要部署为私有API，则创建API Gateway Interface VPC Endpoint
-        const executeApiEndpoint = new InterfaceVpcEndpoint(this, 'ExecuteApiEndpoint', {
-            vpc: vpc,
-            service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-            privateDnsEnabled: true,
-            subnets: { subnetType: ec2.SubnetType.PUBLIC }
-        });
-        const vpcEndpointId = executeApiEndpoint.vpcEndpointId
-      }
-    }
 
     const bucket = new Bucket(this, 'bucket', {
       account: account,
@@ -113,10 +56,70 @@ export class NewPrewarmStack extends NestedStack {
 
     const database = new Database(this, 'database', { envNameString: envName });
 
+    if(key.trim() === ""){
+      const keyPair = new ec2.KeyPair(this, 'NewPrewarmKeyPair', {});
+      key = keyPair.keyPairName
+    }
+
+    if(vpcId.trim() === ""){
+      const vpc = new ec2.Vpc(this, 'NewPrewarmVpc', {
+        maxAzs: 2,
+        subnetConfiguration: [
+          {
+            cidrMask: 24,
+            name: 'ingress',
+            subnetType: ec2.SubnetType.PUBLIC,
+          }
+        ]
+      });
+      vpcId = vpc.vpcId
+      const securityGroup = new ec2.SecurityGroup(this, 'NewPrewarmSG', { vpc });
+      // 允许来自安全组自身的流量
+      securityGroup.addIngressRule(securityGroup, ec2.Port.allTraffic());
+      securityGroupId = securityGroup.securityGroupId
+      subnetIds = vpc.publicSubnets.map(subnet => subnet.subnetId).join(",");
+
+      // 创建S3 Gateway Endpoint
+      const s3Endpoint = new GatewayVpcEndpoint(this, 'S3Endpoint', {
+          vpc: vpc,
+          service: ec2.GatewayVpcEndpointAwsService.S3,
+          subnets:  [{subnetType: ec2.SubnetType.PUBLIC}],
+      });
+      s3Endpoint.node.addDependency(securityGroup)
+
+      // 创建SQS Interface VPC Endpoint
+      const sqsEndpoint = new InterfaceVpcEndpoint(this, 'SQSEndpoint', {
+          vpc: vpc,
+          service: ec2.InterfaceVpcEndpointAwsService.SQS,
+          privateDnsEnabled: true,
+          subnets: { subnetType: ec2.SubnetType.PUBLIC }
+      });
+      sqsEndpoint.node.addDependency(securityGroup)
+
+      // 创建DynamoDB Interface VPC Endpoint
+      const gwEndpoint = new GatewayVpcEndpoint(this, 'DynamoDBEndpoint', {
+          vpc: vpc,
+          service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+          subnets:  [{ subnetType: ec2.SubnetType.PUBLIC }]
+      });
+      gwEndpoint.node.addDependency(securityGroup)
+
+      if(isPrivateApi != undefined){
+        // 如果需要部署为私有API，则创建API Gateway Interface VPC Endpoint
+        const executeApiEndpoint = new InterfaceVpcEndpoint(this, 'ExecuteApiEndpoint', {
+            vpc: vpc,
+            service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+            privateDnsEnabled: true,
+            subnets: { subnetType: ec2.SubnetType.PUBLIC }
+        });
+        vpcEndpointId = executeApiEndpoint.vpcEndpointId
+      }
+    }
+
     const params = {
       securityGroupId: securityGroupId,
       vpcId: vpcId,
-      subnetIds: publicSubnetIds,
+      subnetIds: subnetIds,
       key: key,
       region: region,
       sourceCode: `s3://${bucket.bucket.bucketName}/code/`,
@@ -125,6 +128,10 @@ export class NewPrewarmStack extends NestedStack {
     };
 
     const asg = new ASG(this, 'asg', { envNameString: envName, params: params });
+    asg.node.addDependency(sqs)
+    asg.node.addDependency(database)
+    asg.node.addDependency(bucket)
+
     asg.agentRole.addToPrincipalPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
@@ -132,8 +139,7 @@ export class NewPrewarmStack extends NestedStack {
         resources: [sqs.prewarmTaskQueue.queueArn],
       })
     );
-    asg.agentRole.addToPrincipalPolicy(
-      new PolicyStatement({
+    asg.agentRole.addToPrincipalPolicy(new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['dynamodb:PutItem'],
         resources: [database.taskTable.tableArn],
@@ -301,96 +307,5 @@ export class NewPrewarmStack extends NestedStack {
       destinationKeyPrefix: folderKey,
       retainOnDelete: false,
     });
-  }
-
-  private createBaseRole(){
-    const prewarmBuilderUser = new Role(this, 'prewarm-builder', {
-      roleName: 'prewarm-builder',
-      assumedBy: new ServicePrincipal('cloudformation.amazonaws.com'),
-    });
-
-    const policy = new Policy(this, 'NewPrewarmStackPolicy', {
-      statements: [
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: [
-            "sts:AssumeRole",
-            "iam:DeleteRole",
-            "iam:DetachRolePolicy",
-            "iam:GetRole",
-            "iam:CreateRole",
-            "iam:AttachRolePolicy",
-            "iam:DeleteRolePolicy",
-            "iam:PutRolePolicy"
-          ],
-          resources: [
-            "arn:aws:iam::*:policy/*",
-            "arn:aws:iam::*:role/cdk-*"
-          ],
-        }),
-        new PolicyStatement({
-          sid: "Statement1",
-          effect: Effect.ALLOW,
-          actions: [
-            "cloudformation:DescribeStacks",
-            "cloudformation:CreateChangeSet",
-            "cloudformation:DescribeChangeSet",
-            "cloudformation:ExecuteChangeSet",
-            "cloudformation:DescribeStackEvents",
-            "cloudformation:DeleteChangeSet",
-            "cloudformation:GetTemplate"
-          ],
-          resources: [
-            `arn:aws:cloudformation:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:stack/CDKToolkit/*`,
-          ]
-        }),
-        new PolicyStatement({
-          sid: "Statement2",
-          effect: Effect.ALLOW,
-          actions: [
-            "s3:CreateBucket",
-            "s3:DeleteBucket",
-            "s3:PutBucketPolicy",
-            "s3:DeleteBucketPolicy",
-            "s3:PutBucketPublicAccessBlock",
-            "s3:PutBucketVersioning",
-            "s3:PutEncryptionConfiguration",
-            "s3:PutLifecycleConfiguration"
-          ],
-          resources: [
-            "arn:aws:s3:::cdk-*"
-          ]
-        }),
-        new PolicyStatement({
-          sid: "Statement2",
-          effect: Effect.ALLOW,
-          actions: [
-            "ecr:SetRepositoryPolicy",
-            "ecr:GetLifecyclePolicy",
-            "ecr:PutImageScanningConfiguration",
-            "ecr:DescribeRepositories",
-            "ecr:CreateRepository",
-            "ecr:DeleteRepository",
-            "ecr:PutLifecyclePolicy"
-          ],
-          resources: [
-            `arn:aws:ecr:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:repository/cdk-*`,
-          ]
-        }),
-        new PolicyStatement({
-          sid: "Statement2",
-          effect: Effect.ALLOW,
-          actions: [
-            "ssm:GetParameter*",
-            "ssm:PutParameter*",
-            "ssm:DeleteParameter*"
-          ],
-          resources: [
-            `arn:aws:ssm:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:parameter/cdk-bootstrap/*`,
-          ]
-        })
-      ]
-    });
-    prewarmBuilderUser.attachInlinePolicy(policy);
   }
 }

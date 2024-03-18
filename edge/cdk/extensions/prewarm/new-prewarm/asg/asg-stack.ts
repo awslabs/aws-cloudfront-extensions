@@ -9,7 +9,7 @@ import {aws_autoscaling} from "aws-cdk-lib";
 interface ASGProps {
   envNameString: string;
   params: {
-    subnetIds: string[];
+    subnetIds: string;
     securityGroupId: string;
     sourceCode: string;
     key: string;
@@ -27,8 +27,8 @@ export class ASG extends Construct {
     super(scope, id);
 
     const { envNameString, params } = props;
-
-    const subnets: ec2.ISubnet[] = params.subnetIds.map((subnetId, index) =>
+    const publicSubnetIds: string[] = params.subnetIds.split(",");
+    const subnets: ec2.ISubnet[] = publicSubnetIds.map((subnetId, index) =>
       ec2.Subnet.fromSubnetId(this, `subnet_${index}`, subnetId)
     );
 
@@ -41,7 +41,7 @@ export class ASG extends Construct {
       roleName: `prewarm_agent_role_${envNameString}`,
     });
     this.agentRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore"));
-
+    //
     const userData = ec2.UserData.forLinux();
     userData.addCommands(
       'echo "user-data script start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"',
@@ -58,8 +58,14 @@ export class ASG extends Construct {
       'echo "user-data script end>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"',
     );
 
+    const vpc = ec2.Vpc.fromVpcAttributes(this, 'dev_vpc', {
+      vpcId: params.vpcId,
+      availabilityZones: cdk.Fn.getAzs(),
+    });
+
+
     const launchTemplate = new ec2.LaunchTemplate(this, "prewarm_launch_template", {
-      machineImage: ec2.MachineImage.latestAmazonLinux({
+      machineImage: ec2.MachineImage.latestAmazonLinux2({
         cpuType: ec2.AmazonLinuxCpuType.ARM_64,
       }),
       launchTemplateName: `prewarm_launch_template_${envNameString}`,
@@ -77,10 +83,6 @@ export class ASG extends Construct {
       ],
     });
 
-    const vpc = ec2.Vpc.fromVpcAttributes(this, 'dev_vpc', {
-      vpcId: params.vpcId,
-      availabilityZones: cdk.Fn.getAzs(),
-    });
 
     this.asg = new autoscaling.AutoScalingGroup(this, "prewarm_asg", {
       launchTemplate,
