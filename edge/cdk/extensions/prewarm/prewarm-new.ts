@@ -1,9 +1,7 @@
-import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import {Aws, aws_iam, CfnCondition, Fn, NestedStack, StackProps} from 'aws-cdk-lib';
-import { CfnParameter } from 'aws-cdk-lib';
-import { LambdaIntegration, RestApi, ResourceBase } from 'aws-cdk-lib/aws-apigateway';
-import {PolicyStatement, Effect, ServicePrincipal, User, Policy, Role} from 'aws-cdk-lib/aws-iam';
+import {Aws, NestedStack, StackProps} from 'aws-cdk-lib';
+import { LambdaIntegration } from 'aws-cdk-lib/aws-apigateway';
+import {PolicyStatement, Effect, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Database } from './new-prewarm/database/ddb-stack';
 import { API } from './new-prewarm/api/api-stack';
 import { Lambda } from './new-prewarm/lambda/lambda-stack';
@@ -13,13 +11,12 @@ import { Bucket } from './new-prewarm/bucket/s3-bucket-stack';
 import * as path from 'path';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import {GatewayVpcEndpoint, InterfaceVpcEndpoint, Vpc} from "aws-cdk-lib/aws-ec2";
-import {VPCStack} from "./new-prewarm/vpc/vpc-stack";
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { InterfaceVpcEndpoint } from 'aws-cdk-lib/aws-ec2';
+import {VPCStack} from './new-prewarm/vpc/vpc-stack';
 
 
 export interface NewPrewarmStackProps extends StackProps {
-  // 定义嵌套堆栈需要的参数
   useExistVPC:boolean;
   envName: string;
   vpcId: string;
@@ -46,7 +43,6 @@ export class NewPrewarmStack extends NestedStack {
     const eventRuleName = 'SCHEDULER_TO_STOP_PREWARM';
 
     const envName = props.envName;
-    const key = props.key;
     const useExistVPC = props.useExistVPC;
 
     const isPrivateApi = this.node.tryGetContext('is_private');
@@ -69,6 +65,7 @@ export class NewPrewarmStack extends NestedStack {
       key: props.key,
       envNameString: envName
     })
+
     this.vpc = vpcStack.vpc
     this.securityGroup = vpcStack.securityGroup
     this.subnetIds = vpcStack.subnetIds
