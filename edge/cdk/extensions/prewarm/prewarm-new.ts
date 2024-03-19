@@ -30,11 +30,11 @@ export interface NewPrewarmStackProps extends StackProps {
 
 export class NewPrewarmStack extends NestedStack {
 
-  public keyPair: ec2.IKeyPair;
-  public vpc: ec2.IVpc;
-  public securityGroup: ec2.ISecurityGroup;
-  public vpcEndpointId: string;
-  public subnetIds: string;
+  public readonly keyPair: ec2.IKeyPair;
+  public readonly vpc: ec2.IVpc;
+  public readonly securityGroup: ec2.ISecurityGroup;
+  public readonly vpcEndpointId: string;
+  public readonly subnetIds: string;
 
   constructor(scope: Construct, id: string, props: NewPrewarmStackProps) {
     super(scope, id, props);
@@ -59,11 +59,8 @@ export class NewPrewarmStack extends NestedStack {
 
     const database = new Database(this, 'database', { envNameString: envName });
 
-    const createKeyPairCondition = new cdk.CfnCondition(this, 'CreateKeyPairCondition', {
-      expression: cdk.Fn.conditionEquals('true', 'true'), // 定义条件表达式，这里始终为 true
-    });
     const existKey = new CfnCondition(this, 'existKey', { expression: Fn.conditionEquals(props.key, '') });
-    const useExist = Fn.conditionIf('existKey', 'true', 'false');
+    const useExist = Fn.conditionIf(existKey.logicalId, 'true', 'false');
 
     if(useExist.toString() === 'true'){
       this.keyPair = new ec2.KeyPair(this, 'NewKeyPair', {});

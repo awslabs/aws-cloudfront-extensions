@@ -24,7 +24,7 @@ export class VPCStack extends Construct {
 
     const existVPC = new CfnCondition(this, 'existVPC', { expression: Fn.conditionEquals(props.vpcId, '') });
 
-    const useExist = Fn.conditionIf('existVPC', 'true', 'false');
+    const useExist = Fn.conditionIf(existVPC.logicalId, 'true', 'false');
 
     if(useExist.toString() === 'true'){
       this.vpc = new ec2.Vpc(this, 'NewPrewarmVpc', {
