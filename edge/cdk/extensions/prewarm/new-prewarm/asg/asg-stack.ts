@@ -10,10 +10,10 @@ interface ASGProps {
   envNameString: string;
   params: {
     subnetIds: string;
-    securityGroupId: string;
+    securityGroup: ec2.ISecurityGroup;
     sourceCode: string;
     keyPair: ec2.IKeyPair;
-    vpcId: string;
+    vpc: ec2.IVpc;
     region: string;
     queueUrl: string;
     taskDynamodbName: string;
@@ -32,9 +32,7 @@ export class ASG extends Construct {
       ec2.Subnet.fromSubnetId(this, `subnet_${index}`, subnetId)
     );
 
-    const securityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "SG", params.securityGroupId, {
-      mutable: false,
-    });
+    const securityGroup = params.securityGroup;
 
     this.agentRole = new iam.Role(this, "prewarm_agent_role", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
@@ -58,11 +56,6 @@ export class ASG extends Construct {
       'echo "user-data script end>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"',
     );
 
-    const vpc = ec2.Vpc.fromVpcAttributes(this, 'dev_vpc', {
-      vpcId: params.vpcId,
-      availabilityZones: cdk.Fn.getAzs(),
-    });
-
 
     const launchTemplate = new ec2.LaunchTemplate(this, "prewarm_launch_template", {
       machineImage: ec2.MachineImage.latestAmazonLinux2({
@@ -83,12 +76,12 @@ export class ASG extends Construct {
       ],
     });
     launchTemplate.node.addDependency(securityGroup)
-    launchTemplate.node.addDependency(vpc)
+    launchTemplate.node.addDependency(params.vpc)
 
 
     this.asg = new autoscaling.AutoScalingGroup(this, "prewarm_asg", {
       launchTemplate,
-      vpc,
+      vpc: params.vpc,
       vpcSubnets: {
         subnets: subnets,
       },

@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import {Aws, aws_iam, NestedStack, StackProps} from 'aws-cdk-lib';
+import {Aws, aws_iam, CfnCondition, Fn, NestedStack, StackProps} from 'aws-cdk-lib';
 import { CfnParameter } from 'aws-cdk-lib';
 import { LambdaIntegration, RestApi, ResourceBase } from 'aws-cdk-lib/aws-apigateway';
 import {PolicyStatement, Effect, ServicePrincipal, User, Policy, Role} from 'aws-cdk-lib/aws-iam';
@@ -15,6 +15,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import {GatewayVpcEndpoint, InterfaceVpcEndpoint, Vpc} from "aws-cdk-lib/aws-ec2";
+import {VPCStack} from "./new-prewarm/vpc/vpc-stack";
 
 
 export interface NewPrewarmStackProps extends StackProps {
@@ -28,7 +29,13 @@ export interface NewPrewarmStackProps extends StackProps {
 }
 
 export class NewPrewarmStack extends NestedStack {
-  private keyPair: ec2.IKeyPair;
+
+  public keyPair: ec2.IKeyPair;
+  public vpc: ec2.IVpc;
+  public securityGroup: ec2.ISecurityGroup;
+  public vpcEndpointId: string;
+  public subnetIds: string;
+
   constructor(scope: Construct, id: string, props: NewPrewarmStackProps) {
     super(scope, id, props);
     this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop new";
@@ -38,13 +45,7 @@ export class NewPrewarmStack extends NestedStack {
     const eventRuleName = 'SCHEDULER_TO_STOP_PREWARM';
 
     const envName = props.envName;
-
-    let vpcId = props.vpcId;
-    let securityGroupId = props.securityGroupId;
     const key = props.key;
-
-    let vpcEndpointId = props.vpcEndpointId
-    let subnetIds: string = props.subnetIds;
 
     const isPrivateApi = this.node.tryGetContext('is_private');
 
@@ -58,71 +59,47 @@ export class NewPrewarmStack extends NestedStack {
 
     const database = new Database(this, 'database', { envNameString: envName });
 
-    if(key.trim() === ""){
-      this.keyPair = new ec2.KeyPair(this, 'NewPrewarmKeyPair', {});
-    }else {
+    const createKeyPairCondition = new cdk.CfnCondition(this, 'CreateKeyPairCondition', {
+      expression: cdk.Fn.conditionEquals('true', 'true'), // 定义条件表达式，这里始终为 true
+    });
+    const existKey = new CfnCondition(this, 'existKey', { expression: Fn.conditionEquals(props.key, '') });
+    const useExist = Fn.conditionIf('existKey', 'true', 'false');
+
+    if(useExist.toString() === 'true'){
+      this.keyPair = new ec2.KeyPair(this, 'NewKeyPair', {});
+    }
+    else {
       this.keyPair = ec2.KeyPair.fromKeyPairName(this, 'ExistKeyPair', key);
     }
 
-    if(vpcId.trim() === ""){
-      const vpc = new ec2.Vpc(this, 'NewPrewarmVpc', {
-        maxAzs: 2,
-        subnetConfiguration: [
-          {
-            cidrMask: 24,
-            name: 'ingress',
-            subnetType: ec2.SubnetType.PUBLIC,
-          }
-        ]
-      });
-      vpcId = vpc.vpcId
-      const securityGroup = new ec2.SecurityGroup(this, 'NewPrewarmSG', { vpc });
-      // 允许来自安全组自身的流量
-      securityGroup.addIngressRule(securityGroup, ec2.Port.allTraffic());
-      securityGroupId = securityGroup.securityGroupId
-      subnetIds = vpc.publicSubnets.map(subnet => subnet.subnetId).join(",");
+    const vpcStack = new VPCStack(this, "vpc", {
+      vpcId: props.vpcId,
+      securityGroupId: props.securityGroupId,
+      subnetIds: props.subnetIds,
+      envNameString: envName
+    })
+    this.vpc = vpcStack.vpc
+    this.securityGroup = vpcStack.securityGroup
+    this.subnetIds = vpcStack.subnetIds
 
-      // 创建S3 Gateway Endpoint
-      const s3Endpoint = new GatewayVpcEndpoint(this, 'S3Endpoint', {
-          vpc: vpc,
-          service: ec2.GatewayVpcEndpointAwsService.S3,
-          subnets:  [{subnetType: ec2.SubnetType.PUBLIC}],
+    if(isPrivateApi != undefined){
+      // 如果需要部署为私有API，则创建API Gateway Interface VPC Endpoint
+      const executeApiEndpoint = new InterfaceVpcEndpoint(this, 'ExecuteApiEndpoint', {
+        vpc: this.vpc,
+        service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+        privateDnsEnabled: true,
+        subnets: { subnetType: ec2.SubnetType.PUBLIC }
       });
-      s3Endpoint.node.addDependency(securityGroup)
-
-      // 创建SQS Interface VPC Endpoint
-      const sqsEndpoint = new InterfaceVpcEndpoint(this, 'SQSEndpoint', {
-          vpc: vpc,
-          service: ec2.InterfaceVpcEndpointAwsService.SQS,
-          privateDnsEnabled: true,
-          subnets: { subnetType: ec2.SubnetType.PUBLIC }
-      });
-      sqsEndpoint.node.addDependency(securityGroup)
-
-      // 创建DynamoDB Interface VPC Endpoint
-      const gwEndpoint = new GatewayVpcEndpoint(this, 'DynamoDBEndpoint', {
-          vpc: vpc,
-          service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
-          subnets:  [{ subnetType: ec2.SubnetType.PUBLIC }]
-      });
-      gwEndpoint.node.addDependency(securityGroup)
-
-      if(isPrivateApi != undefined){
-        // 如果需要部署为私有API，则创建API Gateway Interface VPC Endpoint
-        const executeApiEndpoint = new InterfaceVpcEndpoint(this, 'ExecuteApiEndpoint', {
-            vpc: vpc,
-            service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-            privateDnsEnabled: true,
-            subnets: { subnetType: ec2.SubnetType.PUBLIC }
-        });
-        vpcEndpointId = executeApiEndpoint.vpcEndpointId
-      }
+      this.vpcEndpointId = executeApiEndpoint.vpcEndpointId
+    }
+    else {
+      this.vpcEndpointId = props.vpcEndpointId
     }
 
     const params = {
-      securityGroupId: securityGroupId,
-      vpcId: vpcId,
-      subnetIds: subnetIds,
+      securityGroup: this.securityGroup,
+      vpc: this.vpc,
+      subnetIds: this.subnetIds,
       keyPair: this.keyPair,
       region: region,
       sourceCode: `s3://${bucket.bucket.bucketName}/code/`,
@@ -135,6 +112,8 @@ export class NewPrewarmStack extends NestedStack {
     asg.node.addDependency(database)
     asg.node.addDependency(bucket)
     asg.node.addDependency(this.keyPair)
+    asg.node.addDependency(this.vpc)
+    asg.node.addDependency(this.securityGroup)
 
     asg.agentRole.addToPrincipalPolicy(
       new PolicyStatement({
@@ -267,7 +246,7 @@ export class NewPrewarmStack extends NestedStack {
 
     const api = new API(this, 'api', {
       envNameString: envName,
-      vpcEndpointId: vpcEndpointId,
+      vpcEndpointId: this.vpcEndpointId,
       isPrivate: isPrivateApi,
     });
 
