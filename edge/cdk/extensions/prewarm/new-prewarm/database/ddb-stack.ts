@@ -3,6 +3,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Construct } from 'constructs';
+import {aws_lambda} from "aws-cdk-lib";
 
 interface DatabaseProps {
   envNameString: string;
@@ -36,21 +37,22 @@ export class Database extends Construct {
       retryAttempts: 1,
       batchSize: 1,
       startingPosition: lambda.StartingPosition.LATEST,
-      filters: [{ eventName: lambda.FilterRule.isEqual('INSERT') }],
+      filters: [aws_lambda.FilterCriteria.filter({eventName: aws_lambda.FilterRule.isEqual("INSERT")})],
     });
 
     this.requestTableUpdateDDbSource = new lambdaEventSources.DynamoEventSource(this.requestTable, {
       retryAttempts: 1,
       batchSize: 1,
       startingPosition: lambda.StartingPosition.LATEST,
-      filters: [{
-        dynamodb: {
-          NewImage: {
-            status: { S: ["STOPPED", "FINISHED"] }
+      filters: [aws_lambda.FilterCriteria.filter({
+        dynamodb:{
+          NewImage:{
+            status:{
+              S:["STOPPED", "FINISHED"]
+            }
           }
         },
-        eventName: lambda.FilterRule.isEqual("MODIFY")
-      }],
+        eventName: aws_lambda.FilterRule.isEqual("MODIFY")})],
     });
 
     // Pop Table
@@ -68,7 +70,7 @@ export class Database extends Construct {
       retryAttempts: 1,
       batchSize: 1,
       startingPosition: lambda.StartingPosition.LATEST,
-      filters: [{ eventName: lambda.FilterRule.isEqual('INSERT') }],
+      filters: [aws_lambda.FilterCriteria.filter({eventName: aws_lambda.FilterRule.isEqual("INSERT")})],
     });
 
     // Task Table
@@ -86,7 +88,7 @@ export class Database extends Construct {
       retryAttempts: 1,
       batchSize: 50,
       startingPosition: lambda.StartingPosition.LATEST,
-      filters: [{ eventName: lambda.FilterRule.isEqual('INSERT') }],
+      filters: [aws_lambda.FilterCriteria.filter({eventName: aws_lambda.FilterRule.isEqual("INSERT")})],
     });
   }
 }

@@ -82,6 +82,8 @@ export class ASG extends Construct {
         },
       ],
     });
+    launchTemplate.node.addDependency(securityGroup)
+    launchTemplate.node.addDependency(vpc)
 
 
     this.asg = new autoscaling.AutoScalingGroup(this, "prewarm_asg", {
