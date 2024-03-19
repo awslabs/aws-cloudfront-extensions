@@ -12,7 +12,7 @@ interface ASGProps {
     subnetIds: string;
     securityGroupId: string;
     sourceCode: string;
-    key: string;
+    keyPair: ec2.IKeyPair;
     vpcId: string;
     region: string;
     queueUrl: string;
@@ -70,11 +70,11 @@ export class ASG extends Construct {
       }),
       launchTemplateName: `prewarm_launch_template_${envNameString}`,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.C6GN, ec2.InstanceSize.MEDIUM),
-      keyName: params.key,
+      keyPair: params.keyPair,
       associatePublicIpAddress: true,
-      securityGroup,
+      securityGroup: securityGroup,
       role: this.agentRole,
-      userData,
+      userData: userData,
       blockDevices: [
         {
           deviceName: "/dev/xvda",

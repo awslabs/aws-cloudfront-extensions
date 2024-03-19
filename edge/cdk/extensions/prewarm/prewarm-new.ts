@@ -28,6 +28,7 @@ export interface NewPrewarmStackProps extends StackProps {
 }
 
 export class NewPrewarmStack extends NestedStack {
+  private keyPair: ec2.IKeyPair;
   constructor(scope: Construct, id: string, props: NewPrewarmStackProps) {
     super(scope, id, props);
     this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop new";
@@ -39,8 +40,9 @@ export class NewPrewarmStack extends NestedStack {
     const envName = props.envName;
 
     let vpcId = props.vpcId;
-    let securityGroupId = props.securityGroupId
-    let key = props.key
+    let securityGroupId = props.securityGroupId;
+    const key = props.key;
+
     let vpcEndpointId = props.vpcEndpointId
     let subnetIds: string = props.subnetIds;
 
@@ -57,8 +59,9 @@ export class NewPrewarmStack extends NestedStack {
     const database = new Database(this, 'database', { envNameString: envName });
 
     if(key.trim() === ""){
-      const keyPair = new ec2.KeyPair(this, 'NewPrewarmKeyPair', {});
-      key = keyPair.keyPairName
+      this.keyPair = new ec2.KeyPair(this, 'NewPrewarmKeyPair', {});
+    }else {
+      this.keyPair = ec2.KeyPair.fromKeyPairName(this, 'ExistKeyPair', key);
     }
 
     if(vpcId.trim() === ""){
@@ -120,7 +123,7 @@ export class NewPrewarmStack extends NestedStack {
       securityGroupId: securityGroupId,
       vpcId: vpcId,
       subnetIds: subnetIds,
-      key: key,
+      keyPair: this.keyPair,
       region: region,
       sourceCode: `s3://${bucket.bucket.bucketName}/code/`,
       queueUrl: sqs.prewarmTaskQueue.queueUrl,
@@ -131,6 +134,7 @@ export class NewPrewarmStack extends NestedStack {
     asg.node.addDependency(sqs)
     asg.node.addDependency(database)
     asg.node.addDependency(bucket)
+    asg.node.addDependency(this.keyPair)
 
     asg.agentRole.addToPrincipalPolicy(
       new PolicyStatement({

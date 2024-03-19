@@ -37,7 +37,7 @@ export class API extends Construct {
       ],
     });
 
-    if (props.isPrivate !== null) {
+    if (props.isPrivate !== null && props.isPrivate !== undefined) {
       const vpcEndpoint = ec2.InterfaceVpcEndpoint.fromInterfaceVpcEndpointAttributes(
         this,
         'vpc_endpoint',
@@ -78,8 +78,8 @@ export class API extends Construct {
       description: 'prewarm api',
       cloudWatchRole: true,
       deploy: true,
-      endpointConfiguration,
-      deployOptions: {
+      endpointConfiguration: endpointConfiguration,
+      deployOptions:  {
         accessLogDestination: new apigateway.LogGroupLogDestination(apiLogGroup),
         accessLogFormat: apigateway.AccessLogFormat.clf(),
         throttlingBurstLimit: 10,
@@ -88,7 +88,7 @@ export class API extends Construct {
       policy: resourcePolicy,
     });
 
-    if (props.isPrivate === null) {
+    if (props.isPrivate === null || props.isPrivate === undefined) {
       const apiKey = this.api.addApiKey('prewarm_api_key',{
         apiKeyName: `prewarm_api_key_${props.envNameString}`,
         description: 'prewarm api key',
