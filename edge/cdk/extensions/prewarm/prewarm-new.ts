@@ -20,6 +20,7 @@ import {VPCStack} from "./new-prewarm/vpc/vpc-stack";
 
 export interface NewPrewarmStackProps extends StackProps {
   // 定义嵌套堆栈需要的参数
+  useExistVPC:boolean;
   envName: string;
   vpcId: string;
   subnetIds: string;
@@ -46,6 +47,7 @@ export class NewPrewarmStack extends NestedStack {
 
     const envName = props.envName;
     const key = props.key;
+    const useExistVPC = props.useExistVPC;
 
     const isPrivateApi = this.node.tryGetContext('is_private');
 
@@ -59,25 +61,18 @@ export class NewPrewarmStack extends NestedStack {
 
     const database = new Database(this, 'database', { envNameString: envName });
 
-    const existKey = new CfnCondition(this, 'existKey', { expression: Fn.conditionEquals(props.key, '') });
-    const useExist = Fn.conditionIf(existKey.logicalId, 'true', 'false');
-
-    if(useExist.toString() === 'true'){
-      this.keyPair = new ec2.KeyPair(this, 'NewKeyPair', {});
-    }
-    else {
-      this.keyPair = ec2.KeyPair.fromKeyPairName(this, 'ExistKeyPair', key);
-    }
-
     const vpcStack = new VPCStack(this, "vpc", {
+      useExistVPC: useExistVPC,
       vpcId: props.vpcId,
       securityGroupId: props.securityGroupId,
       subnetIds: props.subnetIds,
+      key: props.key,
       envNameString: envName
     })
     this.vpc = vpcStack.vpc
     this.securityGroup = vpcStack.securityGroup
     this.subnetIds = vpcStack.subnetIds
+    this.keyPair = vpcStack.keyPair
 
     if(isPrivateApi != undefined){
       // 如果需要部署为私有API，则创建API Gateway Interface VPC Endpoint
@@ -129,6 +124,7 @@ export class NewPrewarmStack extends NestedStack {
 
     // lambda function
     const lambdaFunctions = new Lambda(this, 'lambda_functions', { envNameString: envName });
+    lambdaFunctions.node.addDependency(this.keyPair)
 
     lambdaFunctions.apiPostPrewarm.addToRolePolicy(
       new PolicyStatement({

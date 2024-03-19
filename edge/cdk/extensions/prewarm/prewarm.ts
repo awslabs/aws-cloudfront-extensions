@@ -9,43 +9,21 @@ import {Construct} from "constructs";
 import {Effect, Policy, PolicyStatement, User} from "aws-cdk-lib/aws-iam";
 
 const app = new cdk.App();
+export interface CFEPrewarmStackProps extends cdk.StackProps {
 
-export class CFEPrewarmStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  existingVpc?: boolean;
+}
+export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: CFEPrewarmStackProps) {
     super(scope, id, props);
-
-    // const ShowSuccessUrls = new CfnParameter(this, 'ShowSuccessUrls', {
-    //   description: 'Show success url list in Prewarm status API (true or false)',
-    //   type: 'String',
-    //   default: 'false',
-    // });
-    //
-    // const instanceType = new CfnParameter(this, 'InstanceType', {
-    //   description: 'EC2 spot instance type to send pre-warm requests',
-    //   type: 'String',
-    //   default: 'c6a.large',
-    // });
-    //
-    // const threadNumber = new CfnParameter(this, 'ThreadNumber', {
-    //   description: 'Thread number to run in parallel in EC2',
-    //   type: 'String',
-    //   default: '6',
-    // });
-    //
-    // // Create instances of the nested stacks
-    // new PrewarmStack(this, 'PrewarmStack', <PrewarmStackProps>{
-    //   ShowSuccessUrls: ShowSuccessUrls.valueAsString,
-    //   instanceType: instanceType.valueAsString,
-    //   threadNumber: threadNumber.valueAsString,
-    // });
-
     const envName = new CfnParameter(this, 'env', { type: 'String' , default: 'prod'});
-    const vpcId = new CfnParameter(this, 'vpc', { type: 'String', default: ''});
-    const subnetIds = new CfnParameter(this, 'subnet', { type: 'String', default: '' });
-    const securityGroupId = new CfnParameter(this, 'sg', { type: 'String', default: '' });
-    const key = new CfnParameter(this, 'key', { type: 'String', default: '' });
-    const vpcEndpointId = new CfnParameter(this, 'vpce', { type: 'String', default: '' });
+    const vpcId = new CfnParameter(this, 'vpc', { type: 'String'});
+    const subnetIds = new CfnParameter(this, 'subnet', { type: 'String'});
+    const securityGroupId = new CfnParameter(this, 'sg', { type: 'String'});
+    const key = new CfnParameter(this, 'key', { type: 'String'});
+    const vpcEndpointId = new CfnParameter(this, 'vpce', { type: 'String'});
     const params = {
+      useExistVPC: props.existingVpc,
       envName: envName.valueAsString,
       vpcId: vpcId.valueAsString,
       subnetIds: subnetIds.valueAsString,
@@ -53,13 +31,37 @@ export class CFEPrewarmStack extends cdk.Stack {
       key: key.valueAsString,
       vpcEndpointId: vpcEndpointId.valueAsString,
     }
-    new NewPrewarmStack(this, 'NewPrewarmStack', <NewPrewarmStackProps>params);
+    new NewPrewarmStack(this, 'NewPrewarmStackExistVPC', <NewPrewarmStackProps>params);
   }
 }
 
-new CFEPrewarmStack(app, 'CFEPrewarmStack');
+export class CFEPrewarmStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: CFEPrewarmStackProps) {
+    super(scope, id, props);
+    const envName = new CfnParameter(this, 'env', { type: 'String' , default: 'prod'});
+    const params = {
+      useExistVPC: props.existingVpc,
+      envName: envName.valueAsString,
+      vpcId: '',
+      subnetIds: '',
+      securityGroupId: '',
+      key: '',
+      vpcEndpointId: '',
+    }
+    new NewPrewarmStack(this, 'NewPrewarmStackExistVPC', <NewPrewarmStackProps>params);
+  }
+}
+
+new CFEPrewarmStack(app, 'CFEPrewarmStack', {
+      synthesizer: synthesizer(),
+      existingVpc: false
+    });
+new CFEPrewarmStackUseExistVPC(app, 'CFEPrewarmStackUseExistVPC',{
+      synthesizer: synthesizer(),
+      existingVpc: true
+    })
 app.synth();
 
-function bssSynth() {
-    return process.env.USE_BSS ? new BootstraplessStackSynthesizer() : undefined;
+function synthesizer() {
+  return process.env.USE_BSS ? new BootstraplessStackSynthesizer() : undefined;
 }

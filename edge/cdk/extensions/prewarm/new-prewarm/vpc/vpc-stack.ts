@@ -6,9 +6,11 @@ import {CfnCondition, Fn} from "aws-cdk-lib";
 
 
 interface VPCProps {
+  useExistVPC: boolean;
   vpcId: string;
   securityGroupId: string;
   subnetIds: string;
+  key: string;
   envNameString: string;
 }
 
@@ -16,17 +18,28 @@ export class VPCStack extends Construct {
   public readonly vpc: ec2.IVpc;
   public readonly securityGroup: ec2.ISecurityGroup;
   public readonly subnetIds: string;
+  public readonly keyPair: ec2.IKeyPair;
 
   constructor(scope: Construct, id: string, props: VPCProps) {
     super(scope, id);
 
-    const { vpcId, securityGroupId, subnetIds, envNameString} = props;
+    const { vpcId, securityGroupId, subnetIds, key, envNameString} = props;
 
-    const existVPC = new CfnCondition(this, 'existVPC', { expression: Fn.conditionEquals(props.vpcId, '') });
+    const useExistVPC = props.useExistVPC;
 
-    const useExist = Fn.conditionIf(existVPC.logicalId, 'true', 'false');
-
-    if(useExist.toString() === 'true'){
+    if(useExistVPC) {
+      this.vpc = ec2.Vpc.fromVpcAttributes(this, 'NewPrewarmUseExistVPC', {
+        vpcId: vpcId,
+        availabilityZones: cdk.Fn.getAzs(),
+      });
+      this.securityGroup =  ec2.SecurityGroup.fromSecurityGroupId(this, "NewPrewarmExistSG", securityGroupId, {
+        mutable: false,
+      });
+      this.subnetIds = subnetIds;
+      this.keyPair = ec2.KeyPair.fromKeyPairName(this, 'ExistKeyPair', props.key);
+    }
+    else {
+      this.keyPair = new ec2.KeyPair(this, 'NewKeyPair', {});
       this.vpc = new ec2.Vpc(this, 'NewPrewarmVpc', {
       maxAzs: 2,
         subnetConfiguration: [
@@ -63,16 +76,6 @@ export class VPCStack extends Construct {
           service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
           subnets:  [{ subnetType: ec2.SubnetType.PUBLIC }]
       });
-    }
-    else {
-      this.vpc = ec2.Vpc.fromVpcAttributes(this, 'NewPrewarmUseExistVPC', {
-        vpcId: vpcId,
-        availabilityZones: cdk.Fn.getAzs(),
-      });
-      this.securityGroup =  ec2.SecurityGroup.fromSecurityGroupId(this, "NewPrewarmExistSG", securityGroupId, {
-        mutable: false,
-      });
-      this.subnetIds = subnetIds;
     }
   }
 }
