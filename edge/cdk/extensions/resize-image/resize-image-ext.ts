@@ -22,7 +22,7 @@ export class ResizeImage extends ServerlessApp implements IExtensions {
   constructor(scope: Construct, id: string, props: ResizeImageProps) {
     super(scope, id, {
       applicationId: 'arn:aws:serverlessrepo:us-east-1:418289889111:applications/resize-picture',
-      semanticVersion: '2.0.1',
+      semanticVersion: '2.0.2',
       parameters: {
         FitType: props.fitType,
         S3BucketName: props.bucketName
@@ -74,8 +74,6 @@ export class ResizeImageStack extends cdk.Stack {
     const lambdaRole = new iam.Role(this, 'ResizeLambdaRole', {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
-        new iam.ServicePrincipal('edgelambda.amazonaws.com'),
-        new iam.ServicePrincipal('cloudfront.amazonaws.com')
       ),
     });
 
@@ -116,7 +114,6 @@ export class ResizeImageStack extends cdk.Stack {
           resources: ['*'],
           actions: [
             "cloudfront:*",
-            "iam:CreateServiceLinkedRole"
           ]
         })
       ]
