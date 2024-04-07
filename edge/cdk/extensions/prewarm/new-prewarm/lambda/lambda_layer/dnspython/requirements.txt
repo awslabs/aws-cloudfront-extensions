@@ -1,1 +1,4 @@
 dnspython
+urllib
+shortuuid
+time

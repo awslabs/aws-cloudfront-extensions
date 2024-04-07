@@ -44,6 +44,8 @@ def lambda_handler(event, context):
     instance_count = body['instance_count']
     timeout = body['timeout']
     header = body['header']
+    need_invalidate = body['need_invalidate'] if 'need_invalidate' in body and body['need_invalidate'] else False
+
     req_id = context.aws_request_id
 
     invalid_urls = []
@@ -143,7 +145,8 @@ def lambda_handler(event, context):
         'url_path': {
             'bucket': os.environ['BUCKET_NAME'],
             'key': key
-        }
+        },
+        'need_invalidate': need_invalidate
     }
     insert_dynamodb(os.environ['REQUEST_TABLE_NAME'], request_item)
 
