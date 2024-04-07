@@ -65,6 +65,7 @@ export class Lambda extends Construct {
       code: lambda.Code.fromAsset('./new-prewarm/lambda/lambda_function/insert_tasks_to_queue'),
       handler: 'lambda_function.lambda_handler',
       functionName: `prewarm_insert_tasks_to_queue_${envNameString}`,
+      layers: [dnspythonLayer],
     });
 
     this.getDownloadSize = new lambda.Function(this, 'get_download_size', {

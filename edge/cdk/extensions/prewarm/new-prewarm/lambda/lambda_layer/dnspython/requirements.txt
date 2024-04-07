@@ -1,4 +1,4 @@
 dnspython
-urllib
-shortuuid
-time
+shortuuid>=1.0.0
+requests>=2.23.0
+urllib3<2
