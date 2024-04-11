@@ -1,9 +1,8 @@
-import * as cdk from 'aws-cdk-lib';
+import {aws_lambda, RemovalPolicy} from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
-import { Construct } from 'constructs';
-import {aws_lambda} from "aws-cdk-lib";
+import {Construct} from 'constructs';
 
 interface DatabaseProps {
   envNameString: string;
@@ -31,6 +30,7 @@ export class Database extends Construct {
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
       stream: dynamodb.StreamViewType.NEW_IMAGE,
       pointInTimeRecovery: true,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.requestTableDDbSource = new lambdaEventSources.DynamoEventSource(this.requestTable, {
@@ -64,6 +64,7 @@ export class Database extends Construct {
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
       stream: dynamodb.StreamViewType.NEW_IMAGE,
       pointInTimeRecovery: true,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.popTableDDbSource = new lambdaEventSources.DynamoEventSource(this.popTable, {
@@ -82,6 +83,7 @@ export class Database extends Construct {
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
       stream: dynamodb.StreamViewType.NEW_IMAGE,
       pointInTimeRecovery: true,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.taskTableDDbSource = new lambdaEventSources.DynamoEventSource(this.taskTable, {

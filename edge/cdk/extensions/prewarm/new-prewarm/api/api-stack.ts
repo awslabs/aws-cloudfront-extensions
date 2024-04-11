@@ -3,8 +3,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import {aws_iam} from "aws-cdk-lib";
-import * as s3 from "aws-cdk-lib/aws-s3";
+import {aws_iam, RemovalPolicy} from "aws-cdk-lib";
 import {RestApi} from "aws-cdk-lib/aws-apigateway";
 
 interface APIProps {
@@ -20,6 +19,7 @@ export class API extends Construct {
 
     const apiLogGroup = new logs.LogGroup(this, 'prewarm_api_log_group', {
       logGroupName: `prewarm_api_log_group_${props.envNameString}`,
+      removalPolicy: RemovalPolicy.DESTROY
     });
 
     const endpointConfiguration: apigateway.EndpointConfiguration = {

@@ -1,6 +1,6 @@
-import * as cdk from 'aws-cdk-lib';
+import {RemovalPolicy} from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
+import {Construct} from 'constructs';
 
 interface BucketProps {
   account: string;
@@ -20,6 +20,7 @@ export class Bucket extends Construct {
       bucketName: `prewarm-bucket-${account}-${region}-${envNameString}`,
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
   }
 }

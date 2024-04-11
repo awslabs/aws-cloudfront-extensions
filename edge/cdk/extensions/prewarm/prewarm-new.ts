@@ -168,6 +168,16 @@ export class NewPrewarmStack extends NestedStack {
     lambdaFunctions.insertTaskToQueue.addEnvironment("TASK_SQS_URL",sqs.prewarmTaskQueue.queueUrl)
     lambdaFunctions.insertTaskToQueue.addEnvironment("POP_TABLE_NAME", database.popTable.tableName)
     bucket.bucket.grantReadWrite(lambdaFunctions.insertTaskToQueue)
+    lambdaFunctions.insertTaskToQueue.addToRolePolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+              'cloudfront:ListDistributions',
+              'cloudfront:CreateInvalidation'
+          ],
+          resources: ['*'],
+        })
+    )
 
     database.requestTable.grantReadWriteData(lambdaFunctions.getDownloadSize)
     lambdaFunctions.getDownloadSize.addEnvironment("REQUEST_TABLE_NAME", database.requestTable.tableName)
