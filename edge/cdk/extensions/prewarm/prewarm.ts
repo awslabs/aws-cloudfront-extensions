@@ -44,7 +44,7 @@ export class CFEPrewarmStack extends cdk.Stack {
       key: '',
       vpcEndpointId: '',
     }
-    new NewPrewarmStack(this, 'NewPrewarmStackExistVPC', <NewPrewarmStackProps>params);
+    new NewPrewarmStack(this, 'NewPrewarmStack', <NewPrewarmStackProps>params);
   }
 }
 
