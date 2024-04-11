@@ -17,6 +17,58 @@ lambda_function_arn = os.environ.get("LAMBDA_SET_ASG_ARN")
 scheduler_role_arn = os.environ.get("SCHEDULER_ROLE_ARN")
 event_rule_name = os.environ.get("EVENT_RULE_NAME")
 
+APAC_NODE = ['BOM51-C1', 'BOM52-C1', 'ICN51-C1', 'ICN54-C2',
+             'NRT51-P2', 'NRT57-P3', 'SIN2-P1', 'SIN52-C2']
+AU_NODE = ['SYD1-C1', 'SYD62-P1']
+CA_NODE = ['YUL62-C2', 'YUL62-C1']
+EU_NODE = ['ARN56-P1', 'ARN54-C1', 'CDG50-P1', 'CDG52-P2', 'DUB2-C1',
+           'DUB56-P1', 'FRA56-P4', 'FRA60-P1', 'LHR61-P3', 'LHR50-P2']
+JP_NODE = ['NRT51-P2', 'NRT57-P3']
+SA_NODE = ['GRU1-C2', 'GRU3-P1']
+US_NODE = ['IAD89-P1', 'IAD89-P2', 'SFO5-P2',
+           'SFO5-P1', 'DFW56-P1', 'DFW56-P2']
+CN_NODE = ['PVG52-E1', 'SZX51-E1', 'BJS9-E1', 'ZHY50-E1']
+
+ALL_POP = list(set(APAC_NODE + AU_NODE + CA_NODE +
+               EU_NODE + JP_NODE + SA_NODE + US_NODE + CN_NODE))
+pop_map = {
+    'all': ALL_POP,
+    'apac': APAC_NODE,
+    'au': AU_NODE,
+    'ca': CA_NODE,
+    'eu': EU_NODE,
+    'jp': JP_NODE,
+    'sa': SA_NODE,
+    'us': US_NODE,
+    'cn': CN_NODE
+}
+# REC: regional edge cache
+INDIA_REC = ['BOM78-P1', 'BOM78-P4']
+JAPAN_REC = ['NRT57-P2', 'NRT57-P3']
+OCEANIA_REC = ['SYD1-C1', 'SYD62-P2']
+SOUTHEAST_ASIA_REC = ['SIN2-P1', 'SIN2-P2']
+SOUTH_KOREA_REC = ['ICN57-P1', 'ICN57-P2']
+
+ALL_REC = list(set(INDIA_REC + JAPAN_REC + OCEANIA_REC +
+               SOUTHEAST_ASIA_REC + SOUTH_KOREA_REC))
+rec_map = {
+    'all': ALL_REC,
+    'india': INDIA_REC,
+    'japan': JAPAN_REC,
+    'new_zealand': OCEANIA_REC,
+    'australia': OCEANIA_REC,
+    'malaysia': SOUTHEAST_ASIA_REC,
+    'china': SOUTHEAST_ASIA_REC,
+    'indonesia': SOUTHEAST_ASIA_REC,
+    'philippines': SOUTHEAST_ASIA_REC,
+    'singapore': SOUTHEAST_ASIA_REC,
+    'thailand': SOUTHEAST_ASIA_REC,
+    'vietnam': SOUTHEAST_ASIA_REC,
+    'south_korea': SOUTH_KOREA_REC
+}
+ALL = 'all'
+
+
 
 def validate_url(url):
     pattern = r"^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$"
@@ -40,7 +92,29 @@ def lambda_handler(event, context):
 
     url_list = list(set(body['url_list']))
     cf_domain = body['cf_domain']
-    pops = list(set(body['pops']))
+    target_type = body['target_type'] if 'target_type' in body and body['target_type'] else 'pop'
+    countries = list(set(body['countries'])) if 'countries' in body and body['countries'] else []
+    regions = list(set(body['regions'])) if 'regions' in body and body['regions'] else []
+    pops = list(set(body['pops'])) if 'pops' in body and body['pops'] else []
+    if target_type == 'region':
+        if len(regions) == 0:
+            pops = pop_map[ALL]
+        else:
+            pop_region_opt = []
+            for i in regions:
+                pop_region_opt.extend(pop_map[i.lower()])
+            pops = pop_region_opt
+    elif target_type == 'country':
+        if len(countries) == 0:
+            pops = rec_map[ALL]
+        else:
+            pop_rec_opt = []
+            for i in countries:
+                pop_rec_opt.extend(rec_map[i.lower()])
+            pops = pop_rec_opt
+    elif target_type == 'pop':
+        pops = list(set(body['pops'])) if 'pops' in body and body['pops'] else []
+
     instance_count = body['instance_count']
     timeout = body['timeout']
     header = body['header']
