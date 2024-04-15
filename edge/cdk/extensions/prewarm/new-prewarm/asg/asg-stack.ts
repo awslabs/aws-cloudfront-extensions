@@ -9,7 +9,7 @@ import {aws_autoscaling} from "aws-cdk-lib";
 interface ASGProps {
   envNameString: string;
   params: {
-    subnetIds: string;
+    subnetIds: string[];
     securityGroup: ec2.ISecurityGroup;
     sourceCode: string;
     keyPair: ec2.IKeyPair;
@@ -27,7 +27,7 @@ export class ASG extends Construct {
     super(scope, id);
 
     const { envNameString, params } = props;
-    const publicSubnetIds: string[] = params.subnetIds.split(",");
+    const publicSubnetIds: string[] = params.subnetIds;
     const subnets: ec2.ISubnet[] = publicSubnetIds.map((subnetId, index) =>
       ec2.Subnet.fromSubnetId(this, `subnet_${index}`, subnetId)
     );

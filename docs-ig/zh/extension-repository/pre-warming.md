@@ -5,15 +5,18 @@
 该解决方案部署了一个CloudFormation模板，将在您的AWS帐户中安装以下架构。所有云资源都将自动创建。部署后，您将获得两个REST API，一个用于触发预热操作，另一个用于获取预热状态。
 
 
-![prewarm](../../images/prewarm-arch.png)
+![prewarm](..%2Fimages%2Fmini-greengrass-BJS-Page-5.drawio.png)
 
 CloudFormation模板提供以下组件和工作流：
 
-1. Scheduler Lambda函数将初始预热状态、将其插入DynamoDB表。
-2. Cache invalidator Lambda函数会删除所有URL的CloudFront缓存，并将requestId、PoP和URL等的消息发送到SQS中。
-3. CloudWatch alarm监视队列中的消息，并在消息发送到队列中时通知自动伸缩组扩容。
-4. 自动伸缩组包含了EC2 Spot实例。每个实例会向CloudFront边缘位置发送请求，并在消费完SQS队列中的消息后将预热状态更新到DynamoDB表中。
-5. StatusFetcher Lambda函数从DynamoDB表获取预热状态。
+1. API Handler Lambda用来接收来自API Gateway的请求；对URL去重，写入一个csv文件，以request id命名上传到S3上；并按照传入的shutdown事件创建一个Eventbridge定时器；并按照参数要求启动ASG里面的EC2机器；把请求体存入DynamoDB的Request表中。
+2. DynamoDB的Request表开启了DynamoDB stream，Request表的stream会触发Get Size Lambda和Task Lambda。
+3. Get Size Lambda 会从S3中下载以request id命名的csv文件，轮询URL列表，执行curl命令，得到每个文件的大小并汇总文件大小，存入Request表中的total_size字段，单位是byte, 并把出问题的URL和成功的URL写回S3。
+4. Task Lambda会从DynamoDB stream中得到所有pop点和Cloudfront domain的信息，从S3中下载以request id 命名的csv文件，得到URL列表。轮询pop通过dig得到每个pop的IP列表，存入Request-Pop表中，然后轮训URL，根据参数确定是否需要删除cloudfront的缓存，并把每个URL和pop点匹配作为一个任务，发送到prewarm_task这个queue中去。 
+5. ASG中的EC2机器会从prewarm_task这个queue中取得任务，执行curl命令进行文件下载，并且把下载结果存入Request-Task表中，包括文件的大小和下载的成功与否。其中EC2机器使用的是标准的Amazon Linux 2023的AMI，在启动的时候会去S3上下载agent代码并进行预热。
+6. Request-Task表开启了DynamoDB stream，这个stream会触发Aggregation Lambda，Aggregation Lambda会批量统计下载任务的文件大小，汇总之后更新Request表中的downloaded_size字段，得到累计下载大小。
+7. 定时器在预定的时间触发Shutdown Lambda，Shutdown Lambda 会直接停掉（terminate）掉ASG中的所有EC2机器，终端正在进行的预热。同时也会删掉prewarm_task这个queue里面所有的message，不管有没有完成。
+
 
 
 ## 通过Web控制台部署（推荐）

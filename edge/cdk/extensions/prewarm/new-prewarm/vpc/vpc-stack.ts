@@ -9,7 +9,7 @@ interface VPCProps {
   useExistVPC: boolean;
   vpcId: string;
   securityGroupId: string;
-  subnetIds: string;
+  subnetIds: string[];
   key: string;
   envNameString: string;
 }
@@ -17,7 +17,7 @@ interface VPCProps {
 export class VPCStack extends Construct {
   public readonly vpc: ec2.IVpc;
   public readonly securityGroup: ec2.ISecurityGroup;
-  public readonly subnetIds: string;
+  public readonly subnetIds: string[];
   public readonly keyPair: ec2.IKeyPair;
 
   constructor(scope: Construct, id: string, props: VPCProps) {
@@ -53,7 +53,7 @@ export class VPCStack extends Construct {
       this.securityGroup = new ec2.SecurityGroup(this, 'NewPrewarmSG', { vpc: this.vpc });
       // 允许来自安全组自身的流量
       this.securityGroup.addIngressRule(this.securityGroup, ec2.Port.allTraffic());
-      this.subnetIds = this.vpc.publicSubnets.map(subnet => subnet.subnetId).join(",");
+      this.subnetIds = this.vpc.publicSubnets.map(subnet => subnet.subnetId);
 
       // 创建S3 Gateway Endpoint
       const s3Endpoint = new GatewayVpcEndpoint(this, 'NewPrewarmS3Endpoint', {

@@ -20,7 +20,7 @@ export interface NewPrewarmStackProps extends StackProps {
   useExistVPC:boolean;
   envName: string;
   vpcId: string;
-  subnetIds: string;
+  subnetIds: string[];
   securityGroupId: string;
   key: string;
   vpcEndpointId: string;
@@ -32,7 +32,7 @@ export class NewPrewarmStack extends NestedStack {
   public readonly vpc: ec2.IVpc;
   public readonly securityGroup: ec2.ISecurityGroup;
   public readonly vpcEndpointId: string;
-  public readonly subnetIds: string;
+  public readonly subnetIds: string[];
 
   constructor(scope: Construct, id: string, props: NewPrewarmStackProps) {
     super(scope, id, props);
