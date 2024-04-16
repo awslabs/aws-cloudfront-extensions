@@ -32,6 +32,7 @@ __dir="$(cd "$(dirname $0)";pwd)"
 SRC_PATH="${__dir}/../extensions"
 CDK_OUT_PATH="${__dir}/../cdk.out"
 BUILD_PATH="${__dir}/.."
+PREWARM_PATH="${__dir}/../extensions/prewarm"
 
 
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -104,8 +105,11 @@ pushd ${SRC_PATH}/prewarm/deployment
 sh build-s3-dist.sh
 popd
 
+
+run cd ${PREWARM_PATH}
+npm run synth -- --app "npx ts-node --prefer-ts-exts prewarm.ts" --output ${CDK_OUT_PATH}
+
 run cd ${BUILD_PATH}
-npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/prewarm/prewarm.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/true-client-ip/true-client-ip.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/redirect-by-country/redirect-by-country.ts" --output ${CDK_OUT_PATH}
 npm run synth -- --app "npx ts-node --prefer-ts-exts ${SRC_PATH}/resize-image/resize-image.ts" --output ${CDK_OUT_PATH}
