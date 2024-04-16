@@ -52,7 +52,10 @@ export class VPCStack extends Construct {
       });
       this.securityGroup = new ec2.SecurityGroup(this, 'NewPrewarmSG', { vpc: this.vpc });
       // 允许来自安全组自身的流量
-      this.securityGroup.addIngressRule(this.securityGroup, ec2.Port.allTraffic());
+      // this.securityGroup.addIngressRule(this.securityGroup, ec2.Port.allTraffic());
+      this.securityGroup.addIngressRule(ec2.Peer.ipv4(this.vpc.vpcCidrBlock), ec2.Port.allTraffic());
+      // 添加 TCP 安全组规则
+      this.securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP traffic from anywhere');
       this.subnetIds = this.vpc.publicSubnets.map(subnet => subnet.subnetId);
 
       // 创建S3 Gateway Endpoint
