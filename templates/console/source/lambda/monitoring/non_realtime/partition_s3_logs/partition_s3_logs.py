@@ -197,8 +197,9 @@ def isp_from_ip(ip, version):
                 if ipaddress.IPv6Address(ip) in ipaddress.IPv6Network(asn_key):
                     return asn_list_v6[asn_key]
     except Exception as e:
-        log.info("Error: " + str(ip))
-        log.info(e)
+        logging.info(f"{str(ip)} not found isp because of {str(e)}")
+        # log.info("Error: " + str(ip))
+        # log.info(e)
 
     return 'NotFound'
 
