@@ -36,26 +36,34 @@ CloudFormation模板提供以下组件和工作流：
 
 ### 部署步骤
 
-1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接[下载模板](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json)进行部署。
+1. 登录到Amazon Web Services管理控制台，选择按钮以启动模板。您还可以选择直接[下载模板](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json) / [下载模板-使用已有vpc模版](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json)进行部署。
 
+      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json)
       [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/latest/custom-domain/PrewarmStack.template.json)
 
 
 2. 默认情况下，该模板将在您登录控制台后默认的区域启动，即美国东部（弗吉尼亚北部）区域。若需在指定的区域中启动该解决方案，请在控制台导航栏中的区域下拉列表中选择。
 
-3. 在参数部分，查看模板的参数，并根据需要进行修改。
+3. 在参数部分，查看模板的参数，并根据需要进行修改。 
+4. 对于选择直接部署的默认模版参数如下：
 
-      | 参数             | 默认值 | 说明  |
-      |-----------|---------------|---------|
-      | ShowSuccessUrls | false | 在预热状态API中显示成功url列表（true or false）。 |
-      | InstanceType | c6a.large | 发送预热请求的EC2 spot实例类型。 |
-      | ThreadNumber | 6 | EC2中并行执行的线程数。 |
-  
+      | 参数             | 默认值       | 说明                                 |
+      |-----------|-----------|------------------------------------|
+      | envName | prod      | 选择的部署预热环境。                         |
+5. 对于选择使用现有vpc模版部署的参数如下：
 
-4. 选择**下一步**。
-5. 在**配置堆栈选项**页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择**下一步**。
-6. 在**审核**页面，查看并确认设置。确保选中确认模板将创建Amazon Identity and Access Management（IAM）资源的复选框。选择**下一步**。
-7. 选择**创建堆栈**以部署堆栈。
+      | 参数             | 默认值  | 说明                      |
+      |-----------|------|-------------------------|
+      | envName | prod | 选择的部署预热环境。              |
+      |     vpc         | 无，必填 | 选择需要部署在的vpc             |
+      |     subnet       | 无，必填 | 选择需要部署所在vpc的公有子网        |
+      |     sg          | 无，必填 | 选择需要使用的安全组              |
+      |     key         | 无，必填 | 选择安全密钥keypair           |
+      |     vpce           | 无，选填 | 选择当需要部署为私有API时的endpoint |
+6. 选择**下一步**。 
+7. 在**配置堆栈选项**页面上，您可以为堆栈中的资源指定标签（键值对）并设置其他选项，然后选择**下一步**。 
+8. 在**审核**页面，查看并确认设置。确保选中确认模板将创建Amazon Identity and Access Management（IAM）资源的复选框。选择**下一步**。 
+9. 选择**创建堆栈**以部署堆栈。
 
 您可以在Amazon CloudFormation控制台的**状态**列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为**CREATE_COMPLETE**。
 
@@ -70,21 +78,27 @@ CloudFormation模板提供以下组件和工作流：
 ### 通过Postman触发预热
 
 1. 当本方案部署完成后，打开CloudFormation堆栈的*输出*标签页，可以看到如下信息：
-    ![Prewarm Output](../../images/prewarm_output.png)
+    ![Prewarm Output](../../images/prewarm-cloudformation.png)
 
-    - **PrewarmAPIkey**: API密钥arn。您可在API Gateway控制台的API密钥界面中找到此API key，点击显示按钮，获取密钥。请求预热API时需要使用此密钥进行鉴权，作为x-api-key的值。
-    - **PrewarmApiEndpoint**: 预热API的URL即为在此后面加上prewarm关键字。例如：若PrewarmApiEndpoint是**https://123456789.execute-api.us-east-1.amazonaws.com/prod/**，则预热API为 **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
-    - **PrewarmStatusApiEndpoint**: 获取预热状态API的URL即为在此后面加上status关键字。例如：若PrewarmStatusApiEndpoint是**https://test.execute-api.us-east-1.amazonaws.com/prod/**，则获取预热状态API为 **https://test.execute-api.us-east-1.amazonaws.com/prod/status**
+    - **prewarmapikeyoutput**: API密钥arn。您可在API Gateway控制台的API密钥界面中找到此API key，点击显示按钮，获取密钥。请求预热API时需要使用此密钥进行鉴权，作为x-api-key的值。
+    - **prewarmapiEndpoint**: 预热API的URL即为在此后面加上prewarm关键字。
+    ***例如***：若PrewarmApiEndpoint是**https://123456789.execute-api.us-east-1.amazonaws.com/prod/**，则预热API为POST方式调用 **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
+    ***例如***：若PrewarmStatusApiEndpoint是**https://test.execute-api.us-east-1.amazonaws.com/prod/**，则获取预热进度API为GET方式调用 **https://test.execute-api.us-east-1.amazonaws.com/prod/prewarm**
 2. 打开可以发送HTTP请求的工具，例如Postman。
 3. 按照预热API格式发送预热请求（更多信息请见[API参考指南](../api-reference-guide/extension-repository.md#pre-warming)），并在header中新建键值对：key为**x-api-key**，value为API key。
 
     ![Prewarm API Key](../images/prewarm_apikey.png)
-    ![Prewarm Trigger](../images/prewarm_trigger_new.png)
+    ![prewarm-trigger-new.png](..%2F..%2Fimages%2Fprewarm-trigger-new.png)
 
-4. 预热API会返回requestID，至此您成功触发了预热，下面可以通过PrewarmStatus API获取预热状态。
+4. 预热API会返回requestID，至此您成功触发了预热，下面可以通过查询预热进度 API获取预热状态。
 5. 按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。(请注意检查是否请求header中默认带有Accept-Encoding，并且值为"gzip, deflate, br"，如果没有注意添加下)
-    ![Prewarm Status](../images/prewarm_status.png)
-
+    ![get-prewarm.png](..%2F..%2Fimages%2Fget-prewarm.png)
+6. 可以在预热过程中变更预热的instance数量，以便动态调整整体预热进展
+   ![prewarm-instance.png](..%2F..%2Fimages%2Fprewarm-instance.png)
+7. 变更预热的instance数量后可以查看系统当前的instance数量
+![prewarm-getinstance.png](..%2F..%2Fimages%2Fprewarm-getinstance.png)
+8. 预热结束后可以查看预热结果报告
+![prewarm-getreport.png](..%2F..%2Fimages%2Fprewarm-getreport.png)
 
 ### 通过Curl触发预热
 
@@ -94,19 +108,31 @@ CloudFormation模板提供以下组件和工作流：
 
 **prewarmlist.json**
 
-      {
-            "url_list": [
-                  "https://www.example.com/index.html",
-                  "https://www.example.com/images/demo.png"
-            ],
-            "target_type":"pop",
-            "cf_domain": "d1234567890r.cloudfront.net",
-            "region": ["ATL56-C1", "DFW55-C3"],
-            "protocol": "http"
-      }
+    {
+        "url_list": [
+          "https://www.example.com/index.html",
+          "https://www.example.com/css/bootstrap-icons.css"
+        ],
+        "cf_domain": "www.example.com",
+        "target_type":"pop",
+        "countries": [
+        ],
+        "regions": [
+        ],
+        "pops": [
+            "ATL56-C1",
+            "SIN2-C1",
+            "DFW55-C3"
+        ],
+        "timeout": 5,
+        "header": [
+        ],
+        "instance_count": 1,
+        "need_invalidate": false
+    }
 
 !!! Note "注意"
-    字段 "protocol" 是可选字段，如果不指定，默认是http.
+    字段 "target_type" 是可选字段，如果不指定，默认是pop 也可以选择country和region 如果选择了某个值pop country region中的某一个 下面对应的pops countries regions需要填写对应需要预热的值，不填系统默认选择可预热节点预热. need_invalidate字段可选，表示是否开启清除cloudfront的缓存 默认不开启
 
 **prewarm.sh**
 
@@ -122,17 +148,24 @@ CloudFormation模板提供以下组件和工作流：
 
 执行结果示例
 
-      {"requestID": "e1efca9a-8d92-4058-a1e9-002fd423f6e5"}
+    {
+        "status": "Success",
+        "error_message": "",
+        "error_urls": [],
+        "request_id": "e059b77b-e427-4489-a50b-4d8c652f114c",
+        "timestamp": "2024-04-16 03:12:21.046535",
+        "timeout_at": "2024-04-16 03:17:21.046535"
+    }
 
 
-#### 获取预热状态
+#### 获取预热进度
 
 脚本内容
 
 **prewarmstatus.sh**
 
       #!/bin/bash
-      statusurl="https://3e23456789h.execute-api.us-east-1.amazonaws.com/prod/status?requestID=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
+      statusurl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm?req_id=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
       curl  --header 'x-api-key: KEY123456789Tg9P' $statusurl
 
 执行脚本
@@ -141,17 +174,111 @@ CloudFormation模板提供以下组件和工作流：
 
 执行结果示例
 
-      {
-            "status": "COMPLETED",
-            "total": 2,
-            "completed": 2,
-            "inProgress": 0,
-            "failedUrl": [],
-            "inProgressUrl": []
-      }
+    {
+        "request_id": "684153cc-efab-4a53-9409-357fddc2e2bd",
+        "download_size": 137368,
+        "total_size": 206052,
+        "percentage_complete": 66,
+        "available_task_count": 0,
+        "in_progress_task_count": 0,
+        "download_count": 6,
+        "total_count": 6,
+        "created_at": "2024-04-16 03:10:21.405303",
+        "last_update_time": "2024-04-16 03:11:53.531414",
+        "timestamp": "2024-04-16 03:15:09.499889",
+        "status": "FINISHED"
+    }
 
+### 管理instance
+
+#### 修改instance数量
+
+脚本内容
+
+**instance.json**
+
+    {
+        "req_id": "684153cc-efab-4a53-9409-357fddc2e2bd",
+        "DesiredCapacity": 1
+        // "force_stop": false
+    }
+
+!!! Note "注意"
+    字段 "force_stop" 是可选字段，如果不指定，默认是false 表示是否强制关停预热的机器
+
+**instance.sh**
+
+
+      instanceuri="https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances"
+      curl --header 'x-api-key: KEY12345678900Tg9P' -XPOST -d @instance.json $instanceuri
+
+
+执行脚本
+
+      sh instance.sh
+
+
+执行结果示例
+
+    {
+        "status": "success",
+        "timestamp": "2024-04-16 03:54:40.366685",
+        "message": "Auto Scaling Group prewarm_asg_prod updated to Desired Capacity: 1"
+    }
+
+#### 获取instance数量
+
+脚本内容
+
+**prewarminstance.sh**
+
+      #!/bin/bash
+      instancesurl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances“
+      curl  --header 'x-api-key: KEY123456789Tg9P' $instancesurl
+
+执行脚本
+
+      sh prewarminstance.sh
+
+执行结果示例
+
+    {
+        "status": "success",
+        "timestamp": "2024-04-16 03:56:39.210951",
+        "message": "query success",
+        "desiredcapacity": 1
+    }
+
+#### 获取预热报告
+
+脚本内容
+
+**prewarmreport.sh**
+
+      #!/bin/bash
+      reporturl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/summary?req_id=684153cc-efab-4a53-9409-357fddc2e2bd“
+      curl  --header 'x-api-key: KEY123456789Tg9P' $reporturl
+
+执行脚本
+
+      sh prewarmreport.sh
+
+执行结果示例
+
+    {
+        "request_id": "684153cc-efab-4a53-9409-357fddc2e2bd",
+        "failure_pops": [],
+        "failure_urls": [
+            ""
+        ],
+        "failure_pop_urls_report": "http://reporturl",
+        "timestamp": "2024-04-16 03:12:54.605891",
+        "created_at": "2024-04-16 03:10:21.405303",
+        "last_update_time": "2024-04-16 03:11:53.531414",
+        "status": "FINISHED"
+    }
 
 ## 问题调试
 
-预热方案会自动启动EC2 Spot实例，并在EC2上执行脚本进行预热，预热脚本的位置为/etc/agent/agent.py，当预热执行完毕后会自动删除这些EC2实例。您可以登录到EC2机器上在/var/log/user-data.log中查看具体执行日志进行调试。
+预热方案会自动启动EC2 Spot实例，并在EC2上执行脚本进行预热，预热脚本的位置为/home/ec2-user/agent/agent.py，当预热执行完毕后会自动删除这些EC2实例。
 
