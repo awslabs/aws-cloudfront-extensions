@@ -3,6 +3,7 @@ The solution provides a set of ready-to-use extensions (Lambda@Edge functions, C
 You can use the following extensions:
 
 - [True Client IP](true-client-ip.md)
+- [Pre-warming](pre-warming.md)
 - [Redirect by Country](redirect-by-country.md)
 - [Resize Image](resize-image.md)
 - [More extensions in Serverless Application Repository (SAR)](more-extension-in-sar.md)
