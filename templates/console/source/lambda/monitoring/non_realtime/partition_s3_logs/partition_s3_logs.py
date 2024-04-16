@@ -214,8 +214,9 @@ def geo_name_from_ip(ip, version):
                 if ipaddress.IPv6Address(ip) in ipaddress.IPv6Network(geo_key):
                     return geo_list_v6[geo_key]
     except Exception as e:
-        log.info("Error: " + str(ip))
-        log.info(e)
+        logging.info(f"{str(ip)} not found geo name because of {str(e)}")
+        # log.info("Error: " + str(ip))
+        # log.info(e)
 
     return 'NotFound'
 
