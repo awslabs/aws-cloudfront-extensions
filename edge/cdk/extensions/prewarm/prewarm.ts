@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { CfnParameter } from 'aws-cdk-lib';
+import {CfnParameter, Token} from 'aws-cdk-lib';
 import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 import { NewPrewarmStack, NewPrewarmStackProps } from './prewarm-new';
 import { Construct } from 'constructs';
@@ -27,6 +27,8 @@ export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
       type: 'List<AWS::EC2::Subnet::Id>'
     });
 
+    const subnetIdString = Token.asList(subnetIds.valueAsList).join(',');
+
     const securityGroupId = new CfnParameter(this, 'sg', {
       description: 'Select the security group.',
       type: 'AWS::EC2::SecurityGroup::Id',
@@ -37,14 +39,13 @@ export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
       type: 'AWS::EC2::KeyPair::KeyName',
     });
 
-    const subnetIdNews = subnetIds.valueAsList.join(',');
 
     const vpcEndpointId = new CfnParameter(this, 'vpce', { type: 'String'});
     const params = {
       useExistVPC: props.useExistVPC,
       envName: envName.valueAsString,
       vpcId: vpcId.valueAsString,
-      subnetIds: subnetIdNews,
+      subnetIds: subnetIdString,
       securityGroupId: securityGroupId.valueAsString,
       key: key.valueAsString,
       vpcEndpointId: vpcEndpointId.valueAsString,
