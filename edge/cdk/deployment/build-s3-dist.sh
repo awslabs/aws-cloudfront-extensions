@@ -100,10 +100,10 @@ echo "${GLOBAL_S3_ASSETS_PATH} and ${prefixes[0]}"
 
 export BSS_FILE_ASSET_PREFIX="${FILE_ASSET_PREFIX}${prefixes[0]}"
 
-title "build prewarm dependencies"
-pushd ${SRC_PATH}/prewarm/deployment
-sh build-s3-dist.sh
-popd
+#title "build prewarm dependencies"
+#pushd ${SRC_PATH}/prewarm/deployment
+#sh build-s3-dist.sh
+#popd
 
 run cd ${BUILD_PATH}
 #run cd ${PREWARM_PATH}
