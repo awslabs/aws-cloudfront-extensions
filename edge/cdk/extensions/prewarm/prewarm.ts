@@ -72,10 +72,10 @@ new CFEPrewarmStack(app, 'CFEPrewarmStack', {
       synthesizer: synthesizer(),
       useExistVPC: false
     });
-new CFEPrewarmStackUseExistVPC(app, 'CFEPrewarmStackUseExistVPC',{
-      synthesizer: synthesizer(),
-      useExistVPC: true
-    })
+// new CFEPrewarmStackUseExistVPC(app, 'CFEPrewarmStackUseExistVPC',{
+//       synthesizer: synthesizer(),
+//       useExistVPC: true
+//     })
 
 app.synth();
 
