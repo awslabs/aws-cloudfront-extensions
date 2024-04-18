@@ -43,7 +43,7 @@ Resources:
     Properties:
       CodeUri: resize-picture/
       Handler: app.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs20.x
       Role: !GetAtt EdgeFunctionRole.Arn
 
   EdgeFunctionRole:
@@ -69,7 +69,7 @@ Resources:
     Properties:
       CodeUri: 's3://aws-cloudfront-extension-lambda-edge/update-lambda-function.zip'
       Handler: index.handler
-      Runtime: python3.7
+      Runtime: python3.10
       Timeout: 180
       Policies:
         - Statement:

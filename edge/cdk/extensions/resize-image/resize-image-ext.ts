@@ -22,7 +22,7 @@ export class ResizeImage extends ServerlessApp implements IExtensions {
   constructor(scope: Construct, id: string, props: ResizeImageProps) {
     super(scope, id, {
       applicationId: 'arn:aws:serverlessrepo:us-east-1:418289889111:applications/resize-picture',
-      semanticVersion: '1.0.2',
+      semanticVersion: '2.0.3',
       parameters: {
         FitType: props.fitType,
         S3BucketName: props.bucketName
