@@ -110,7 +110,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
             },
             {
               name: "sc-bytes",
-              type: "int"
+              type: "bigint"
             },
             {
               name: "c-ip",
@@ -130,7 +130,7 @@ export class NonRealtimeMonitoringStack extends cdk.NestedStack {
             },
             {
               name: "cs-bytes",
-              type: "int"
+              type: "bigint"
             },
             {
               name: "time-taken",

@@ -20,7 +20,7 @@
     "aws-amplify": "^5.3.8",
     "aws-appsync-auth-link": "^3.0.7",
     "aws-appsync-subscription-link": "^3.0.10",
-    "axios": "^0.26.1",
+    "axios": "^0.28.0",
     "classnames": "^2.3.1",
     "deep-equal": "^2.0.5",
     "i18next": "^21.9.0",

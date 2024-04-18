@@ -1,8 +1,8 @@
 {
   "edge": {
     "publish_app_path": [
-      "nodejs/cache-control-with-regex-path"
+      "nodejs/resize-picture"
     ],
-    "tag": "v2.0.1"
+    "tag": "v2.0.3"
   }
 }
