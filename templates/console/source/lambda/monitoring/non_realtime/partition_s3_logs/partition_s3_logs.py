@@ -57,6 +57,32 @@ with open('./GeoLite2-Country-Locations-en.csv') as csvfile_country_code:
 log.info("End to read file")
 
 
+def to_timestamp(s):
+    try:
+        # 尝试将字符串解析为日期时间对象
+        dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        # 返回日期时间对象的时间戳值
+        return str(dt.timestamp())
+    except ValueError:
+        pass
+    try:
+        # 尝试将字符串解析为日期时间对象
+        dt = datetime.strptime(s, "%Y-%m-%d%H:%M:%S")
+        # 返回日期时间对象的时间戳值
+        return str(dt.timestamp())
+    except ValueError:
+        pass
+    try:
+        # 尝试将字符串转换为整数（时间戳）
+        timestamp = int(s)
+        # 返回整数值（时间戳）
+        return str(timestamp)
+    except ValueError:
+        pass
+    # 如果以上尝试都失败，则返回 None
+    return None
+
+
 def lambda_handler(event, context):
     """
     This function is triggered by S3 event to move log files
@@ -107,7 +133,8 @@ def lambda_handler(event, context):
                         else:
                             fields = row_item.split('\t')
                             if len(fields) > 1:
-                                timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
+                                timestamp = to_timestamp(fields[0].strip() + fields[1].strip())
+                                # timestamp = str(int(datetime.timestamp(datetime.strptime(fields[0].strip() + fields[1].strip(), "%Y-%m-%d%H:%M:%S"))))
                                 c_ip = fields[4]
                                 version = validate_ip_version(c_ip)
                                 if version == "invalid":

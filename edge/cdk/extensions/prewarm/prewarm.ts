@@ -24,8 +24,10 @@ export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
     });
     const subnetIds = new CfnParameter(this, 'subnet', {
       description: 'Select the subnet ids.',
-      type: 'List<AWS::EC2::Subnet::Id>'
+      type: 'AWS::EC2::Subnet::Id'
     });
+
+    // const subnetIdString = Token.asList(subnetIds.valueAsList).join(',');
 
     const securityGroupId = new CfnParameter(this, 'sg', {
       description: 'Select the security group.',
@@ -37,14 +39,13 @@ export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
       type: 'AWS::EC2::KeyPair::KeyName',
     });
 
-    const subnetIdNews = subnetIds.valueAsList.join(',');
 
     const vpcEndpointId = new CfnParameter(this, 'vpce', { type: 'String'});
     const params = {
       useExistVPC: props.useExistVPC,
       envName: envName.valueAsString,
       vpcId: vpcId.valueAsString,
-      subnetIds: subnetIdNews,
+      subnetIds: subnetIds.valueAsString,
       securityGroupId: securityGroupId.valueAsString,
       key: key.valueAsString,
       vpcEndpointId: vpcEndpointId.valueAsString,
