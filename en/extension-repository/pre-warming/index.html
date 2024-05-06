@@ -1,0 +1,2101 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://www.amazonaws.cn/en/solutions/amazon-cloudfront-extensions/extension-repository/pre-warming/">
+      
+      
+        <link rel="prev" href="../true-client-ip/">
+      
+      
+        <link rel="next" href="../resize-image/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.21">
+    
+    
+      
+        <title>Pre-warming - Implementation Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-is-pre-warming" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Implementation Guide" class="md-header__button md-logo" aria-label="Implementation Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Implementation Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pre-warming
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/aws-cloudfront-extensions/en/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/aws-cloudfront-extensions/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/awslabs/aws-cloudfront-extensions" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Implementation Guide" class="md-nav__button md-logo" aria-label="Implementation Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Implementation Guide
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/awslabs/aws-cloudfront-extensions" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cost
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Design considerations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Deploy the solution
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Monitoring
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Monitoring
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../monitoring/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../monitoring/non-real-time-monitoring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Non-real time monitoring with Amazon S3 Standard Logs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../monitoring/real-time-monitoring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Real time monitoring with Amazon Kinesis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../monitoring/metrics-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Metrics dashboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Distribution management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Distribution management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Snapshot
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Snapshot
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/snapshot/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/snapshot/publish-snapshot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Publish a snapshot
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/snapshot/apply-snapshot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Apply a snapshot to other CloudFront distributions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/snapshot/compare-snapshot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Compare two snapshots
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/snapshot/delete-snapshot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Delete a snapshot
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    SSL certificates
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            SSL certificates
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/create-new-certificates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create new certificates
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/import-existing-certificates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Import existing certificates
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/list-certificates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    List SSL certificates
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/dns-validation-process/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DNS validation process with your DNS Provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/add-record-for-cname/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adding CloudFront record for CNAME with your DNS Provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distribution-management/ssl-certificates/clean-up-resources/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clean up resources
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Extensions repository
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Extensions repository
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../true-client-ip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    True Client IP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Pre-warming
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Pre-warming
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-pre-warming" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Pre-warming?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is Pre-warming?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      How does it work?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-on-the-web-console-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment on the web console (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-via-cloudformation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment via CloudFormation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment via CloudFormation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment steps
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-pre-warming" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to use Pre-warming
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use Pre-warming">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-warm-by-postman" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-warm by Postman
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#triggering-pre-warming-via-curl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Triggering Pre-warming via Curl
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Triggering Pre-warming via Curl">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trigger-pre-warming" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trigger Pre-warming
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-pre-warm-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Pre-warm Progress
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Instances
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing Instances">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modifying-instance-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modifying Instance Count
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-instance-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Instance Count
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-pre-warm-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Pre-warm Report
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resize-image/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resize Image
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../redirect-by-country/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Redirect by Country
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../more-extension-in-sar/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    More Extensions in Serverless Application Repository (SAR)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API reference guide
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            API reference guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-reference-guide/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-reference-guide/monitoring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monitoring
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-reference-guide/extension-repository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extensions repository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-reference-guide/distribution-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribution management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../additional-resources/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Additional resources
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../uninstall/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Uninstall the solution
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../source/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../revisions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revisions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../notices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Notices
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workshop/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workshop
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-pre-warming" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Pre-warming?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is Pre-warming?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      How does it work?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-on-the-web-console-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment on the web console (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-via-cloudformation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment via CloudFormation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment via CloudFormation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment steps
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-pre-warming" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to use Pre-warming
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use Pre-warming">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-warm-by-postman" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-warm by Postman
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#triggering-pre-warming-via-curl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Triggering Pre-warming via Curl
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Triggering Pre-warming via Curl">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trigger-pre-warming" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trigger Pre-warming
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-pre-warm-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Pre-warm Progress
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Instances
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing Instances">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modifying-instance-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modifying Instance Count
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-instance-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Instance Count
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-pre-warm-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Pre-warm Report
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Pre-warming</h1>
+
+<h2 id="what-is-pre-warming">What is Pre-warming?</h2>
+<p>Pre-warming is also known as Pre-caching or Pre-fetching. It speeds up content delivery by warming the CloudFront cache. This is very useful when delivering large files. Pre-warming helps offload origin’s traffic, as the same requests will hit the CloudFront cache, origin server receives less requests and consequently it's less likely that the origin server will fall over or become slow. </p>
+<h3 id="how-does-it-work">How does it work?</h3>
+<p>The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployment, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.</p>
+<p><img alt="mini-greengrass-BJS-Page-5.drawio.png" src="..%2F..%2Fimages%2Fmini-greengrass-BJS-Page-5.drawio.png" /></p>
+<p>The CloudFormation template provides the following components and workflows:</p>
+<ol>
+<li>
+<p>API Handler Lambda receives requests from API Gateway, deduplicates URLs, writes them to a CSV file named with a request ID, uploads the file to S3, creates an Eventbridge timer according to the incoming shutdown event, starts EC2 instances within the ASG as per the specified parameters, and stores the request body in the Request table in DynamoDB.</p>
+</li>
+<li>
+<p>The Request table in DynamoDB has a DynamoDB stream enabled. The stream of the Request table triggers the Get Size Lambda and Task Lambda.</p>
+</li>
+<li>
+<p>Get Size Lambda downloads the CSV file named with the request ID from S3, iterates through the URL list, executes curl commands to determine the size of each file, summarizes the file sizes, and stores the total size in the total_size field of the Request table in bytes. It also writes back problematic URLs and successful URLs to S3.</p>
+</li>
+<li>
+<p>The Task Lambda receives all POP points and CloudFront domain information from the DynamoDB stream, downloads the CSV file named with the request ID from S3 to obtain the URL list, iterates through the POPs to obtain IP lists using dig, stores them in the Request-Pop table in DynamoDB, iterates through the URLs, and sends tasks to the prewarm_task queue based on the matching of each URL with POP points. </p>
+</li>
+<li>
+<p>EC2 instances in the ASG retrieve tasks from the prewarm_task queue, execute curl commands to download files, and store download results in the Request-Task table, including file sizes and success of downloads. The EC2 instances use a standard Amazon Linux 2023 AMI, which downloads agent code from S3 and conducts pre-warming during startup.</p>
+</li>
+<li>
+<p>The Request-Task table has a DynamoDB stream enabled, which triggers the Aggregation Lambda. The Aggregation Lambda batch processes download tasks, aggregates file sizes, and updates the downloaded_size field of the Request table, obtaining the cumulative download size.</p>
+</li>
+<li>
+<p>The timer triggers the Shutdown Lambda at the scheduled time. The Shutdown Lambda terminates all EC2 instances in the ASG, terminating ongoing pre-warming. It also deletes all messages in the prewarm_task queue.</p>
+</li>
+</ol>
+<h3 id="deployment-on-the-web-console-recommended">Deployment on the web console (Recommended)</h3>
+<p>The steps to deploy the extensions from the web console are similar. For more information, refer to the section <a href="../true-client-ip/">True Client IP</a>.</p>
+<h3 id="deployment-via-cloudformation">Deployment via CloudFormation</h3>
+<p><strong>Time to deploy</strong>: Approximately 10 minutes</p>
+<h4 id="deployment-overview">Deployment overview</h4>
+<p>Use the following steps to deploy this solution on AWS.</p>
+<ul>
+<li>Launch the CloudFormation template into your AWS account.</li>
+<li>Review the template parameters, and adjust them if necessary.</li>
+</ul>
+<h4 id="deployment-steps">Deployment steps</h4>
+<ol>
+<li>
+<p>Log in to the Amazon Web Services Management Console and select the button to launch the template. You can also choose to <a href="https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStack.template.json">download the template directly</a> / <a href="https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStackUseExistVPC.template.json">download the template - use existing VPC template</a> for deployment.</p>
+<p><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStack.template.json"><img alt="Deploy" src="../../images/deploy_button.png" /></a>
+  <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&amp;templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStackUseExistVPC.template.json"><img alt="Deploy" src="../../images/deploy_button.png" /></a></p>
+</li>
+<li>
+<p>The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.</p>
+</li>
+<li>
+<p>In the Parameters section, review the template parameters and modify as necessary.</p>
+</li>
+<li>
+<p>For the default template parameters when choosing direct deployment, they are as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>envName</td>
+<td>prod</td>
+<td>The environment for deployment.</td>
+</tr>
+<tr>
+<td>5. For the parameters when choosing to deploy with an existing VPC template, they are as follows:</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>envName</td>
+<td>prod</td>
+<td>The environment for deployment.</td>
+</tr>
+<tr>
+<td>vpc</td>
+<td>None, required</td>
+<td>The VPC where you want to deploy.</td>
+</tr>
+<tr>
+<td>subnet</td>
+<td>None, required</td>
+<td>The public subnet in the VPC you want to deploy.</td>
+</tr>
+<tr>
+<td>sg</td>
+<td>None, required</td>
+<td>The security group you want to use.</td>
+</tr>
+<tr>
+<td>key</td>
+<td>None, required</td>
+<td>The keypair for security.</td>
+</tr>
+<tr>
+<td>vpce</td>
+<td>None, optional</td>
+<td>The endpoint for private API when needed to deploy as private.</td>
+</tr>
+<tr>
+<td>6. Select <strong>Next</strong>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7. On the Configure stack options page, you can specify tags (key-value pairs) for the resources in the stack and set other options, then select <strong>Next</strong>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8. On the Review page, review and confirm the settings. Ensure that you select the checkbox to acknowledge that the template will create IAM resources. Select <strong>Next</strong>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9. Choose <strong>Create stack</strong> to deploy the stack.</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p>You can view the status of the stack in the <strong>Status</strong> column in the Amazon CloudFormation console. Under normal circumstances, the status will change to <strong>CREATE_COMPLETE</strong> within approximately 15 minutes.</p>
+<p>You can also select the <strong>Outputs</strong> tab to view detailed information about the stack resources.</p>
+<h2 id="how-to-use-pre-warming">How to use Pre-warming</h2>
+<p>Before pre-warming, you need to set Viewer protocol policy as <strong>HTTP and HTTPS</strong> in your CloudFront distribution's cache behavior.</p>
+<h3 id="pre-warm-by-postman">Pre-warm by Postman</h3>
+<ol>
+<li>
+<p>After the solution is deployed, open the <em>Outputs</em> tab of the CloudFormation stack to find the following information:
+    <img alt="Prewarm Output" src="../../images/prewarm-cloudformation.png" /></p>
+<ul>
+<li><strong>prewarmapikeyoutput</strong>: API key ARN. You can find this API key in the API Gateway console under API keys, click on the show button to get the key. This API key is required for authentication when making requests to the pre-warm API, as the value for x-api-key.</li>
+<li><strong>prewarmapiEndpoint</strong>: The URL of the pre-warm API, which is the base URL followed by the prewarm keyword.
+<strong><em>For example</em></strong>: If PrewarmApiEndpoint is <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/</strong>, then the pre-warm API is invoked via POST method at <strong>https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong>
+<strong><em>For example</em></strong>: If PrewarmStatusApiEndpoint is <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/</strong>, then the pre-warm status API is invoked via GET method at <strong>https://test.execute-api.us-east-1.amazonaws.com/prod/prewarm</strong></li>
+<li>Open a tool capable of sending HTTP requests, such as Postman.</li>
+<li>Send a pre-warm request following the pre-warm API format (see <a href="../../api-reference-guide/extension-repository/#pre-warming">API Reference Guide</a>) and add a key-value pair to the header: key as <strong>x-api-key</strong>, value as the API key.</li>
+</ul>
+<p><img alt="Prewarm API Key" src="../../images/prewarm_apikey.png" />
+<img alt="prewarm-trigger-new.png" src="../../images/prewarm-trigger-new.png" /></p>
+</li>
+<li>
+<p>The pre-warm API will return a request ID, indicating that you have successfully triggered the pre-warm. Next, you can use the pre-warm progress API to get the pre-warm status.</p>
+</li>
+<li>Send a request following the format of the pre-warm progress API and add the request ID to the URL parameters. Add the x-api-key in the header, and in the response, you will see the latest pre-warm status. (Make sure to check if the Accept-Encoding is present in the request header with the value "gzip, deflate, br". If not, ensure to add it)
+    <img alt="get-prewarm.png" src="../../images/get-prewarm.png" /></li>
+<li>You can dynamically adjust the overall pre-warm progress by changing the number of pre-warm instances after starting pre-warming.
+   <img alt="prewarm-instance.png" src="../../images/prewarm-instance.png" /></li>
+<li>After changing the number of pre-warm instances, you can check the current number of instances in the system.
+   <img alt="prewarm-getinstance.png" src="../../images/prewarm-getinstance.png" /></li>
+<li>After pre-warming is complete, you can view the pre-warming report.
+   <img alt="prewarm-getreport.png" src="../../images/prewarm-getreport.png" /></li>
+</ol>
+<h3 id="triggering-pre-warming-via-curl">Triggering Pre-warming via Curl</h3>
+<h4 id="trigger-pre-warming">Trigger Pre-warming</h4>
+<p>Script Contents</p>
+<p><strong>prewarmlist.json</strong></p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;url_list&quot;: [
+      &quot;https://www.example.com/index.html&quot;,
+      &quot;https://www.example.com/css/bootstrap-icons.css&quot;
+    ],
+    &quot;cf_domain&quot;: &quot;www.example.com&quot;,
+    &quot;target_type&quot;:&quot;pop&quot;,
+    &quot;countries&quot;: [
+    ],
+    &quot;regions&quot;: [
+    ],
+    &quot;pops&quot;: [
+        &quot;ATL56-C1&quot;,
+        &quot;SIN2-C1&quot;,
+        &quot;DFW55-C3&quot;
+    ],
+    &quot;timeout&quot;: 5,
+    &quot;header&quot;: [
+    ],
+    &quot;instance_count&quot;: 1,
+    &quot;need_invalidate&quot;: false
+}
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The field "target_type" is optional. If not specified, it defaults to pop. You can also choose country and region. If a value from pop, country, or region is chosen, the corresponding pops, countries, or regions below need to be filled in with the corresponding values for pre-warming. If not filled, the system will select pre-warming nodes by default. The need_invalidate field is optional, indicating whether to clear the CloudFront cache. By default, it is not enabled.</p>
+</div>
+<p><strong>prewarm.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  prewarmuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm&quot;
+  curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @prewarmlist.json $prewarmuri
+</code></pre></div>
+<p>Execute the Script</p>
+<div class="highlight"><pre><span></span><code>  sh prewarm.sh
+</code></pre></div>
+<p>Execution Result Example</p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;status&quot;: &quot;Success&quot;,
+    &quot;error_message&quot;: &quot;&quot;,
+    &quot;error_urls&quot;: [],
+    &quot;request_id&quot;: &quot;e059b77b-e427-4489-a50b-4d8c652f114c&quot;,
+    &quot;timestamp&quot;: &quot;2024-04-16 03:12:21.046535&quot;,
+    &quot;timeout_at&quot;: &quot;2024-04-16 03:17:21.046535&quot;
+}
+</code></pre></div>
+<h4 id="getting-pre-warm-progress">Getting Pre-warm Progress</h4>
+<p>Script Contents</p>
+<p><strong>prewarmstatus.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  #!/bin/bash
+  statusurl=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm?req_id=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
+  curl  --header &#39;x-api-key: KEY123456789Tg9P&#39; $statusurl
+</code></pre></div>
+<p>Execute the Script</p>
+<div class="highlight"><pre><span></span><code>  sh prewarmstatus.sh
+</code></pre></div>
+<p>Execution Result Example</p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;request_id&quot;: &quot;684153cc-efab-4a53-9409-357fddc2e2bd&quot;,
+    &quot;download_size&quot;: 137368,
+    &quot;total_size&quot;: 206052,
+    &quot;percentage_complete&quot;: 66,
+    &quot;available_task_count&quot;: 0,
+    &quot;in_progress_task_count&quot;: 0,
+    &quot;download_count&quot;: 6,
+    &quot;total_count&quot;: 6,
+    &quot;created_at&quot;: &quot;2024-04-16 03:10:21.405303&quot;,
+    &quot;last_update_time&quot;: &quot;2024-04-16 03:11:53.531414&quot;,
+    &quot;timestamp&quot;: &quot;2024-04-16 03:15:09.499889&quot;,
+    &quot;status&quot;: &quot;FINISHED&quot;
+}
+</code></pre></div>
+<h3 id="managing-instances">Managing Instances</h3>
+<h4 id="modifying-instance-count">Modifying Instance Count</h4>
+<p>Script Contents</p>
+<p><strong>instance.json</strong></p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;req_id&quot;: &quot;684153cc-efab-4a53-9409-357fddc2e2bd&quot;,
+    &quot;DesiredCapacity&quot;: 1
+    // &quot;force_stop&quot;: false
+}
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The field "force_stop" is optional. If not specified, it defaults to false, indicating whether to forcibly shut down pre-warm machines.</p>
+</div>
+<p><strong>instance.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  instanceuri=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances&quot;
+  curl --header &#39;x-api-key: KEY12345678900Tg9P&#39; -XPOST -d @instance.json $instanceuri
+</code></pre></div>
+<p>Execute the Script</p>
+<div class="highlight"><pre><span></span><code>  sh instance.sh
+</code></pre></div>
+<p>Execution Result Example</p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;status&quot;: &quot;success&quot;,
+    &quot;timestamp&quot;: &quot;2024-04-16 03:54:40.366685&quot;,
+    &quot;message&quot;: &quot;Auto Scaling Group prewarm_asg_prod updated to Desired Capacity: 1&quot;
+}
+</code></pre></div>
+<h4 id="getting-instance-count">Getting Instance Count</h4>
+<p>Script Contents</p>
+<p><strong>prewarminstance.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  #!/bin/bash
+  instancesurl=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances“
+  curl  --header &#39;x-api-key: KEY123456789Tg9P&#39; $instancesurl
+</code></pre></div>
+<p>Execute the Script</p>
+<div class="highlight"><pre><span></span><code>  sh prewarminstance.sh
+</code></pre></div>
+<p>Execution Result Example</p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;status&quot;: &quot;success&quot;,
+    &quot;timestamp&quot;: &quot;2024-04-16 03:56:39.210951&quot;,
+    &quot;message&quot;: &quot;query success&quot;,
+    &quot;desiredcapacity&quot;: 1
+}
+</code></pre></div>
+<h4 id="getting-pre-warm-report">Getting Pre-warm Report</h4>
+<p>Script Contents</p>
+<p><strong>prewarmreport.sh</strong></p>
+<div class="highlight"><pre><span></span><code>  #!/bin/bash
+  reporturl=&quot;https://123456789.execute-api.us-east-1.amazonaws.com/prod/summary?req_id=684153cc-efab-4a53-9409-357fddc2e2bd“
+  curl  --header &#39;x-api-key: KEY123456789Tg9P&#39; $reporturl
+</code></pre></div>
+<p>Execute the Script</p>
+<div class="highlight"><pre><span></span><code>  sh prewarmreport.sh
+</code></pre></div>
+<p>Execution Result Example</p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;request_id&quot;: &quot;684153cc-efab-4a53-9409-357fddc2e2bd&quot;,
+    &quot;failure_pops&quot;: [],
+    &quot;failure_urls&quot;: [
+        &quot;&quot;
+    ],
+    &quot;failure_pop_urls_report&quot;: &quot;http://reporturl&quot;,
+    &quot;timestamp&quot;: &quot;2024-04-16 03:12:54.605891&quot;,
+    &quot;created_at&quot;: &quot;2024-04-16 03:10:21.405303&quot;,
+    &quot;last_update_time&quot;: &quot;2024-04-16 03:11:53.531414&quot;,
+    &quot;status&quot;: &quot;FINISHED&quot;
+}
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>The pre-warming solution automatically starts EC2 Spot instances and executes scripts for pre-warming on EC2. The pre-warming script is located at /home/ec2-user/agent/agent.py. After pre-warming is completed, these EC2 instances are automatically deleted.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a7c05c9e.min.js"></script>
+      
+    
+  </body>
+</html>
