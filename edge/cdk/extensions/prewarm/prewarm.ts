@@ -12,6 +12,7 @@ export interface CFEPrewarmStackProps extends cdk.StackProps {
 export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CFEPrewarmStackProps) {
     super(scope, id, props);
+    this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop new with customer's VPC";
     const VPC_ID_PARRERN = '^vpc-[a-f0-9]+$';
 
     const envName = new CfnParameter(this, 'env', { type: 'String' , default: 'prod'});
@@ -57,6 +58,7 @@ export class CFEPrewarmStackUseExistVPC extends cdk.Stack {
 export class CFEPrewarmStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CFEPrewarmStackProps) {
     super(scope, id, props);
+    this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop new";
     const envName = new CfnParameter(this, 'env', { type: 'String' , default: 'prod'});
     const params = {
       useExistVPC: props.useExistVPC,

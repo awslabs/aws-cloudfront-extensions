@@ -36,7 +36,7 @@ export class NewPrewarmStack extends NestedStack {
 
   constructor(scope: Construct, id: string, props: NewPrewarmStackProps) {
     super(scope, id, props);
-    this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop new";
+    // this.templateOptions.description = "(SO8138) - Prewarm resources in specific pop new";
 
     const region = Aws.REGION;
     const account = Aws.ACCOUNT_ID;
