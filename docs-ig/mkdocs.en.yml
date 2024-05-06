@@ -36,12 +36,14 @@ nav:
   - Extensions repository: 
       - Overview: extension-repository/overview.md
       - True Client IP: extension-repository/true-client-ip.md
+      - Pre-warming: extension-repository/pre-warming.md
       - Resize Image: extension-repository/resize-image.md
       - Redirect by Country: extension-repository/redirect-by-country.md
       - More Extensions in Serverless Application Repository (SAR): extension-repository/more-extension-in-sar.md 
   - API reference guide: 
       - Overview: api-reference-guide/overview.md
       - Monitoring: api-reference-guide/monitoring.md
+      - Extensions repository: api-reference-guide/extension-repository.md
       - Distribution management: api-reference-guide/distribution-management.md
   - Additional resources: additional-resources.md
   - Uninstall the solution: uninstall.md
