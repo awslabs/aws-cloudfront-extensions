@@ -23,11 +23,6 @@ The CloudFormation template provides the following components and workflows:
 
 7. The timer triggers the Shutdown Lambda at the scheduled time. The Shutdown Lambda terminates all EC2 instances in the ASG, terminating ongoing pre-warming. It also deletes all messages in the prewarm_task queue.
 
-
-### Deployment on the web console (Recommended)
-
-The steps to deploy the extensions from the web console are similar. For more information, refer to the section [True Client IP](true-client-ip.md).
-
 ### Deployment via CloudFormation
  
 **Time to deploy**: Approximately 10 minutes

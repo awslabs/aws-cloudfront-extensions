@@ -18,11 +18,6 @@ CloudFormation模板提供以下组件和工作流：
 6. Request-Task表开启了DynamoDB stream，这个stream会触发Aggregation Lambda，Aggregation Lambda会批量统计下载任务的文件大小，汇总之后更新Request表中的downloaded_size字段，得到累计下载大小。
 7. 定时器在预定的时间触发Shutdown Lambda，Shutdown Lambda 会直接停掉（terminate）掉ASG中的所有EC2机器，终端正在进行的预热。同时也会删掉prewarm_task这个queue里面所有的message，不管有没有完成。
 
-
-## 通过Web控制台部署（推荐）
-
-从Web控制台中部署扩展的步骤类似。有关更多信息，请参阅[True Client IP](true-client-ip.md).
-
 ## 通过CloudFormation部署
  
 部署时间：约10分钟
@@ -69,7 +64,7 @@ CloudFormation模板提供以下组件和工作流：
 10. 您可以在Amazon CloudFormation控制台的**状态**列中查看堆栈的状态。正常情况下，大约15分钟内可以看到状态为**CREATE_COMPLETE**。
 11. 当本方案部署完成后，打开CloudFormation堆栈的 **输出** 标签页，可以看到如下信息：
     
-    ![Prewarm Output](../../images/prewarm-cloudformation.png)
+    ![Prewarm Output](../images/prewarm-cloudformation.png)
 
 - **prewarmapikeyoutput**: API密钥arn。您可在API Gateway控制台的API密钥界面中找到此API key，点击显示按钮，获取密钥。请求预热API时需要使用此密钥进行鉴权，作为x-api-key的值。
 - **prewarmapiEndpoint**: 预热API的URL即为在此后面加上prewarm关键字。
@@ -87,27 +82,22 @@ CloudFormation模板提供以下组件和工作流：
 
 1. 打开可以发送HTTP请求的工具，例如Postman。
 2. 按照预热API格式发送预热请求，并在header中新建键值对：key为**x-api-key**，value为API key。
-
+   
     ![Prewarm API Key](../images/prewarm_apikey.png)
 
-    ![prewarm-trigger-new.png](../../images/prewarm-trigger-new.png)
+    ![prewarm-trigger-new.png](../images/prewarm_trigger_new.png)
 
 3. 预热API会返回requestID，至此您成功触发了预热，下面可以通过查询预热进度 API获取预热状态。
+
 4. 按照获取预热状态API的格式发送请求，并在url参数中带上requestId，在header中添加x-api-key，在响应中可看到最新的预热状态。(请注意检查是否请求header中默认带有Accept-Encoding，并且值为"gzip, deflate, br"，如果没有注意添加下)
-   
-    ![get-prewarm.png](../../images/get-prewarm.png)
-
+    ![get-prewarm.png](../images/get_prewarm.png)
 5. 可以在预热过程中变更预热的instance数量，以便动态调整整体预热进展
-   
-   ![prewarm-instance.png](../../images/prewarm-instance.png)
-
+   ![prewarm-instance.png](../images/prewarm-instance.png)
 6. 变更预热的instance数量后可以查看系统当前的instance数量
-   
-    ![prewarm-getinstance.png](../../images/prewarm-getinstance.png)
-
+    ![prewarm-getinstance.png](../images/prewarm-getinstance.png)
 7. 预热结束后可以查看预热结果报告
    
-    ![prewarm-getreport.png](../../images/prewarm-getreport.png)
+    ![prewarm-getreport.png](../images/prewarm-getreport.png)
 
 
 ### 方式二：通过Curl触发预热
