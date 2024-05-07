@@ -5,5 +5,6 @@
 | 2021年12月 | 发布版本1.2.0 <br>新增10个Lambda@Edge函数和2个CloudFront Functions                                                       |
 | 2022年2月  | 发布版本1.3.0 <br>新增监控指标API                                                                                       |
 | 2022年8月  | 发布版本2.0.0 <br>新增web控制台                                                                                        |
-| 2023年3月  | 发布版本2.1.0 <br>1. 优化预热扩展库，其中预热接口字段有调整，新增"protocol"和"target_type"字段，且"region"字段值有调整，具体请参[api文档](extension-repository%2Fpre-warming.md)<br>2. 新增监控指标      |
+| 2023年3月  | 发布版本2.1.0 <br>1. 优化预热扩展库，其中预热接口字段有调整，新增"protocol"和"target_type"字段，且"region"字段值有调整，具体请参[api文档](extension-repository/pre-warming.md)。<br>2. 新增监控指标      |
+| 2024年5月  | 发布版本2.2.0 <br>1. 升级预热扩展库，支持海量文件批量预热、支持细粒度的进度查询。具体请参[api文档](extension-repository/pre-warming.md)。 <br>2. 新增WAF限速Lambda@Edge功能     |
 
