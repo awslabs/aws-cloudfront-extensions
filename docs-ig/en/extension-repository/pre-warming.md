@@ -51,6 +51,7 @@ The CloudFormation template provides the following components and workflows:
       | Parameter             | Default Value | Description                           |
       |-----------------------|---------------|---------------------------------------|
       | envName | prod      | The environment for deployment.                         |
+      
 5. For the parameters when choosing to deploy with an existing VPC template, they are as follows:
 
       | Parameter             | Default Value  | Description                     |
