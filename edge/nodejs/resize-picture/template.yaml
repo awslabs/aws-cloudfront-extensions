@@ -71,6 +71,7 @@ Resources:
       Handler: index.handler
       Runtime: python3.10
       Timeout: 180
+      MemorySize: 512
       Policies:
         - Statement:
           - Sid: ResizePolicy 
