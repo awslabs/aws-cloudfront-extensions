@@ -21,7 +21,7 @@
     "fs": "^0.0.1-security",
     "mocha": "^10.0.0",
     "nock": "^13.0.6",
-    "nyc": "^15.1.0",
+    "nyc": "^17.0.0",
     "webpack": "^5.19.0",
     "webpack-bundle-analyzer": "^4.4.0",
     "webpack-cli": "^5.0.0"
