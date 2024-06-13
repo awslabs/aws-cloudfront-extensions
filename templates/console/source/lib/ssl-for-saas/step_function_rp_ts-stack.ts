@@ -79,6 +79,9 @@ declare interface SslFunctionsSummary {
     // lambda function to handle acm create operation
     fn_acm_cb: _lambda.IFunction,
 
+    // lambda function to associate ACM certification with CloudFront distribution
+    fn_acm_associate: _lambda.IFunction,
+
     // lambda function to create cloudfront distribution after certification been verified and issued
     fn_acm_cb_handler: _lambda.IFunction,
 
@@ -553,6 +556,11 @@ export class StepFunctionRpTsConstruct extends Construct {
             apiKeyRequired: true,
         });
 
+        const associate_cert = ssl_api.addResource("associate_cert");
+        associate_cert.addMethod("POST", undefined, {
+            apiKeyRequired: true,
+        });
+
         const list_ssl_jobs = ssl_api.addResource("list_ssl_jobs");
         list_ssl_jobs.addMethod("GET", undefined, {
             // authorizationType: AuthorizationType.IAM,
@@ -846,7 +854,24 @@ export class StepFunctionRpTsConstruct extends Construct {
                 },
                 layers: [layers.sharedPythonLibLayer],
             }),
-
+            fn_acm_associate: new PythonFunction(scope, 'acm_associate', <PythonFunctionProps>{
+                entry: `${this.src}/acm_associate`,
+                architecture: Architecture.X86_64,
+                runtime: Runtime.PYTHON_3_10,
+                index: 'handler.py',
+                handler: 'handler',
+                timeout: Duration.seconds(900),
+                role: roles._fn_acm_cb_role,
+                memorySize: 512,
+                environment: {
+                    SNS_TOPIC: sns_topic.topicArn,
+                    CALLBACK_TABLE: callbackTable,
+                    JOB_INFO_TABLE: sslFoSaasJobInfoTable,
+                    TASK_TYPE: "placeholder",
+                    CONFIG_VERSION_DDB_TABLE_NAME: configVersionDDBTableName,
+                },
+                layers: [layers.sharedPythonLibLayer],
+            }),
             fn_acm_cb_handler: new PythonFunction(scope, 'acm_callback_handler', <PythonFunctionProps>{
                 entry: `${this.src}/acm_cb_handler`,
                 architecture: Architecture.X86_64,
