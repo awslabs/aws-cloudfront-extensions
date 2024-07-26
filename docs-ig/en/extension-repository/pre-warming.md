@@ -1,10 +1,10 @@
-## What is Pre-warming?
+# What is Pre-warming?
 Pre-warming is also known as Pre-caching or Pre-fetching. It speeds up content delivery by warming the CloudFront cache. This is very useful when delivering large files. Pre-warming helps offload origin’s traffic, as the same requests will hit the CloudFront cache, origin server receives less requests and consequently it's less likely that the origin server will fall over or become slow. 
 
-### How does it work?
+## How does it work?
 The solution deploys a CloudFormation template, that will install the below architecture in your AWS account. All the cloud resources will be automatically created. After deployment, you will get two REST APIs, one for triggering pre-warm action, the other one for getting pre-warm status.
 
-![mini-greengrass-BJS-Page-5.drawio.png](..%2F..%2Fimages%2Fmini-greengrass-BJS-Page-5.drawio.png)
+![mini-greengrass-BJS-Page-5.drawio.png](../../images/mini-greengrass-BJS-Page-5.drawio.png)
 
 The CloudFormation template provides the following components and workflows:
 
@@ -23,28 +23,24 @@ The CloudFormation template provides the following components and workflows:
 
 7. The timer triggers the Shutdown Lambda at the scheduled time. The Shutdown Lambda terminates all EC2 instances in the ASG, terminating ongoing pre-warming. It also deletes all messages in the prewarm_task queue.
 
+## How to install it?
 
-### Deployment on the web console (Recommended)
+### Deployment overview
 
-The steps to deploy the extensions from the web console are similar. For more information, refer to the section [True Client IP](true-client-ip.md).
-
-### Deployment via CloudFormation
- 
 **Time to deploy**: Approximately 10 minutes
-
-#### Deployment overview
-
-Use the following steps to deploy this solution on AWS.
 
 - Launch the CloudFormation template into your AWS account.
 - Review the template parameters, and adjust them if necessary.
 
-#### Deployment steps
 
-1. Log in to the Amazon Web Services Management Console and select the button to launch the template. You can also choose to [download the template directly](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStack.template.json) / [download the template - use existing VPC template](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStackUseExistVPC.template.json) for deployment.
 
-      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStack.template.json)
-      [![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_331/custom-domain/CFEPrewarmStackUseExistVPC.template.json)
+### Deployment steps
+
+1. Log in to the Amazon Web Services Management Console and click the below buttons to launch the template. 
+
+      - Deploy in new VPC：[![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_332/custom-domain/CFEPrewarmStack.template.json) -（[template download](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_332/custom-domain/CFEPrewarmStack.template.json)）
+
+      - Deploy in existing VPC：[![Deploy](../../images/deploy_button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=prewarm&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_332/custom-domain/CFEPrewarmStackUseExistVPC.template.json) -（[template download](https://aws-gcr-solutions.s3.amazonaws.com/Aws-cloudfront-extensions/v2.0.0_332/custom-domain/CFEPrewarmStackUseExistVPC.template.json)） 
 
 
 2. The template launches in the US East (N. Virginia) Region by default. To launch the solution in a different AWS Region, use the Region selector in the console navigation bar.
@@ -55,6 +51,7 @@ Use the following steps to deploy this solution on AWS.
       | Parameter             | Default Value | Description                           |
       |-----------------------|---------------|---------------------------------------|
       | envName | prod      | The environment for deployment.                         |
+      
 5. For the parameters when choosing to deploy with an existing VPC template, they are as follows:
 
       | Parameter             | Default Value  | Description                     |
@@ -65,92 +62,98 @@ Use the following steps to deploy this solution on AWS.
       |     sg          | None, required | The security group you want to use.        |
       |     key         | None, required | The keypair for security.            |
       |     vpce           | None, optional | The endpoint for private API when needed to deploy as private. |
+
+
 6. Select **Next**.
 7. On the Configure stack options page, you can specify tags (key-value pairs) for the resources in the stack and set other options, then select **Next**.
 8. On the Review page, review and confirm the settings. Ensure that you select the checkbox to acknowledge that the template will create IAM resources. Select **Next**.
-9. Choose **Create stack** to deploy the stack.
+9.  Choose **Create stack** to deploy the stack. 
+10. You can view the status of the stack in the **Status** column in the Amazon CloudFormation console. Under normal circumstances, the status will change to **CREATE_COMPLETE** within approximately 15 minutes.
+11.  After the solution is deployed, open the **Outputs** tab of the CloudFormation stack to find the following information:
 
-You can view the status of the stack in the **Status** column in the Amazon CloudFormation console. Under normal circumstances, the status will change to **CREATE_COMPLETE** within approximately 15 minutes.
-
-You can also select the **Outputs** tab to view detailed information about the stack resources.
-
-
-
-## How to use Pre-warming
-
-Before pre-warming, you need to set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior.
-
-### Pre-warm by Postman
-
-1. After the solution is deployed, open the *Outputs* tab of the CloudFormation stack to find the following information:
     ![Prewarm Output](../../images/prewarm-cloudformation.png)
 
     - **prewarmapikeyoutput**: API key ARN. You can find this API key in the API Gateway console under API keys, click on the show button to get the key. This API key is required for authentication when making requests to the pre-warm API, as the value for x-api-key.
     - **prewarmapiEndpoint**: The URL of the pre-warm API, which is the base URL followed by the prewarm keyword.
     ***For example***: If PrewarmApiEndpoint is **https://123456789.execute-api.us-east-1.amazonaws.com/prod/**, then the pre-warm API is invoked via POST method at **https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm**
     ***For example***: If PrewarmStatusApiEndpoint is **https://test.execute-api.us-east-1.amazonaws.com/prod/**, then the pre-warm status API is invoked via GET method at **https://test.execute-api.us-east-1.amazonaws.com/prod/prewarm**
-2. Open a tool capable of sending HTTP requests, such as Postman.
-3. Send a pre-warm request following the pre-warm API format (see [API Reference Guide](../api-reference-guide/extension-repository.md#pre-warming)) and add a key-value pair to the header: key as **x-api-key**, value as the API key.
+
+## How to use it?
+
+Before pre-warming, you need to set Viewer protocol policy as **HTTP and HTTPS** in your CloudFront distribution's cache behavior. See [API Reference Guide](../api-reference-guide/extension-repository.md#pre-warming)
+
+### Triggerring Pre-warming
+
+#### Option1: Via Postman
+1. Open a tool capable of sending HTTP requests, such as Postman.
+2. Send a pre-warm request following the pre-warm API format and add a key-value pair to the header: key as **x-api-key**, value as the API key.
 
     ![Prewarm API Key](../images/prewarm_apikey.png)
+
     ![prewarm-trigger-new.png](../../images/prewarm-trigger-new.png)
 
-4. The pre-warm API will return a request ID, indicating that you have successfully triggered the pre-warm. Next, you can use the pre-warm progress API to get the pre-warm status.
-5. Send a request following the format of the pre-warm progress API and add the request ID to the URL parameters. Add the x-api-key in the header, and in the response, you will see the latest pre-warm status. (Make sure to check if the Accept-Encoding is present in the request header with the value "gzip, deflate, br". If not, ensure to add it)
+3. The pre-warm API will return a request ID, indicating that you have successfully triggered the pre-warm. Next, you can use the pre-warm progress API to get the pre-warm status.
+4. Send a request following the format of the pre-warm progress API and add the request ID to the URL parameters. Add the x-api-key in the header, and in the response, you will see the latest pre-warm status. (Make sure to check if the Accept-Encoding is present in the request header with the value "gzip, deflate, br". If not, ensure to add it)
+   
     ![get-prewarm.png](../../images/get-prewarm.png)
-6. You can dynamically adjust the overall pre-warm progress by changing the number of pre-warm instances after starting pre-warming.
+
+5. You can dynamically adjust the overall pre-warm progress by changing the number of pre-warm instances after starting pre-warming.
+
    ![prewarm-instance.png](../../images/prewarm-instance.png)
-7. After changing the number of pre-warm instances, you can check the current number of instances in the system.
+
+6. After changing the number of pre-warm instances, you can check the current number of instances in the system.
+   
    ![prewarm-getinstance.png](../../images/prewarm-getinstance.png)
-8. After pre-warming is complete, you can view the pre-warming report.
+
+7. After pre-warming is complete, you can view the pre-warming report.
+   
    ![prewarm-getreport.png](../../images/prewarm-getreport.png)
 
 
 
-### Triggering Pre-warming via Curl
+#### Option2: Via Curl
 
-#### Trigger Pre-warming
+**Trigger Pre-warming**
 
-Script Contents
+1. Prepare scripts
 
-**prewarmlist.json**
+    **prewarmlist.json**
 
-    {
-        "url_list": [
-          "https://www.example.com/index.html",
-          "https://www.example.com/css/bootstrap-icons.css"
-        ],
-        "cf_domain": "www.example.com",
-        "target_type":"pop",
-        "countries": [
-        ],
-        "regions": [
-        ],
-        "pops": [
-            "ATL56-C1",
-            "SIN2-C1",
-            "DFW55-C3"
-        ],
-        "timeout": 5,
-        "header": [
-        ],
-        "instance_count": 1,
-        "need_invalidate": false
-    }
+        {
+            "url_list": [
+            "https://www.example.com/index.html",
+            "https://www.example.com/css/bootstrap-icons.css"
+            ],
+            "cf_domain": "www.example.com",
+            "target_type":"pop",
+            "countries": [
+            ],
+            "regions": [
+            ],
+            "pops": [
+                "ATL56-C1",
+                "SIN2-C1",
+                "DFW55-C3"
+            ],
+            "timeout": 5,
+            "header": [
+            ],
+            "instance_count": 1,
+            "need_invalidate": false
+        }
 
-!!! Note
-    The field "target_type" is optional. If not specified, it defaults to pop. You can also choose country and region. If a value from pop, country, or region is chosen, the corresponding pops, countries, or regions below need to be filled in with the corresponding values for pre-warming. If not filled, the system will select pre-warming nodes by default. The need_invalidate field is optional, indicating whether to clear the CloudFront cache. By default, it is not enabled.
+    !!! Note
+        The field "target_type" is optional. If not specified, it defaults to pop. You can also choose country and region. If a value from pop, country, or region is chosen, the corresponding pops, countries, or regions below need to be filled in with the corresponding values for pre-warming. If not filled, the system will select pre-warming nodes by default. The need_invalidate field is optional, indicating whether to clear the CloudFront cache. By default, it is not enabled.
 
-**prewarm.sh**
+    **prewarm.sh**
 
-      prewarmuri="https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm"
-      curl --header 'x-api-key: KEY12345678900Tg9P' -XPOST -d @prewarmlist.json $prewarmuri
+        prewarmuri="https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm"
+        curl --header 'x-api-key: KEY12345678900Tg9P' -XPOST -d @prewarmlist.json $prewarmuri
 
 
-Execute the Script
+2. Execute the Script
 
       sh prewarm.sh
-
 
 Execution Result Example
 
@@ -164,17 +167,17 @@ Execution Result Example
     }
 
 
-#### Getting Pre-warm Progress
+### Getting Pre-warm Progress
 
-Script Contents
+1. Prepare script
 
-**prewarmstatus.sh**
+    **prewarmstatus.sh**
 
-      #!/bin/bash
-      statusurl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm?req_id=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
-      curl  --header 'x-api-key: KEY123456789Tg9P' $statusurl
+        #!/bin/bash
+        statusurl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/prewarm?req_id=e1efca9a-8d92-4058-a1e9-002fd423f6e5“
+        curl  --header 'x-api-key: KEY123456789Tg9P' $statusurl
 
-Execute the Script
+2. Execute the Script
 
       sh prewarmstatus.sh
 
@@ -195,33 +198,31 @@ Execution Result Example
         "status": "FINISHED"
     }
 
-### Managing Instances
+### Modifying Instance Count
 
-#### Modifying Instance Count
+1. Prepare script
 
-Script Contents
+    **instance.json**
 
-**instance.json**
+        {
+            "req_id": "684153cc-efab-4a53-9409-357fddc2e2bd",
+            "DesiredCapacity": 1
+            // "force_stop": false
+        }
 
-    {
-        "req_id": "684153cc-efab-4a53-9409-357fddc2e2bd",
-        "DesiredCapacity": 1
-        // "force_stop": false
-    }
-
-!!! Note
-    The field "force_stop" is optional. If not specified, it defaults to false, indicating whether to forcibly shut down pre-warm machines.
+    !!! Note
+        The field "force_stop" is optional. If not specified, it defaults to false, indicating whether to forcibly shut down pre-warm machines.
 
 **instance.sh**
+
+1. Prepare script
 
       instanceuri="https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances"
       curl --header 'x-api-key: KEY12345678900Tg9P' -XPOST -d @instance.json $instanceuri
 
-
-Execute the Script
+2. Execute the script
 
       sh instance.sh
-
 
 Execution Result Example
 
@@ -231,17 +232,17 @@ Execution Result Example
         "message": "Auto Scaling Group prewarm_asg_prod updated to Desired Capacity: 1"
     }
 
-#### Getting Instance Count
+### Getting Instance Count
 
-Script Contents
+1. Prepare script
 
-**prewarminstance.sh**
+    **prewarminstance.sh**
 
-      #!/bin/bash
-      instancesurl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances“
-      curl  --header 'x-api-key: KEY123456789Tg9P' $instancesurl
+        #!/bin/bash
+        instancesurl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/instances“
+        curl  --header 'x-api-key: KEY123456789Tg9P' $instancesurl
 
-Execute the Script
+2. Execute the Script
 
       sh prewarminstance.sh
 
@@ -254,17 +255,17 @@ Execution Result Example
         "desiredcapacity": 1
     }
 
-#### Getting Pre-warm Report
+### Getting Pre-warm Report
 
-Script Contents
+1. Prepare script
 
-**prewarmreport.sh**
+    **prewarmreport.sh**
 
-      #!/bin/bash
-      reporturl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/summary?req_id=684153cc-efab-4a53-9409-357fddc2e2bd“
-      curl  --header 'x-api-key: KEY123456789Tg9P' $reporturl
+        #!/bin/bash
+        reporturl="https://123456789.execute-api.us-east-1.amazonaws.com/prod/summary?req_id=684153cc-efab-4a53-9409-357fddc2e2bd“
+        curl  --header 'x-api-key: KEY123456789Tg9P' $reporturl
 
-Execute the Script
+2. Execute the Script
 
       sh prewarmreport.sh
 
